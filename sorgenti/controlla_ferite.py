@@ -1,4 +1,4 @@
-"""Controlla sorgenti/ferite.json sull'estratto del Vol. 3 2.5.7, Cap. 3 Imprevisti.
+"""Controlla sorgenti/ferite.json sull'estratto del Vol. 3 2.5.8, Cap. 3 Imprevisti.
 Uso: python3 sorgenti/controlla_ferite.py   (stampa solo errori e conteggi)
 L'estratto (sorgenti/guida/vol3_imprevisti.txt) è il testo del capitolo letto dall'XML del .docx:
 paragrafi uno per riga, tabelle fra [TABELLA] e [/TABELLA] con le celle separate da « | »."""
@@ -69,11 +69,25 @@ for riga, j in zip(amp[1:], F['amputazioni']):
 i = G.index('Amputazioni e arti inutilizzabili')
 ok(F['regola_dita'] in G[i + 1] and F['dita_perse'] == 3, 'regola delle dita')
 
-# --- 3. Ferite gravi (corpus per la scomposizione I1, usato da test_motore.js) e Fallimenti critici
+# --- 3. Ferite gravi: tabelle dell'app (usate anche come corpus della scomposizione I1 in test_motore.js)
 fg = [(tit, t) for tit, t in T if t and t[0] == ['', '']]
 ok(len(fg) == 6, f'tabelle delle Ferite gravi: {len(fg)} invece di 6')
+RIGHE = [str(-k) for k in range(1, 16)]
 for tit, t in fg:
-    ok([r[0] for r in t[1:]] == [str(-k) for k in range(2, 16)], f'{tit}: righe diverse da −2…−15')
+    ok([r[0] for r in t[1:]] == RIGHE, f'{tit}: righe diverse da −1…−15')
+dal_volume = {tit: {r[0]: r[1] for r in t[1:]} for tit, t in fg}
+FG = {x['id']: x for x in F['ferite_gravi']}
+ok(list(FG) == ['colpire', 'area', 'costituzione'], 'tre tabelle delle Ferite gravi in ferite.json')
+TIT_LOC = {'testa': '1: Testa', 'busto': '2-4: Busto', 'braccio': '5: Braccio sinistro / 6: Braccio destro', 'gamba': '7: Gamba sinistra / 8: Gamba destra'}
+for k, tit in TIT_LOC.items(): ok(FG['colpire']['righe_per_locazione'][k] == dal_volume.get(tit), f'colpire/{k}: righe diverse dall\'estratto')
+coperti = sorted(v for l in FG['colpire']['locazioni'] for v in range(l['da'], l['a'] + 1))
+ok(coperti == list(range(1, 9)), 'locazioni: il 1d8 non è coperto da 1 a 8')
+for l in FG['colpire']['locazioni']:
+    ok(l['nome'].split()[0] in TIT_LOC[l['righe']] and (l['lato'] == '' or l['lato'][:-1] in l['nome']), f'locazione {l["nome"]}')
+ok(FG['area']['righe'] == dal_volume.get('Attacchi con area di effetto o effetti senza tiro per colpire'), 'area: righe diverse dall\'estratto')
+ok(FG['costituzione']['righe'] == dal_volume.get('Danni a Costituzione, veleni, sanguinamento o livelli negativi'), 'costituzione: righe diverse dall\'estratto')
+i = G.index('Ferite gravi')
+ok(G[i + 1] == '1 ' + F['nota_oggetti'], 'nota ¹ degli oggetti')
 fc = [t for tit, t in T if t and t[0][1:] == ['Effetto']]
 ok(len(fc) == 5 and sum(len(t) - 1 for t in fc) == 45, 'tabelle dei Fallimenti critici')
 

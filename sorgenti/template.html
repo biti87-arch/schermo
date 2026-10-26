@@ -803,25 +803,45 @@ function finestraCuraFerita(chi, id) {
 }
 // ---------- I1: risultato di una Ferita grave scritto o incollato e diviso nelle sue parti
 function finestraFeritaGrave(pgId, riga) {
-  const c = S.camp, p = c.pg.find(x => x.id === pgId); let comps = null, ultimo = '';
-  const anteprima = el => {
-    const t = testo(el, 't'); ultimo = t; comps = M.scomponiFerita(t, rng);
-    el.querySelector('#fg-anteprima').innerHTML = comps.length ? `<h3>Prima di attaccarla</h3>${comps.map((k, i) => `<div class="fila"><label class="spunta"><input type="checkbox" name="k${i}" checked> ${esc(M.descriviComponente(k))}</label>
+  const c = S.camp, p = c.pg.find(x => x.id === pgId);
+  const st = { modo: null, comps: null, ris: null, locN: null, testo: '' };
+  const TAB = FER.ferite_gravi, colp = TAB.find(t => t.locazioni);
+  const disegnaComps = (el, testa) => {
+    el.querySelector('#fg-anteprima').innerHTML = st.comps && st.comps.length ? `${testa}<h3>Prima di attaccarla</h3>${st.comps.map((k, i) => `<div class="fila"><label class="spunta"><input type="checkbox" name="k${i}" checked> ${esc(M.descriviComponente(k))}</label>
         ${(k.k === 'amputazione' && !k.parte) || k.k === 'dita' ? `<select name="l${i}" aria-label="Lato">${opz([['', 'lato non indicato'], ['sinistro', 'sinistro'], ['destro', 'destro']], k.lato)}</select>` : ''}</div>`).join('')}`
-      : '<p class="tenue piccolo">Niente da attaccare: scrivi il testo della riga.</p>';
+      : `${testa}<p class="tenue piccolo">Niente da attaccare.</p>`;
   };
+  const daTabella = el => {
+    const tab = (el.querySelector('[name="tab"]:checked') || {}).value; if (!tab) return;
+    const sel = val(el, 'loc'), locN = tab === 'colpire' && sel.value ? +sel.value : undefined;
+    st.ris = M.feritaDaTabella(FER, tab, +val(el, 'riga').value, rng, locN); st.comps = st.ris.comps; st.modo = 'tabella';
+    el.querySelector('#fg-loc').hidden = tab !== 'colpire';
+    if (st.ris.locN) { sel.value = String(colp.locazioni.find(l => st.ris.locN >= l.da && st.ris.locN <= l.a).da); }
+    el.querySelector('#fg-tiroloc').textContent = st.ris.tiroLoc ? `tirata: ${st.ris.tiroLoc}` : '';
+    disegnaComps(el, `<div class="effetto"><b>${esc(st.ris.titolo)}</b><br>${coloraCondizioni(esc(st.ris.testo))}</div>`);
+  };
+  const daTesto = el => { st.testo = testo(el, 't'); st.comps = M.scomponiFerita(st.testo, rng); st.modo = 'testo'; st.ris = null; disegnaComps(el, ''); };
   const el = apri({ titolo: 'Ferita grave', larga: true, corpo: `<p><b>${esc(p.scheda.nome)}</b>${riga !== null ? ': i Punti Ferita sono scesi sotto zero.' : ''}</p>${riga !== null ? `<div class="risultato">Riga ${riga}</div>` : ''}
-      ${riga === -1 ? '<p class="piccolo">Le tabelle del Vol. 3 partono dalla riga −2: per la −1 non ci sono voci.</p>' : ''}
-      <p class="tenue piccolo">Scrivi o incolla il risultato della tabella (Vol. 3, Imprevisti): l'app lo divide nelle sue parti. Le tabelle e i loro tiri arrivano con la Build 3.</p>
-      <label class="campo"><span>Risultato</span><textarea name="t" rows="4" placeholder="es. Il colpo ti incrina alcune costole e a causa del dolore intenso sei barcollante finché la ferita di gravità 2 (20 PF) non viene curata."></textarea></label>
-      <div id="fg-anteprima"></div>`,
-    azioni: [{ testo: 'Chiudi senza tirare' }, { testo: 'Scomponi', fn: f => { anteprima(f); return false; } },
+      <div class="griglia"><label class="campo"><span>Riga</span><select name="riga">${Array.from({ length: 15 }, (_, k) => -(k + 1)).map(n => `<option value="${n}" ${n === (riga ?? -1) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <label class="campo" id="fg-loc" hidden><span>Locazione</span><select name="loc">${colp.locazioni.map(l => `<option value="${l.da}">${esc(l.nome)}</option>`).join('')}</select><small id="fg-tiroloc" class="tenue num"></small></label></div>
+      <fieldset><legend>Tabella (Vol. 3, Imprevisti)</legend>${TAB.map(t => `<label class="spunta"><input type="radio" name="tab" value="${t.id}"> ${esc(t.nome)}${t.locazioni ? ' <span class="tenue piccolo">(locazione con il 1d8)</span>' : ''}</label>`).join('')}</fieldset>
+      <div id="fg-anteprima"><p class="tenue piccolo">Scegli la tabella: la riga e i sotto-tiri li fa l'app.</p></div>
+      <fieldset><legend>Oppure scrivi o incolla il risultato</legend><textarea name="t" rows="3" placeholder="es. Il colpo ti incrina alcune costole e a causa del dolore intenso sei barcollante finché la ferita di gravità 2 (20 PF) non viene curata."></textarea></fieldset>`,
+    azioni: [{ testo: 'Chiudi senza tirare' }, { testo: 'Scomponi', fn: f => { daTesto(f); return false; } },
       { testo: 'Attacca', classe: 'prim', fn: f => {
-        if (!comps || testo(f, 't') !== ultimo) { anteprima(f); return false; }
-        const scelti = comps.map((k, i) => ({ ...k, lato: val(f, 'l' + i) ? val(f, 'l' + i).value : k.lato })).filter((k, i) => spunta(f, 'k' + i));
+        if (!st.modo) { if (testo(f, 't')) { daTesto(f); return false; } throw new Error('Scegli la tabella o scrivi il risultato'); }
+        if (st.modo === 'testo' && testo(f, 't') !== st.testo) { daTesto(f); return false; }
+        const scelti = st.comps.map((k, i) => ({ ...k, lato: val(f, 'l' + i) ? val(f, 'l' + i).value : k.lato })).filter((k, i) => spunta(f, 'k' + i));
         if (!scelti.length) throw new Error('Niente da attaccare');
-        applicaS(M.attaccaFerita(S.camp, pgId, scelti, rng, FER, { titolo: riga !== null ? `Ferita grave ${riga}` : 'Ferita grave', testo: testo(f, 't') }));
+        const meta = st.modo === 'tabella' ? { titolo: st.ris.titolo + (st.ris.tiroLoc ? ` (${st.ris.tiroLoc})` : ''), testo: st.ris.testo } : { titolo: `Ferita grave ${val(f, 'riga').value}`, testo: st.testo };
+        applicaS(M.attaccaFerita(S.camp, pgId, scelti, rng, FER, meta));
       } }] });
+  el.addEventListener('change', ev => {
+    const n = ev.target.name;
+    if (n === 'tab' || n === 'riga') { if (n === 'tab' && ev.target.value === 'colpire' && !st.locScelta) val(el, 'loc').value = ''; daTabella(el); }
+    if (n === 'loc') { st.locScelta = true; daTabella(el); }
+  });
+  el.addEventListener('input', ev => { if (ev.target.name === 't') { st.modo = ev.target.value.trim() ? 'testo' : (el.querySelector('[name="tab"]:checked') ? 'tabella' : null); if (st.modo === 'tabella') daTabella(el); } });
   return el;
 }
 

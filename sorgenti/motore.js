@@ -535,7 +535,8 @@ const etichetta = r => r.n > 1 ? `${r.nome} ×${r.n}` : r.nome;
 function attuale(comb) { return comb.righe[comb.ordine[comb.turno]] || null; }
 function saltaFuori(comb) { // se tocca a una creatura fuori combattimento si passa oltre (senza girare il round)
   let k = 0;
-  while (comb.ordine.length && attuale(comb) && attuale(comb).stato === 'fuori' && k++ < comb.ordine.length) comb.turno++;
+  const salta = r => r.stato === 'fuori' || r.salta === comb.round;
+  while (comb.ordine.length && attuale(comb) && salta(attuale(comb)) && k++ < comb.ordine.length) comb.turno++;
 }
 function istantanea(c) { const x = clona(c); if (x.combattimento) x.combattimento.storia = []; return JSON.stringify(x); }
 // esegue un comando del combattimento salvando lo stato per «Indietro»
@@ -1064,12 +1065,22 @@ function durataNelTesto(coda, rng) {
 }
 const percDi = coda => { const x = coda.match(/^\s*\(?(\d+)%\)?/); return x ? +x[1] : null; };
 // sotto-tiro scritto nel testo: «(1d4 = 1-2: sinistro, 3-4: destro)» → valore scelto
-function sottoTiro(testo, rng) {
-  const x = testo.match(/\((\d*d\d+) = ([^)]*)\)/); if (!x) return null;
-  const r = tira(x[1], rng).totale, voci = x[2].split(/,\s*/).map(v => v.match(/^(\d+)(?:-(\d+))?: (.*)$/)).filter(Boolean);
-  const v = voci.find(v => r >= +v[1] && r <= +(v[2] || v[1]));
-  return v ? { valore: v[3].trim(), tiro: `${x[1]} = ${r}`, opzioni: voci.map(v => v[3].trim()) } : null;
+// tutti i «(1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, …)» del testo, con le parentesi annidate
+function sottoTiri(testo) {
+  const out = [], re = /\((\d*d\d+) = /g; let m;
+  while ((m = re.exec(testo))) {
+    let i = m.index + m[0].length, prof = 1, j = i;
+    for (; j < testo.length && prof; j++) { if (testo[j] === '(') prof++; else if (testo[j] === ')') prof--; }
+    out.push({ dado: m[1], corpo: testo.slice(i, j - 1), i: m.index });
+  }
+  return out;
 }
+function tiraSottoTiro(st, rng) {
+  const r = tira(st.dado, rng).totale, voci = st.corpo.split(/,\s*(?=\d)/).map(v => v.match(/^(\d+)(?:-(\d+))?: ?(.*)$/)).filter(Boolean);
+  const v = voci.find(v => r >= +v[1] && r <= +(v[2] || v[1]));
+  return v ? { valore: v[3].trim(), tiro: `${st.dado} = ${r}`, opzioni: voci.map(v => v[3].trim()) } : null;
+}
+function sottoTiro(testo, rng) { const st = sottoTiri(testo)[0]; return st ? tiraSottoTiro(st, rng) : null; }
 const latoDi = s => /sinistr/.test(s) ? 'sinistro' : /destr/.test(s) ? 'destro' : '';
 function scomponiFerita(testo, rng) {
   const t = normalizza(testo), out = [], usate = new Set();
@@ -1129,8 +1140,16 @@ function scomponiFerita(testo, rng) {
   if (/\bcoma\b/i.test(t)) out.push({ k: 'condizione', nome: 'Privo di Sensi', etichetta: 'Coma', durata: { tipo: 'permanente' }, nota: (t.match(/[^.]*\bcoma\b[^.]*\./i) || [''])[0].trim() });
   if (/arti inferiori sono paralizzati/i.test(t)) out.push({ k: 'altro', nome: 'Arti inferiori paralizzati', durata: { tipo: 'permanente' }, nota: 'Niente cariche, corse o ritirate, anche se torna a camminare.' });
   if (/\bSei morto\b/i.test(t)) out.push({ k: 'morte' });
-  // note: oggetti danneggiati, distrutti, da raccogliere (le tabelle e i sotto-tiri degli slot arrivano con la Build 3)
-  for (const f of fr) if (/oggett[oi]|slot|recuperat[oi] da terra/i.test(f.f) && !/\bdit[oa]\b/.test(f.f)) out.push({ k: 'nota', testo: f.f.trim() });
+  if (/ti posizioni ultimo nell'ordine di Iniziativa/i.test(t)) out.push({ k: 'ultimo' });
+  // oggetto indossato: slot tirato (nota ¹ del Vol. 3) e 50% distrutto; gli altri oggetti restano come nota
+  for (const f of fr) {
+    if (/oggetto indossato/i.test(f.f)) {
+      const st = sottoTiri(f.f).find(x => /slot|oggetto impugnato/.test(x.corpo)), sl = st ? tiraSottoTiro(st, rng) : null;
+      let esito = /distrutto|si distrugge/.test(f.f) ? 'è distrutto' : /due volte/.test(f.f) ? 'si danneggia due volte' : 'si danneggia', d50 = null;
+      if (/al 50% si distrugge/.test(f.f)) { d50 = d(100, rng); esito = d50 <= 50 ? 'è distrutto' : /altrimenti si danneggia due volte/.test(f.f) ? 'si danneggia due volte' : 'si danneggia'; }
+      out.push({ k: 'oggetto', slot: sl ? sl.valore : '', tiro: [sl ? sl.tiro : '', d50 !== null ? `d% ${d50}` : ''].filter(Boolean).join(', '), esito, testo: f.f.trim() });
+    } else if (/oggett[oi]|slot|recuperat[oi] da terra/i.test(f.f) && !/\bdit[oa]\b/.test(f.f)) out.push({ k: 'nota', testo: f.f.trim() });
+  }
   return out;
 }
 function descriviComponente(cp) {
@@ -1148,6 +1167,8 @@ function descriviComponente(cp) {
     case 'amputazione': return `Amputazione: ${cp.parte || cp.loc}${cp.lato && !cp.parte ? ' ' + cp.lato : ''}` + (cp.tiro ? ` (${cp.tiro})` : '');
     case 'dita': return `Dita perse: ${cp.n} (${cp.parte}${cp.lato ? ' ' + cp.lato : ''})` + (cp.tiro ? ` (${cp.tiro})` : '');
     case 'morte': return 'Morte (avviso con il 20% del Morente)';
+    case 'ultimo': return 'Ultimo nell\'ordine di iniziativa (se ha già agito in questo round, non agisce di nuovo)';
+    case 'oggetto': return `Oggetto ${cp.slot ? 'nello ' + cp.slot : 'indossato'}: ${cp.esito}` + (cp.tiro ? ` (${cp.tiro})` : '') + '; slot vuoto: l\'oggetto successivo della nota ¹';
     default: return 'Nota: ' + cp.testo;
   }
 }
@@ -1180,9 +1201,42 @@ function attaccaFerita(camp, pgId, comps, rng, FER, meta) {
       case 'dita': nuovoMalus(c, chi, { ...base, tipo: 'dita', nome: `Dita perse: ${cp.n} (${cp.parte}${cp.lato ? ' ' + cp.lato : ''})`, dita: { parte: cp.parte, n: cp.n, lato: cp.lato || '' }, amp: ampDa(cp.parte, cp.lato), durata: { tipo: 'permanente' } }, rng); break;
       case 'morte': muore(c, creaturaDi(c, chi), fonte + ': «Sei morto»'); break;
       case 'nota': log(c, `${p.scheda.nome}: ${cp.testo}`); break;
+      case 'oggetto': log(c, `${p.scheda.nome}: ${descriviComponente(cp)}`); break;
+      case 'ultimo': mettiUltimo(c, pgId); break;
     }
   }
   return c;
+}
+// «ti posizioni ultimo nell'ordine di Iniziativa (non agisci nuovamente se hai già agito durante questo turno)»
+function mettiUltimo(c, pgId) {
+  const cb = c.combattimento, p = trova(c, pgId);
+  if (!cb) { log(c, `${p.scheda.nome}: ultimo nell'ordine di iniziativa (vale al prossimo combattimento solo se il GM lo decide)`); return; }
+  const id = rigaDiPG(cb, pgId), i = cb.ordine.indexOf(id); if (i < 0) return;
+  const r = cb.righe[id], corrente = cb.ordine[cb.turno], giaAgito = i <= cb.turno;
+  const altri = cb.ordine.filter(x => x !== id).map(x => cb.righe[x].totale);
+  if (altri.length) r.totale = Math.min(r.totale, Math.min(...altri) - 1);
+  cb.ordine.splice(i, 1); cb.ordine.push(id);
+  if (giaAgito) r.salta = cb.round; // in questo round non agisce di nuovo
+  if (corrente === id) { cb.turno = Math.max(0, i); if (cb.turno >= cb.ordine.length - 1) cb.turno = cb.ordine.length - 1; }
+  else cb.turno = cb.ordine.indexOf(corrente);
+  if (corrente === id) saltaFuori(cb);
+  log(c, `${p.scheda.nome} passa ultimo nell'ordine di iniziativa (${r.totale})` + (giaAgito ? ', non agisce di nuovo in questo round' : ''));
+}
+// Ferite gravi (Q1–Q3, anticipate): la riga si sceglie dal valore dei Punti Ferita; per la tabella del tiro per colpire
+// la locazione esce dal 1d8 (o la sceglie il GM). Restituisce il testo della riga e i componenti già scomposti.
+function feritaDaTabella(FER, tab, riga, rng, locN) {
+  const T = FER.ferite_gravi.find(x => x.id === tab); if (!T) throw new Error('tabella delle Ferite gravi sconosciuta');
+  const r = String(Math.max(-15, Math.min(-1, Math.trunc(riga))));
+  let righe = T.righe, loc = null, tiroLoc = null;
+  if (T.locazioni) {
+    if (!locN) { locN = d(8, rng); tiroLoc = `1d8 = ${locN}`; }
+    loc = T.locazioni.find(l => locN >= l.da && locN <= l.a); if (!loc) throw new Error('locazione non valida');
+    righe = T.righe_per_locazione[loc.righe];
+  }
+  const testo = righe[r], comps = scomponiFerita(testo, rng);
+  if (loc && loc.lato) for (const k of comps) if ((k.k === 'amputazione' && !k.parte || k.k === 'dita') && !k.lato) k.lato = loc.lato;
+  return { tabella: T.nome, riga: +r, locazione: loc ? loc.nome : null, locN, tiroLoc, testo,
+    titolo: `Ferita grave ${r} · ${T.nome}` + (loc ? ` · ${loc.nome}` : ''), comps };
 }
 function rigaFermare(FER, m) { return FER.fermare.find(r => r.id === (m.tipo === 'ferita' ? 'gravita_' + m.gravita : m.tipo)); }
 // cure magiche dirette alla ferita o all'emorragia (anche a più riprese): non toccano i PF
@@ -1258,6 +1312,6 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   risolviRazionamento, razionamentoAperto, puoRiposare,
   tiroIniziativa, avviaCombattimento, comando, indietro, fineCombattimento, attuale, etichetta, attivaTimer, timerLetture, mmss,
   UNITA_ROUND, EFFETTI_COND, aggiungiMalus, togliMalus, descriviMalus, descriviDurata, nomeEsteso, esitoPromemoria, doseAggiuntiva, togliDallaCodaId, risolviMorte,
-  scomponiFerita, descriviComponente, attaccaFerita, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza };
+  scomponiFerita, descriviComponente, attaccaFerita, feritaDaTabella, mettiUltimo, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

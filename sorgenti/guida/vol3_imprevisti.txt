@@ -73,6 +73,7 @@ Armi e incantesimi con tiro per colpire (tira 1d8)
 1: Testa
 [TABELLA]
 |  |  |
+| -1 | Sangue, polvere, detriti o scintille ti finiscono negli occhi: sei offuscato (20%) per 2 round. |
 | -2 | Un colpo all’altezza dell’orecchio ti fa perdere l’equilibrio mandandoti prono. |
 | -3 | Il colpo ti spacca il naso rendendoti infermo per 1 minuto. |
 | -4 | Un colpo di rimbalzo, il manico dell’arma o un gesto involontario del nemico ti colpisce alla gola: sei nauseato per 1 round. |
@@ -91,6 +92,7 @@ Armi e incantesimi con tiro per colpire (tira 1d8)
 2-4: Busto
 [TABELLA]
 |  |  |
+| -1 | Costretto ad una goffa manovra, incespichi e ti posizioni ultimo nell’ordine di Iniziativa (non agisci nuovamente se hai già agito durante questo turno). |
 | -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
 | -3 | Sei colpito duramente alle costole e diventi infermo per 1 minuto. |
 | -4 | Il colpo è ben assestato e diretto allo stomaco: sei nauseato per 1 round. |
@@ -109,6 +111,7 @@ Armi e incantesimi con tiro per colpire (tira 1d8)
 5: Braccio sinistro / 6: Braccio destro
 [TABELLA]
 |  |  |
+| -1 | Vieni colpito alla mano. Se con quella mano impugni un oggetto, esso cade a terra ai tuoi piedi, altrimenti, se imbracci uno scudo, questo si slaccia non fornendo il bonus alla CA e imponendoti penalità di -1 ai tiri per colpire finché non usi un’azione di movimento per sistemarlo. |
 | -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
 | -3 | Il colpo ti schiaccia alcune nocche e il dolore ti rende infermo per 1 minuto. |
 | -4 | L’oggetto che impugni ti scivola di mano e cade a terra a 1d3+1 caselle in una direzione casuale. |
@@ -127,6 +130,7 @@ Armi e incantesimi con tiro per colpire (tira 1d8)
 7: Gamba sinistra / 8: Gamba destra
 [TABELLA]
 |  |  |
+| -1 | Costretto ad una goffa manovra, incespichi e ti posizioni ultimo nell’ordine di Iniziativa (non agisci nuovamente se hai già agito durante questo turno). |
 | -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
 | -3 | Il colpo ti schiaccia le dita dei piedi e il dolore ti rende infermo per 1 minuto. |
 | -4 | Il colpo è ben assestato e diretto all’inguine: sei nauseato per 1 round. |
@@ -145,6 +149,7 @@ Armi e incantesimi con tiro per colpire (tira 1d8)
 Attacchi con area di effetto o effetti senza tiro per colpire
 [TABELLA]
 |  |  |
+| -1 | Costretto ad una goffa manovra, incespichi e ti posizioni ultimo nell’ordine di Iniziativa (non agisci nuovamente se hai già agito durante questo turno). |
 | -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
 | -3 | L’impatto ti rende infermo per 1 minuto. |
 | -4 | Inali polvere o residui volatili o liquidi dovuti all’attacco e sei nauseato per 1 round. |
@@ -163,6 +168,7 @@ Attacchi con area di effetto o effetti senza tiro per colpire
 Danni a Costituzione, veleni, sanguinamento o livelli negativi
 [TABELLA]
 |  |  |
+| -1 | Il dolore per la tua condizione è troppo e ti posizioni ultimo nell’ordine di Iniziativa (non agisci nuovamente se hai già agito durante questo turno). |
 | -2 | Hai un mancamento e finisci prono. |
 | -3 | Il dolore per la tua condizione ti rende infermo per 1 minuto. |
 | -4 | Il dolore per la tua condizione ti rende nauseato per 1 round. |

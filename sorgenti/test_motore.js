@@ -383,19 +383,21 @@ t('H tiraEffetto senza dadi', M.tiraEffetto('nauseato 1 round', rng).valore === 
 const imp = fs.readFileSync(path.join(__dirname, 'guida', 'vol3_imprevisti.txt'), 'utf8').split('\n');
 const corpus = []; { let tab = null, in_ = false; for (const r of imp) { if (r === '[TABELLA]') { in_ = true; continue; } if (r === '[/TABELLA]') { in_ = false; continue; }
   if (!in_) tab = r; else { const x = r.match(/^\| (-\d+) \| (.*) \|$/); if (x) corpus.push({ tab, riga: +x[1], testo: x[2] }); } } }
-t('corpus: 84 righe delle Ferite gravi', corpus.length === 84, corpus.length);
+t('corpus: 90 righe delle Ferite gravi (−1…−15, Vol. 3 2.5.8)', corpus.length === 90, corpus.length);
 const COND_RE = { Prono: /\bpron[oa]\b/i, Infermo: /\binferm[oa]\b/i, Nauseato: /\bnauseat[oa]\b/i, Barcollante: /\bbarcollante\b/i, Frastornato: /\bfrastornat[oa]\b/i, Stordito: /\bstordit[oa]\b/i,
   Azzoppato: /\bazzoppat[oa]\b/i, Offuscato: /\boffuscat[oa]\b/i, 'Privo di Sensi': /\bpriv[oa] di sensi\b/i };
 { let vuote = [], mancano = [];
   for (const r of corpus) {
     const k = M.scomponiFerita(r.testo, semi(r.riga + 30));
-    if (!k.some(x => x.k !== 'nota') && !/scivola di mano/.test(r.testo)) vuote.push(`${r.tab} ${r.riga}`);
+    if (!k.some(x => x.k !== 'nota') && !/scivola di mano|impugni un oggetto/.test(r.testo)) vuote.push(`${r.tab} ${r.riga}`);
     for (const [n, re] of Object.entries(COND_RE)) if (re.test(r.testo) && !k.some(x => x.k === 'condizione' && x.nome === n)) mancano.push(`${r.tab} ${r.riga} ${n}`);
     if (/ferita di gravità/.test(r.testo) && !k.some(x => x.k === 'ferita')) mancano.push(`${r.tab} ${r.riga} ferita`);
     if (/emorragia lieve/.test(r.testo) && !k.some(x => x.k === 'emorragia_lieve')) mancano.push(`${r.tab} ${r.riga} emorragia lieve`);
     if (/emorragia grave/.test(r.testo) && !k.some(x => x.k === 'emorragia_grave')) mancano.push(`${r.tab} ${r.riga} emorragia grave`);
     if (/Sei morto/.test(r.testo) !== k.some(x => x.k === 'morte')) mancano.push(`${r.tab} ${r.riga} morte`);
-    if (/oggetto/.test(r.testo) && !k.some(x => x.k === 'nota')) mancano.push(`${r.tab} ${r.riga} nota`);
+    if (/oggetto/.test(r.testo) && !k.some(x => x.k === 'nota' || x.k === 'oggetto')) mancano.push(`${r.tab} ${r.riga} nota`);
+    if (/oggetto indossato/.test(r.testo) && !k.some(x => x.k === 'oggetto' && x.slot && x.tiro)) mancano.push(`${r.tab} ${r.riga} slot`);
+    if (/ultimo nell/.test(r.testo) !== k.some(x => x.k === 'ultimo')) mancano.push(`${r.tab} ${r.riga} ultimo`);
     if (k.some(x => x.k === 'condizione' && x.durata.legata) && !k.some(x => x.key && k.find(y => y.k === 'condizione' && y.durata.legata === x.key))) mancano.push(`${r.tab} ${r.riga} legame`);
   }
   t('I1 ogni riga del corpus dà almeno un componente', !vuote.length, vuote);
@@ -419,7 +421,7 @@ const del = (k, tipo) => k.filter(x => x.k === tipo);
   t('Busto −11: privo di sensi 1 ora, penalità tirata, emorragia lieve', del(k, 'condizione')[0].durata.unita === 'ore' && Object.keys(p.mods).length === 1 && del(k, 'emorragia_lieve').length === 1, k); }
 { const k = sc('2-4: Busto', -13); t('Busto −13: Fatica e Ferita max −1 per livello, emorragia grave 24 PF', del(k, 'penalita')[0].mods.fatica_max_liv === -1 && del(k, 'emorragia_grave')[0].pf === 24, k); }
 { const k = sc('2-4: Busto', -14); t('Busto −14: arti inferiori paralizzati', del(k, 'altro')[0].nome === 'Arti inferiori paralizzati', k); }
-{ const k = sc('2-4: Busto', -10); t('Busto −10: organo compromesso', del(k, 'organo').length === 1 && del(k, 'nota').length === 1, k); }
+{ const k = sc('2-4: Busto', -10); t('Busto −10: organo compromesso e oggetto con lo slot', del(k, 'organo').length === 1 && del(k, 'oggetto').length === 1 && /^slot (corpo \(armatura\)|torso|spalle|vita)$/.test(del(k, 'oggetto')[0].slot), k); }
 { const k = sc('5: Braccio', -5); t('Braccio −5: braccio inutilizzabile 2 round', del(k, 'altro')[0].nome === 'Braccio inutilizzabile' && del(k, 'altro')[0].durata.n === 2, k); }
 { const k = sc('5: Braccio', -10); t('Braccio −10: 1d2 dita della mano', del(k, 'dita')[0].parte === 'mano' && [1, 2].includes(del(k, 'dita')[0].n), k); }
 { const k = sc('5: Braccio', -13); t('Braccio −13: mano amputata, privo di sensi, emorragia grave', del(k, 'amputazione')[0].loc === 'mano' && del(k, 'emorragia_grave').length === 1 && del(k, 'condizione')[0].nome === 'Privo di Sensi', k); }
@@ -434,6 +436,33 @@ t('I1 testo scritto a mano', (() => { const k = M.scomponiFerita('sei barcollant
   return k.length === 3 && k[0].durata.n === 3 && k[1].durata.legata === 'f1'; })());
 t('I1 testo vuoto', M.scomponiFerita('  ', rng).length === 0);
 t('I1 descrizioni', M.descriviComponente(sc('2-4: Busto', -12).find(x => x.k === 'emorragia_grave')).includes('5% cumulabile'));
+
+// ---------------------------------------------------------------- Vol. 3 2.5.8: righe −1 e ferita grave dalla tabella (riga automatica)
+{ const k = sc('1: Testa', -1); t('Testa −1: offuscato 20% per 2 round', k.length === 1 && k[0].nome === 'Offuscato' && k[0].perc === 20 && k[0].durata.n === 2 && k[0].durata.unita === 'round', k); }
+{ const k = sc('2-4: Busto', -1); t('Busto −1: ultimo nell\'iniziativa', k.length === 1 && k[0].k === 'ultimo', k); }
+{ const k = sc('5: Braccio', -1); t('Braccio −1: solo nota', k.length === 1 && k[0].k === 'nota', k); }
+{ const k = M.scomponiFerita(riga('1: Testa', -12), facce([[1, 3], [3, 3], [30, 100]])); const o = del(k, 'oggetto')[0];
+  t('Testa −12: slot tirato e 50% distrutto', o.slot === 'slot testa' && o.esito === 'è distrutto' && /d% 30/.test(o.tiro), o); }
+{ const k = M.scomponiFerita(riga('1: Testa', -12), facce([[1, 3], [1, 3], [80, 100]])); t('Testa −12: oltre il 50% si danneggia due volte', del(k, 'oggetto')[0].esito === 'si danneggia due volte'); }
+{ const k = M.scomponiFerita(riga('Attacchi con area', -6), semi(3)); const o = del(k, 'oggetto')[0];
+  t('Area −6: lo slot è quello dell\'oggetto, non il braccio', /slot|oggetto impugnato/.test(o.slot), o); }
+{ const r = M.feritaDaTabella(FER, 'colpire', -13, rng, 5);
+  t('tabella: Braccio sinistro −13, mano sinistra', r.locazione === 'Braccio sinistro' && r.riga === -13 && r.comps.find(x => x.k === 'amputazione').lato === 'sinistro' && /Braccio sinistro/.test(r.titolo), r); }
+{ const r = M.feritaDaTabella(FER, 'colpire', -9, facce([[8, 8]])); t('tabella: locazione tirata (1d8 = 8, Gamba destra), dita del piede destro', r.tiroLoc === '1d8 = 8' && r.locazione === 'Gamba destra' && r.comps.find(x => x.k === 'dita').lato === 'destro', r); }
+{ const r = M.feritaDaTabella(FER, 'colpire', -2, facce([[3, 8]])); t('tabella: 2–4 = Busto', r.locazione === 'Busto'); }
+t('tabella: −20 diventa −15', M.feritaDaTabella(FER, 'area', -20, rng).comps.some(x => x.k === 'morte'));
+t('tabella: riga −1', M.feritaDaTabella(FER, 'costituzione', -1, rng).comps[0].k === 'ultimo');
+lancia('tabella sconosciuta', () => M.feritaDaTabella(FER, 'xx', -3, rng), 'sconosciuta');
+{ let c = avviaG(g0, [{ tipo: 'nemico', nome: 'Lupo', bonus: 0, n: 1 }]); c = M.comando(c, 'correggi', { id: rigaN(c, 'Lupo'), totale: 20 }, meteo, rng, 0);
+  c = av(c); // tocca al Lupo; Aria ha già agito
+  const r = M.feritaDaTabella(FER, 'colpire', -1, rng, 3); c = M.attaccaFerita(c, GA, r.comps, rng, FER, { titolo: r.titolo });
+  const cb = c.combattimento, nomi = () => c.combattimento.ordine.map(id => c.combattimento.righe[id].nome).join();
+  t('ultimo: Aria in fondo, il turno resta al Lupo', nomi() === 'Lupo,Bruno,Aria' && M.attuale(cb).nome === 'Lupo' && cb.righe[rigaN(c, 'Aria')].totale < cb.righe[rigaN(c, 'Bruno')].totale, nomi());
+  c = av(c); t('ultimo: poi Bruno', M.attuale(c.combattimento).nome === 'Bruno');
+  c = av(c); t('ultimo: Aria non agisce di nuovo in questo round', c.combattimento.round === 2 && M.attuale(c.combattimento).nome === 'Lupo', [c.combattimento.round, M.attuale(c.combattimento).nome]);
+  c = av(c, 2); t('ultimo: al round dopo Aria agisce per ultima', M.attuale(c.combattimento).nome === 'Aria'); }
+{ let c = avviaG(g0, []); const r = M.feritaDaTabella(FER, 'area', -1, rng); c = M.attaccaFerita(c, GB, r.comps, rng, FER, {});
+  t('ultimo: chi non ha ancora agito va in fondo e agisce nel round', c.combattimento.ordine.map(id => c.combattimento.righe[id].nome).join() === 'Aria,Bruno' && M.attuale(c.combattimento).nome === 'Aria'); }
 
 // ---------------------------------------------------------------- I: ferite attaccate, cure, Professione (cerusico), morte
 const attacca = (c, tab, n, s = 5) => M.attaccaFerita(c, GA, M.scomponiFerita(riga(tab, n), semi(s)), semi(s + 1), FER, { titolo: `Ferita grave ${n}`, testo: riga(tab, n) });
