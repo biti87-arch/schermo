@@ -1,0 +1,383 @@
+{
+ "formato": "schermo-v1",
+ "tipo": "campagna",
+ "dati": {
+  "formato": "schermo-v1",
+  "id": "mocbx3b4if0lsitm",
+  "nome": "Campagna della Build 1",
+  "creata": 1777000000000,
+  "modificata": 1777000000000,
+  "calendario": {
+   "tipo": "reale",
+   "mesi": [
+    {
+     "nome": "gennaio",
+     "giorni": 31
+    },
+    {
+     "nome": "febbraio",
+     "giorni": 28
+    },
+    {
+     "nome": "marzo",
+     "giorni": 31
+    },
+    {
+     "nome": "aprile",
+     "giorni": 30
+    },
+    {
+     "nome": "maggio",
+     "giorni": 31
+    },
+    {
+     "nome": "giugno",
+     "giorni": 30
+    },
+    {
+     "nome": "luglio",
+     "giorni": 31
+    },
+    {
+     "nome": "agosto",
+     "giorni": 31
+    },
+    {
+     "nome": "settembre",
+     "giorni": 30
+    },
+    {
+     "nome": "ottobre",
+     "giorni": 31
+    },
+    {
+     "nome": "novembre",
+     "giorni": 30
+    },
+    {
+     "nome": "dicembre",
+     "giorni": 31
+    }
+   ],
+   "settimana": [
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
+   ],
+   "settimana0": 3
+  },
+  "anno": {
+   "base": 1462,
+   "etichetta": "dopo la Caduta"
+  },
+  "tempo": {
+   "R": 4330500
+  },
+  "zona": "temperata",
+  "meteo": {
+   "giorno": 300,
+   "zona": "temperata",
+   "stagione": "autunno",
+   "tiro": 60,
+   "testo": "Clima fresco",
+   "opzioni": [
+    [
+     "Clima fresco"
+    ]
+   ],
+   "scelta": 0,
+   "manuale": false
+  },
+  "scorte": {
+   "cibo": 0,
+   "acqua": 1,
+   "accompagnatori": 1
+  },
+  "razionamenti": [
+   {
+    "id": "z3",
+    "R": 4305600,
+    "giorno": 299,
+    "scorta": "acqua",
+    "mal": "sete"
+   },
+   {
+    "id": "z5",
+    "R": 4320000,
+    "giorno": 300,
+    "scorta": "acqua",
+    "mal": "sete"
+   }
+  ],
+  "pg": [
+   {
+    "id": "p1",
+    "scheda": {
+     "nome": "Aria",
+     "giocatore": "",
+     "razza": "",
+     "classe": "",
+     "livello": 7,
+     "fatica_max": 42,
+     "ferita_max": 40,
+     "rif_dadi": 7,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 19,
+     "ca_contatto": 14,
+     "ca_sprovvista": 15,
+     "dmc": 21,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 5,
+     "riflessi": 9,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 12,
+     "intuizione": 0,
+     "furtivita": 0,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 6,
+     "imp_pen": 6,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 0,
+     "ferita": 32,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 1,
+      "penalita": 1
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     }
+    }
+   },
+   {
+    "id": "p2",
+    "scheda": {
+     "nome": "Bruno",
+     "giocatore": "",
+     "razza": "",
+     "classe": "",
+     "livello": 7,
+     "fatica_max": 48,
+     "ferita_max": 49,
+     "rif_dadi": 7,
+     "rif_tipo": 12,
+     "rif_ripete": false,
+     "ca": 10,
+     "ca_contatto": 10,
+     "ca_sprovvista": 10,
+     "dmc": 10,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0,
+     "ts_note": "",
+     "percezione": 0,
+     "intuizione": 0,
+     "furtivita": 0,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 0,
+     "imp_pen": 6,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 48,
+     "ferita": 49,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 1,
+      "penalita": 1
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     }
+    }
+   }
+  ],
+  "combattimento": {
+   "round": 1,
+   "ordine": [
+    "r7",
+    "r8",
+    "r9"
+   ],
+   "righe": {
+    "r7": {
+     "id": "r7",
+     "tipo": "pg",
+     "pgId": "p1",
+     "nome": "Aria",
+     "bonus": 6,
+     "nat": null,
+     "totale": 15,
+     "n": 1,
+     "spareggio": 18,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": ""
+    },
+    "r8": {
+     "id": "r8",
+     "tipo": "pg",
+     "pgId": "p2",
+     "nome": "Bruno",
+     "bonus": 0,
+     "nat": null,
+     "totale": 9,
+     "n": 1,
+     "spareggio": 11,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": ""
+    },
+    "r9": {
+     "id": "r9",
+     "tipo": "nemico",
+     "nome": "Lupo",
+     "bonus": 2,
+     "nat": 2,
+     "totale": 4,
+     "n": 3,
+     "spareggio": 11,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": ""
+    }
+   },
+   "turno": 1,
+   "attesa": [],
+   "inizioR": 4330500,
+   "storia": [
+    "{\"formato\":\"schermo-v1\",\"id\":\"mocbx3b4if0lsitm\",\"nome\":\"Campagna della Build 1\",\"creata\":1777000000000,\"modificata\":1777000000000,\"calendario\":{\"tipo\":\"reale\",\"mesi\":[{\"nome\":\"gennaio\",\"giorni\":31},{\"nome\":\"febbraio\",\"giorni\":28},{\"nome\":\"marzo\",\"giorni\":31},{\"nome\":\"aprile\",\"giorni\":30},{\"nome\":\"maggio\",\"giorni\":31},{\"nome\":\"giugno\",\"giorni\":30},{\"nome\":\"luglio\",\"giorni\":31},{\"nome\":\"agosto\",\"giorni\":31},{\"nome\":\"settembre\",\"giorni\":30},{\"nome\":\"ottobre\",\"giorni\":31},{\"nome\":\"novembre\",\"giorni\":30},{\"nome\":\"dicembre\",\"giorni\":31}],\"settimana\":[\"lunedì\",\"martedì\",\"mercoledì\",\"giovedì\",\"venerdì\",\"sabato\",\"domenica\"],\"settimana0\":3},\"anno\":{\"base\":1462,\"etichetta\":\"dopo la Caduta\"},\"tempo\":{\"R\":4330500},\"zona\":\"temperata\",\"meteo\":{\"giorno\":300,\"zona\":\"temperata\",\"stagione\":\"autunno\",\"tiro\":60,\"testo\":\"Clima fresco\",\"opzioni\":[[\"Clima fresco\"]],\"scelta\":0,\"manuale\":false},\"scorte\":{\"cibo\":0,\"acqua\":1,\"accompagnatori\":1},\"razionamenti\":[{\"id\":\"z3\",\"R\":4305600,\"giorno\":299,\"scorta\":\"acqua\",\"mal\":\"sete\"},{\"id\":\"z5\",\"R\":4320000,\"giorno\":300,\"scorta\":\"acqua\",\"mal\":\"sete\"}],\"pg\":[{\"id\":\"p1\",\"scheda\":{\"nome\":\"Aria\",\"giocatore\":\"\",\"razza\":\"\",\"classe\":\"\",\"livello\":7,\"fatica_max\":42,\"ferita_max\":40,\"rif_dadi\":7,\"rif_tipo\":8,\"rif_ripete\":false,\"ca\":19,\"ca_contatto\":14,\"ca_sprovvista\":15,\"dmc\":21,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":5,\"riflessi\":9,\"volonta\":3,\"ts_note\":\"\",\"percezione\":12,\"intuizione\":0,\"furtivita\":0,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":6,\"imp_pen\":6,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":0,\"ferita\":32,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":1,\"penalita\":1},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}},{\"id\":\"p2\",\"scheda\":{\"nome\":\"Bruno\",\"giocatore\":\"\",\"razza\":\"\",\"classe\":\"\",\"livello\":7,\"fatica_max\":48,\"ferita_max\":49,\"rif_dadi\":7,\"rif_tipo\":12,\"rif_ripete\":false,\"ca\":10,\"ca_contatto\":10,\"ca_sprovvista\":10,\"dmc\":10,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":0,\"riflessi\":0,\"volonta\":0,\"ts_note\":\"\",\"percezione\":0,\"intuizione\":0,\"furtivita\":0,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":0,\"imp_pen\":6,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":48,\"ferita\":49,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":1,\"penalita\":1},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}}],\"combattimento\":{\"round\":1,\"ordine\":[\"r7\",\"r8\",\"r9\"],\"righe\":{\"r7\":{\"id\":\"r7\",\"tipo\":\"pg\",\"pgId\":\"p1\",\"nome\":\"Aria\",\"bonus\":6,\"nat\":null,\"totale\":15,\"n\":1,\"spareggio\":18,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\"},\"r8\":{\"id\":\"r8\",\"tipo\":\"pg\",\"pgId\":\"p2\",\"nome\":\"Bruno\",\"bonus\":0,\"nat\":null,\"totale\":9,\"n\":1,\"spareggio\":11,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\"},\"r9\":{\"id\":\"r9\",\"tipo\":\"nemico\",\"nome\":\"Lupo\",\"bonus\":2,\"nat\":2,\"totale\":4,\"n\":3,\"spareggio\":11,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\"}},\"turno\":0,\"attesa\":[],\"inizioR\":4330500,\"storia\":[],\"timer\":null},\"coda\":[{\"R\":4305600,\"tipo\":\"razionamento\",\"razionamento\":\"z3\",\"testo\":\"Acqua insufficiente: 1 razioni per 3 persone (martedì 27 ottobre 1462 dopo la Caduta). Scegli chi beve.\"},{\"R\":4320000,\"tipo\":\"fame\",\"testo\":\"Fame: Aria 1, Bruno 1 (−N ai tiri per colpire, ai TS e alle prove).\"}],\"log\":[{\"R\":4301700,\"testo\":\"PG aggiunto: Aria\"},{\"R\":4301700,\"testo\":\"PG aggiunto: Bruno\"},{\"R\":4301700,\"testo\":\"Campagna creata: Campagna della Build 1, lunedì 26 ottobre 1462 dopo la Caduta, 17:30\"},{\"R\":4301700,\"testo\":\"Meteo: Clima fresco (d% 53, Temperata, Autunno)\"},{\"R\":4301700,\"testo\":\"Aria: 50 danni\"},{\"R\":4301700,\"testo\":\"Bruno: PF temporanei 8 (Falsa vita)\"},{\"R\":4305600,\"testo\":\"Bruno: scadono i PF temporanei (Falsa vita, 8)\"},{\"R\":4305600,\"testo\":\"Scorta di cibo: −3 → 0\"},{\"R\":4305600,\"testo\":\"Meteo: Clima fresco (d% 61, Temperata, Autunno)\"},{\"R\":4320000,\"testo\":\"Fame: Aria 1, Bruno 1\"},{\"R\":4320000,\"testo\":\"Meteo: Clima fresco (d% 60, Temperata, Autunno)\"},{\"R\":4330500,\"testo\":\"Salto: +2 g → mercoledì 28 ottobre 1462 dopo la Caduta, 17:30\"},{\"R\":4330500,\"testo\":\"Inizio del combattimento: Aria 15, Bruno 9, Lupo ×3 4\"}],\"impostazioni\":{\"xp\":false,\"pf_nemici\":false,\"timer\":false,\"timer_tv\":false,\"soglia_timer\":0,\"incontri_casuali\":false,\"tv_xn\":true,\"tv_fuori\":\"barrate\",\"tv_ora\":false,\"tv_meteo\":false,\"tv_solo_combattimento\":true,\"f10\":false,\"tema\":\"scuro\"},\"contatore\":9}"
+   ],
+   "timer": null
+  },
+  "coda": [
+   {
+    "R": 4305600,
+    "tipo": "razionamento",
+    "razionamento": "z3",
+    "testo": "Acqua insufficiente: 1 razioni per 3 persone (martedì 27 ottobre 1462 dopo la Caduta). Scegli chi beve."
+   },
+   {
+    "R": 4320000,
+    "tipo": "fame",
+    "testo": "Fame: Aria 1, Bruno 1 (−N ai tiri per colpire, ai TS e alle prove)."
+   }
+  ],
+  "log": [
+   {
+    "R": 4301700,
+    "testo": "PG aggiunto: Aria"
+   },
+   {
+    "R": 4301700,
+    "testo": "PG aggiunto: Bruno"
+   },
+   {
+    "R": 4301700,
+    "testo": "Campagna creata: Campagna della Build 1, lunedì 26 ottobre 1462 dopo la Caduta, 17:30"
+   },
+   {
+    "R": 4301700,
+    "testo": "Meteo: Clima fresco (d% 53, Temperata, Autunno)"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: 50 danni"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: PF temporanei 8 (Falsa vita)"
+   },
+   {
+    "R": 4305600,
+    "testo": "Bruno: scadono i PF temporanei (Falsa vita, 8)"
+   },
+   {
+    "R": 4305600,
+    "testo": "Scorta di cibo: −3 → 0"
+   },
+   {
+    "R": 4305600,
+    "testo": "Meteo: Clima fresco (d% 61, Temperata, Autunno)"
+   },
+   {
+    "R": 4320000,
+    "testo": "Fame: Aria 1, Bruno 1"
+   },
+   {
+    "R": 4320000,
+    "testo": "Meteo: Clima fresco (d% 60, Temperata, Autunno)"
+   },
+   {
+    "R": 4330500,
+    "testo": "Salto: +2 g → mercoledì 28 ottobre 1462 dopo la Caduta, 17:30"
+   },
+   {
+    "R": 4330500,
+    "testo": "Inizio del combattimento: Aria 15, Bruno 9, Lupo ×3 4"
+   }
+  ],
+  "impostazioni": {
+   "xp": false,
+   "pf_nemici": false,
+   "timer": false,
+   "timer_tv": false,
+   "soglia_timer": 0,
+   "incontri_casuali": false,
+   "tv_xn": true,
+   "tv_fuori": "barrate",
+   "tv_ora": false,
+   "tv_meteo": false,
+   "tv_solo_combattimento": true,
+   "f10": false,
+   "tema": "scuro"
+  },
+  "contatore": 9
+ }
+}

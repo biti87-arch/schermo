@@ -1,0 +1,6 @@
+Nuove condizioni
+•  Azzoppato: la creatura vede il proprio movimento dimezzato (per eccesso) e non può compiere passi di 1,5 m.
+•  Colto alla sprovvista: avviene quando alla creatura viene negato il bonus di Destrezza alla CA.
+•  Morente: la creatura sta vivendo gli ultimi istanti di vita e non può essere salvata in alcun modo, né con cure né con la magia. Non può compiere azioni, ma può parlare con un filo di voce per pronunciare le ultime parole, una confessione o un indizio. Al termine della condizione muore. Una creatura vivente che muore in combattimento ha il 20% di probabilità di restare invece morente per 1 minuto; il DM può anche deciderlo a sua discrezione.
+•  Offuscato (%): la creatura ha una probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio diverso da sé stessa. Una creatura è sottoposta solo alla % più alta di offuscamento di cui è vittima. Le creature che non usano la vista per vedere non diventano offuscate.
+•  Sempre pronto: la creatura non subisce la penalità di −6 alle prove di Iniziativa quando è impreparata. La creatura è comunque considerata impreparata per qualsiasi altro fine e subisce le consuete penalità nel primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.).

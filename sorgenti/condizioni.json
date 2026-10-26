@@ -1,0 +1,300 @@
+{
+ "fonte": "Elenco del progetto (37 condizioni in rosso) + Morente, stati di Indifeso, livelli negativi. Testi: Vol. 1 2.5.2 senza immagini, «Nuove condizioni» (estratto in sorgenti/guida/vol1_condizioni.txt); i testi delle altre condizioni (golarion.altervista.org) arrivano con la sezione P (Build 3). «effetto» = ciò che l'app applica ai valori del riquadro (design doc, G2).",
+ "condizioni": [
+  {
+   "nome": "Azzoppato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": "Azzoppato: la creatura vede il proprio movimento dimezzato (per eccesso) e non può compiere passi di 1,5 m."
+  },
+  {
+   "nome": "Colto alla sprovvista",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "la CA mostrata è quella colto alla sprovvista",
+   "testo_vol1": "Colto alla sprovvista: avviene quando alla creatura viene negato il bonus di Destrezza alla CA."
+  },
+  {
+   "nome": "Offuscato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "vale solo la % più alta",
+   "testo_vol1": "Offuscato (%): la creatura ha una probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio diverso da sé stessa. Una creatura è sottoposta solo alla % più alta di offuscamento di cui è vittima. Le creature che non usano la vista per vedere non diventano offuscate."
+  },
+  {
+   "nome": "Sempre pronto",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": "Sempre pronto: la creatura non subisce la penalità di −6 alle prove di Iniziativa quando è impreparata. La creatura è comunque considerata impreparata per qualsiasi altro fine e subisce le consuete penalità nel primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.)."
+  },
+  {
+   "nome": "Affaticato",
+   "gruppo": "Fatica",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Abbagliato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "Percezione −1",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Accecato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "CA −2, Percezione −4",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Accovacciato",
+   "gruppo": "Paura",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Affascinato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Assordato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "Iniziativa −4",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Barcollante",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Confuso",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Esausto",
+   "gruppo": "Fatica",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Frastornato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Immobilizzato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Impreparato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "la CA mostrata è quella colto alla sprovvista",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "In Lotta",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Inabile",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Incorporeo",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Indifeso",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Infermo",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "TS e abilità −2",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Intralciato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Invisibile",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Morto",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Nauseato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Paralizzato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Scosso",
+   "gruppo": "Paura",
+   "rossa": true,
+   "effetto": "TS e abilità −2",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Spaventato",
+   "gruppo": "Paura",
+   "rossa": true,
+   "effetto": "TS e abilità −2",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "In Preda al Panico",
+   "gruppo": "Paura",
+   "rossa": true,
+   "effetto": "TS e abilità −2",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Pietrificato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Privo di Sensi",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Prono",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "−4 CA in mischia / +4 a distanza",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Rotto",
+   "gruppo": "Oggetti",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Sanguinante",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Scheggiato",
+   "gruppo": "Oggetti",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Stabilizzato",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Stordito",
+   "gruppo": "",
+   "rossa": true,
+   "effetto": "",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Morente",
+   "gruppo": "",
+   "rossa": false,
+   "effetto": "condizione narrativa degli ultimi istanti",
+   "testo_vol1": "Morente: la creatura sta vivendo gli ultimi istanti di vita e non può essere salvata in alcun modo, né con cure né con la magia. Non può compiere azioni, ma può parlare con un filo di voce per pronunciare le ultime parole, una confessione o un indizio. Al termine della condizione muore. Una creatura vivente che muore in combattimento ha il 20% di probabilità di restare invece morente per 1 minuto; il DM può anche deciderlo a sua discrezione."
+  },
+  {
+   "nome": "Addormentato",
+   "gruppo": "Indifeso",
+   "rossa": false,
+   "effetto": "stato di Indifeso",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Bloccato",
+   "gruppo": "Indifeso",
+   "rossa": false,
+   "effetto": "stato di Indifeso",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Legato",
+   "gruppo": "Indifeso",
+   "rossa": false,
+   "effetto": "stato di Indifeso",
+   "testo_vol1": ""
+  },
+  {
+   "nome": "Livelli negativi",
+   "gruppo": "",
+   "rossa": false,
+   "effetto": "TS, abilità e DMC −N; Punti Fatica max −5 per livello negativo",
+   "testo_vol1": "",
+   "n": true
+  }
+ ]
+}

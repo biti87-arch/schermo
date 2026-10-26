@@ -1,0 +1,260 @@
+{
+ "fonte": "Vol. 3 - Miscellanea 2.5.7, Cap. 3 Imprevisti (estratto in sorgenti/guida/vol3_imprevisti.txt)",
+ "regola_fermare": "Cure magiche: i punti curati vanno diretti alla ferita o all’emorragia, anche a più riprese. Professione (cerusico): unità di medicinali e prova come da tabella; se riesce, la ferita guarisce dopo il tempo indicato; se fallisce si ritenta dopo il tempo indicato con la CD che cambia. Senza medicinali: penalità −5.",
+ "senza_medicinali": -5,
+ "fermare": [
+  {
+   "id": "emorragia_lieve",
+   "ferita": "Emorragia lieve",
+   "medicinali": 1,
+   "cd": 15,
+   "guarigione": null,
+   "ritentare": {
+    "espr": "1",
+    "unita": "round"
+   },
+   "variazione_cd": 1,
+   "testo": {
+    "medicinali": "1",
+    "cd": "CD 15, cura immediata",
+    "ritentare": "dopo 1 round, la CD aumenta di 1 ad ogni nuovo tentativo"
+   }
+  },
+  {
+   "id": "emorragia_grave",
+   "ferita": "Emorragia grave",
+   "medicinali": 2,
+   "cd": 25,
+   "guarigione": null,
+   "ritentare": {
+    "espr": "1d4",
+    "unita": "round"
+   },
+   "variazione_cd": 1,
+   "testo": {
+    "medicinali": "2",
+    "cd": "CD 25, cura immediata",
+    "ritentare": "dopo 1d4 round, la CD aumenta di 1 ad ogni nuovo tentativo"
+   }
+  },
+  {
+   "id": "gravita_1",
+   "ferita": "Gravità 1",
+   "medicinali": 1,
+   "cd": 15,
+   "guarigione": {
+    "n": 1,
+    "unita": "giorni"
+   },
+   "ritentare": {
+    "espr": "1",
+    "unita": "giorni"
+   },
+   "variazione_cd": -1,
+   "testo": {
+    "medicinali": "1",
+    "cd": "CD 15, cura dopo 1 giorno",
+    "ritentare": "dopo 1 giorno, la CD diminuisce di 1 ad ogni nuovo tentativo"
+   }
+  },
+  {
+   "id": "gravita_2",
+   "ferita": "Gravità 2",
+   "medicinali": 2,
+   "cd": 20,
+   "guarigione": {
+    "n": 3,
+    "unita": "giorni"
+   },
+   "ritentare": {
+    "espr": "2",
+    "unita": "giorni"
+   },
+   "variazione_cd": -1,
+   "testo": {
+    "medicinali": "2",
+    "cd": "CD 20, cura dopo 3 giorni",
+    "ritentare": "dopo 2 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo"
+   }
+  },
+  {
+   "id": "gravita_3",
+   "ferita": "Gravità 3",
+   "medicinali": 3,
+   "cd": 25,
+   "guarigione": {
+    "n": 7,
+    "unita": "giorni"
+   },
+   "ritentare": {
+    "espr": "3",
+    "unita": "giorni"
+   },
+   "variazione_cd": -1,
+   "testo": {
+    "medicinali": "3",
+    "cd": "CD 25, cura dopo 7 giorni",
+    "ritentare": "dopo 3 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo"
+   }
+  }
+ ],
+ "regola_dita": "Se una mano o un piede non hanno almeno 3 dita contano come persi.",
+ "dita_perse": 3,
+ "amputazioni": [
+  {
+   "id": "mano",
+   "nome": "Mano",
+   "gruppo": "superiori",
+   "grado": 1,
+   "singolo": {
+    "testo": "Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano-5 DMC contro le manovre di Lottare.20% di fallire incantesimi con componente somatica.",
+    "mods": {
+     "abilita_nome": {
+      "Scalare": -5,
+      "Professione": -5,
+      "Disattivare congegni": -5,
+      "Rapidità di mano": -5
+     }
+    }
+   },
+   "entrambi": {
+    "testo": "Questa condizione si applica a qualsiasi combinazione di arti: mano-mano o mano-braccio, indifferentemente. Nessun oggetto impugnabile con gli arti mancante. Fallimento delle prove di Scalare, Professione, Disattivare congegni e Rapidità di mano.-20 DMC contro le manovre di Lottare. Fallimento degli incantesimi con componente somatica.",
+    "mods": {}
+   }
+  },
+  {
+   "id": "braccio",
+   "nome": "Braccio",
+   "gruppo": "superiori",
+   "grado": 2,
+   "singolo": {
+    "testo": "Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano e-10 DMC contro le manovre di Lottare.25% di fallire incantesimi con componente somatica.",
+    "mods": {
+     "abilita_nome": {
+      "Scalare": -5,
+      "Professione": -5,
+      "Disattivare congegni": -5,
+      "Rapidità di mano": -5
+     }
+    }
+   },
+   "entrambi": null
+  },
+  {
+   "id": "piede",
+   "nome": "Piede",
+   "gruppo": "inferiori",
+   "grado": 1,
+   "singolo": {
+    "testo": "-5 Acrobazia, -5 Cavalcare, -5 Furtività, -5 Scalare. Nessuna azione di corsa o carica effettuabile.-4 DMC contro le manovre di Lottare. Velocità su terreno dimezzata.",
+    "mods": {
+     "abilita_nome": {
+      "Acrobazia": -5,
+      "Cavalcare": -5,
+      "Furtività": -5,
+      "Scalare": -5
+     }
+    }
+   },
+   "entrambi": {
+    "testo": "Questa condizione si applica a qualsiasi combinazione di arti: piede-piede o piede-gamba, indifferentemente. Fallimento delle prove di Acrobazia, Cavalcare, Furtività e Scalare. Permanentemente considerato privo del bonus di Destrezza alla CA.-20 DMC contro le manovre di Lottare. Conta permanentemente come prono.",
+    "mods": {
+     "condizioni": [
+      "Colto alla sprovvista",
+      "Prono"
+     ]
+    }
+   }
+  },
+  {
+   "id": "gamba",
+   "nome": "Gamba",
+   "gruppo": "inferiori",
+   "grado": 2,
+   "singolo": {
+    "testo": "-10 Acrobazia, -10 Cavalcare, -10 Furtività, -10 Scalare. Nessuna azione di corsa o carica.-8 DMC contro le manovre di Lottare. Velocità su terreno ridotta a un quarto.",
+    "mods": {
+     "abilita_nome": {
+      "Acrobazia": -10,
+      "Cavalcare": -10,
+      "Furtività": -10,
+      "Scalare": -10
+     }
+    }
+   },
+   "entrambi": null
+  },
+  {
+   "id": "orecchio",
+   "nome": "Orecchio",
+   "gruppo": "orecchi",
+   "grado": 1,
+   "singolo": {
+    "testo": "-2 alle prove di Iniziativa.-4 Percezione (udito).10% di fallire incantesimi con componente verbale.",
+    "mods": {
+     "iniziativa": -2
+    }
+   },
+   "entrambi": {
+    "testo": "-4 alle prove di Iniziativa. Fallimento delle prove basate sull’udito.20% di fallire incantesimi con componente verbale.",
+    "mods": {
+     "iniziativa": -4
+    }
+   }
+  },
+  {
+   "id": "occhio",
+   "nome": "Occhio",
+   "gruppo": "occhi",
+   "grado": 1,
+   "singolo": {
+    "testo": "* -1 CA.-4 alle prove basate sulla vista.-1 ai tiri per colpire a distanza e ancora -1 per ogni incremento di gittata.",
+    "mods": {
+     "ca": -1
+    }
+   },
+   "entrambi": {
+    "testo": "* -2 CA.Permanentemente considerato privo del bonus di Destrezza alla CA.Fallimento delle prove basate sulla vista. Conta permanentemente come Offuscato 50%.",
+    "mods": {
+     "ca": -2,
+     "condizioni": [
+      "Colto alla sprovvista",
+      "Offuscato 50%"
+     ]
+    }
+   }
+  },
+  {
+   "id": "mento",
+   "nome": "Mento",
+   "gruppo": "mento",
+   "grado": 1,
+   "singolo": {
+    "testo": "-3 Diplomazia.10% di fallire incantesimi con componente verbale.-4 alle prove di sedurre.",
+    "mods": {
+     "abilita_nome": {
+      "Diplomazia": -3
+     }
+    }
+   },
+   "entrambi": null
+  },
+  {
+   "id": "naso",
+   "nome": "Naso",
+   "gruppo": "naso",
+   "grado": 1,
+   "singolo": {
+    "testo": "-4 Percezione (olfatto).-4 alle prove di sedurre.",
+    "mods": {}
+   },
+   "entrambi": null
+  }
+ ],
+ "note": [
+  "Le combinazioni «entrambi» dei gruppi superiori (mano-mano, mano-braccio) e inferiori (piede-piede, piede-gamba) usano la riga di Mano e di Piede; braccio-braccio e gamba-gamba non sono scritte e si contano allo stesso modo.",
+  "Occhio: l’asterisco «*» in entrambe le colonne non ha una nota nel volume.",
+  "Nel volume diverse voci della tabella hanno frasi attaccate senza spazio (es. «mancante.-5 Scalare», «mano-5 DMC»): i testi sono riportati come nel volume.",
+  "Le tabelle delle Ferite gravi partono dalla riga −2: per la riga −1 il volume non ha voci."
+ ]
+}

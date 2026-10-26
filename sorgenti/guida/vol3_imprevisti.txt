@@ -1,0 +1,205 @@
+Capitolo 3: Imprevisti
+Fallimenti critici
+1 L’alleato è quello più vicino al bersaglio originale e deve essere uno entro portata o gittata.
+2 Tira 1d12: 1: volto, 2: gola, 3: testa, 4: torso, 5: armatura, 6: spalle, 7: vita, 8: braccia, 9: mani, 10: anello, 11: cintura, 12: piedi. Se lo slot è vuoto, l’oggetto è quello successivo, e così via.
+Armi da mischia
+[TABELLA]
+| d12 | Effetto |
+| 1 | Giudichi male le distanze e ti esponi: il nemico che hai attaccato può effettuare un contrattacco con bonus +4 al tiro per colpire. |
+| 2 | L’attacco viene deviato e ti colpisci da solo. |
+| 3 | L’arma ti scivola di mano e cade a terra a 1d3+1 caselle in una direzione casuale. Se non impugni altre armi, l’eventuale serie di attacchi termina. |
+| 4 | Il nemico approfitta del tuo errore per colpirti all’inguine o in un altro punto doloroso. Sei infermo per 5 round. L’eventuale serie di attacchi termina. |
+| 5 | Uno spintone improvviso del nemico ti spedisce a terra prono. Il tuo turno termina. |
+| 6-7 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. |
+| 8 | Uno spintone improvviso ti spedisce a terra prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto2. Il tuo turno termina. Se sei già prono conta questo risultato come 9. |
+| 9 | Il tuo attacco viene deviato e l’arma ti impatta in piena faccia rendendoti barcollante per 1 round. Inoltre, nell’urto l’arma si danneggia. Il tuo turno termina. |
+| 10 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia un oggetto2 di chi viene colpito. |
+| 11 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito. |
+| 12 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che danneggia la tua arma. |
+[/TABELLA]
+Attacchi senz’armi o di contatto in mischia, compresi gli incantesimi
+[TABELLA]
+| d12 | Effetto |
+| 1 | Giudichi male le distanze e ti esponi: il nemico che hai attaccato può effettuare un contrattacco con bonus +4 al tiro per colpire. |
+| 2 | L’attacco viene deviato e ti colpisci da solo. |
+| 3 | Il tuo attacco viene deviato e impatta in piena faccia rendendoti barcollante per 1 round. L’eventuale serie di attacchi termina. |
+| 4 | Il nemico approfitta del tuo errore per colpirti all’inguine o in un altro punto doloroso. Sei infermo per 5 round. L’eventuale serie di attacchi termina. |
+| 5 | Uno spintone improvviso del nemico ti spedisce a terra prono. Il tuo turno termina. |
+| 6-7 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. |
+| 8 | Uno spintone improvviso ti spedisce a terra prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto2. Il tuo turno termina. Se sei già prono conta questo risultato come 9. |
+| 9 | Il tuo attacco viene deviato e ti impatta in piena faccia rendendoti nauseato per 1 round. Il tuo turno termina. |
+| 10 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia un oggetto2 di chi viene colpito. |
+| 11 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito. |
+| 12 | Colpisci accidentalmente un alleato1. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che rende barcollante per 1 round chi viene colpito. |
+[/TABELLA]
+Armi da tiro, da fuoco o da lancio
+[TABELLA]
+| d12 | Effetto |
+| 1 | Perdi il controllo dell’attacco e ti ferisci subendo un numero di danni pari al dado di danno dell’arma. |
+| 2 | Qualcosa va storto e ti colpisci da solo. |
+| 3 | L’arma ti scivola di mano e cade a terra a 1d3+1 caselle in una direzione casuale. Se non impugni altre armi, l’eventuale serie di attacchi termina. |
+| 4 | Nel processo di caricare o preparare l’arma ti ferisci in un punto doloroso. Sei infermo per 5 round. L’eventuale serie di attacchi termina. |
+| 5 | Incespichi nel tentativo di prendere la mira e finisci prono. L’eventuale serie di attacchi termina. |
+| 6-7 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. |
+| 8 | Incespichi nel tentativo di prendere la mira e finisci prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto2. Il tuo turno termina. Se sei già prono conta questo risultato come 9. |
+| 9 | Qualcosa va storto e l’arma sobbalza impattando in piena faccia rendendoti barcollante per 1 round. Inoltre, l’arma si danneggia. Il tuo turno termina. |
+| 10 | Colpisci accidentalmente un alleato1. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo danneggia un oggetto2 di chi viene colpito. |
+| 11 | Colpisci accidentalmente un alleato1. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito. |
+| 12 | Colpisci accidentalmente un alleato1. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che danneggia la tua arma. |
+[/TABELLA]
+Armi a spargimento
+[TABELLA]
+| d6 | Effetto |
+| 1 | Incespichi nel tentativo di prendere la mira e finisci prono. L’eventuale serie di attacchi termina. |
+| 2 | L’arma ti scivola di mano e cade a 1d4+1 caselle in una direzione casuale, attivandosi. Se non impugni altre armi, l’eventuale serie di attacchi termina. |
+| 3 | Il tuo attacco è un disastro totale e colpisci la tua casella. |
+| 4 | Qualcosa va storto e l’arma sobbalza impattando in piena faccia rendendoti barcollante per 1 round. Il tuo turno termina. |
+| 5 | Incespichi nel tentativo di prendere la mira e finisci prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto2. Il tuo turno termina. Se sei già prono conta questo risultato come 6. |
+| 6 | Colpisci accidentalmente un alleato1. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo danneggia due volte 1-2: lo scudo o 3-4: l’armatura di chi viene colpito. |
+[/TABELLA]
+Incantesimi di contatto a distanza (comprese pergamene, bacchette, bastoni, etc.)
+[TABELLA]
+| d6 | Effetto |
+| 1 | Incespichi nel tentativo di prendere la mira e finisci prono. L’eventuale serie di attacchi termina. |
+| 2 | Sei vittima di un sovraccarico dei venti della magia. L’incantesimo consuma il doppio degli slot necessari (solitamente 2 per quelli preparati e 4 per quelli non preparati). Se l’incantesimo proviene da un oggetto, questo consuma il doppio delle cariche necessarie per attivarsi e smette di funzionare per 1d4+1 giorni. |
+| 3 | Qualcosa va storto e ti colpisci da solo. |
+| 4 | Qualcosa va storto e ti colpisci da solo con una mano in piena faccia rendendoti barcollante per 1 round. Il tuo turno termina. |
+| 5 | Incespichi nel tentativo di prendere la mira e finisci prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto2. Il tuo turno termina. Se sei già prono conta questo risultato come 6. |
+| 6 | Colpisci accidentalmente un alleato1. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito. |
+[/TABELLA]
+Ferite gravi
+1 Tira 1d12: 1: volto, 2: gola, 3: testa, 4: torso, 5: armatura, 6: spalle, 7: vita, 8: braccia, 9: mani, 10: anello, 11: cintura, 12: piedi. Se lo slot è vuoto, l’oggetto è quello successivo, e così via.
+Armi e incantesimi con tiro per colpire (tira 1d8)
+1: Testa
+[TABELLA]
+|  |  |
+| -2 | Un colpo all’altezza dell’orecchio ti fa perdere l’equilibrio mandandoti prono. |
+| -3 | Il colpo ti spacca il naso rendendoti infermo per 1 minuto. |
+| -4 | Un colpo di rimbalzo, il manico dell’arma o un gesto involontario del nemico ti colpisce alla gola: sei nauseato per 1 round. |
+| -5 | Il colpo è forte e la testa ti inizia a girare: sei barcollante per 2 round. |
+| -6 | Il colpo ti lascia intontito e sei barcollante per 2 round. Inoltre, l’oggetto indossato si danneggia1 (1d3 = 1: slot volto, 2: slot gola, 3: slot testa). |
+| -7 | Il colpo ti squarcia la fronte e il sangue ti gronda copioso sul volto: sei offuscato (33%) finché l’emorragia lieve (8 PF) non viene curata. |
+| -8 | La violenza del colpo è tale da renderti frastornato per 1 round. Inoltre, l’oggetto indossato si danneggia1 (1d3 = 1: slot volto, 2: slot gola, 3: slot testa). |
+| -9 | Il colpo giunge inaspettato e potente e per il trauma cranico sei stordito per 1 round e poi barcollante in quello seguente. |
+| -10 | Il colpo ti recide una parte del volto (1d4 = 1: orecchio destro, 2: orecchio sinistro, 3: punta del mento, 4: naso). Inoltre, l’oggetto indossato si danneggia due volte1 (1d3 = 1: slot volto, 2: slot gola, 3: slot testa).Infine, sei barcollante finché la ferita di gravità 2 (20 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -11 | Il colpo ti cava un occhio (1d4 = 1-2: sinistro, 3-4: destro).Per l’improvviso cambio di prospettive e per il dolore, sei offuscato 50% finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -12 | Il colpo è così potente che cadi privo di sensi per 1 ora. Inoltre, l’oggetto indossato al 50% si distrugge, altrimenti si danneggia due volte1 (1d3 = 1: slot volto, 2: slot gola, 3: slot testa).Infine, il cervello risulta danneggiato e un tuo punteggio mentale è ridotto di 2 punti in modo permanente (tira 1d3: 1: Intelligenza, 2: Saggezza, 3: Carisma). |
+| -13 | Il colpo è così potente che cadi privo di sensi per 1 ora. Inoltre, il cervello risulta gravemente danneggiato e un tuo punteggio mentale è ridotto di 1d3+1 punti in modo permanente (tira 1d3: 1: Intelligenza, 2: Saggezza, 3: Carisma). |
+| -14 | L’oggetto indossato è distrutto1 (1d3 = 1: slot volto, 2: slot gola, 3: slot testa).Inoltre, il colpo ti fracassa il cranio e cadi in un coma dal quale potrai uscire solo con l’1% di possibilità ogni 30 giorni. |
+| -15 | Sei morto. A discrezione del DM, puoi invece restare morente per creare scene struggenti o permettere eventuali “ultime parole”. |
+[/TABELLA]
+2-4: Busto
+[TABELLA]
+|  |  |
+| -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
+| -3 | Sei colpito duramente alle costole e diventi infermo per 1 minuto. |
+| -4 | Il colpo è ben assestato e diretto allo stomaco: sei nauseato per 1 round. |
+| -5 | Il colpo ti raggiunge all’inguine: sei barcollante per 2 round. |
+| -6 | Il tremendo colpo ti lascia barcollante per 2 round. Inoltre, l’oggetto indossato si danneggia1 (1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, 7: slot spalle, 8: slot vita). |
+| -7 | Vieni colpito duramente al fianco e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata. |
+| -8 | Il colpo è potente e ti lascia frastornato per 1 round. Inoltre, l’oggetto indossato si danneggia1 (1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, 7: slot spalle, 8: slot vita). |
+| -9 | Il colpo ti incrina alcune costole e a causa del dolore intenso sei barcollante finché la ferita di gravità 2 (20 PF) non viene curata. |
+| -10 | Un organo interno è compromesso dall’attacco: d’ora in poi, i Punti Fatica che recuperi tramite il Rifiatare e le notti di riposo sono dimezzati. Subire una seconda volta questa Ferita grave, riduce a un terzo i Punti Fatica recuperati. Inoltre, l’oggetto indossato si danneggia due volte1 (1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, 7: slot spalle, 8: slot vita). Infine, il dolore ti rende barcollante finché la ferita di gravità 3 (30 PF) non viene curata. |
+| -11 | Il colpo è così potente che cadi privo di sensi per 1 ora. Inoltre, alcuni muscoli del tronco vengono danneggiati seriamente e subisci una penalità permanente (tira 1d3: 1: -1 ai Tiri Salvezza su Riflessi, 2: -1 ai Tiri Salvezza su Tempra, 3: -2 Iniziativa). Queste penalità sono cumulabili con sé stesse. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -12 | Il colpo è così potente che cadi privo di sensi per 1 ora. Inoltre, alcuni muscoli del tronco vengono danneggiati seriamente e subisci una penalità permanente (tira 1d3: 1: -2 ai Tiri Salvezza su Riflessi, 2: -2 ai Tiri Salvezza su Tempra, 3: -4 Iniziativa). Queste penalità sono cumulabili con sé stesse. Infine, l’oggetto indossato si danneggia due volte1 (1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, 7: slot spalle, 8: slot vita). Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -13 | Il colpo è così potente che cadi privo di sensi per 1 ora. Inoltre, un organo interno viene irrimediabilmente compromesso e sia i tuoi Punti Ferita che i tuoi Punti Fatica sono ridotti in modo permanente di 1 punto per livello. Quando ottieni un nuovo livello, sottrai 2 punti dal totale guadagnato. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -14 | Il colpo è così potente che cadi privo di sensi per 1 ora. Inoltre, l’oggetto indossato si distrugge1 (1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, 7: slot spalle, 8: slot vita).Infine, la tua colonna vertebrale si è lesionata in modo critico e i tuoi arti inferiori sono paralizzati per sempre. Se mai tu dovessi tornare a camminare per un qualsiasi motivo, non potrai comunque effettuare azioni di carica, corsa o ritirata, anche parziali. |
+| -15 | Sei morto. A discrezione del DM, puoi invece restare morente per creare scene struggenti o permettere eventuali “ultime parole”. |
+[/TABELLA]
+5: Braccio sinistro / 6: Braccio destro
+[TABELLA]
+|  |  |
+| -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
+| -3 | Il colpo ti schiaccia alcune nocche e il dolore ti rende infermo per 1 minuto. |
+| -4 | L’oggetto che impugni ti scivola di mano e cade a terra a 1d3+1 caselle in una direzione casuale. |
+| -5 | Il colpo ti intorpidisce il bicipite rendendo il braccio inutilizzabile per 2 round. |
+| -6 | Il colpo è secco e preciso e rende il braccio inutilizzabile per 2 round. Inoltre, l’oggetto indossato si danneggia1 (1d6 = 1-3: oggetto impugnato, 4: slot braccia, 5: slot mani, 6: slot anello). |
+| -7 | Sei ferito alla mano e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata. |
+| -8 | Il colpo ti ferisce gravemente e il braccio è inutilizzabile finché la ferita di gravità 1 (10 PF) non viene curata. Inoltre, l’oggetto indossato si danneggia1 (1d6 = 1-3: oggetto impugnato, 4: slot braccia, 5: slot mani, 6: slot anello). |
+| -9 | Il colpo ti stacca 1 dito della mano. Inoltre, il dolore rende il braccio inutilizzabile finché la ferita di gravità 2 (20 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 2d4 minuti. |
+| -10 | Il colpo ti stacca 1d2 dita della mano. Inoltre, l’oggetto indossato si danneggia due volte1 (1d6 = 1-3: oggetto impugnato, 4: slot braccia, 5: slot mani, 6: slot anello). Infine, il dolore rende il braccio inutilizzabile finché la ferita di gravità 2 (20 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -11 | Il colpo ti stacca 2 dita della mano. Inoltre, il dolore rende il braccio inutilizzabile finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -12 | Il colpo ti stacca 2 dita della mano. Inoltre, l’oggetto indossato al 50% si distrugge, altrimenti si danneggia due volte1 (1d6 = 1-3: oggetto impugnato, 4: slot braccia, 5: slot mani, 6: slot anello). Infine, il dolore rende il braccio inutilizzabile finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -13 | Il colpo ti stacca di netto la mano. L’oggetto impugnato e quelli negli slot mani e anelli devono essere recuperati da terra. Inoltre, per lo shock cadi privo di sensi per 1 ora. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -14 | Il colpo ti stacca il braccio all’altezza del gomito. L’oggetto impugnato e quelli negli slot braccia, mani e anelli devono essere recuperati da terra. Inoltre, per lo shock cadi privo di sensi per 1 ora. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -15 | Sei morto. A discrezione del DM, puoi invece restare morente per creare scene struggenti o permettere eventuali “ultime parole”. |
+[/TABELLA]
+7: Gamba sinistra / 8: Gamba destra
+[TABELLA]
+|  |  |
+| -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
+| -3 | Il colpo ti schiaccia le dita dei piedi e il dolore ti rende infermo per 1 minuto. |
+| -4 | Il colpo è ben assestato e diretto all’inguine: sei nauseato per 1 round. |
+| -5 | Il colpo è ben diretto e ti lascia azzoppato per 2 round. |
+| -6 | Il colpo è ben diretto e ti lascia azzoppato per 2 round. Inoltre, l’oggetto indossato si danneggia1 (1d4 = 1-2: slot cintura, 3-4: slot piedi). |
+| -7 | Vieni ferito al piede e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata. |
+| -8 | Il colpo ti lussa l’anca o una caviglia e sei azzoppato finché la ferita di gravità 1 (10 PF) non viene curata. Inoltre, l’oggetto indossato si danneggia1 (1d4 = 1-2: slot cintura, 3-4: slot piedi). |
+| -9 | Il colpo ti stacca 1 dito del piede. Inoltre, il dolore ti rende azzoppato finché la ferita di gravità 2 (20 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 2d4 minuti. |
+| -10 | Il colpo ti stacca 1d2 dita del piede. Inoltre, l’oggetto indossato si danneggia due volte1 (1d4 = 1-2: slot cintura, 3-4: slot piedi). Infine, il dolore ti rende azzoppato finché la ferita di gravità 2 (20 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -11 | Il colpo ti stacca 2 dita del piede. Inoltre, il dolore ti rende azzoppato finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -12 | Il colpo ti stacca 2 dita del piede. Inoltre, l’oggetto indossato al 50% si distrugge, altrimenti si danneggia due volte1 (1d4 = 1-2: slot cintura, 3-4: slot piedi). Infine, il dolore ti rende azzoppato finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -13 | Il colpo ti stacca di netto il piede. L’oggetto nello slot piedi deve essere recuperato da terra. Inoltre, per lo shock cadi privo di sensi per 1 ora. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -14 | Il colpo ti stacca la gamba all’altezza del ginocchio. L’oggetto nello slot piedi deve essere recuperato da terra. Inoltre, per lo shock cadi privo di sensi per 1 ora. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -15 | Sei morto. A discrezione del DM, puoi invece restare morente per creare scene struggenti o permettere eventuali “ultime parole”. |
+[/TABELLA]
+Attacchi con area di effetto o effetti senza tiro per colpire
+[TABELLA]
+|  |  |
+| -2 | Il colpo è potente e ti fa perdere l’equilibrio mandandoti prono. |
+| -3 | L’impatto ti rende infermo per 1 minuto. |
+| -4 | Inali polvere o residui volatili o liquidi dovuti all’attacco e sei nauseato per 1 round. |
+| -5 | Per evitare l’attacco sbatti la testa e sei barcollante per 2 round. |
+| -6 | Per limitare i danni tenti di schermarti con un braccio (1d4 = 1-2: sinistro, 3-4: destro) e l’oggetto indossato si danneggia1 (1d6 = 1-3: oggetto impugnato, 4: slot braccia, 5: slot mani, 6: slot anello).Inoltre, a causa del colpo sbatti la testa e sei barcollante per 2 round. |
+| -7 | Il tronco è maggiormente investito dall’attacco e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata. |
+| -8 | Il colpo ti investe alle gambe e sei azzoppato finché la ferita di gravità 1 (10 PF) non viene curata. Inoltre, l’oggetto indossato si danneggia1 (1d4 = 1-2: slot cintura, 3-4: slot piedi). |
+| -9 | L’attacco ti rintrona, lasciandoti frastornato per 1 round. |
+| -10 | Un organo interno è compromesso dall’attacco: d’ora in poi, i Punti Fatica che recuperi tramite il Rifiatare e le notti di riposo sono dimezzati. Subire una seconda volta questa Ferita grave, riduce a un terzo i Punti Fatica recuperati. Inoltre, l’oggetto indossato si danneggia1 (1d8 = 1-4: slot corpo (armatura), 5-6: slot torso, 7: slot spalle, 8: slot vita). Infine, il dolore ti rende barcollante finché la ferita di gravità 3 (30 PF) non viene curata. |
+| -11 | Nel disperato tentativo di schermarti o parare il colpo con le mani, 2 dita della mano (1d4 = 1-2: sinistra, 3-4: destra) vengono mozzate, sciolte o spappolate. Inoltre, il dolore rende il braccio inutilizzabile finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti. |
+| -12 | L’attacco ti investe in faccia ed è così potente da renderti privo di sensi per 1 ora. Inoltre, l’oggetto indossato al 50% si distrugge, altrimenti si danneggia1 (1d3 = 1: slot volto, 2: slot gola, 3: slot testa).Infine, il cervello risulta danneggiato e un tuo punteggio mentale è ridotto di 1 punto in modo permanente (tira 1d3: 1: Intelligenza, 2: Saggezza, 3: Carisma). |
+| -13 | Ti fai scudo con la mano e l’attacco te la stacca di netto, scioglie o spappola (1d4 = 1-2: sinistra, 3-4: destra). L’oggetto impugnato e quelli negli slot mani e anelli devono essere recuperati da terra. Inoltre, per lo shock cadi privo di sensi per 1 ora. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -14 | Il colpo ti stacca di netto, scioglie o spappola la gamba all’altezza del ginocchio (1d4 = 1-2: sinistro, 3-4: destro). L’oggetto nello slot piedi deve essere recuperato da terra. Inoltre, per lo shock cadi privo di sensi per 1 ora. Alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per emorragia grave (24 PF). |
+| -15 | Sei morto. A discrezione del DM, puoi invece restare morente per creare scene struggenti o permettere eventuali “ultime parole”. |
+[/TABELLA]
+Danni a Costituzione, veleni, sanguinamento o livelli negativi
+[TABELLA]
+|  |  |
+| -2 | Hai un mancamento e finisci prono. |
+| -3 | Il dolore per la tua condizione ti rende infermo per 1 minuto. |
+| -4 | Il dolore per la tua condizione ti rende nauseato per 1 round. |
+| -5 | Il dolore per la tua condizione ti rende barcollante per 2 round. |
+| -6 | Il dolore per la tua condizione ti rende nauseato per 2 round. |
+| -7 | Hai un mancamento e finisci prono. Inoltre, il dolore per la tua condizione ti rende infermo per 1 minuto. |
+| -8 | Il dolore per la tua condizione ti rende incapace di muoverti normalmente e sei azzoppato per 1d3+1 round. |
+| -9 | Il dolore per la tua condizione ti rende frastornato per 1 round. |
+| -10 | Un organo interno è compromesso dalla tua condizione: d’ora in poi, i Punti Fatica che recuperi tramite il Rifiatare e le notti di riposo sono dimezzati. Subire una seconda volta questa Ferita grave, riduce a un terzo i Punti Fatica recuperati. |
+| -11 | Il dolore per la tua condizione è così potente da renderti privo di sensi per 1d3+1 minuti. |
+| -12 | Il dolore per la tua condizione è così potente da renderti privo di sensi per 1 ora. Inoltre, il cervello risulta danneggiato e un tuo punteggio mentale è ridotto di 1 punto in modo permanente (tira 1d3: 1: Intelligenza, 2: Saggezza, 3: Carisma). |
+| -13 | Hai un attacco di panico così terribile che alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per arresto cardiaco. Puoi mettere fine al panico spendendo un’azione di round completo. |
+| -14 | Hai un attacco di panico così terribile che alla fine di ogni tuo turno hai il 5% cumulabile di probabilità di morire per arresto cardiaco. Puoi mettere fine al panico spendendo due azioni di round completo consecutive. |
+| -15 | Sei morto. A discrezione del DM, puoi invece restare morente per creare scene struggenti o permettere eventuali “ultime parole”. |
+[/TABELLA]
+Fermare le emorragie e curare le ferite gravi
+Ferite gravi ed emorragie possono essere curate nei seguenti modi:
+Se si offrono cure magiche, i danni curati devono essere diretti espressamente a quelli indicati nella descrizione dell’emorragia o della ferita grave. Si può curare tali danni anche a più riprese, accumulando le cure con più incantesimi o capacità.
+Se si usa Professione (cerusico), si utilizzano le unità di medicinali indicate per ciascuna cura tentata e si effettua la prova necessaria, il tutto come indicato nella tabella. Se la prova riesce, la ferita guarisce dopo il tempo indicato. Se la prova fallisce, si può ritentare dopo il lasso di tempo indicato ma la CD della prova varierà ad ogni nuovo tentativo. Se non si dispone di unità di medicinali è possibile effettuare ugualmente la prova ma con una penalità di -5.
+[TABELLA]
+| Ferita | Unità di medicinali richieste | CD della prova e tempi di guarigione | Ritentare la prova |
+| Emorragia lieve | 1 | CD 15, cura immediata | dopo 1 round, la CD aumenta di 1 ad ogni nuovo tentativo |
+| Emorragia grave | 2 | CD 25, cura immediata | dopo 1d4 round, la CD aumenta di 1 ad ogni nuovo tentativo |
+| Gravità 1 | 1 | CD 15, cura dopo 1 giorno | dopo 1 giorno, la CD diminuisce di 1 ad ogni nuovo tentativo |
+| Gravità 2 | 2 | CD 20, cura dopo 3 giorni | dopo 2 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo |
+| Gravità 3 | 3 | CD 25, cura dopo 7 giorni | dopo 3 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo |
+[/TABELLA]
+Amputazioni e arti inutilizzabili
+Se una mano o un piede non hanno almeno 3 dita contano come persi. In caso di amputazione non sarà possibile far uso di determinati indumenti od oggetti (ad esempio un paio di stivali alchemici o magici in caso di perdita di un piede o un anello in caso di perdita di una mano).
+[TABELLA]
+| Locazione | Danno a un solo arto | Danno a entrambi gli arti |
+| Mano | Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano-5 DMC contro le manovre di Lottare.20% di fallire incantesimi con componente somatica. | Questa condizione si applica a qualsiasi combinazione di arti: mano-mano o mano-braccio, indifferentemente. Nessun oggetto impugnabile con gli arti mancante. Fallimento delle prove di Scalare, Professione, Disattivare congegni e Rapidità di mano.-20 DMC contro le manovre di Lottare. Fallimento degli incantesimi con componente somatica. |
+| Braccio | Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano e-10 DMC contro le manovre di Lottare.25% di fallire incantesimi con componente somatica. |  |
+| Piede | -5 Acrobazia, -5 Cavalcare, -5 Furtività, -5 Scalare. Nessuna azione di corsa o carica effettuabile.-4 DMC contro le manovre di Lottare. Velocità su terreno dimezzata. | Questa condizione si applica a qualsiasi combinazione di arti: piede-piede o piede-gamba, indifferentemente. Fallimento delle prove di Acrobazia, Cavalcare, Furtività e Scalare. Permanentemente considerato privo del bonus di Destrezza alla CA.-20 DMC contro le manovre di Lottare. Conta permanentemente come prono. |
+| Gamba | -10 Acrobazia, -10 Cavalcare, -10 Furtività, -10 Scalare. Nessuna azione di corsa o carica.-8 DMC contro le manovre di Lottare. Velocità su terreno ridotta a un quarto. |  |
+| Orecchio | -2 alle prove di Iniziativa.-4 Percezione (udito).10% di fallire incantesimi con componente verbale. | -4 alle prove di Iniziativa. Fallimento delle prove basate sull’udito.20% di fallire incantesimi con componente verbale. |
+| Occhio | * -1 CA.-4 alle prove basate sulla vista.-1 ai tiri per colpire a distanza e ancora -1 per ogni incremento di gittata. | * -2 CA.Permanentemente considerato privo del bonus di Destrezza alla CA.Fallimento delle prove basate sulla vista. Conta permanentemente come Offuscato 50%. |
+| Mento | -3 Diplomazia.10% di fallire incantesimi con componente verbale.-4 alle prove di sedurre. |  |
+| Naso | -4 Percezione (olfatto).-4 alle prove di sedurre. |  |
+[/TABELLA]

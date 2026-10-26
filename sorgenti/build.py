@@ -4,7 +4,7 @@ Uso: python3 sorgenti/build.py [percorso_versione_web]
 - se indicato, scrive anche la versione web (font di Google) da pubblicare come pagina di prova."""
 import json, sys, os, re
 R = os.path.dirname(os.path.abspath(__file__))
-DATI = ['meteo']            # sorgenti/<nome>.json → DATI.<nome>
+DATI = ['meteo', 'ferite', 'condizioni']   # sorgenti/<nome>.json → DATI.<nome>
 
 def carica(f):
     return json.load(open(os.path.join(R, f + '.json'), encoding='utf8'))

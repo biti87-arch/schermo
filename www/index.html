@@ -93,6 +93,18 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip.sv{background:var(--rosso);border-color:var(--rosso);color:#fff}
 .chip.ok{background:var(--verde);border-color:var(--verde);color:#fff}
 .cond-t{color:var(--rosso-chiaro);font-weight:600}
+[hidden]{display:none!important}
+button.chip{cursor:pointer;font:inherit;font-size:.78rem;color:inherit;text-align:left}
+.chip.fer{border-color:var(--rosso);color:var(--rosso-chiaro);background:color-mix(in srgb,var(--rosso) 14%,var(--pannello2))}
+.chip.vel{border-color:#5E8C3A;color:#9BC97A;background:color-mix(in srgb,#5E8C3A 16%,var(--pannello2))}
+:root[data-theme="light"] .chip.vel{color:#3D6B1F}
+.mod.su{color:#7FC86F}
+:root[data-theme="light"] .mod.su{color:var(--verde)}
+.btn.ok{border-color:var(--verde);color:#7FC86F}
+:root[data-theme="light"] .btn.ok{color:var(--verde)}
+.note-pg{font-size:.78rem;color:var(--tenue);display:flex;flex-direction:column;gap:1px}
+.ordine .chips .chip{font-size:.72rem}
+.pend{border-top:1px solid var(--riga);padding-top:6px;display:flex;flex-direction:column;gap:6px}
 
 /* iniziativa */
 .barra-turno{background:var(--pannello);border:1px solid var(--oro-scuro);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -172,7 +184,7 @@ label.spunta{display:flex;gap:6px;align-items:center;cursor:pointer}
 <div class="wrap" id="app"></div>
 <div id="finestre"></div>
 <script>
-const DATI = {"meteo":{"fonte":"Guida del DM.pdf: «Tabelle del tempo atmosferico» e «Fame e sete» (estratto in sorgenti/guida/guida_meteo_fame_sete.txt)","correzioni":["Zona temperata, estate: «2 giugno – 22 settembre» letto 22 giugno (la primavera finisce il 21 giugno).","Sete: «non abbia mangiato nel giorno precedente» letto «non abbia bevuto»."],"zone":[{"id":"temperata","nome":"Temperata"},{"id":"desertica","nome":"Desertica"},{"id":"artica","nome":"Artica"}],"stagioni":{"temperata":[{"id":"primavera","nome":"Primavera","da":[21,3],"a":[21,6]},{"id":"estate","nome":"Estate","da":[22,6],"a":[22,9]},{"id":"autunno","nome":"Autunno","da":[23,9],"a":[21,12]},{"id":"inverno","nome":"Inverno","da":[22,12],"a":[20,3]}],"desertica":[{"id":"primavera-estate","nome":"Primavera – estate","da":[21,3],"a":[22,9]},{"id":"autunno-inverno","nome":"Autunno – inverno","da":[23,9],"a":[20,3]}],"artica":[{"id":"primavera-estate","nome":"Primavera – estate","da":[21,3],"a":[22,9]},{"id":"autunno-inverno","nome":"Autunno – inverno","da":[23,9],"a":[20,3]}]},"stagione_del_mese":{"temperata":{"primavera":"primavera","estate":"estate","autunno":"autunno","inverno":"inverno"},"desertica":{"primavera":"primavera-estate","estate":"primavera-estate","autunno":"autunno-inverno","inverno":"autunno-inverno"},"artica":{"primavera":"primavera-estate","estate":"primavera-estate","autunno":"autunno-inverno","inverno":"autunno-inverno"}},"tabelle":{"temperata":{"primavera":[{"da":1,"a":85,"testo":"Clima mite"},{"da":86,"a":90,"testo":"Pioggia battente"},{"da":91,"a":94,"testo":"Acquazzone"},{"da":95,"a":97,"testo":"Vento forte"},{"da":98,"a":99,"testo":"Vento molto forte"},{"da":100,"a":100,"testo":"Nebbia"}],"estate":[{"da":1,"a":75,"testo":"Clima caldo"},{"da":76,"a":90,"testo":"Pioggia battente"},{"da":91,"a":94,"testo":"Arsura"},{"da":95,"a":96,"testo":"Acquazzone"},{"da":97,"a":98,"testo":"Vento forte"},{"da":99,"a":100,"testo":"Vento molto forte"}],"autunno":[{"da":1,"a":80,"testo":"Clima fresco"},{"da":81,"a":89,"testo":"Pioggia battente"},{"da":90,"a":94,"testo":"Acquazzone"},{"da":95,"a":96,"testo":"Vento forte"},{"da":97,"a":98,"testo":"Vento molto forte"},{"da":99,"a":100,"testo":"Nebbia"}],"inverno":[{"da":1,"a":75,"testo":"Clima freddo"},{"da":76,"a":90,"testo":"Pioggia battente / Neve"},{"da":91,"a":94,"testo":"Gelo"},{"da":95,"a":96,"testo":"Acquazzone / Neve fitta"},{"da":97,"a":98,"testo":"Vento forte"},{"da":99,"a":100,"testo":"Vento molto forte"}]},"desertica":{"primavera-estate":[{"da":1,"a":85,"testo":"Arsura"},{"da":86,"a":90,"testo":"Clima caldo"},{"da":91,"a":94,"testo":"Clima caldo + Vento forte"},{"da":95,"a":97,"testo":"Clima caldo + Vento molto forte"},{"da":98,"a":99,"testo":"Monsone"},{"da":100,"a":100,"testo":"Clima caldo + Tempesta di polvere/sabbia"}],"autunno-inverno":[{"da":1,"a":75,"testo":"Clima caldo"},{"da":76,"a":90,"testo":"Arsura"},{"da":91,"a":94,"testo":"Clima caldo + Vento forte"},{"da":95,"a":96,"testo":"Clima caldo + Vento molto forte"},{"da":97,"a":98,"testo":"Acquazzone"},{"da":99,"a":100,"testo":"Monsone"}]},"artica":{"primavera-estate":[{"da":1,"a":75,"testo":"Clima freddo"},{"da":76,"a":90,"testo":"Gelo"},{"da":91,"a":94,"testo":"Clima freddo + Vento forte"},{"da":95,"a":96,"testo":"Clima freddo + Vento molto forte"},{"da":97,"a":98,"testo":"Clima freddo + Neve"},{"da":99,"a":100,"testo":"Clima freddo + Neve fitta"}],"autunno-inverno":[{"da":1,"a":85,"testo":"Gelo"},{"da":86,"a":90,"testo":"Gelo + Vento forte"},{"da":91,"a":94,"testo":"Gelo + Vento molto forte"},{"da":95,"a":97,"testo":"Gelo + Neve"},{"da":98,"a":99,"testo":"Gelo + Neve fitta"},{"da":100,"a":100,"testo":"Gelo + Tempesta di grandine"}]}},"voci":{"Clima mite":"Clima mite/fresco","Clima fresco":"Clima mite/fresco","Clima caldo":"Clima caldo/freddo","Clima freddo":"Clima caldo/freddo","Arsura":"Arsura/gelo","Gelo":"Arsura/gelo","Pioggia battente":"Pioggia battente","Acquazzone":"Acquazzone","Monsone":"Monsone","Nebbia":"Nebbia","Neve":"Neve e nevischio","Neve fitta":"Neve fitta","Vento forte":"Vento forte","Vento molto forte":"Vento molto forte","Tempesta di polvere/sabbia":"Tempesta di grandine/polvere/sabbia","Tempesta di grandine":"Tempesta di grandine/polvere/sabbia"},"effetti":{"Acquazzone":"Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.","Arsura/gelo":"Giornata di caldo/freddo intenso. Una creatura senza abiti estivi/invernali, dopo 1 ora è esausta.","Clima caldo/freddo":"Il tipico clima estivo/invernale. Una creatura senza abiti estivi/invernali, dopo 1 ora è affaticata.","Clima mite/fresco":"Il tipico clima primaverile/autunnale. Nessun effetto particolare.","Monsone":"Visibilità massima 15 caselle. Penalità -4 ai tiri per colpire a distanza e alle prove di Percezione. Si spengono automaticamente le fiamme non protette.","Nebbia":"Le creature oltre 3 metri godono di Occultamento 50%.","Neve e nevischio":"Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione e -2 ai tiri per colpire a distanza. Se la neve si è già depositata il terreno è difficile (x2).","Neve fitta":"(solo in luoghi plausibili). Visibilità massima 10 caselle. Penalità -4 alle prove di Percezione e -2 ai Tiri per Colpire a distanza. Le creature oltre 3 metri godono di Occultamento 50%. Se la neve si è già depositata il terreno è difficile (x4).","Pioggia battente":"Penalità -2 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.","Tempesta di grandine/polvere/sabbia":"Visibilità massima 5 caselle. I tiri per colpire a distanza falliscono automaticamente. Si spengono automaticamente le fiamme protette e non. Ogni minuto si subiscono 1d4 danni letali a causa delle escoriazioni, cadute, asfissia, etc.","Vento forte":"Penalità -2 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette.","Vento molto forte":"Penalità -4 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette e quelle protette hanno una probabilità del 50% di spegnersi ogni 10 minuti."},"fame_sete":{"sete":{"nome":"Sete","scorta":"acqua","giorno_prova":4,"cd":10,"testo":"1) Una creatura che non abbia bevuto nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto. 2) A partire dal quarto, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."},"fame":{"nome":"Fame","scorta":"cibo","giorno_prova":7,"cd":10,"testo":"1) Una creatura che non abbia mangiato nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato. 2) A partire dal settimo, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."},"nota_vol1":"Affaticato o esausto dovuti a fame o sete si tolgono solo rifocillandosi (Vol. 1)."}}};
+const DATI = {"meteo":{"fonte":"Guida del DM.pdf: «Tabelle del tempo atmosferico» e «Fame e sete» (estratto in sorgenti/guida/guida_meteo_fame_sete.txt)","correzioni":["Zona temperata, estate: «2 giugno – 22 settembre» letto 22 giugno (la primavera finisce il 21 giugno).","Sete: «non abbia mangiato nel giorno precedente» letto «non abbia bevuto»."],"zone":[{"id":"temperata","nome":"Temperata"},{"id":"desertica","nome":"Desertica"},{"id":"artica","nome":"Artica"}],"stagioni":{"temperata":[{"id":"primavera","nome":"Primavera","da":[21,3],"a":[21,6]},{"id":"estate","nome":"Estate","da":[22,6],"a":[22,9]},{"id":"autunno","nome":"Autunno","da":[23,9],"a":[21,12]},{"id":"inverno","nome":"Inverno","da":[22,12],"a":[20,3]}],"desertica":[{"id":"primavera-estate","nome":"Primavera – estate","da":[21,3],"a":[22,9]},{"id":"autunno-inverno","nome":"Autunno – inverno","da":[23,9],"a":[20,3]}],"artica":[{"id":"primavera-estate","nome":"Primavera – estate","da":[21,3],"a":[22,9]},{"id":"autunno-inverno","nome":"Autunno – inverno","da":[23,9],"a":[20,3]}]},"stagione_del_mese":{"temperata":{"primavera":"primavera","estate":"estate","autunno":"autunno","inverno":"inverno"},"desertica":{"primavera":"primavera-estate","estate":"primavera-estate","autunno":"autunno-inverno","inverno":"autunno-inverno"},"artica":{"primavera":"primavera-estate","estate":"primavera-estate","autunno":"autunno-inverno","inverno":"autunno-inverno"}},"tabelle":{"temperata":{"primavera":[{"da":1,"a":85,"testo":"Clima mite"},{"da":86,"a":90,"testo":"Pioggia battente"},{"da":91,"a":94,"testo":"Acquazzone"},{"da":95,"a":97,"testo":"Vento forte"},{"da":98,"a":99,"testo":"Vento molto forte"},{"da":100,"a":100,"testo":"Nebbia"}],"estate":[{"da":1,"a":75,"testo":"Clima caldo"},{"da":76,"a":90,"testo":"Pioggia battente"},{"da":91,"a":94,"testo":"Arsura"},{"da":95,"a":96,"testo":"Acquazzone"},{"da":97,"a":98,"testo":"Vento forte"},{"da":99,"a":100,"testo":"Vento molto forte"}],"autunno":[{"da":1,"a":80,"testo":"Clima fresco"},{"da":81,"a":89,"testo":"Pioggia battente"},{"da":90,"a":94,"testo":"Acquazzone"},{"da":95,"a":96,"testo":"Vento forte"},{"da":97,"a":98,"testo":"Vento molto forte"},{"da":99,"a":100,"testo":"Nebbia"}],"inverno":[{"da":1,"a":75,"testo":"Clima freddo"},{"da":76,"a":90,"testo":"Pioggia battente / Neve"},{"da":91,"a":94,"testo":"Gelo"},{"da":95,"a":96,"testo":"Acquazzone / Neve fitta"},{"da":97,"a":98,"testo":"Vento forte"},{"da":99,"a":100,"testo":"Vento molto forte"}]},"desertica":{"primavera-estate":[{"da":1,"a":85,"testo":"Arsura"},{"da":86,"a":90,"testo":"Clima caldo"},{"da":91,"a":94,"testo":"Clima caldo + Vento forte"},{"da":95,"a":97,"testo":"Clima caldo + Vento molto forte"},{"da":98,"a":99,"testo":"Monsone"},{"da":100,"a":100,"testo":"Clima caldo + Tempesta di polvere/sabbia"}],"autunno-inverno":[{"da":1,"a":75,"testo":"Clima caldo"},{"da":76,"a":90,"testo":"Arsura"},{"da":91,"a":94,"testo":"Clima caldo + Vento forte"},{"da":95,"a":96,"testo":"Clima caldo + Vento molto forte"},{"da":97,"a":98,"testo":"Acquazzone"},{"da":99,"a":100,"testo":"Monsone"}]},"artica":{"primavera-estate":[{"da":1,"a":75,"testo":"Clima freddo"},{"da":76,"a":90,"testo":"Gelo"},{"da":91,"a":94,"testo":"Clima freddo + Vento forte"},{"da":95,"a":96,"testo":"Clima freddo + Vento molto forte"},{"da":97,"a":98,"testo":"Clima freddo + Neve"},{"da":99,"a":100,"testo":"Clima freddo + Neve fitta"}],"autunno-inverno":[{"da":1,"a":85,"testo":"Gelo"},{"da":86,"a":90,"testo":"Gelo + Vento forte"},{"da":91,"a":94,"testo":"Gelo + Vento molto forte"},{"da":95,"a":97,"testo":"Gelo + Neve"},{"da":98,"a":99,"testo":"Gelo + Neve fitta"},{"da":100,"a":100,"testo":"Gelo + Tempesta di grandine"}]}},"voci":{"Clima mite":"Clima mite/fresco","Clima fresco":"Clima mite/fresco","Clima caldo":"Clima caldo/freddo","Clima freddo":"Clima caldo/freddo","Arsura":"Arsura/gelo","Gelo":"Arsura/gelo","Pioggia battente":"Pioggia battente","Acquazzone":"Acquazzone","Monsone":"Monsone","Nebbia":"Nebbia","Neve":"Neve e nevischio","Neve fitta":"Neve fitta","Vento forte":"Vento forte","Vento molto forte":"Vento molto forte","Tempesta di polvere/sabbia":"Tempesta di grandine/polvere/sabbia","Tempesta di grandine":"Tempesta di grandine/polvere/sabbia"},"effetti":{"Acquazzone":"Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.","Arsura/gelo":"Giornata di caldo/freddo intenso. Una creatura senza abiti estivi/invernali, dopo 1 ora è esausta.","Clima caldo/freddo":"Il tipico clima estivo/invernale. Una creatura senza abiti estivi/invernali, dopo 1 ora è affaticata.","Clima mite/fresco":"Il tipico clima primaverile/autunnale. Nessun effetto particolare.","Monsone":"Visibilità massima 15 caselle. Penalità -4 ai tiri per colpire a distanza e alle prove di Percezione. Si spengono automaticamente le fiamme non protette.","Nebbia":"Le creature oltre 3 metri godono di Occultamento 50%.","Neve e nevischio":"Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione e -2 ai tiri per colpire a distanza. Se la neve si è già depositata il terreno è difficile (x2).","Neve fitta":"(solo in luoghi plausibili). Visibilità massima 10 caselle. Penalità -4 alle prove di Percezione e -2 ai Tiri per Colpire a distanza. Le creature oltre 3 metri godono di Occultamento 50%. Se la neve si è già depositata il terreno è difficile (x4).","Pioggia battente":"Penalità -2 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.","Tempesta di grandine/polvere/sabbia":"Visibilità massima 5 caselle. I tiri per colpire a distanza falliscono automaticamente. Si spengono automaticamente le fiamme protette e non. Ogni minuto si subiscono 1d4 danni letali a causa delle escoriazioni, cadute, asfissia, etc.","Vento forte":"Penalità -2 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette.","Vento molto forte":"Penalità -4 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette e quelle protette hanno una probabilità del 50% di spegnersi ogni 10 minuti."},"fame_sete":{"sete":{"nome":"Sete","scorta":"acqua","giorno_prova":4,"cd":10,"testo":"1) Una creatura che non abbia bevuto nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto. 2) A partire dal quarto, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."},"fame":{"nome":"Fame","scorta":"cibo","giorno_prova":7,"cd":10,"testo":"1) Una creatura che non abbia mangiato nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato. 2) A partire dal settimo, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."},"nota_vol1":"Affaticato o esausto dovuti a fame o sete si tolgono solo rifocillandosi (Vol. 1)."}},"ferite":{"fonte":"Vol. 3 - Miscellanea 2.5.7, Cap. 3 Imprevisti (estratto in sorgenti/guida/vol3_imprevisti.txt)","regola_fermare":"Cure magiche: i punti curati vanno diretti alla ferita o all’emorragia, anche a più riprese. Professione (cerusico): unità di medicinali e prova come da tabella; se riesce, la ferita guarisce dopo il tempo indicato; se fallisce si ritenta dopo il tempo indicato con la CD che cambia. Senza medicinali: penalità −5.","senza_medicinali":-5,"fermare":[{"id":"emorragia_lieve","ferita":"Emorragia lieve","medicinali":1,"cd":15,"guarigione":null,"ritentare":{"espr":"1","unita":"round"},"variazione_cd":1,"testo":{"medicinali":"1","cd":"CD 15, cura immediata","ritentare":"dopo 1 round, la CD aumenta di 1 ad ogni nuovo tentativo"}},{"id":"emorragia_grave","ferita":"Emorragia grave","medicinali":2,"cd":25,"guarigione":null,"ritentare":{"espr":"1d4","unita":"round"},"variazione_cd":1,"testo":{"medicinali":"2","cd":"CD 25, cura immediata","ritentare":"dopo 1d4 round, la CD aumenta di 1 ad ogni nuovo tentativo"}},{"id":"gravita_1","ferita":"Gravità 1","medicinali":1,"cd":15,"guarigione":{"n":1,"unita":"giorni"},"ritentare":{"espr":"1","unita":"giorni"},"variazione_cd":-1,"testo":{"medicinali":"1","cd":"CD 15, cura dopo 1 giorno","ritentare":"dopo 1 giorno, la CD diminuisce di 1 ad ogni nuovo tentativo"}},{"id":"gravita_2","ferita":"Gravità 2","medicinali":2,"cd":20,"guarigione":{"n":3,"unita":"giorni"},"ritentare":{"espr":"2","unita":"giorni"},"variazione_cd":-1,"testo":{"medicinali":"2","cd":"CD 20, cura dopo 3 giorni","ritentare":"dopo 2 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo"}},{"id":"gravita_3","ferita":"Gravità 3","medicinali":3,"cd":25,"guarigione":{"n":7,"unita":"giorni"},"ritentare":{"espr":"3","unita":"giorni"},"variazione_cd":-1,"testo":{"medicinali":"3","cd":"CD 25, cura dopo 7 giorni","ritentare":"dopo 3 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo"}}],"regola_dita":"Se una mano o un piede non hanno almeno 3 dita contano come persi.","dita_perse":3,"amputazioni":[{"id":"mano","nome":"Mano","gruppo":"superiori","grado":1,"singolo":{"testo":"Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano-5 DMC contro le manovre di Lottare.20% di fallire incantesimi con componente somatica.","mods":{"abilita_nome":{"Scalare":-5,"Professione":-5,"Disattivare congegni":-5,"Rapidità di mano":-5}}},"entrambi":{"testo":"Questa condizione si applica a qualsiasi combinazione di arti: mano-mano o mano-braccio, indifferentemente. Nessun oggetto impugnabile con gli arti mancante. Fallimento delle prove di Scalare, Professione, Disattivare congegni e Rapidità di mano.-20 DMC contro le manovre di Lottare. Fallimento degli incantesimi con componente somatica.","mods":{}}},{"id":"braccio","nome":"Braccio","gruppo":"superiori","grado":2,"singolo":{"testo":"Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano e-10 DMC contro le manovre di Lottare.25% di fallire incantesimi con componente somatica.","mods":{"abilita_nome":{"Scalare":-5,"Professione":-5,"Disattivare congegni":-5,"Rapidità di mano":-5}}},"entrambi":null},{"id":"piede","nome":"Piede","gruppo":"inferiori","grado":1,"singolo":{"testo":"-5 Acrobazia, -5 Cavalcare, -5 Furtività, -5 Scalare. Nessuna azione di corsa o carica effettuabile.-4 DMC contro le manovre di Lottare. Velocità su terreno dimezzata.","mods":{"abilita_nome":{"Acrobazia":-5,"Cavalcare":-5,"Furtività":-5,"Scalare":-5}}},"entrambi":{"testo":"Questa condizione si applica a qualsiasi combinazione di arti: piede-piede o piede-gamba, indifferentemente. Fallimento delle prove di Acrobazia, Cavalcare, Furtività e Scalare. Permanentemente considerato privo del bonus di Destrezza alla CA.-20 DMC contro le manovre di Lottare. Conta permanentemente come prono.","mods":{"condizioni":["Colto alla sprovvista","Prono"]}}},{"id":"gamba","nome":"Gamba","gruppo":"inferiori","grado":2,"singolo":{"testo":"-10 Acrobazia, -10 Cavalcare, -10 Furtività, -10 Scalare. Nessuna azione di corsa o carica.-8 DMC contro le manovre di Lottare. Velocità su terreno ridotta a un quarto.","mods":{"abilita_nome":{"Acrobazia":-10,"Cavalcare":-10,"Furtività":-10,"Scalare":-10}}},"entrambi":null},{"id":"orecchio","nome":"Orecchio","gruppo":"orecchi","grado":1,"singolo":{"testo":"-2 alle prove di Iniziativa.-4 Percezione (udito).10% di fallire incantesimi con componente verbale.","mods":{"iniziativa":-2}},"entrambi":{"testo":"-4 alle prove di Iniziativa. Fallimento delle prove basate sull’udito.20% di fallire incantesimi con componente verbale.","mods":{"iniziativa":-4}}},{"id":"occhio","nome":"Occhio","gruppo":"occhi","grado":1,"singolo":{"testo":"* -1 CA.-4 alle prove basate sulla vista.-1 ai tiri per colpire a distanza e ancora -1 per ogni incremento di gittata.","mods":{"ca":-1}},"entrambi":{"testo":"* -2 CA.Permanentemente considerato privo del bonus di Destrezza alla CA.Fallimento delle prove basate sulla vista. Conta permanentemente come Offuscato 50%.","mods":{"ca":-2,"condizioni":["Colto alla sprovvista","Offuscato 50%"]}}},{"id":"mento","nome":"Mento","gruppo":"mento","grado":1,"singolo":{"testo":"-3 Diplomazia.10% di fallire incantesimi con componente verbale.-4 alle prove di sedurre.","mods":{"abilita_nome":{"Diplomazia":-3}}},"entrambi":null},{"id":"naso","nome":"Naso","gruppo":"naso","grado":1,"singolo":{"testo":"-4 Percezione (olfatto).-4 alle prove di sedurre.","mods":{}},"entrambi":null}],"note":["Le combinazioni «entrambi» dei gruppi superiori (mano-mano, mano-braccio) e inferiori (piede-piede, piede-gamba) usano la riga di Mano e di Piede; braccio-braccio e gamba-gamba non sono scritte e si contano allo stesso modo.","Occhio: l’asterisco «*» in entrambe le colonne non ha una nota nel volume.","Nel volume diverse voci della tabella hanno frasi attaccate senza spazio (es. «mancante.-5 Scalare», «mano-5 DMC»): i testi sono riportati come nel volume.","Le tabelle delle Ferite gravi partono dalla riga −2: per la riga −1 il volume non ha voci."]},"condizioni":{"fonte":"Elenco del progetto (37 condizioni in rosso) + Morente, stati di Indifeso, livelli negativi. Testi: Vol. 1 2.5.2 senza immagini, «Nuove condizioni» (estratto in sorgenti/guida/vol1_condizioni.txt); i testi delle altre condizioni (golarion.altervista.org) arrivano con la sezione P (Build 3). «effetto» = ciò che l'app applica ai valori del riquadro (design doc, G2).","condizioni":[{"nome":"Azzoppato","gruppo":"","rossa":true,"effetto":"","testo_vol1":"Azzoppato: la creatura vede il proprio movimento dimezzato (per eccesso) e non può compiere passi di 1,5 m."},{"nome":"Colto alla sprovvista","gruppo":"","rossa":true,"effetto":"la CA mostrata è quella colto alla sprovvista","testo_vol1":"Colto alla sprovvista: avviene quando alla creatura viene negato il bonus di Destrezza alla CA."},{"nome":"Offuscato","gruppo":"","rossa":true,"effetto":"vale solo la % più alta","testo_vol1":"Offuscato (%): la creatura ha una probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio diverso da sé stessa. Una creatura è sottoposta solo alla % più alta di offuscamento di cui è vittima. Le creature che non usano la vista per vedere non diventano offuscate."},{"nome":"Sempre pronto","gruppo":"","rossa":true,"effetto":"","testo_vol1":"Sempre pronto: la creatura non subisce la penalità di −6 alle prove di Iniziativa quando è impreparata. La creatura è comunque considerata impreparata per qualsiasi altro fine e subisce le consuete penalità nel primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.)."},{"nome":"Affaticato","gruppo":"Fatica","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Abbagliato","gruppo":"","rossa":true,"effetto":"Percezione −1","testo_vol1":""},{"nome":"Accecato","gruppo":"","rossa":true,"effetto":"CA −2, Percezione −4","testo_vol1":""},{"nome":"Accovacciato","gruppo":"Paura","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Affascinato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Assordato","gruppo":"","rossa":true,"effetto":"Iniziativa −4","testo_vol1":""},{"nome":"Barcollante","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Confuso","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Esausto","gruppo":"Fatica","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Frastornato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Immobilizzato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Impreparato","gruppo":"","rossa":true,"effetto":"la CA mostrata è quella colto alla sprovvista","testo_vol1":""},{"nome":"In Lotta","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Inabile","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Incorporeo","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Indifeso","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Infermo","gruppo":"","rossa":true,"effetto":"TS e abilità −2","testo_vol1":""},{"nome":"Intralciato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Invisibile","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Morto","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Nauseato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Paralizzato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Scosso","gruppo":"Paura","rossa":true,"effetto":"TS e abilità −2","testo_vol1":""},{"nome":"Spaventato","gruppo":"Paura","rossa":true,"effetto":"TS e abilità −2","testo_vol1":""},{"nome":"In Preda al Panico","gruppo":"Paura","rossa":true,"effetto":"TS e abilità −2","testo_vol1":""},{"nome":"Pietrificato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Privo di Sensi","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Prono","gruppo":"","rossa":true,"effetto":"−4 CA in mischia / +4 a distanza","testo_vol1":""},{"nome":"Rotto","gruppo":"Oggetti","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Sanguinante","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Scheggiato","gruppo":"Oggetti","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Stabilizzato","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Stordito","gruppo":"","rossa":true,"effetto":"","testo_vol1":""},{"nome":"Morente","gruppo":"","rossa":false,"effetto":"condizione narrativa degli ultimi istanti","testo_vol1":"Morente: la creatura sta vivendo gli ultimi istanti di vita e non può essere salvata in alcun modo, né con cure né con la magia. Non può compiere azioni, ma può parlare con un filo di voce per pronunciare le ultime parole, una confessione o un indizio. Al termine della condizione muore. Una creatura vivente che muore in combattimento ha il 20% di probabilità di restare invece morente per 1 minuto; il DM può anche deciderlo a sua discrezione."},{"nome":"Addormentato","gruppo":"Indifeso","rossa":false,"effetto":"stato di Indifeso","testo_vol1":""},{"nome":"Bloccato","gruppo":"Indifeso","rossa":false,"effetto":"stato di Indifeso","testo_vol1":""},{"nome":"Legato","gruppo":"Indifeso","rossa":false,"effetto":"stato di Indifeso","testo_vol1":""},{"nome":"Livelli negativi","gruppo":"","rossa":false,"effetto":"TS, abilità e DMC −N; Punti Fatica max −5 per livello negativo","testo_vol1":"","n":true}]}};
 const WEB = false;   // true nella pagina di prova: lì i file non si scaricano, si copiano
 // Schermo del Narratore — motore di calcolo (funzioni pure), testato da test_motore.js.
 // Usabile da Node (module.exports) e dalla pagina. Ogni funzione che "cambia" una campagna
@@ -391,6 +403,9 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
     for (const p of x.pg) if (!p.stato[mal]) p.stato[mal] = { ...g };
     delete x.scorte[mal];
   }
+  // Build 2a: malus su PG e righe dell'iniziativa, avvisi del turno
+  for (const p of x.pg) p.stato.malus = p.stato.malus || [];
+  if (x.combattimento) { x.combattimento.avvisi = x.combattimento.avvisi || []; for (const r of Object.values(x.combattimento.righe)) r.malus = r.malus || []; }
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -413,7 +428,7 @@ function aggiungiPG(camp, scheda, rng) {
   const err = controllaScheda(s); if (err.length) throw new Error(err.join('; '));
   const c = clona(camp);
   c.pg.push({ id: prossimoId(c, 'p'), scheda: s, stato: { fatica: s.fatica_max, ferita: s.ferita_max, temp: [], nonletali: 0, eroe: 1, rif_riserva: s.rif_dadi,
-    fame: { giorni_senza: 0, penalita: 0 }, sete: { giorni_senza: 0, penalita: 0 } } });
+    fame: { giorni_senza: 0, penalita: 0 }, sete: { giorni_senza: 0, penalita: 0 }, malus: [] } });
   log(c, `PG aggiunto: ${s.nome}`);
   return c;
 }
@@ -467,10 +482,10 @@ function statoNonLetali(p) {
 // Cura magica o alchemica: prima i Ferita fino al massimo, poi i Fatica. Cura anche altrettanti danni non letali (PF1e).
 function cura(camp, id, n) {
   if (!(Number.isInteger(n) && n > 0)) throw new Error('cura non valida');
-  const c = clona(camp), p = trova(c, id), st = p.stato, s = p.scheda;
+  const c = clona(camp), p = trova(c, id), st = p.stato, s = p.scheda, mx = massimi(c, p);
   let r = n;
-  const fe = Math.min(r, Math.max(0, s.ferita_max - st.ferita)); st.ferita += fe; r -= fe;
-  const fa = Math.min(r, Math.max(0, s.fatica_max - st.fatica)); st.fatica += fa;
+  const fe = Math.min(r, Math.max(0, mx.ferita - st.ferita)); st.ferita += fe; r -= fe;
+  const fa = Math.min(r, Math.max(0, mx.fatica - st.fatica)); st.fatica += fa;
   st.nonletali = Math.max(0, st.nonletali - n);
   log(c, `${s.nome}: cura ${n} (Ferite +${fe}, Fatica +${fa})`);
   return c;
@@ -495,36 +510,18 @@ function rifiatare(camp, id, n, rng) {
   if (statoNonLetali(p) === 'Privo di Sensi') throw new Error('per Rifiatare il personaggio deve essere cosciente');
   const dadi = [];
   for (let i = 0; i < n; i++) { let x = d(s.rif_tipo, rng); if (s.rif_ripete && s.rif_tipo > 2) while (x <= 2) x = d(s.rif_tipo, rng); dadi.push(x); }
-  const tot = dadi.reduce((a, b) => a + b, 0);
-  const prima = st.fatica; st.fatica = Math.min(s.fatica_max, st.fatica + tot); st.rif_riserva -= n;
-  log(c, `${s.nome}: Rifiatare ${n}d${s.rif_tipo} = ${tot} [${dadi.join(', ')}] — Fatica ${prima} → ${st.fatica}`);
-  return { camp: c, dadi, totale: tot };
+  const tirati = dadi.reduce((a, b) => a + b, 0), div = divisoreOrgano(p), tot = Math.floor(tirati / div);
+  const prima = st.fatica; st.fatica = Math.min(massimi(c, p).fatica, st.fatica + tot); st.rif_riserva -= n;
+  log(c, `${s.nome}: Rifiatare ${n}d${s.rif_tipo} = ${tirati} [${dadi.join(', ')}]` + (div > 1 ? ` ÷ ${div} (organo compromesso) = ${tot}` : '') + ` — Fatica ${prima} → ${st.fatica}`);
+  return { camp: c, dadi, totale: tot, tirati, divisore: div };
 }
 function puntoEroe(camp, id, valore) {
   const c = clona(camp), p = trova(c, id); p.stato.eroe = valore ? 1 : 0; return c;
 }
-// valori mostrati nel riquadro, con i modificatori della Build 1 (Fame N / Sete N: TS e abilità −N)
-function valoriPG(camp, p) {
-  const s = p.scheda, st = p.stato, mal = [];
-  const fame = st.fame ? st.fame.penalita : 0, sete = st.sete ? st.sete.penalita : 0;
-  if (sete) mal.push({ nome: `Sete ${sete}`, ts: -sete, abilita: -sete });
-  if (fame) mal.push({ nome: `Fame ${fame}`, ts: -fame, abilita: -fame });
-  const nl = statoNonLetali(p); if (nl) mal.push({ nome: nl, condizione: true });
-  const ts = mal.reduce((a, m) => a + (m.ts || 0), 0), ab = mal.reduce((a, m) => a + (m.abilita || 0), 0);
-  const v = (base, mod) => ({ base, valore: base + mod, mod });
-  return {
-    tempra: v(s.tempra, ts), riflessi: v(s.riflessi, ts), volonta: v(s.volonta, ts),
-    percezione: v(s.percezione, ab), intuizione: v(s.intuizione, ab), furtivita: v(s.furtivita, ab),
-    libere: s.abilita_libere.filter(a => a.nome).map(a => ({ nome: a.nome, ...v(a.valore, ab) })),
-    ca: v(s.ca, 0), ca_contatto: v(s.ca_contatto, 0), ca_sprovvista: v(s.ca_sprovvista, 0), dmc: v(s.dmc, 0),
-    iniziativa: v(s.iniziativa, 0), temp: totTemp(st), malus: mal,
-  };
-}
-
 // ------------------------------------------------------------------ tempo
 // Avanza l'orologio di `dR` round: scadenze dei PF temporanei, recupero dei non letali (1 all'ora),
 // cambi di giorno (scorte e meteo). Gli avvisi che chiedono un'azione del GM vanno in camp.coda.
-function avanza(camp, dR, meteo, rng, motivo) {
+function avanza(camp, dR, meteo, rng, motivo, opz) {
   if (!(Number.isInteger(dR) && dR >= 0)) throw new Error('avanzamento non valido');
   let c = clona(camp);
   const R0 = c.tempo.R, R1 = R0 + dR;
@@ -538,6 +535,7 @@ function avanza(camp, dR, meteo, rng, motivo) {
     c.tempo.R = t;
     scadenzeTemp(c, prec, t);
     recuperoNonLetali(c, prec, t);
+    tempoMalus(c, prec, t, rng, !!(opz && opz.daTurno));
     if (t % ROUND_GIORNO === 0 && t > prec) { c = cambioGiorno(c, meteo, rng); }
     prec = t;
   }
@@ -581,8 +579,10 @@ function riposo(camp, meteo, rng, ids) {
   let c = avanza(camp, DURATA_RIPOSO, meteo, rng, 'Riposo 8 ore');
   for (const p of c.pg) {
     if (!scelti.some(x => x.id === p.id)) continue;
-    const s = p.scheda, st = p.stato;
-    st.fatica = s.fatica_max; st.ferita = Math.min(s.ferita_max, st.ferita + s.livello); st.rif_riserva = s.rif_dadi;
+    const s = p.scheda, st = p.stato, mx = massimi(c, p), div = divisoreOrgano(p);
+    st.fatica = div > 1 ? Math.min(mx.fatica, st.fatica + Math.floor(Math.max(0, mx.fatica - st.fatica) / div)) : mx.fatica;
+    st.ferita = Math.min(mx.ferita, st.ferita + s.livello); st.rif_riserva = s.rif_dadi;
+    if (div > 1) log(c, `${s.nome}: organo compromesso, Punti Fatica recuperati ÷ ${div}`);
     st.ultimo_riposo = { inizio, fine: inizio + DURATA_RIPOSO };
   }
   log(c, `Riposo (${scelti.map(p => p.scheda.nome).join(', ')}): Fatica al massimo, +1 Ferita per livello, riserva del Rifiatare piena`);
@@ -679,6 +679,8 @@ function razionamentoAperto(camp) {
 }
 function togliDallaCoda(camp, i) {
   if (camp.coda[i] && camp.coda[i].tipo === 'razionamento') throw new Error('prima scegli chi usa la scorta');
+  if (camp.coda[i] && ['ts', 'veleno'].includes(camp.coda[i].tipo)) throw new Error('rispondi Superato o Fallito');
+  if (camp.coda[i] && camp.coda[i].tipo === 'morte') throw new Error('scegli cosa succede');
   const c = clona(camp); c.coda.splice(i, 1); return c;
 }
 
@@ -693,22 +695,22 @@ function avviaCombattimento(camp, partecipanti, rng, oraReale) {
   if (!righe.length) throw new Error('nessun partecipante');
   ordina(righe);
   c.combattimento = { round: 1, ordine: righe.map(r => r.id), righe: Object.fromEntries(righe.map(r => [r.id, r])), turno: 0,
-    attesa: [], inizioR: c.tempo.R, storia: [], timer: c.impostazioni.timer ? nuovoTimer(oraReale) : null };
+    attesa: [], avvisi: [], inizioR: c.tempo.R, storia: [], timer: c.impostazioni.timer ? nuovoTimer(oraReale) : null };
   log(c, 'Inizio del combattimento: ' + righe.map(r => `${etichetta(r)} ${r.totale}`).join(', '));
   saltaFuori(c.combattimento);
   return c;
 }
 function righeDa(c, x, rng) {
   if (x.tipo === 'pg') {
-    const p = trova(c, x.pgId), s = p.scheda, pen = x.impreparato ? s.imp_pen : 0;
+    const p = trova(c, x.pgId), s = p.scheda, pen = x.impreparato ? s.imp_pen : 0, ini = valoriPG(c, p).iniziativa.valore;
     let totale, nat = null;
-    if (x.d20 !== undefined && x.d20 !== null) { nat = x.d20; if (!(nat >= 1 && nat <= 20)) throw new Error('d20 non valido'); totale = tiroIniziativa(nat, s.iniziativa, pen); }
+    if (x.d20 !== undefined && x.d20 !== null) { nat = x.d20; if (!(nat >= 1 && nat <= 20)) throw new Error('d20 non valido'); totale = tiroIniziativa(nat, ini, pen); }
     else { if (!Number.isInteger(x.totale)) throw new Error(`${s.nome}: totale dell'iniziativa mancante`); totale = x.totale - pen; }
-    return [{ id: prossimoId(c, 'r'), tipo: 'pg', pgId: p.id, nome: s.nome, bonus: s.iniziativa, nat, totale, n: 1, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: false, nomeTv: '' }];
+    return [{ id: prossimoId(c, 'r'), tipo: 'pg', pgId: p.id, nome: s.nome, bonus: ini, nat, totale, n: 1, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: false, nomeTv: '', malus: [] }];
   }
   const n = x.n || 1, pen = x.impreparato ? (x.imp_pen === undefined ? 6 : x.imp_pen) : 0, out = [];
   if (!String(x.nome || '').trim()) throw new Error('nemico senza nome');
-  const riga = (nome, k) => { const nat = d(20, rng); return { id: prossimoId(c, 'r'), tipo: 'nemico', nome, bonus: x.bonus || 0, nat, totale: tiroIniziativa(nat, x.bonus || 0, pen), n: k, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: !!x.nascosto, nomeTv: x.nomeTv || '' }; };
+  const riga = (nome, k) => { const nat = d(20, rng); return { id: prossimoId(c, 'r'), tipo: 'nemico', nome, bonus: x.bonus || 0, nat, totale: tiroIniziativa(nat, x.bonus || 0, pen), n: k, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: !!x.nascosto, nomeTv: x.nomeTv || '', malus: [] }; };
   if (n === 1) out.push(riga(x.nome, 1));
   else if (x.modo === 'singolo') for (let i = 1; i <= n; i++) out.push(riga(`${x.nome} ${i}`, 1));
   else out.push(riga(x.nome, n));
@@ -745,13 +747,16 @@ const COMANDI = {
     const cb = c.combattimento; if (!cb.ordine.length) return c;
     const uscente = attuale(cb);
     timerFineTurno(cb, uscente, ora);
+    if (uscente) fineTurno(c, uscente.id, rng);
     cb.turno++;
     saltaFuori(cb);
     if (cb.turno >= cb.ordine.length) { // giro completo = 1 round
       cb.turno = 0; cb.round++;
-      c = avanza(c, 1, meteo, rng);
+      c = avanza(c, 1, meteo, rng, undefined, { daTurno: true });
       saltaFuori(c.combattimento);
     }
+    const nuovo = attuale(c.combattimento);
+    c.combattimento.avvisi = nuovo ? inizioTurno(c, nuovo.id, rng) : [];
     return c;
   },
   ritardare(c, a, meteo, rng, ora) { // esce dall'ordine ed è «in attesa» finché non entra
@@ -759,8 +764,10 @@ const COMANDI = {
     timerFineTurno(cb, r, ora);
     cb.ordine.splice(cb.turno, 1); cb.attesa.push(r.id); r.stato = 'attesa';
     log(c, `${etichetta(r)} ritarda`);
-    if (cb.turno >= cb.ordine.length) { cb.turno = 0; cb.round++; c = avanza(c, 1, meteo, rng); }
+    if (cb.turno >= cb.ordine.length) { cb.turno = 0; cb.round++; c = avanza(c, 1, meteo, rng, undefined, { daTurno: true }); }
     saltaFuori(c.combattimento);
+    const nuovo = attuale(c.combattimento);
+    c.combattimento.avvisi = nuovo ? inizioTurno(c, nuovo.id, rng) : [];
     return c;
   },
   entraOra(c, a) { // chi ritardava si inserisce prima di chi sta agendo e agisce ora
@@ -791,6 +798,7 @@ const COMANDI = {
   separa(c, a, meteo, rng) { // stacca una creatura dal gruppo, con la stessa iniziativa, subito dopo il gruppo
     const cb = c.combattimento, r = cb.righe[a.id]; if (!(r.n > 1)) throw new Error('non è un gruppo');
     r.n--; const nuova = { ...clona(r), id: prossimoId(c, 'r'), n: 1, nome: a.nome || `${r.nome} (separato)`, prepara: null };
+    nuova.malus = (nuova.malus || []).map(m => ({ ...m, id: prossimoId(c, 'm') }));
     cb.righe[nuova.id] = nuova;
     const i = cb.ordine.indexOf(r.id);
     if (i >= 0) cb.ordine.splice(i + 1, 0, nuova.id); else cb.attesa.push(nuova.id);
@@ -829,6 +837,8 @@ function fineCombattimento(camp, oraReale) {
   const rie = riepilogo(c, cb, oraReale);
   log(c, rie.testo);
   c.combattimento = null;
+  for (const p of c.pg) { const via = p.stato.malus.filter(m => m.durata.tipo === 'incontro');
+    for (const m of via) togliDaElenco(c, p.stato.malus, m, `${p.scheda.nome}: finisce ${m.nome} (fine dell'incontro)`); }
   return { camp: c, riepilogo: rie };
 }
 
@@ -867,6 +877,566 @@ function riepilogo(c, cb, ora) {
   r.testo = testo; return r;
 }
 
+// ------------------------------------------------------------------ malus e bonus (G)
+// Un malus sta in p.stato.malus (PG) o in combattimento.righe[id].malus (nemici e gruppi). «chi» = {pg: id} | {riga: id}.
+// durata: {tipo:'round'|'tempo', fine: R} · {tipo:'incontro'|'permanente'|'libera'} · {tipo:'curata', legata: id del malus}
+// Durate in round: in combattimento scadono all'inizio del turno della creatura di riferimento (il bersaglio, o chi
+// l'ha causato) quando il round assoluto ha raggiunto `fine`; fuori combattimento con l'orologio (G1: 10 round al minuto).
+const UNITA_ROUND = { round: 1, minuti: ROUND_MIN, ore: ROUND_ORA, giorni: ROUND_GIORNO };
+const PAURA = ['Scosso', 'Spaventato', 'In Preda al Panico', 'Accovacciato'];
+const EFFETTI_COND = { // G2: condizioni applicate ai valori del riquadro
+  'Scosso': { ts: -2, abilita: -2 }, 'Spaventato': { ts: -2, abilita: -2 }, 'In Preda al Panico': { ts: -2, abilita: -2 }, 'Infermo': { ts: -2, abilita: -2 },
+  'Abbagliato': { abilita_nome: { 'Percezione': -1 } }, 'Accecato': { ca: -2, abilita_nome: { 'Percezione': -4 } }, 'Assordato': { iniziativa: -4 },
+  'Impreparato': { sprovvista: true }, 'Colto alla sprovvista': { sprovvista: true }, 'Prono': { nota: '−4 CA in mischia / +4 a distanza' } };
+const CHIAVI_MOD = ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max', 'ferita_max'];
+function pulisciMods(mo) {
+  const out = {};
+  for (const k of [...CHIAVI_MOD, 'fatica_max_liv', 'ferita_max_liv']) { const v = mo && mo[k]; if (v) { if (!Number.isInteger(v)) throw new Error('modificatore non valido: ' + k); out[k] = v; } }
+  if (mo && mo.abilita_nome) for (const [n, v] of Object.entries(mo.abilita_nome)) if (v) (out.abilita_nome = out.abilita_nome || {})[n] = v;
+  if (mo && mo.altro) out.altro = String(mo.altro).trim();
+  return out;
+}
+function elencoDi(c, chi) {
+  if (chi.pg) return trova(c, chi.pg).stato.malus;
+  const r = c.combattimento && c.combattimento.righe[chi.riga]; if (!r) throw new Error('creatura non trovata');
+  return r.malus || (r.malus = []);
+}
+function nomeDi(c, chi) { return chi.pg ? trova(c, chi.pg).scheda.nome : etichetta(c.combattimento.righe[chi.riga]); }
+function tutti(c) { // tutte le creature con malus: PG e righe dei nemici
+  const out = c.pg.map(p => ({ chi: { pg: p.id }, nome: p.scheda.nome, elenco: p.stato.malus, p }));
+  if (c.combattimento) for (const r of Object.values(c.combattimento.righe)) if (r.tipo !== 'pg') out.push({ chi: { riga: r.id }, nome: etichetta(r), elenco: r.malus || (r.malus = []), r });
+  return out;
+}
+function creaturaDi(c, chi) { return tutti(c).find(x => chi.pg ? x.chi.pg === chi.pg : x.chi.riga === chi.riga); }
+function trovaMalus(c, chi, id) {
+  const el = elencoDi(c, chi), m = el.find(x => x.id === id); if (!m) throw new Error('malus non trovato');
+  return { x: creaturaDi(c, chi), m };
+}
+function rigaDiPG(cb, pgId) { const r = Object.values(cb.righe).find(x => x.pgId === pgId); return r ? r.id : null; }
+// riga dell'iniziativa che fa da riferimento per le scadenze in round
+function ancora(c, chi, m) {
+  const cb = c.combattimento; if (!cb) return null;
+  if (m.scadenza === 'causa' && m.causa && cb.righe[m.causa]) return m.causa;
+  return chi.riga || rigaDiPG(cb, chi.pg);
+}
+// il malus scala nei turni se c'è un combattimento e il riferimento è nell'ordine
+function inTurno(c, chi, m) { const a = ancora(c, chi, m); return a && c.combattimento.ordine.includes(a) ? a : null; }
+// round assoluto di fine per N round da adesso: se il riferimento ha già agito in questo round, un round in più
+function fineRound(c, chi, m, n) {
+  const cb = c.combattimento; let f = c.tempo.R + n;
+  const a = cb && ancora(c, chi, m);
+  if (a) { const i = cb.ordine.indexOf(a); if (i >= 0 && i < cb.turno) f += 1; }
+  return f;
+}
+function durataMalus(c, chi, m, dd) {
+  if (!dd || !dd.unita && !dd.tipo) return { tipo: 'libera' };
+  if (dd.tipo) { if (!['incontro', 'permanente', 'libera', 'curata'].includes(dd.tipo)) throw new Error('durata non valida'); return { ...dd }; }
+  if (['incontro', 'permanente', 'libera'].includes(dd.unita)) return { tipo: dd.unita };
+  const k = UNITA_ROUND[dd.unita]; if (!k || !(Number.isInteger(dd.n) && dd.n > 0)) throw new Error('durata non valida');
+  return dd.unita === 'round' ? { tipo: 'round', fine: fineRound(c, chi, m, dd.n), n: dd.n } : { tipo: 'tempo', fine: c.tempo.R + dd.n * k, n: dd.n, unita: dd.unita };
+}
+const PESO_DURATA = d => d.tipo === 'permanente' || d.tipo === 'libera' || d.tipo === 'curata' ? Infinity : d.tipo === 'incontro' ? 1e15 : d.fine;
+// aggiunge un malus a c (già clonata) e lo restituisce
+function nuovoMalus(c, chi, d, rng) {
+  const el = elencoDi(c, chi), chiNome = nomeDi(c, chi);
+  const tipo = d.tipo || 'altro';
+  let nome = String(d.nome || '').trim();
+  if (tipo === 'condizione' && !nome) throw new Error('scegli la condizione');
+  if (!nome) nome = { bonus: 'Bonus', veleno: 'Veleno', malattia: 'Malattia' }[tipo] || 'Malus';
+  const m = { id: prossimoId(c, 'm'), tipo, nome, R: c.tempo.R, scadenza: d.scadenza === 'causa' && d.causa ? 'causa' : 'bersaglio',
+    causa: d.scadenza === 'causa' && d.causa ? d.causa : null, mods: pulisciMods(d.mods), etichetta: String(d.etichetta || '').trim(), fonte: d.fonte || '' };
+  if (m.causa && !(c.combattimento && c.combattimento.righe[m.causa])) throw new Error('chi l\'ha causato non è nell\'iniziativa');
+  if (d.perc) { if (!(Number.isInteger(d.perc) && d.perc > 0 && d.perc <= 100)) throw new Error('percentuale non valida'); m.perc = d.perc; }
+  if (nome === 'Livelli negativi') { if (!(Number.isInteger(d.n) && d.n > 0)) throw new Error('numero dei livelli negativi non valido'); m.n = d.n; }
+  m.durata = durataMalus(c, chi, m, d.durata);
+  if (d.ts) { // TS periodico (facoltativo per qualsiasi malus)
+    const t = d.ts, k = UNITA_ROUND[t.unita];
+    if (!t.tipo || !Number.isInteger(t.cd) || !k || !(Number.isInteger(t.ogni) && t.ogni > 0)) throw new Error('TS periodico incompleto');
+    m.per = { kind: 'ts', ts: t.tipo, cd: t.cd, unita: t.unita, ogni: t.ogni * k, finisce: t.finisce !== false, attesa: false };
+    // il primo TS: al prossimo turno della creatura di riferimento (in combattimento), altrimenti dopo l'intervallo
+    m.per.prossimo = t.unita === 'round' && c.combattimento ? fineRound(c, chi, m, t.ogni - 1) : c.tempo.R + m.per.ogni;
+  }
+  if (tipo === 'veleno' || tipo === 'malattia') impostaVeleno(c, chi, m, d.veleno || {});
+  for (const k of ['pf', 'gravita', 'passo', 'azioni', 'amp', 'dita']) if (d[k] !== undefined) m[k] = clona(d[k]);
+  if (['ferita', 'emorragia_lieve', 'emorragia_grave'].includes(tipo)) { m.cure = 0; m.cer = { tentativi: 0, cd: null, prossimo: null, guarisce: null }; }
+  if (['emorragia_grave', 'panico'].includes(tipo)) { m.p = 0; m.tiri = 0; }
+  if (tipo === 'panico') m.spese = [];
+  if (d.morteTra) m.morte_R = c.tempo.R + d.morteTra;
+  if (d.dopoMorto) m.dopoMorto = true;
+  // la stessa condizione non si somma: resta la durata più lunga
+  if (tipo === 'condizione' && m.durata.tipo !== 'curata') {
+    const es = el.find(x => x.tipo === 'condizione' && x.nome === nome && x.durata.tipo !== 'curata' && (x.perc || 0) === (m.perc || 0) && (x.n || 0) === (m.n || 0));
+    if (es) {
+      if (PESO_DURATA(m.durata) > PESO_DURATA(es.durata)) { es.durata = m.durata; es.scadenza = m.scadenza; es.causa = m.causa; log(c, `${chiNome}: ${nome} rinnovato (${descriviDurata(c, es)})`); }
+      else log(c, `${chiNome}: ${nome} già presente, resta la durata più lunga`);
+      return es;
+    }
+  }
+  el.push(m);
+  log(c, `${chiNome}: ${tipo === 'bonus' ? 'bonus' : 'malus'} ${nomeEsteso(m)}` + (m.etichetta ? ` [${m.etichetta}]` : '') + (descriviDurata(c, m) ? ` (${descriviDurata(c, m)})` : ''));
+  if (chi.pg) { const p = trova(c, chi.pg), mx = massimi(c, p); // massimi ridotti: i valori correnti non li superano
+    p.stato.fatica = Math.min(p.stato.fatica, mx.fatica); p.stato.ferita = Math.min(p.stato.ferita, mx.ferita); }
+  if (m.vel && m.vel.primo && m.per.prossimo <= c.tempo.R) dovuto(c, creaturaDi(c, chi), m, rng);
+  return m;
+}
+function aggiungiMalus(camp, chi, dati, rng) { const c = clona(camp); nuovoMalus(c, chi, dati, rng); return c; }
+function nomeEsteso(m) { return m.nome + (m.perc ? ` ${m.perc}%` : '') + (m.n ? ` ${m.n}` : ''); }
+function descriviDurata(c, m) {
+  const d = m.durata;
+  if (d.tipo === 'round') return `${Math.max(0, d.fine - c.tempo.R)} r`;
+  if (d.tipo === 'tempo') return formatoDurata(Math.max(0, d.fine - c.tempo.R));
+  return { incontro: 'fino a fine incontro', permanente: 'permanente', curata: 'finché curata', libera: '' }[d.tipo];
+}
+// rimuove m e quello che è legato a m (condizioni «finché la ferita… non viene curata»)
+function togliDaElenco(c, el, m, testo) {
+  const i = el.indexOf(m); if (i < 0) return;
+  el.splice(i, 1);
+  if (testo) log(c, testo);
+  for (const x of el.filter(x => x.durata.tipo === 'curata' && x.durata.legata === m.id)) togliDaElenco(c, el, x, null);
+  c.coda = c.coda.filter(q => q.malus !== m.id || q.tipo === 'morte');
+}
+function togliMalus(camp, chi, id) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id);
+  togliDaElenco(c, x.elenco, m, `${x.nome}: tolto ${nomeEsteso(m)}`); return c;
+}
+function scadeMalus(c, x, m) {
+  togliDaElenco(c, x.elenco, m, `${x.nome}: scade ${nomeEsteso(m)}`);
+  if (m.dopoMorto && x.p) { nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Morto', durata: { tipo: 'permanente' } }); }
+}
+function guarisci(c, x, m, come) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${nomeEsteso(m)} ${come}`); }
+// Il tempo che passa: scadenze, guarigioni, emorragie, promemoria. daTurno = avanzamento di 1 round dal cambio di round
+// del combattimento (le cose «in turno» le gestiscono inizioTurno e fineTurno).
+function tempoMalus(c, prec, t, rng, daTurno) {
+  for (const x of tutti(c)) {
+    for (const m of x.elenco.slice()) {
+      if (!x.elenco.includes(m)) continue;
+      const fermo = !!(x.p && x.p.stato.morte); // morte in sospeso: niente altri tiri né promemoria, le durate scadono
+      const turni = daTurno && inTurno(c, x.chi, m);
+      if (!fermo && m.tipo === 'emorragia_lieve' && m.morte_R != null && m.morte_R <= t) { muore(c, x, 'emorragia lieve'); continue; }
+      if (!fermo && (m.tipo === 'emorragia_grave' || m.tipo === 'panico') && !turni) {
+        let morto = false;
+        for (let k = Math.max(prec, m.R); k < t && !morto; k++) morto = tiroCumulativo(c, x, m, rng);
+        if (morto) continue;
+      }
+      if (m.cer && m.cer.guarisce != null && m.cer.guarisce <= t) { guarisci(c, x, m, 'è guarita (Professione (cerusico))'); continue; }
+      if ((m.durata.tipo === 'tempo' || (m.durata.tipo === 'round' && !turni)) && m.durata.fine <= t) { scadeMalus(c, x, m); continue; }
+      if (!fermo && m.per && !m.per.attesa && !(m.per.unita === 'round' && turni) && m.per.prossimo <= t) dovuto(c, x, m, rng);
+    }
+  }
+}
+// inizio del turno di una riga: scadono i malus in round che la hanno come riferimento; promemoria dei TS a ogni round
+function inizioTurno(c, rigaId, rng) {
+  const avv = [];
+  for (const x of tutti(c)) for (const m of x.elenco.slice()) {
+    if (!x.elenco.includes(m) || ancora(c, x.chi, m) !== rigaId) continue;
+    const fermo = !!(x.p && x.p.stato.morte);
+    const proprio = x.chi.riga === rigaId || (x.p && rigaDiPG(c.combattimento, x.p.id) === rigaId);
+    if (m.durata.tipo === 'round' && c.tempo.R >= m.durata.fine) { scadeMalus(c, x, m); avv.push(`${nomeEsteso(m)} scade ora` + (proprio ? '' : ` (${x.nome})`)); continue; }
+    if (!fermo && m.per && m.per.unita === 'round' && !m.per.attesa && c.tempo.R >= m.per.prossimo) dovuto(c, x, m, rng);
+  }
+  return avv;
+}
+// fine del turno: emorragie gravi e attacchi di panico della creatura che ha agito
+function fineTurno(c, rigaId, rng) {
+  for (const x of tutti(c)) for (const m of x.elenco.slice()) {
+    if (!['emorragia_grave', 'panico'].includes(m.tipo) || !x.elenco.includes(m) || ancora(c, x.chi, m) !== rigaId) continue;
+    if (x.p && x.p.stato.morte) continue;
+    tiroCumulativo(c, x, m, rng);
+  }
+}
+// 5% cumulabile: il primo tiro a 5, poi 10, 15…; d100 uguale o sotto = morte
+function tiroCumulativo(c, x, m, rng) {
+  m.p += m.passo || 5; m.tiri = (m.tiri || 0) + 1;
+  const tiro = d(100, rng), causa = m.tipo === 'panico' ? 'arresto cardiaco (attacco di panico)' : 'emorragia grave';
+  log(c, `${x.nome}: ${m.nome}, d% ${tiro} (muore con ${m.p} o meno)`);
+  if (tiro <= m.p) { muore(c, x, `${causa}, d% ${tiro} su ${m.p}%`); return true; }
+  return false;
+}
+// I3: la morte apre un avviso con il 20% del Morente; l'app non decide da sola
+function muore(c, x, causa) {
+  if (x.p) { if (x.p.stato.morte) return; x.p.stato.morte = { R: c.tempo.R, causa }; }
+  log(c, `${x.nome} muore: ${causa}`);
+  c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'morte', chi: x.chi, testo: `${x.nome} muore: ${causa}. Creatura vivente in combattimento: 20% di restare morente per 1 minuto (Vol. 1).` });
+}
+function risolviMorte(camp, qid, scelta, rng) {
+  const c = clona(camp), i = c.coda.findIndex(q => q.id === qid);
+  if (i < 0 || c.coda[i].tipo !== 'morte') throw new Error('avviso non trovato');
+  const q = c.coda[i], x = creaturaDi(c, q.chi); c.coda.splice(i, 1);
+  if (!x) return { camp: c };
+  let esito = scelta, tiro = null;
+  if (scelta === 'morente') { tiro = d(100, rng); esito = tiro <= 20 ? 'morente' : 'morto'; log(c, `${x.nome}: 20% del Morente, d% ${tiro} → ${esito === 'morente' ? 'resta morente per 1 minuto' : 'muore'}`); }
+  if (esito === 'morente') nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Morente', durata: { n: 1, unita: 'minuti' }, dopoMorto: true });
+  else if (esito === 'morto') { nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Morto', durata: { tipo: 'permanente' } });
+    const r = x.r || (c.combattimento && x.p && c.combattimento.righe[rigaDiPG(c.combattimento, x.p.id)]); // nell'iniziativa: fuori combattimento
+    if (r) { r.stato = 'fuori'; saltaFuori(c.combattimento); } }
+  else if (scelta === 'ignora') { if (x.p) delete x.p.stato.morte; log(c, `${x.nome}: la morte è annullata dal GM`); }
+  else throw new Error('scelta non valida');
+  return { camp: c, esito, tiro };
+}
+
+// ------------------------------------------------------------------ TS periodici, veleni e malattie (H)
+// Applicare un veleno vale come TS iniziale fallito: il primo effetto arriva subito (o alla fine dell'insorgenza)
+// senza TS; poi a ogni scadenza della frequenza si tira il TS, N volte. La cura = N TS consecutivi superati.
+function impostaVeleno(c, chi, m, v) {
+  const fr = v.frequenza || {}, k = UNITA_ROUND[fr.unita];
+  if (!k) throw new Error('frequenza non valida');
+  if (!Number.isInteger(v.cd)) throw new Error('CD del TS mancante');
+  if (fr.volte !== null && fr.volte !== undefined && !(Number.isInteger(fr.volte) && fr.volte > 0)) throw new Error('numero di volte non valido');
+  if (!(Number.isInteger(v.cura) && v.cura > 0)) throw new Error('cura: numero di TS consecutivi non valido');
+  m.per = { kind: 'veleno', ts: v.ts || 'Tempra', cd: v.cd, unita: fr.unita, ogni: k, finisce: true, attesa: false };
+  const ins = v.insorgenza && v.insorgenza.n ? v.insorgenza : null;
+  m.per.prossimo = !ins ? c.tempo.R : ins.unita === 'round' ? fineRound(c, chi, m, ins.n) : c.tempo.R + ins.n * UNITA_ROUND[ins.unita];
+  m.vel = { forma: v.forma || '', effetto: String(v.effetto || '').trim(), volte: fr.volte || null, restanti: fr.volte || null, cura: v.cura, successi: 0, totale: 0, primo: true,
+    insorgenza: ins };
+  m.durata = { tipo: 'libera' };
+}
+// "1d2 For" → tira 1d2, etichetta "For"; senza dadi resta solo il testo
+function tiraEffetto(testo, rng) {
+  const t = String(testo || '').trim(), x = t.match(/^(\d*d\d+(?:[+-]\d+)?|\d+)\s*(.*)$/i);
+  if (!x) return { valore: null, testo: t || 'effetto' };
+  const r = tira(x[1], rng); return { valore: r.totale, testo: `${r.totale} ${x[2]}`.trim(), espr: x[1], resto: x[2] };
+}
+function prossimaScadenza(c, x, m, da) { m.per.ultimo = da; m.per.prossimo = da + m.per.ogni; }
+// una scadenza arrivata: primo effetto del veleno (automatico) oppure promemoria del TS in coda
+function dovuto(c, x, m, rng) {
+  const quando = Math.min(m.per.prossimo, c.tempo.R);
+  if (m.vel && m.vel.primo) {
+    m.vel.primo = false;
+    const e = effettoVeleno(c, x, m, rng);
+    c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'avviso', chi: x.chi, malus: m.id, testo: `${x.nome}: ${m.nome}, primo effetto ${e}.` });
+    prossimaScadenza(c, x, m, inTurno(c, x.chi, m) && m.per.unita === 'round' ? c.tempo.R : m.per.prossimo);
+    if (!(m.per.unita === 'round' && inTurno(c, x.chi, m)) && m.per.prossimo <= c.tempo.R) dovuto(c, x, m, rng);
+    return;
+  }
+  m.per.attesa = true; m.per.ultimo = quando;
+  const v = m.vel;
+  c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: m.per.kind, chi: x.chi, malus: m.id,
+    testo: `${x.nome}: ${m.nome}, tira ${m.per.ts} CD ${m.per.cd}` + (v ? ` — successi consecutivi ${v.successi}/${v.cura}` + (v.volte ? `, scadenza ${v.volte - v.restanti + 1}/${v.volte}` : '') : '') + '.' });
+}
+function effettoVeleno(c, x, m, rng) {
+  const e = tiraEffetto(m.vel.effetto, rng);
+  if (e.valore !== null) m.vel.totale += e.valore;
+  log(c, `${x.nome}: ${m.nome}, effetto ${e.testo}` + (e.valore !== null && m.vel.totale !== e.valore ? ` (totale ${m.vel.totale}${e.resto ? ' ' + e.resto : ''})` : ''));
+  return e.testo;
+}
+// risposta a un promemoria di TS (periodico o di veleno/malattia)
+function esitoPromemoria(camp, qid, superato, rng) {
+  const c = clona(camp), i = c.coda.findIndex(q => q.id === qid);
+  if (i < 0 || !['ts', 'veleno'].includes(c.coda[i].tipo)) throw new Error('promemoria non trovato');
+  const q = c.coda[i]; c.coda.splice(i, 1);
+  const x = creaturaDi(c, q.chi), m = x && x.elenco.find(y => y.id === q.malus);
+  if (!m) return c;
+  m.per.attesa = false;
+  const da = m.per.ultimo !== undefined ? m.per.ultimo : c.tempo.R;
+  if (m.per.kind === 'ts') {
+    log(c, `${x.nome}: ${m.nome}, ${m.per.ts} CD ${m.per.cd} ${superato ? 'superato' : 'fallito'}`);
+    if (superato && m.per.finisce) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${nomeEsteso(m)} finisce (TS superato)`); return c; }
+  } else {
+    const v = m.vel;
+    if (superato) { v.successi++; log(c, `${x.nome}: ${m.nome}, ${m.per.ts} CD ${m.per.cd} superato (${v.successi}/${v.cura} consecutivi)`); }
+    else { v.successi = 0; log(c, `${x.nome}: ${m.nome}, ${m.per.ts} CD ${m.per.cd} fallito`); effettoVeleno(c, x, m, rng); }
+    if (v.successi >= v.cura) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${m.nome} curato (${v.cura} TS consecutivi)`); return c; }
+    if (v.restanti !== null) { v.restanti--; if (v.restanti <= 0) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${m.nome} finisce (frequenza esaurita)`); return c; } }
+  }
+  prossimaScadenza(c, x, m, da);
+  if (!(m.per.unita === 'round' && inTurno(c, x.chi, m)) && m.per.prossimo <= c.tempo.R) dovuto(c, x, m, rng);
+  return c;
+}
+// H4: dose aggiuntiva = CD +2 e durata +50% (della frequenza di base, per eccesso)
+function doseAggiuntiva(camp, chi, id) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id);
+  if (!m.vel) throw new Error('solo veleni e malattie');
+  m.per.cd += 2;
+  let piu = 0;
+  if (m.vel.volte) { m.vel.base = m.vel.base || m.vel.volte; piu = Math.ceil(m.vel.base / 2); m.vel.volte += piu; m.vel.restanti += piu; }
+  for (const q of c.coda) if (q.malus === m.id && q.tipo === 'veleno') q.testo = q.testo.replace(/CD \d+/, `CD ${m.per.cd}`);
+  log(c, `${x.nome}: ${m.nome}, dose aggiuntiva — CD ${m.per.cd}` + (piu ? `, ${piu} scadenze in più` : ''));
+  return c;
+}
+function togliDallaCodaId(camp, qid) {
+  const c = clona(camp), i = c.coda.findIndex(q => q.id === qid);
+  if (i < 0) throw new Error('avviso non trovato');
+  if (['ts', 'veleno'].includes(c.coda[i].tipo)) throw new Error('rispondi Superato o Fallito');
+  if (c.coda[i].tipo === 'morte') throw new Error('scegli cosa succede');
+  if (c.coda[i].tipo === 'razionamento') throw new Error('prima scegli chi usa la scorta');
+  c.coda.splice(i, 1); return c;
+}
+
+// ------------------------------------------------------------------ valori del riquadro con malus e bonus (G2, G3)
+function divisoreOrgano(p) { const n = p.stato.malus.filter(m => m.tipo === 'organo').length; return n >= 2 ? 3 : n === 1 ? 2 : 1; }
+function massimi(c, p) { const v = valoriPG(c, p); return { fatica: v.fatica_max.valore, ferita: v.ferita_max.valore }; }
+// amputazioni attive: dita (3 su una mano o un piede = persa), un lato o entrambi (I1, tabella del Vol. 3)
+function amputazioniAttive(p) {
+  const voci = p.stato.malus.filter(m => m.tipo === 'amputazione').map(m => ({ amp: m.amp, lato: m.amp.lato || '' }));
+  const dita = {};
+  for (const m of p.stato.malus.filter(m => m.tipo === 'dita')) { const k = m.dita.parte + '|' + (m.dita.lato || m.id); (dita[k] = dita[k] || { n: 0, m }).n += m.dita.n; }
+  for (const v of Object.values(dita)) if (v.n >= (v.m.amp.dita_perse || 3)) voci.push({ amp: v.m.amp, lato: v.m.dita.lato || '' });
+  const gruppi = {};
+  for (const v of voci) { const g = gruppi[v.amp.gruppo] = gruppi[v.amp.gruppo] || {}; const k = v.lato || 'x' + Object.keys(g).length;
+    if (!g[k] || v.amp.grado > g[k].amp.grado) g[k] = v; }
+  const out = [];
+  for (const g of Object.values(gruppi)) {
+    const lati = Object.values(g);
+    const peggiore = lati.reduce((a, b) => b.amp.grado > a.amp.grado ? b : a);
+    if (g.sinistro && g.destro && peggiore.amp.entrambi) out.push({ nome: `${peggiore.amp.nome_entrambi || peggiore.amp.nome}: entrambi`, ...peggiore.amp.entrambi });
+    else out.push({ nome: peggiore.amp.nome + (peggiore.lato ? ' ' + peggiore.lato : ''), ...peggiore.amp.singolo });
+  }
+  return out;
+}
+// valori mostrati nel riquadro: Fame/Sete (Build 1), condizioni (G2), modificatori dei malus e dei bonus, amputazioni
+function valoriPG(camp, p) {
+  const s = p.scheda, st = p.stato, mal = [], note = [];
+  const tot = { nomi: {} }; for (const k of CHIAVI_MOD) tot[k] = 0;
+  const somma = mo => { if (!mo) return;
+    for (const k of CHIAVI_MOD) if (mo[k]) tot[k] += mo[k];
+    if (mo.fatica_max_liv) tot.fatica_max += mo.fatica_max_liv * s.livello;
+    if (mo.ferita_max_liv) tot.ferita_max += mo.ferita_max_liv * s.livello;
+    for (const [n, v] of Object.entries(mo.abilita_nome || {})) tot.nomi[n] = (tot.nomi[n] || 0) + v; };
+  const fame = st.fame ? st.fame.penalita : 0, sete = st.sete ? st.sete.penalita : 0;
+  if (sete) { mal.push({ nome: `Sete ${sete}`, ts: -sete, abilita: -sete }); somma({ ts: -sete, abilita: -sete }); }
+  if (fame) { mal.push({ nome: `Fame ${fame}`, ts: -fame, abilita: -fame }); somma({ ts: -fame, abilita: -fame }); }
+  const nl = statoNonLetali(p); if (nl) mal.push({ nome: nl, condizione: true });
+  const cond = new Set(nl ? [nl] : []); let paura = 0, offuscato = 0, sprovvista = false;
+  for (const m of st.malus || []) {
+    if (m.tipo === 'condizione') {
+      cond.add(m.nome);
+      if (m.nome === 'Offuscato') offuscato = Math.max(offuscato, m.perc || 0);
+      if (m.nome === 'Livelli negativi') somma({ ts: -m.n, abilita: -m.n, dmc: -m.n, fatica_max: -5 * m.n });
+    }
+    somma(m.mods);
+    if (m.mods && m.mods.altro) note.push(`${m.nome}: ${m.mods.altro}`);
+  }
+  for (const a of amputazioniAttive(p)) {
+    somma(a.mods); note.push(`${a.nome}: ${a.testo}`);
+    for (const k of (a.mods && a.mods.condizioni) || []) { if (k === 'Colto alla sprovvista') sprovvista = true; else if (k === 'Offuscato 50%') offuscato = Math.max(offuscato, 50); else cond.add(k); }
+  }
+  for (const n of cond) {
+    const e = EFFETTI_COND[n]; if (!e) continue;
+    if (PAURA.includes(n)) { paura = Math.min(paura, e.ts || 0); continue; } // la paura non si somma con sé stessa
+    if (e.sprovvista) sprovvista = true;
+    if (e.nota) note.push(`${n}: ${e.nota}`);
+    somma(e);
+  }
+  if (paura) somma({ ts: paura, abilita: paura });
+  const v = (base, mod) => ({ base, valore: base + mod, mod });
+  const abil = (nome, base) => v(base, tot.abilita + Object.entries(tot.nomi).filter(([k]) => nome.toLowerCase().startsWith(k.toLowerCase())).reduce((a, [, x]) => a + x, 0));
+  const caMostrata = sprovvista ? s.ca_sprovvista : s.ca;
+  return {
+    tempra: v(s.tempra, tot.ts + tot.tempra), riflessi: v(s.riflessi, tot.ts + tot.riflessi), volonta: v(s.volonta, tot.ts + tot.volonta),
+    percezione: abil('Percezione', s.percezione), intuizione: abil('Intuizione', s.intuizione), furtivita: abil('Furtività', s.furtivita),
+    libere: s.abilita_libere.filter(a => a.nome).map(a => ({ nome: a.nome, ...abil(a.nome, a.valore) })),
+    ca: v(s.ca, caMostrata - s.ca + tot.ca), ca_contatto: v(s.ca_contatto, tot.ca), ca_sprovvista: v(s.ca_sprovvista, tot.ca), dmc: v(s.dmc, tot.dmc),
+    iniziativa: v(s.iniziativa, tot.iniziativa), fatica_max: v(s.fatica_max, Math.max(-s.fatica_max, tot.fatica_max)), ferita_max: v(s.ferita_max, Math.max(-s.ferita_max, tot.ferita_max)),
+    temp: totTemp(st), malus: mal, condizioni: [...cond], offuscato, sprovvista, note,
+  };
+}
+
+// ------------------------------------------------------------------ ferite gravi ed emorragie (I)
+// I1: il risultato di una Ferita grave (scritto o incollato) diventa una lista di componenti da attaccare al PG.
+const COND_FERITE = [['Prono', 'pron[oa]'], ['Infermo', 'inferm[oa]'], ['Nauseato', 'nauseat[oa]'], ['Barcollante', 'barcollant[ei]'], ['Frastornato', 'frastornat[oa]'],
+  ['Stordito', 'stordit[oa]'], ['Azzoppato', 'azzoppat[oa]'], ['Offuscato', 'offuscat[oa]'], ['Privo di Sensi', 'priv[oa] di sensi'], ['Confuso', 'confus[oa]'],
+  ['Scosso', 'scoss[oa]'], ['Spaventato', 'spaventat[oa]'], ['Affaticato', 'affaticat[oa]'], ['Esausto', 'esaust[oa]'], ['Accecato', 'accecat[oa]'],
+  ['Assordato', 'assordat[oa]'], ['Abbagliato', 'abbagliat[oa]'], ['Affascinato', 'affascinat[oa]'], ['Paralizzato', 'paralizzat[oa]'], ['Intralciato', 'intralciat[oa]']];
+const UNITA_TESTO = u => /^round/.test(u) ? 'round' : /^minut/.test(u) ? 'minuti' : /^or/.test(u) ? 'ore' : 'giorni';
+function normalizza(t) { return String(t || '').replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').replace(/\.(?=[A-ZÀ-Ú])/g, '. ').trim(); }
+function frasi(t) { const out = []; const re = /[^.]+(?:\.(?!\d)|$)/g; let m; while ((m = re.exec(t))) out.push({ i: m.index, f: m[0] }); return out; }
+// durata scritta dopo una condizione: «per 2 round», «per 1d3+1 minuti», «finché la ferita di gravità 2 (20 PF)…», «in quello seguente»
+function durataNelTesto(coda, rng) {
+  let x = coda.match(/^\s*(?:\(?(\d+)%\)?)?[^.]*?\bper (\d+d\d+(?:[+-]\d+)?|\d+) (round|minut[oi]|or[ae]|giorn[oi])\b/);
+  const f = coda.match(/finché (?:la ferita di gravità (\d) \((\d+) PF\)|l'emorragia lieve \((\d+) PF\)) non viene curata/);
+  if (f && (!x || f.index < x.index)) return { legata: f[1] ? 'f' + f[1] : 'el' };
+  if (x) { const r = /d/.test(x[2]) ? tira(x[2], rng) : null; return { n: r ? r.totale : +x[2], unita: UNITA_TESTO(x[3]), tiro: r ? `${x[2]} = ${r.totale}` : null }; }
+  if (/^\s*in quello seguente/.test(coda)) return { n: 2, unita: 'round', seguente: true };
+  if (/per sempre|in modo permanente/.test(coda)) return { tipo: 'permanente' };
+  return { tipo: 'libera' };
+}
+const percDi = coda => { const x = coda.match(/^\s*\(?(\d+)%\)?/); return x ? +x[1] : null; };
+// sotto-tiro scritto nel testo: «(1d4 = 1-2: sinistro, 3-4: destro)» → valore scelto
+function sottoTiro(testo, rng) {
+  const x = testo.match(/\((\d*d\d+) = ([^)]*)\)/); if (!x) return null;
+  const r = tira(x[1], rng).totale, voci = x[2].split(/,\s*/).map(v => v.match(/^(\d+)(?:-(\d+))?: (.*)$/)).filter(Boolean);
+  const v = voci.find(v => r >= +v[1] && r <= +(v[2] || v[1]));
+  return v ? { valore: v[3].trim(), tiro: `${x[1]} = ${r}`, opzioni: voci.map(v => v[3].trim()) } : null;
+}
+const latoDi = s => /sinistr/.test(s) ? 'sinistro' : /destr/.test(s) ? 'destro' : '';
+function scomponiFerita(testo, rng) {
+  const t = normalizza(testo), out = [], usate = new Set();
+  if (!t) return out;
+  const fr = frasi(t);
+  const fraseDi = i => fr.find(f => i >= f.i && i < f.i + f.f.length) || { i: 0, f: t };
+  // condizioni
+  const trovate = [];
+  for (const [nome, re] of COND_FERITE) {
+    const r = new RegExp(`\\b${re}\\b`, 'gi'); let m;
+    while ((m = r.exec(t))) { if (/già\s*$/i.test(t.slice(Math.max(0, m.index - 6), m.index))) continue; trovate.push({ nome, i: m.index, fine: m.index + m[0].length }); }
+  }
+  trovate.sort((a, b) => a.i - b.i);
+  trovate.forEach((c, j) => {
+    const f = fraseDi(c.i), limite = Math.min(f.i + f.f.length, j + 1 < trovate.length ? trovate[j + 1].i : Infinity);
+    const coda = t.slice(c.fine, limite), dd = durataNelTesto(coda, rng);
+    out.push({ k: 'condizione', nome: c.nome, perc: c.nome === 'Offuscato' ? percDi(coda) : null, durata: dd });
+  });
+  // arto inutilizzabile
+  { const r = /\b(il braccio|la gamba)\b[^.]*?\binutilizzabile\b/gi; let m;
+    while ((m = r.exec(t))) { const f = fraseDi(m.index); out.push({ k: 'altro', nome: (m[1].toLowerCase() === 'il braccio' ? 'Braccio' : 'Gamba') + ' inutilizzabile', durata: durataNelTesto(t.slice(m.index + m[0].length, f.i + f.f.length), rng) }); } }
+  // ferite di gravità N
+  { const r = /ferita di gravità (\d) \((\d+) PF\)/g; let m; const viste = new Set();
+    while ((m = r.exec(t))) if (!viste.has(m[1])) { viste.add(m[1]); out.push({ k: 'ferita', key: 'f' + m[1], gravita: +m[1], pf: +m[2] }); } }
+  // emorragie
+  { const m = t.match(/Morirai per emorragia lieve \((\d+) PF\) entro (\d+d\d+(?:[+-]\d+)?|\d+) (minut[oi]|round)/i);
+    const l = t.match(/emorragia lieve \((\d+) PF\) non viene curata/i);
+    if (m) { const r = tira(m[2], rng), un = UNITA_TESTO(m[3]); out.push({ k: 'emorragia_lieve', key: 'el', pf: +m[1], timer: { n: r.totale, unita: un, tiro: `${m[2]} = ${r.totale}` } }); }
+    else if (l) out.push({ k: 'emorragia_lieve', key: 'el', pf: +l[1], timer: null }); }
+  { const m = t.match(/(\d+)% cumulabile di probabilità di morire per emorragia grave \((\d+) PF\)/i);
+    if (m) out.push({ k: 'emorragia_grave', passo: +m[1], pf: +m[2] }); }
+  { const m = t.match(/attacco di panico[^]*?(\d+)% cumulabile[^]*?arresto cardiaco/i);
+    if (m) out.push({ k: 'panico', passo: +m[1], azioni: /due azioni di round completo/i.test(t) ? 2 : 1 }); }
+  // penalità permanenti
+  { const m = t.match(/penalità permanente \(tira 1d3: ([^)]*)\)/i);
+    if (m) { const st = sottoTiro(`(1d3 = ${m[1]})`, rng), v = st.valore, n = +(v.match(/-(\d+)/) || [0, 0])[1];
+      const mods = /Riflessi/.test(v) ? { riflessi: -n } : /Tempra/.test(v) ? { tempra: -n } : /Volontà/.test(v) ? { volonta: -n } : /Iniziativa/.test(v) ? { iniziativa: -n } : {};
+      out.push({ k: 'penalita', nome: `Penalità permanente: ${v}`, mods, tiro: st.tiro }); } }
+  { const m = t.match(/punteggio mentale è ridotto di (\d+d\d+(?:[+-]\d+)?|\d+) punt[oi] in modo permanente \(tira 1d3: ([^)]*)\)/i);
+    if (m) { const q = /d/.test(m[1]) ? tira(m[1], rng) : null, n = q ? q.totale : +m[1], st = sottoTiro(`(1d3 = ${m[2]})`, rng);
+      out.push({ k: 'penalita', nome: `${st.valore} −${n} permanente`, mods: { altro: `${st.valore} −${n} (punteggio)` }, tiro: [q ? `${m[1]} = ${n}` : '', st.tiro].filter(Boolean).join(', ') }); } }
+  { const m = t.match(/Punti Ferita che i tuoi Punti Fatica sono ridotti in modo permanente di (\d+) punt[oi] per livello/i);
+    if (m) out.push({ k: 'penalita', nome: `Punti Fatica e Ferita max −${m[1]} per livello`, mods: { fatica_max_liv: -m[1], ferita_max_liv: -m[1] } }); }
+  if (/Un organo interno è compromesso/i.test(t)) out.push({ k: 'organo' });
+  // amputazioni e dita
+  const lato = (i) => { const f = fraseDi(i).f, st = /\(1d4 = 1-2: (sinistr[oa]), 3-4: (destr[oa])\)/.test(f) ? sottoTiro(f.match(/\(1d4 = 1-2: sinistr[oa], 3-4: destr[oa]\)/)[0], rng) : null;
+    return st ? { lato: latoDi(st.valore), tiro: st.tiro } : { lato: '', tiro: null }; };
+  { const casi = [['mano', /stacca di netto la mano|la mano e l'attacco te la stacca di netto/i], ['braccio', /stacca il braccio/i], ['piede', /stacca di netto il piede/i],
+      ['gamba', /la gamba all'altezza del ginocchio/i], ['occhio', /ti cava un occhio/i]];
+    for (const [loc, re] of casi) { const m = t.match(re); if (m) out.push({ k: 'amputazione', loc, ...lato(m.index) }); }
+    const v = t.match(/recide una parte del volto (\(1d4 = [^)]*\))/i);
+    if (v) { const st = sottoTiro(v[1], rng), x = st.valore;
+      out.push({ k: 'amputazione', loc: /orecchio/.test(x) ? 'orecchio' : /mento/.test(x) ? 'mento' : 'naso', lato: latoDi(x), tiro: st.tiro, parte: x }); }
+    const r = /(?:stacca|) ?(\d+d\d+|\d+) dit[oa] (della mano|del piede)/gi; let m;
+    while ((m = r.exec(t))) { const q = /d/.test(m[1]) ? tira(m[1], rng) : null; const l = lato(m.index);
+      out.push({ k: 'dita', parte: /mano/.test(m[2]) ? 'mano' : 'piede', n: q ? q.totale : +m[1], lato: l.lato, tiro: [q ? `${m[1]} = ${q.totale}` : '', l.tiro].filter(Boolean).join(', ') || null }); } }
+  if (/\bcoma\b/i.test(t)) out.push({ k: 'condizione', nome: 'Privo di Sensi', etichetta: 'Coma', durata: { tipo: 'permanente' }, nota: (t.match(/[^.]*\bcoma\b[^.]*\./i) || [''])[0].trim() });
+  if (/arti inferiori sono paralizzati/i.test(t)) out.push({ k: 'altro', nome: 'Arti inferiori paralizzati', durata: { tipo: 'permanente' }, nota: 'Niente cariche, corse o ritirate, anche se torna a camminare.' });
+  if (/\bSei morto\b/i.test(t)) out.push({ k: 'morte' });
+  // note: oggetti danneggiati, distrutti, da raccogliere (le tabelle e i sotto-tiri degli slot arrivano con la Build 3)
+  for (const f of fr) if (/oggett[oi]|slot|recuperat[oi] da terra/i.test(f.f) && !/\bdit[oa]\b/.test(f.f)) out.push({ k: 'nota', testo: f.f.trim() });
+  return out;
+}
+function descriviComponente(cp) {
+  const dur = dd => !dd ? '' : dd.legata ? (dd.legata === 'el' ? ' finché l\'emorragia lieve non viene curata' : ` finché la ferita di gravità ${dd.legata.slice(1)} non viene curata`)
+    : dd.tipo === 'permanente' ? ' permanente' : dd.tipo === 'libera' ? '' : ` per ${dd.n} ${dd.unita}` + (dd.seguente ? ' (stordito e poi barcollante: barcollante per 2 round)' : '') + (dd.tiro ? ` (${dd.tiro})` : '');
+  switch (cp.k) {
+    case 'condizione': return `${cp.etichetta ? cp.etichetta + ': ' : ''}${cp.nome}${cp.perc ? ' ' + cp.perc + '%' : ''}${dur(cp.durata)}`;
+    case 'altro': return `${cp.nome}${dur(cp.durata)}`;
+    case 'ferita': return `Ferita di gravità ${cp.gravita}: contatore delle cure 0/${cp.pf} PF`;
+    case 'emorragia_lieve': return `Emorragia lieve (${cp.pf} PF)` + (cp.timer ? `: morte tra ${cp.timer.n} ${cp.timer.unita} se non è fermata (${cp.timer.tiro})` : ', senza morte a tempo');
+    case 'emorragia_grave': return `Emorragia grave (${cp.pf} PF): a fine turno ${cp.passo}% cumulabile di morire`;
+    case 'panico': return `Attacco di panico: a fine turno ${cp.passo}% cumulabile di morire; finisce con ${cp.azioni === 2 ? 'due azioni di round completo consecutive' : 'un\'azione di round completo'}`;
+    case 'penalita': return cp.nome + (cp.tiro ? ` (${cp.tiro})` : '');
+    case 'organo': return 'Organo compromesso: Punti Fatica dal Rifiatare e dal riposo dimezzati (la seconda volta a un terzo)';
+    case 'amputazione': return `Amputazione: ${cp.parte || cp.loc}${cp.lato && !cp.parte ? ' ' + cp.lato : ''}` + (cp.tiro ? ` (${cp.tiro})` : '');
+    case 'dita': return `Dita perse: ${cp.n} (${cp.parte}${cp.lato ? ' ' + cp.lato : ''})` + (cp.tiro ? ` (${cp.tiro})` : '');
+    case 'morte': return 'Morte (avviso con il 20% del Morente)';
+    default: return 'Nota: ' + cp.testo;
+  }
+}
+// attacca i componenti scelti al PG; FER = dati di ferite.json
+function attaccaFerita(camp, pgId, comps, rng, FER, meta) {
+  const c = clona(camp), chi = { pg: pgId }, p = trova(c, pgId), chiavi = {}, fonte = (meta && meta.titolo) || 'Ferita grave';
+  log(c, `${p.scheda.nome}: ${fonte}` + (meta && meta.testo ? ` — ${normalizza(meta.testo)}` : ''));
+  const base = { fonte };
+  const ampDa = (loc, lato) => {
+    const a = FER.amputazioni.find(x => x.id === loc); if (!a) throw new Error('locazione sconosciuta: ' + loc);
+    const ent = a.entrambi || (FER.amputazioni.find(x => x.gruppo === a.gruppo && x.entrambi) || {}).entrambi || null;
+    const nomeEnt = { superiori: 'Arti superiori', inferiori: 'Arti inferiori', orecchi: 'Orecchie', occhi: 'Occhi' }[a.gruppo] || a.nome;
+    return { id: a.id, nome: a.nome, gruppo: a.gruppo, grado: a.grado, lato: lato || '', singolo: clona(a.singolo), entrambi: clona(ent), nome_entrambi: nomeEnt, dita_perse: FER.dita_perse };
+  };
+  for (const cp of comps.filter(x => x.k === 'ferita' || x.k === 'emorragia_lieve')) {
+    const m = cp.k === 'ferita' ? nuovoMalus(c, chi, { ...base, tipo: 'ferita', nome: `Ferita gravità ${cp.gravita}`, gravita: cp.gravita, pf: cp.pf, durata: { tipo: 'libera' } }, rng)
+      : nuovoMalus(c, chi, { ...base, tipo: 'emorragia_lieve', nome: 'Emorragia lieve', pf: cp.pf, durata: { tipo: 'libera' }, morteTra: cp.timer ? cp.timer.n * UNITA_ROUND[cp.timer.unita] : undefined }, rng);
+    chiavi[cp.key] = m.id;
+  }
+  const durata = dd => dd && dd.legata ? (chiavi[dd.legata] ? { tipo: 'curata', legata: chiavi[dd.legata] } : { tipo: 'libera' }) : dd;
+  for (const cp of comps) {
+    switch (cp.k) {
+      case 'condizione': nuovoMalus(c, chi, { ...base, tipo: 'condizione', nome: cp.nome, perc: cp.perc || undefined, etichetta: cp.etichetta, durata: durata(cp.durata) }, rng); if (cp.nota) log(c, `${p.scheda.nome}: ${cp.nota}`); break;
+      case 'altro': nuovoMalus(c, chi, { ...base, tipo: 'altro', nome: cp.nome, durata: durata(cp.durata) }, rng); if (cp.nota) log(c, `${p.scheda.nome}: ${cp.nota}`); break;
+      case 'emorragia_grave': nuovoMalus(c, chi, { ...base, tipo: 'emorragia_grave', nome: 'Emorragia grave', pf: cp.pf, passo: cp.passo, durata: { tipo: 'libera' } }, rng); break;
+      case 'panico': nuovoMalus(c, chi, { ...base, tipo: 'panico', nome: 'Attacco di panico', passo: cp.passo, azioni: cp.azioni, durata: { tipo: 'libera' } }, rng); break;
+      case 'penalita': nuovoMalus(c, chi, { ...base, tipo: 'penalita', nome: cp.nome, mods: cp.mods, durata: { tipo: 'permanente' } }, rng); break;
+      case 'organo': nuovoMalus(c, chi, { ...base, tipo: 'organo', nome: 'Organo compromesso', durata: { tipo: 'permanente' } }, rng); break;
+      case 'amputazione': { const a = ampDa(cp.loc, cp.lato); nuovoMalus(c, chi, { ...base, tipo: 'amputazione', nome: `Amputazione: ${(cp.parte || a.nome).replace(/^./, x => x.toUpperCase())}${cp.lato && !cp.parte ? ' ' + cp.lato : ''}`, amp: a, durata: { tipo: 'permanente' } }, rng); break; }
+      case 'dita': nuovoMalus(c, chi, { ...base, tipo: 'dita', nome: `Dita perse: ${cp.n} (${cp.parte}${cp.lato ? ' ' + cp.lato : ''})`, dita: { parte: cp.parte, n: cp.n, lato: cp.lato || '' }, amp: ampDa(cp.parte, cp.lato), durata: { tipo: 'permanente' } }, rng); break;
+      case 'morte': muore(c, creaturaDi(c, chi), fonte + ': «Sei morto»'); break;
+      case 'nota': log(c, `${p.scheda.nome}: ${cp.testo}`); break;
+    }
+  }
+  return c;
+}
+function rigaFermare(FER, m) { return FER.fermare.find(r => r.id === (m.tipo === 'ferita' ? 'gravita_' + m.gravita : m.tipo)); }
+// cure magiche dirette alla ferita o all'emorragia (anche a più riprese): non toccano i PF
+function curaDiretta(camp, chi, id, n) {
+  if (!(Number.isInteger(n) && n > 0)) throw new Error('cura non valida');
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id);
+  if (m.pf === undefined) throw new Error('questo malus non si cura con i PF');
+  m.cure += n; log(c, `${x.nome}: ${n} PF di cura diretti a ${m.nome} (${Math.min(m.cure, m.pf)}/${m.pf})`);
+  if (m.cure >= m.pf) guarisci(c, x, m, 'è guarita (cure magiche)');
+  return c;
+}
+// I2: prova di Professione (cerusico) con la tabella «Fermare le emorragie e curare le ferite gravi»
+function cerusico(camp, chi, id, totale, senzaMedicinali, rng, FER) {
+  if (!Number.isInteger(totale)) throw new Error('risultato della prova non valido');
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id), riga = rigaFermare(FER, m);
+  if (!riga) throw new Error('questo malus non si cura con Professione (cerusico)');
+  if (m.cer.guarisce != null) throw new Error(`guarisce già: ${formatoData(c, m.cer.guarisce)}`);
+  if (m.cer.prossimo != null && c.tempo.R < m.cer.prossimo) throw new Error(`si può ritentare da ${formatoData(c, m.cer.prossimo)}`);
+  const cd = m.cer.cd !== null ? m.cer.cd : riga.cd, eff = totale + (senzaMedicinali ? FER.senza_medicinali : 0);
+  m.cer.tentativi++;
+  const med = senzaMedicinali ? `senza medicinali (${FER.senza_medicinali})` : `${riga.medicinali} unità di medicinali`;
+  const riuscita = eff >= cd;
+  if (riuscita) {
+    if (!riga.guarigione) { guarisci(c, x, m, `fermata con Professione (cerusico) ${eff} su CD ${cd}, ${med}`); return { camp: c, riuscita, cd, totale: eff }; }
+    m.cer.guarisce = c.tempo.R + riga.guarigione.n * ROUND_GIORNO;
+    log(c, `${x.nome}: ${m.nome}, Professione (cerusico) ${eff} su CD ${cd} riuscita (${med}): guarisce il ${formatoData(c, m.cer.guarisce)}`);
+  } else {
+    const att = riga.ritentare.unita === 'round' ? tira(riga.ritentare.espr, rng).totale : +riga.ritentare.espr * ROUND_GIORNO;
+    m.cer.prossimo = c.tempo.R + att; m.cer.cd = cd + riga.variazione_cd;
+    log(c, `${x.nome}: ${m.nome}, Professione (cerusico) ${eff} su CD ${cd} fallita (${med}); si ritenta tra ${formatoDurata(att)} con CD ${m.cer.cd}`);
+  }
+  return { camp: c, riuscita, cd, totale: eff };
+}
+// attacco di panico: «Puoi mettere fine al panico spendendo un'azione (o due azioni consecutive) di round completo»
+function spendiRoundCompleto(camp, chi, id) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id);
+  if (m.tipo !== 'panico') throw new Error('solo per l\'attacco di panico');
+  const q = c.combattimento ? c.combattimento.round : c.tempo.R;
+  if (m.spese.length && m.spese[m.spese.length - 1] === q) throw new Error('già spesa in questo round');
+  m.spese.push(q);
+  const ult = m.spese.slice(-m.azioni), consecutive = ult.length === m.azioni && ult.every((v, i) => i === 0 || v === ult[i - 1] + 1);
+  if (consecutive) guarisci(c, x, m, `finisce (${m.azioni === 2 ? 'due azioni' : 'un\'azione'} di round completo)`);
+  else log(c, `${x.nome}: ${m.nome}, azione di round completo ${ult.length}/${m.azioni}`);
+  return c;
+}
+// G nel combattimento: le azioni sui malus si possono annullare con «Indietro»
+function conStoria(prima, dopo) {
+  if (dopo.combattimento && prima.combattimento) { dopo.combattimento.storia = prima.combattimento.storia.concat([istantanea(prima)]).slice(-200); }
+  return dopo;
+}
+function dataBreve(c, R) { const t = scomponi(c, R); return `${t.giorno} ${c.calendario.mesi[t.mese].nome}`; }
+// testo breve per le etichette (chip) del riquadro e delle righe
+function descriviMalus(c, m) {
+  let t = nomeEsteso(m);
+  if (m.etichetta) t = `${m.etichetta}: ${t}`;
+  const extra = [];
+  if (m.pf !== undefined) extra.push(`${Math.min(m.cure, m.pf)}/${m.pf} PF`);
+  if (m.morte_R != null) extra.push(`morte ${formatoData(c, m.morte_R).slice(-5)}`);
+  if (m.cer && m.cer.guarisce != null) extra.push(`guarisce ${dataBreve(c, m.cer.guarisce)}`);
+  if (m.tipo === 'emorragia_grave' || m.tipo === 'panico') extra.push(`${m.p}%`);
+  if (m.vel) extra.push(`${m.per.ts} CD ${m.per.cd}` + (m.vel.volte ? ` · ${m.vel.volte - m.vel.restanti}/${m.vel.volte}` : '') + (m.vel.totale ? ` · tot. ${m.vel.totale}` : ''));
+  else if (m.per) extra.push(`${m.per.ts} CD ${m.per.cd}`);
+  const dd = descriviDurata(c, m); if (dd && m.durata.tipo !== 'permanente') extra.push(dd);
+  return t + (extra.length ? ' · ' + extra.join(' · ') : '');
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -874,7 +1444,9 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   aggiungiPG, modificaPG, rimuoviPG, controllaScheda, danno, dannoNonLetale, statoNonLetali, cura, pfTemporanei, rifiatare, puntoEroe, valoriPG,
   avanza, vaiA, riposo, consumoGiornaliero, bastanoPer, modificaScorta, impostaAccompagnatori, togliDallaCoda,
   risolviRazionamento, razionamentoAperto, puoRiposare,
-  tiroIniziativa, avviaCombattimento, comando, indietro, fineCombattimento, attuale, etichetta, attivaTimer, timerLetture, mmss };
+  tiroIniziativa, avviaCombattimento, comando, indietro, fineCombattimento, attuale, etichetta, attivaTimer, timerLetture, mmss,
+  UNITA_ROUND, EFFETTI_COND, aggiungiMalus, togliMalus, descriviMalus, descriviDurata, nomeEsteso, esitoPromemoria, doseAggiuntiva, togliDallaCodaId, risolviMorte,
+  scomponiFerita, descriviComponente, attaccaFerita, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
 
@@ -956,7 +1528,8 @@ function apri({ titolo, corpo, azioni = [{ testo: 'Chiudi' }], larga = false, do
     if (!tieni) chiudi(id);
   });
   el.addEventListener('keydown', ev => { if (ev.key === 'Escape') chiudi(id); if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') { const p = el.querySelector('.btn.prim'); if (p) { ev.preventDefault(); p.click(); } } });
-  const primo = el.querySelector('.corpo input, .corpo select, .corpo textarea, footer .btn.prim'); if (primo) setTimeout(() => primo.focus(), 30);
+  // fuoco subito (non con un ritardo: chi scrive in fretta finiva nel campo sbagliato)
+  const primo = el.querySelector('.corpo input, .corpo select, .corpo textarea, footer .btn.prim'); if (primo) primo.focus({ preventScroll: true });
   if (dopo) dopo(el);
   return el;
 }
@@ -1005,8 +1578,9 @@ function disegnaTesta() {
   const giorno = t.sett !== null ? c.calendario.settimana[t.sett] : '';
   const data = `${t.giorno} ${c.calendario.mesi[t.mese].nome} ${t.anno}${c.anno.etichetta ? ' ' + c.anno.etichetta : ''}`;
   const comb = c.combattimento;
-  const coda = c.coda.length ? `<div class="coda" role="alert"><span class="chip sv num">${c.coda.length}</span><span class="t">${esc(c.coda[0].testo)} <span class="tenue piccolo">(${esc(M.formatoData(c, c.coda[0].R))})</span></span>
-      ${c.coda[0].tipo === 'razionamento' ? `<button class="btn min prim" data-az="razionamento" data-id="${c.coda[0].razionamento}">Scegli chi</button>` : '<button class="btn min" data-az="codaFatto">Fatto</button>'}${c.coda.filter(x => x.tipo !== 'razionamento').length > 1 ? '<button class="btn min" data-az="codaTutti">Tutti fatti</button>' : ''}</div>` : '';
+  const iq = primoInCoda(c), q0 = c.coda[iq];
+  const coda = q0 ? `<div class="coda" role="alert"><span class="chip sv num">${c.coda.length}</span><span class="t">${esc(q0.testo)} <span class="tenue piccolo">(${esc(M.formatoData(c, q0.R))})</span></span>
+      ${bottoniCoda(q0, iq)}${c.coda.filter(x => !DA_RISPONDERE.includes(x.tipo)).length > 1 ? '<button class="btn min" data-az="codaTutti">Tutti fatti</button>' : ''}</div>` : '';
   return `<header class="testa"><div class="testa-riga">
       <button class="btn min" data-az="campagne" title="Elenco delle campagne">◂ Campagne</button>
       <div class="marchio"><b>${esc(c.nome)}</b></div>
@@ -1034,23 +1608,27 @@ function disegnaTavolo() {
 function disegnaPG(p, attivo) {
   const s = p.scheda, st = p.stato, v = M.valoriPG(S.camp, p);
   const pct = (a, b) => b > 0 ? Math.max(0, Math.min(100, a / b * 100)) : 0;
-  const n = x => x.mod ? `<span class="mod" title="Base ${segno(x.base)}">${segno(x.valore)}</span>` : segno(x.valore);
+  const n = (x, nosegno) => { const f = nosegno ? String(x.valore) : segno(x.valore); return x.mod ? `<span class="mod${x.mod > 0 ? ' su' : ''}" title="Base ${nosegno ? x.base : segno(x.base)}" data-az="base" data-b="Base ${nosegno ? x.base : segno(x.base)}">${f}</span>` : f; };
+  const fmx = v.fatica_max, femx = v.ferita_max;
   const temp = st.temp.length ? st.temp.map(t => `${t.fonte} ${t.valore}${t.scade !== null ? ' (fino a ' + M.formatoData(S.camp, t.scade) + ')' : ''}`).join('; ') : '';
-  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`)];
+  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`), ...st.malus.map(m => chipMalus({ pg: p.id }, m))];
+  const note = v.note.filter(x => x.length < 90);
   return `<article class="pg${attivo ? ' attivo' : ''}" data-pg="${p.id}">
     <div class="pg-testa"><span class="pg-nome">${esc(s.nome)}</span><span class="pg-classe">${esc([s.classe || `Livello ${s.livello}`, s.razza].filter(Boolean).join(' · '))}</span>
-      <span class="spazio"></span><span class="num piccolo">Init ${segno(s.iniziativa)}</span>
+      <span class="spazio"></span><span class="num piccolo">Init ${n(v.iniziativa)}</span>
       <button class="eroe${st.eroe ? '' : ' no'}" data-az="eroe" data-id="${p.id}" title="Punto eroe (clic per dare o togliere)">Eroe ${st.eroe ? '●' : '○'}</button></div>
     <div class="barre num">
-      <span>Fatica</span><div class="barra fa"><i style="width:${pct(st.fatica, s.fatica_max)}%"></i></div><span>${st.fatica}/${s.fatica_max}</span>
-      <span>Ferita</span><div class="barra fe${st.ferita < 0 ? ' neg' : ''}"><i style="width:${pct(st.ferita, s.ferita_max)}%"></i></div><span class="${st.ferita < 0 ? 'mod' : ''}">${st.ferita}/${s.ferita_max}</span></div>
+      <span>Fatica</span><div class="barra fa"><i style="width:${pct(st.fatica, fmx.valore)}%"></i></div><span>${st.fatica}/${n(fmx, true)}</span>
+      <span>Ferita</span><div class="barra fe${st.ferita < 0 ? ' neg' : ''}"><i style="width:${pct(st.ferita, femx.valore)}%"></i></div><span><span class="${st.ferita < 0 ? 'mod' : ''}">${st.ferita}</span>/${n(femx, true)}</span></div>
     <div class="stat num"><span title="${esc(temp)}"><b>Temp</b>${v.temp}</span><span><b>Non letali</b>${st.nonletali}</span><span><b>Rifiatare</b>${st.rif_riserva}/${s.rif_dadi} d${s.rif_tipo}${s.rif_ripete ? '↻' : ''}</span></div>
-    <div class="stat num"><span><b>CA</b>${s.ca}</span><span><b>Ctt</b>${s.ca_contatto}</span><span><b>Spr</b>${s.ca_sprovvista}</span><span><b>DMC</b>${s.dmc}</span>${s.rd ? `<span><b>RD</b>${esc(s.rd)}</span>` : ''}</div>
+    <div class="stat num"><span><b>CA</b>${n(v.ca, true)}</span><span><b>Ctt</b>${n(v.ca_contatto, true)}</span><span><b>Spr</b>${n(v.ca_sprovvista, true)}</span><span><b>DMC</b>${n(v.dmc, true)}</span>${s.rd ? `<span><b>RD</b>${esc(s.rd)}</span>` : ''}${v.offuscato ? `<span class="cond-t">Offuscato ${v.offuscato}%</span>` : ''}</div>
     <div class="stat num"><span><b>Tem</b>${n(v.tempra)}</span><span><b>Rif</b>${n(v.riflessi)}</span><span><b>Vol</b>${n(v.volonta)}</span>${s.ts_note ? `<span class="tenue">${esc(s.ts_note)}</span>` : ''}</div>
     <div class="stat num"><span><b>Perc</b>${n(v.percezione)}</span><span><b>Intu</b>${n(v.intuizione)}</span><span><b>Furt</b>${n(v.furtivita)}</span>${v.libere.map(a => `<span><b>${esc(a.nome)}</b>${n(a)}</span>`).join('')}</div>
-    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}
+    ${st.morte && S.camp.coda.some(q => q.tipo === 'morte' && q.chi && q.chi.pg === p.id) ? `<div class="banda">Morte in sospeso: ${esc(st.morte.causa)}</div>` : ''}
+    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}${note.length ? `<div class="note-pg">${note.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
     <div class="fila"><button class="btn min" data-az="danno" data-id="${p.id}">Danno</button><button class="btn min" data-az="cura" data-id="${p.id}">Cura</button>
       <button class="btn min" data-az="temp" data-id="${p.id}">PF temp</button><button class="btn min" data-az="rifiata" data-id="${p.id}">Rifiata</button>
+      <button class="btn min oro" data-az="malus" data-chi="pg:${p.id}">Malus/Bonus</button><button class="btn min" data-az="feritaGrave" data-id="${p.id}">Ferita grave</button>
       <span class="spazio"></span><button class="btn min" data-az="modificaPG" data-id="${p.id}" title="Scheda">Scheda</button></div></article>`;
 }
 
@@ -1063,7 +1641,7 @@ function disegnaIniziativa() {
   const timer = cb.timer ? `<span class="timer" id="timer"></span>` : '';
   const righe = cb.ordine.map((id, i) => {
     const r = cb.righe[id];
-    const badge = [r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : ''].join('');
+    const badge = [r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : '', ...(r.tipo !== 'pg' ? (r.malus || []).map(m => chipMalus({ riga: r.id }, m)) : [])].join('');
     return `<li class="tipo-${r.tipo}${i === cb.turno ? ' ora' : ''}${S.ui.sel === id ? ' sel' : ''}${r.stato === 'fuori' ? ' fuori' : ''}" data-az="selRiga" data-id="${id}" tabindex="0">
       <span class="tot">${r.totale}</span><span class="nome">${esc(M.etichetta(r))}${r.nomeTv ? ` <span class="tenue piccolo">(TV: ${esc(r.nomeTv)})</span>` : ''}</span><span class="chips">${badge}</span></li>`;
   }).join('');
@@ -1072,6 +1650,7 @@ function disegnaIniziativa() {
   return `<div class="col-testa"><h2>Iniziativa</h2><span class="num tenue">Round ${cb.round}</span><span class="spazio"></span>${timer}</div>
     <div class="barra-turno"><span class="tenue piccolo">Tocca a</span><span class="chi">${a ? esc(M.etichetta(a)) : '—'}</span>
       ${a && a.prepara ? `<span class="piccolo">Azione preparata: ${esc(a.prepara.azione)}${a.prepara.innesco ? ' — se ' + esc(a.prepara.innesco) : ''}</span>` : ''}
+      ${a ? barraMalus(a) : ''}
       <span class="tenue piccolo">Poi: ${esc(pros.join(', ') || '—')}</span></div>
     <div class="comandi"><button class="btn grande prim" data-az="cmd" data-c="avanti">Avanti ▸</button>
       <button class="btn" data-az="indietro" ${cb.storia.length ? '' : 'disabled'}>◂ Indietro</button>
@@ -1092,6 +1671,7 @@ function disegnaAzioniRiga(r) {
       ${r.n > 1 ? `<button class="btn min" data-az="separa" data-id="${r.id}">Separa</button>` : ''}
       ${inOrdine ? `<button class="btn min" data-az="cmd" data-c="fuori" data-id="${r.id}" data-ritorna="${r.stato === 'fuori' ? 1 : ''}">${r.stato === 'fuori' ? 'Rientra' : 'Fuori combattimento'}</button>` : ''}
       <button class="btn min" data-az="cmd" data-c="nascondi" data-id="${r.id}" data-nascosta="${r.nascosta ? '' : 1}">${r.nascosta ? 'Rivela' : 'Nascondi'}</button>
+      <button class="btn min oro" data-az="malus" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Malus/Bonus</button>
       <button class="btn min" data-az="correggi" data-id="${r.id}">Correggi</button>
       <button class="btn min peric" data-az="togli" data-id="${r.id}">Togli</button></div></div>`;
 }
@@ -1211,8 +1791,16 @@ const AZ = {
         } else applica(M.avanza(S.camp, M.durataInRound(intero(f, 'n'), val(f, 'u').value), MET, rng, 'Salto'));
       } }] });
   },
-  codaFatto() { applica(M.togliDallaCoda(S.camp, 0)); },
-  codaTutti() { const c = M.clona(S.camp); c.coda = c.coda.filter(x => x.tipo === 'razionamento'); applica(c); },
+  codaFatto(el) { applica(M.togliDallaCoda(S.camp, +(el.dataset.i || 0))); },
+  codaFattoId(el) { applica(M.togliDallaCodaId(S.camp, el.dataset.q)); },
+  codaTutti() { const c = M.clona(S.camp); c.coda = c.coda.filter(x => DA_RISPONDERE.includes(x.tipo)); applica(c); },
+  esito(el) { applicaS(M.esitoPromemoria(S.camp, el.dataset.q, !!el.dataset.e, rng)); },
+  morte(el) { const r = M.risolviMorte(S.camp, el.dataset.q, el.dataset.s, rng); applicaS(r.camp);
+    if (r.tiro !== null) avviso(`d% ${r.tiro}: ${r.esito === 'morente' ? 'resta morente per 1 minuto (ultime parole)' : 'muore'}`); },
+  malus(el) { finestraMalus(chiDi(el)); },
+  vediMalus(el) { finestraDettaglioMalus(chiDi(el), el.dataset.id); },
+  feritaGrave(el) { const p = S.camp.pg.find(x => x.id === el.dataset.id); finestraFeritaGrave(p.id, p.stato.ferita < 0 ? Math.max(-15, p.stato.ferita) : null); },
+  base(el) { avviso(el.dataset.b); },
   razionamento(el) { finestraRazionamento(el.dataset.id); },
   impostazioni() { finestraImpostazioni(); },
   vediMeteo() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#zona'); if (z) z.scrollIntoView({ block: 'center' }); },
@@ -1249,14 +1837,17 @@ const AZ = {
         const n = intero(f, 'n');
         if (spunta(f, 'nl')) { applica(M.dannoNonLetale(S.camp, id, n)); const q = S.camp.pg.find(x => x.id === id); const st = M.statoNonLetali(q); if (st) avviso(`${q.scheda.nome}: ${st}`); return; }
         const r = M.danno(S.camp, id, n); applica(r.camp);
-        if (r.feritaGrave) finestraFeritaGrave(p.scheda.nome, r.feritaGrave.riga);
+        if (r.feritaGrave) finestraFeritaGrave(id, r.feritaGrave.riga);
       } }] });
   },
   cura(el) {
     const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
+    const dir = p.stato.malus.filter(m => m.pf !== undefined);
     apri({ titolo: `Cura a ${esc(p.scheda.nome)}`, corpo: `<label class="campo"><span>Punti curati</span><input type="number" name="n" min="1" inputmode="numeric"></label>
-        <p class="tenue piccolo">Cura magica o alchemica: prima i Punti Ferita fino al massimo, poi i Punti Fatica. Toglie anche altrettanti danni non letali.</p>`,
-      azioni: [{ testo: 'Annulla' }, { testo: 'Cura', classe: 'prim', fn: f => applica(M.cura(S.camp, id, intero(f, 'n'))) }] });
+        ${dir.length ? `<label class="campo"><span>Dirigi la cura su</span><select name="su"><option value="">Punti vita</option>${dir.map(m => `<option value="${m.id}">${esc(M.descriviMalus(S.camp, m))}</option>`).join('')}</select></label>` : ''}
+        <p class="tenue piccolo">Cura magica o alchemica: prima i Punti Ferita fino al massimo, poi i Punti Fatica. Toglie anche altrettanti danni non letali. Diretta a una ferita grave o a un'emorragia, va solo al suo contatore.</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Cura', classe: 'prim', fn: f => { const su = val(f, 'su') && val(f, 'su').value;
+        if (su) applicaS(M.curaDiretta(S.camp, { pg: id }, su, intero(f, 'n'))); else applica(M.cura(S.camp, id, intero(f, 'n'))); } }] });
   },
   temp(el) {
     const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
@@ -1277,7 +1868,7 @@ const AZ = {
       azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => {
         let c = S.camp; if (val(f, 'mz') && spunta(f, 'mz')) c = M.avanza(c, 300, MET, rng, 'Rifiatare');
         const r = M.rifiatare(c, id, intero(f, 'n'), rng); applica(r.camp);
-        apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}] → Punti Fatica ${r.camp.pg.find(x => x.id === id).stato.fatica}/${s.fatica_max}</p>` });
+        apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}]${r.divisore > 1 ? ` = ${r.tirati} ÷ ${r.divisore} (organo compromesso)` : ''} → Punti Fatica ${r.camp.pg.find(x => x.id === id).stato.fatica}/${M.massimi(r.camp, r.camp.pg.find(x => x.id === id)).fatica}</p>` });
       } }] });
   },
   // iniziativa
@@ -1347,12 +1938,175 @@ document.addEventListener('input', ev => {
 });
 document.addEventListener('change', ev => { const el = ev.target; if (el.dataset && el.dataset.bind && el.tagName === 'SELECT') el.dispatchEvent(new Event('input', { bubbles: true })); });
 
-// ================================================================= finestre di dettaglio
-function finestraFeritaGrave(nome, riga) {
-  apri({ titolo: 'Ferita grave', corpo: `<p><b>${esc(nome)}</b>: i Punti Ferita sono scesi sotto zero.</p><div class="risultato">Riga ${riga}</div>
-    <p class="tenue piccolo">Scegli la tabella delle Ferite gravi (Vol. 3, Imprevisti) e tira sulla riga ${riga}. Il tiro automatico e la divisione in malus arrivano con le Build 2 e 3.</p>`,
-    azioni: [{ testo: 'Chiudi senza tirare' }] });
+// ================================================================= Build 2a: malus e bonus (G), veleni e malattie (H), ferite ed emorragie (I)
+const FER = DATI.ferite, CONDIZ = DATI.condizioni.condizioni;
+const infoCond = nome => CONDIZ.find(x => x.nome === nome);
+const chiStr = chi => chi.pg ? 'pg:' + chi.pg : 'riga:' + chi.riga;
+const chiDi = el => { const [k, v] = el.dataset.chi.split(':'); return { [k]: v }; };
+function elencoChi(c, chi) { return chi.pg ? (c.pg.find(p => p.id === chi.pg) || { stato: { malus: [] } }).stato.malus : ((c.combattimento && c.combattimento.righe[chi.riga]) || { malus: [] }).malus || []; }
+function nomeChi(c, chi) { return chi.pg ? c.pg.find(p => p.id === chi.pg).scheda.nome : M.etichetta(c.combattimento.righe[chi.riga]); }
+// nel combattimento le azioni sui malus si annullano con «Indietro»
+function applicaS(dopo) { applica(M.conStoria(S.camp, dopo)); }
+function classeMalus(m) {
+  if (m.tipo === 'condizione') { const i = infoCond(m.nome); return i && i.rossa ? 'cond' : ''; }
+  if (m.tipo === 'bonus') return 'ok';
+  if (['ferita', 'emorragia_lieve', 'emorragia_grave', 'panico'].includes(m.tipo)) return 'fer';
+  if (m.vel) return 'vel';
+  return 'sv';
 }
+function aiutoMalus(m) {
+  const i = m.tipo === 'condizione' && infoCond(m.nome);
+  const ef = i ? (i.effetto ? 'Nel riquadro: ' + i.effetto + '. ' : '') + (i.testo_vol1 ? i.testo_vol1.replace(/^[^:]+: /, '') : '') : '';
+  return [ef, m.fonte ? 'Fonte: ' + m.fonte : ''].filter(Boolean).join(' ');
+}
+function chipMalus(chi, m) {
+  return `<button type="button" class="chip ${classeMalus(m)}" data-az="vediMalus" data-chi="${chiStr(chi)}" data-id="${m.id}" title="${esc(aiutoMalus(m))}">${esc(M.descriviMalus(S.camp, m))}</button>`;
+}
+function bottoniCoda(q, i) {
+  if (q.tipo === 'razionamento') return `<button class="btn min prim" data-az="razionamento" data-id="${q.razionamento}">Scegli chi</button>`;
+  if (q.tipo === 'ts' || q.tipo === 'veleno') return `<button class="btn min ok" data-az="esito" data-q="${q.id}" data-e="1">Superato</button><button class="btn min peric" data-az="esito" data-q="${q.id}" data-e="">Fallito</button>`;
+  if (q.tipo === 'morte') return `<button class="btn min prim" data-az="morte" data-q="${q.id}" data-s="morente">Tira il 20% del Morente</button><button class="btn min peric" data-az="morte" data-q="${q.id}" data-s="morto">Morto</button><button class="btn min" data-az="morte" data-q="${q.id}" data-s="ignora">Ignora</button>`;
+  return q.id ? `<button class="btn min" data-az="codaFattoId" data-q="${q.id}">Fatto</button>` : `<button class="btn min" data-az="codaFatto" data-i="${i}">Fatto</button>`;
+}
+const DA_RISPONDERE = ['razionamento', 'ts', 'veleno', 'morte'];
+function primoInCoda(c) { const pri = ['morte', 'ts', 'veleno', 'razionamento']; for (const t of pri) { const i = c.coda.findIndex(q => q.tipo === t); if (i >= 0) return i; } return 0; }
+
+// ---------- G: finestra «Malus/Bonus»
+const UNITA = [['round', 'round'], ['minuti', 'minuti'], ['ore', 'ore'], ['giorni', 'giorni'], ['incontro', 'fino a fine incontro'], ['permanente', 'permanente'], ['libera', 'senza durata (si toglie a mano)']];
+const opz = (lista, sel) => lista.map(([v, t]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${t}</option>`).join('');
+function finestraMalus(chi) {
+  const c = S.camp, cb = c.combattimento;
+  const righe = cb ? [...cb.ordine, ...cb.attesa].map(id => cb.righe[id]) : [];
+  const num = (n, et) => `<label class="campo"><span>${et}</span><input type="number" name="${n}" data-etichetta="${et}"></label>`;
+  const el = apri({ titolo: `Malus o bonus: ${esc(nomeChi(c, chi))}`, larga: true, corpo: `<div class="griglia">
+      <label class="campo"><span>Tipo</span><select name="tipo">${opz([['condizione', 'Condizione'], ['bonus', 'Bonus'], ['altro', 'Altro malus'], ['veleno', 'Veleno'], ['malattia', 'Malattia']], 'condizione')}</select></label>
+      <label class="campo" data-per="cond"><span>Condizione</span><select name="cond">${CONDIZ.map(x => `<option>${esc(x.nome)}</option>`).join('')}</select></label>
+      <label class="campo" data-per="perc"><span>Offuscato %</span><input type="number" name="perc" min="1" max="100" value="20"></label>
+      <label class="campo" data-per="n"><span>Livelli negativi</span><input type="number" name="n" min="1" value="1"></label>
+      <label class="campo" data-per="nome"><span>Nome</span><input type="text" name="nome" placeholder="es. Benedizione"></label>
+      <label class="campo"><span>Etichetta (facoltativa)</span><input type="text" name="etichetta" placeholder="es. Lupo 3"></label></div>
+    <fieldset data-per="durata"><legend>Durata</legend><div class="griglia">
+      <label class="campo"><span>Quantità</span><input type="number" name="dn" min="1" value="1"></label>
+      <label class="campo"><span>Unità</span><select name="du">${opz(UNITA, 'round')}</select></label>
+      ${cb ? `<label class="campo" style="grid-column:span 2"><span>I round scadono all'inizio del turno di</span><select name="sc"><option value="">${esc(nomeChi(c, chi))} (bersaglio)</option>${righe.map(r => `<option value="${r.id}">${esc(M.etichetta(r))} (chi l'ha causato)</option>`).join('')}</select></label>` : '<span class="tenue piccolo" style="grid-column:span 2">Fuori combattimento i round scorrono con l\'orologio (10 al minuto).</span>'}</div></fieldset>
+    <fieldset data-per="mods"><legend>Modificatori (facoltativi)</legend><div class="griglia stretta">
+      ${num('m_ts', 'TS (tutti)')}${num('m_tempra', 'Tempra')}${num('m_riflessi', 'Riflessi')}${num('m_volonta', 'Volontà')}${num('m_ca', 'CA')}${num('m_dmc', 'DMC')}${num('m_abilita', 'Abilità')}${num('m_iniziativa', 'Iniziativa')}${num('m_fatica_max', 'Fatica max')}</div>
+      <label class="campo"><span>Altro (solo etichetta, es. +1 TpC)</span><input type="text" name="m_altro"></label></fieldset>
+    <fieldset data-per="ts"><legend><label class="spunta"><input type="checkbox" name="tsOn"> TS periodico</label></legend><div class="griglia stretta">
+      <label class="campo"><span>TS</span><select name="tsT">${opz([['Tempra', 'Tempra'], ['Riflessi', 'Riflessi'], ['Volontà', 'Volontà']], 'Volontà')}</select></label>${num('tsCD', 'CD')}
+      <label class="campo"><span>Ogni</span><input type="number" name="tsN" min="1" value="1"></label><label class="campo"><span>Unità</span><select name="tsU">${opz(UNITA.slice(0, 4), 'round')}</select></label>
+      <label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="tsFin" checked> Superato = finisce</label></div></fieldset>
+    <fieldset data-per="veleno"><legend>Veleno o malattia</legend><div class="griglia stretta">
+      <label class="campo"><span>Tipo</span><select name="vF">${opz([['ferimento', 'ferimento'], ['contatto', 'contatto'], ['ingestione', 'ingestione'], ['inalazione', 'inalazione']], 'ferimento')}</select></label>
+      <label class="campo"><span>TS</span><select name="vT">${opz([['Tempra', 'Tempra'], ['Riflessi', 'Riflessi'], ['Volontà', 'Volontà']], 'Tempra')}</select></label>${num('vCD', 'CD')}
+      <label class="campo"><span>Insorgenza</span><input type="number" name="vIn" min="1" placeholder="nessuna"></label><label class="campo"><span>Unità</span><select name="vIu">${opz(UNITA.slice(0, 4), 'minuti')}</select></label>
+      <label class="campo"><span>Frequenza: 1 ogni</span><select name="vFu">${opz([['round', 'round'], ['minuti', 'minuto'], ['ore', 'ora'], ['giorni', 'giorno']], 'round')}</select></label>
+      <label class="campo"><span>Per N volte</span><input type="number" name="vN" min="1" value="6" placeholder="senza limite"></label>
+      <label class="campo" style="grid-column:span 2"><span>Effetto</span><input type="text" name="vE" placeholder="es. 1d2 For"></label>
+      <label class="campo"><span>Cura: TS consecutivi</span><input type="number" name="vC" min="1" value="1"></label></div>
+      <p class="tenue piccolo">Applicarlo vale come TS iniziale fallito: il primo effetto arriva subito (o alla fine dell'insorgenza), poi a ogni scadenza un promemoria con Superato e Fallito.</p></fieldset>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => {
+      const tipo = val(f, 'tipo').value, n = k => { const v = testo(f, k); if (v === '') return 0; const x = Number(v); if (!Number.isInteger(x)) throw new Error('Valore non valido: ' + (val(f, k).dataset.etichetta || k)); return x; };
+      const d = { tipo, etichetta: testo(f, 'etichetta') };
+      if (tipo === 'condizione') { d.nome = val(f, 'cond').value; if (d.nome === 'Offuscato') d.perc = n('perc'); if (d.nome === 'Livelli negativi') d.n = n('n'); }
+      else d.nome = testo(f, 'nome');
+      if (tipo === 'veleno' || tipo === 'malattia') {
+        const vin = testo(f, 'vIn'), vn = testo(f, 'vN');
+        d.veleno = { forma: val(f, 'vF').value, ts: val(f, 'vT').value, cd: n('vCD') || null, insorgenza: vin ? { n: n('vIn'), unita: val(f, 'vIu').value } : null,
+          frequenza: { unita: val(f, 'vFu').value, volte: vn ? n('vN') : null }, effetto: testo(f, 'vE'), cura: n('vC') };
+      } else {
+        const du = val(f, 'du').value; d.durata = ['incontro', 'permanente', 'libera'].includes(du) ? { unita: du } : { n: n('dn'), unita: du };
+        if (val(f, 'sc') && val(f, 'sc').value) { d.scadenza = 'causa'; d.causa = val(f, 'sc').value; }
+        d.mods = { altro: testo(f, 'm_altro') }; for (const k of ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max']) d.mods[k] = n('m_' + k);
+        if (spunta(f, 'tsOn')) d.ts = { tipo: val(f, 'tsT').value, cd: n('tsCD') || null, ogni: n('tsN'), unita: val(f, 'tsU').value, finisce: spunta(f, 'tsFin') };
+      }
+      applicaS(M.aggiungiMalus(S.camp, chi, d, rng));
+    } }] });
+  const aggiorna = () => {
+    const tipo = val(el, 'tipo').value, cnd = val(el, 'cond').value, vel = tipo === 'veleno' || tipo === 'malattia';
+    const vis = { cond: tipo === 'condizione', perc: tipo === 'condizione' && cnd === 'Offuscato', n: tipo === 'condizione' && cnd === 'Livelli negativi', nome: tipo !== 'condizione', durata: !vel, mods: !vel, ts: !vel, veleno: vel };
+    for (const [k, v] of Object.entries(vis)) for (const x of el.querySelectorAll(`[data-per="${k}"]`)) x.hidden = !v;
+    if (tipo === 'malattia' && !el.dataset.malattia) { el.dataset.malattia = 1; val(el, 'vFu').value = 'giorni'; val(el, 'vN').value = ''; val(el, 'vIu').value = 'giorni'; }
+  };
+  el.addEventListener('change', aggiorna); aggiorna();
+  return el;
+}
+// ---------- dettaglio di un malus
+function finestraDettaglioMalus(chi, id) {
+  const c = S.camp, m = elencoChi(c, chi).find(x => x.id === id); if (!m) return;
+  const riga = (t, v) => v ? `<div class="fila piccolo"><span class="tenue" style="min-width:8em">${t}</span><span>${v}</span></div>` : '';
+  const mods = Object.entries(m.mods || {}).map(([k, v]) => k === 'abilita_nome' ? Object.entries(v).map(([a, x]) => `${a} ${segno(x)}`).join(', ') : k === 'altro' ? esc(v) : `${k.replace('_max', ' max').replace('volonta', 'Volontà')} ${segno(v)}`).join(', ');
+  const leg = m.durata.tipo === 'curata' ? elencoChi(c, chi).find(x => x.id === m.durata.legata) : null;
+  const legate = elencoChi(c, chi).filter(x => x.durata.tipo === 'curata' && x.durata.legata === m.id).map(x => x.nome).join(', ');
+  const v = m.vel, pr = m.per;
+  const azioni = [{ testo: 'Chiudi' }];
+  if (m.pf !== undefined) azioni.push({ testo: 'Cura…', classe: 'oro', fn: () => { finestraCuraFerita(chi, id); } });
+  if (m.tipo === 'panico') azioni.push({ testo: 'Azione di round completo', classe: 'oro', fn: () => applicaS(M.spendiRoundCompleto(S.camp, chi, id)) });
+  if (v) azioni.push({ testo: 'Dose aggiuntiva', fn: () => applicaS(M.doseAggiuntiva(S.camp, chi, id)) });
+  azioni.push({ testo: 'Togli', classe: 'peric', fn: () => applicaS(M.togliMalus(S.camp, chi, id)) });
+  apri({ titolo: esc(M.nomeEsteso(m)), corpo: `<p class="piccolo">${esc(nomeChi(c, chi))}${m.etichetta ? ' · ' + esc(m.etichetta) : ''}</p>
+      ${riga('Durata', esc(M.descriviDurata(c, m) || 'senza durata'))}${riga('Legata a', leg ? esc(leg.nome) + ': sparisce quando guarisce' : '')}${riga('Fa durare', esc(legate))}
+      ${m.durata.tipo === 'round' && m.scadenza === 'causa' && c.combattimento && c.combattimento.righe[m.causa] ? riga('Scade al turno di', esc(M.etichetta(c.combattimento.righe[m.causa]))) : ''}
+      ${riga('Modificatori', mods)}${riga('Fonte', esc(m.fonte))}
+      ${pr && pr.kind === 'ts' ? riga('TS periodico', `${pr.ts} CD ${pr.cd}, ogni ${M.formatoDurata(pr.ogni)}${pr.finisce ? ', superato = finisce' : ''}`) : ''}
+      ${v ? riga('Veleno', `${esc(v.forma)} · ${pr.ts} CD ${pr.cd} · 1 ogni ${M.formatoDurata(pr.ogni)}${v.volte ? ` · ${v.volte - v.restanti}/${v.volte}` : ' · senza limite'} · effetto ${esc(v.effetto || '—')}${v.totale ? ` (totale ${v.totale})` : ''} · cura ${v.successi}/${v.cura} TS consecutivi`) + (v.primo ? riga('Primo effetto', esc(M.formatoData(c, pr.prossimo))) : riga('Prossimo TS', pr.attesa ? 'in coda' : esc(M.formatoData(c, pr.prossimo)))) : ''}
+      ${m.pf !== undefined ? riga('Cure', `${Math.min(m.cure, m.pf)}/${m.pf} PF (cure magiche dirette)`) + riga('Cerusico', m.cer.guarisce != null ? 'guarisce ' + esc(M.formatoData(c, m.cer.guarisce)) : `${m.cer.tentativi} tentativi` + (m.cer.prossimo != null ? `, di nuovo da ${esc(M.formatoData(c, m.cer.prossimo))} con CD ${m.cer.cd}` : '')) : ''}
+      ${m.morte_R != null ? riga('Morte', esc(M.formatoData(c, m.morte_R)) + ' se non è fermata') : ''}
+      ${m.p !== undefined ? riga('Probabilità', `${m.p}% all'ultimo tiro (+${m.passo || 5}% a ogni fine turno)`) : ''}
+      ${m.tipo === 'panico' ? riga('Per fermarlo', m.azioni === 2 ? 'due azioni di round completo consecutive' : 'un\'azione di round completo') : ''}
+      ${m.amp ? `<p class="piccolo">${esc(m.amp.singolo.testo)}</p>` : ''}
+      ${aiutoMalus(m) && m.tipo === 'condizione' ? `<p class="tenue piccolo">${esc(aiutoMalus(m))}</p>` : ''}`, azioni });
+}
+// ---------- I2: fermare le emorragie e curare le ferite gravi
+function finestraCuraFerita(chi, id) {
+  const c = S.camp, m = elencoChi(c, chi).find(x => x.id === id); if (!m) return;
+  const r = M.rigaFermare(FER, m), cd = m.cer.cd !== null ? m.cer.cd : r.cd;
+  const stato = m.cer.guarisce != null ? `Prova riuscita: guarisce il ${esc(M.formatoData(c, m.cer.guarisce))}.` : m.cer.prossimo != null && c.tempo.R < m.cer.prossimo ? `Si può ritentare da ${esc(M.formatoData(c, m.cer.prossimo))}.` : `Prossima prova: CD ${cd}.`;
+  apri({ titolo: `Curare: ${esc(m.nome)}`, corpo: `<p class="piccolo">${esc(nomeChi(c, chi))} · cure ${Math.min(m.cure, m.pf)}/${m.pf} PF · tentativi ${m.cer.tentativi}</p>
+      <div class="effetto"><b>${esc(r.ferita)}</b> ${r.medicinali} unità di medicinali · ${esc(r.testo.cd)} · ritentare ${esc(r.testo.ritentare)}</div>
+      <p class="piccolo"><b>${stato}</b></p>
+      <fieldset><legend>Professione (cerusico)</legend><div class="griglia"><label class="campo"><span>Risultato della prova</span><input type="number" name="t" inputmode="numeric"></label>
+        <label class="spunta"><input type="checkbox" name="senza"> Senza medicinali (${FER.senza_medicinali})</label></div></fieldset>
+      <fieldset><legend>Cure magiche dirette</legend><label class="campo"><span>Punti curati (vanno solo a questa ferita)</span><input type="number" name="pf" min="1"></label></fieldset>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Cure magiche', fn: f => applicaS(M.curaDiretta(S.camp, chi, id, intero(f, 'pf'))) },
+      { testo: 'Registra la prova', classe: 'prim', fn: f => { const x = M.cerusico(S.camp, chi, id, intero(f, 't'), spunta(f, 'senza'), rng, FER); applicaS(x.camp); avviso(`Prova ${x.totale} su CD ${x.cd}: ${x.riuscita ? 'riuscita' : 'fallita'}`, !x.riuscita); } }] });
+}
+// ---------- I1: risultato di una Ferita grave scritto o incollato e diviso nelle sue parti
+function finestraFeritaGrave(pgId, riga) {
+  const c = S.camp, p = c.pg.find(x => x.id === pgId); let comps = null, ultimo = '';
+  const anteprima = el => {
+    const t = testo(el, 't'); ultimo = t; comps = M.scomponiFerita(t, rng);
+    el.querySelector('#fg-anteprima').innerHTML = comps.length ? `<h3>Prima di attaccarla</h3>${comps.map((k, i) => `<div class="fila"><label class="spunta"><input type="checkbox" name="k${i}" checked> ${esc(M.descriviComponente(k))}</label>
+        ${(k.k === 'amputazione' && !k.parte) || k.k === 'dita' ? `<select name="l${i}" aria-label="Lato">${opz([['', 'lato non indicato'], ['sinistro', 'sinistro'], ['destro', 'destro']], k.lato)}</select>` : ''}</div>`).join('')}`
+      : '<p class="tenue piccolo">Niente da attaccare: scrivi il testo della riga.</p>';
+  };
+  const el = apri({ titolo: 'Ferita grave', larga: true, corpo: `<p><b>${esc(p.scheda.nome)}</b>${riga !== null ? ': i Punti Ferita sono scesi sotto zero.' : ''}</p>${riga !== null ? `<div class="risultato">Riga ${riga}</div>` : ''}
+      ${riga === -1 ? '<p class="piccolo">Le tabelle del Vol. 3 partono dalla riga −2: per la −1 non ci sono voci.</p>' : ''}
+      <p class="tenue piccolo">Scrivi o incolla il risultato della tabella (Vol. 3, Imprevisti): l'app lo divide nelle sue parti. Le tabelle e i loro tiri arrivano con la Build 3.</p>
+      <label class="campo"><span>Risultato</span><textarea name="t" rows="4" placeholder="es. Il colpo ti incrina alcune costole e a causa del dolore intenso sei barcollante finché la ferita di gravità 2 (20 PF) non viene curata."></textarea></label>
+      <div id="fg-anteprima"></div>`,
+    azioni: [{ testo: 'Chiudi senza tirare' }, { testo: 'Scomponi', fn: f => { anteprima(f); return false; } },
+      { testo: 'Attacca', classe: 'prim', fn: f => {
+        if (!comps || testo(f, 't') !== ultimo) { anteprima(f); return false; }
+        const scelti = comps.map((k, i) => ({ ...k, lato: val(f, 'l' + i) ? val(f, 'l' + i).value : k.lato })).filter((k, i) => spunta(f, 'k' + i));
+        if (!scelti.length) throw new Error('Niente da attaccare');
+        applicaS(M.attaccaFerita(S.camp, pgId, scelti, rng, FER, { titolo: riga !== null ? `Ferita grave ${riga}` : 'Ferita grave', testo: testo(f, 't') }));
+      } }] });
+  return el;
+}
+
+// barra del turno: malus di chi agisce, cosa scade ora, cosa tirare (J7)
+function barraMalus(a) {
+  const c = S.camp, cb = c.combattimento, chi = a.tipo === 'pg' ? { pg: a.pgId } : { riga: a.id };
+  const ml = elencoChi(c, chi), avv = cb.avvisi || [];
+  const pend = c.coda.filter(q => q.chi && (q.chi.riga === a.id || (a.pgId && q.chi.pg === a.pgId)));
+  if (!ml.length && !avv.length && !pend.length) return '';
+  return `${avv.length ? `<div class="chips">${avv.map(x => `<span class="chip ok">${esc(x)}</span>`).join('')}</div>` : ''}
+    ${ml.length ? `<div class="chips">${ml.map(m => chipMalus(chi, m)).join('')}</div>` : ''}
+    ${pend.length ? `<div class="pend">${pend.map(q => `<div class="fila"><span class="piccolo spazio">${esc(q.testo)}</span>${bottoniCoda(q)}</div>`).join('')}</div>` : ''}`;
+}
+
+// ================================================================= finestre di dettaglio
 function finestraRazionamento(id) {
   const c = S.camp, z = c.razionamenti.find(x => x.id === id); if (!z) return;
   const q = c.scorte[z.scorta], verbo = z.scorta === 'acqua' ? 'beve' : 'mangia', mal = z.mal === 'sete' ? 'Sete' : 'Fame';

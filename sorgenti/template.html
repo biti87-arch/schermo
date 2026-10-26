@@ -88,6 +88,18 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip.sv{background:var(--rosso);border-color:var(--rosso);color:#fff}
 .chip.ok{background:var(--verde);border-color:var(--verde);color:#fff}
 .cond-t{color:var(--rosso-chiaro);font-weight:600}
+[hidden]{display:none!important}
+button.chip{cursor:pointer;font:inherit;font-size:.78rem;color:inherit;text-align:left}
+.chip.fer{border-color:var(--rosso);color:var(--rosso-chiaro);background:color-mix(in srgb,var(--rosso) 14%,var(--pannello2))}
+.chip.vel{border-color:#5E8C3A;color:#9BC97A;background:color-mix(in srgb,#5E8C3A 16%,var(--pannello2))}
+:root[data-theme="light"] .chip.vel{color:#3D6B1F}
+.mod.su{color:#7FC86F}
+:root[data-theme="light"] .mod.su{color:var(--verde)}
+.btn.ok{border-color:var(--verde);color:#7FC86F}
+:root[data-theme="light"] .btn.ok{color:var(--verde)}
+.note-pg{font-size:.78rem;color:var(--tenue);display:flex;flex-direction:column;gap:1px}
+.ordine .chips .chip{font-size:.72rem}
+.pend{border-top:1px solid var(--riga);padding-top:6px;display:flex;flex-direction:column;gap:6px}
 
 /* iniziativa */
 .barra-turno{background:var(--pannello);border:1px solid var(--oro-scuro);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -246,7 +258,8 @@ function apri({ titolo, corpo, azioni = [{ testo: 'Chiudi' }], larga = false, do
     if (!tieni) chiudi(id);
   });
   el.addEventListener('keydown', ev => { if (ev.key === 'Escape') chiudi(id); if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') { const p = el.querySelector('.btn.prim'); if (p) { ev.preventDefault(); p.click(); } } });
-  const primo = el.querySelector('.corpo input, .corpo select, .corpo textarea, footer .btn.prim'); if (primo) setTimeout(() => primo.focus(), 30);
+  // fuoco subito (non con un ritardo: chi scrive in fretta finiva nel campo sbagliato)
+  const primo = el.querySelector('.corpo input, .corpo select, .corpo textarea, footer .btn.prim'); if (primo) primo.focus({ preventScroll: true });
   if (dopo) dopo(el);
   return el;
 }
@@ -295,8 +308,9 @@ function disegnaTesta() {
   const giorno = t.sett !== null ? c.calendario.settimana[t.sett] : '';
   const data = `${t.giorno} ${c.calendario.mesi[t.mese].nome} ${t.anno}${c.anno.etichetta ? ' ' + c.anno.etichetta : ''}`;
   const comb = c.combattimento;
-  const coda = c.coda.length ? `<div class="coda" role="alert"><span class="chip sv num">${c.coda.length}</span><span class="t">${esc(c.coda[0].testo)} <span class="tenue piccolo">(${esc(M.formatoData(c, c.coda[0].R))})</span></span>
-      ${c.coda[0].tipo === 'razionamento' ? `<button class="btn min prim" data-az="razionamento" data-id="${c.coda[0].razionamento}">Scegli chi</button>` : '<button class="btn min" data-az="codaFatto">Fatto</button>'}${c.coda.filter(x => x.tipo !== 'razionamento').length > 1 ? '<button class="btn min" data-az="codaTutti">Tutti fatti</button>' : ''}</div>` : '';
+  const iq = primoInCoda(c), q0 = c.coda[iq];
+  const coda = q0 ? `<div class="coda" role="alert"><span class="chip sv num">${c.coda.length}</span><span class="t">${esc(q0.testo)} <span class="tenue piccolo">(${esc(M.formatoData(c, q0.R))})</span></span>
+      ${bottoniCoda(q0, iq)}${c.coda.filter(x => !DA_RISPONDERE.includes(x.tipo)).length > 1 ? '<button class="btn min" data-az="codaTutti">Tutti fatti</button>' : ''}</div>` : '';
   return `<header class="testa"><div class="testa-riga">
       <button class="btn min" data-az="campagne" title="Elenco delle campagne">◂ Campagne</button>
       <div class="marchio"><b>${esc(c.nome)}</b></div>
@@ -324,23 +338,27 @@ function disegnaTavolo() {
 function disegnaPG(p, attivo) {
   const s = p.scheda, st = p.stato, v = M.valoriPG(S.camp, p);
   const pct = (a, b) => b > 0 ? Math.max(0, Math.min(100, a / b * 100)) : 0;
-  const n = x => x.mod ? `<span class="mod" title="Base ${segno(x.base)}">${segno(x.valore)}</span>` : segno(x.valore);
+  const n = (x, nosegno) => { const f = nosegno ? String(x.valore) : segno(x.valore); return x.mod ? `<span class="mod${x.mod > 0 ? ' su' : ''}" title="Base ${nosegno ? x.base : segno(x.base)}" data-az="base" data-b="Base ${nosegno ? x.base : segno(x.base)}">${f}</span>` : f; };
+  const fmx = v.fatica_max, femx = v.ferita_max;
   const temp = st.temp.length ? st.temp.map(t => `${t.fonte} ${t.valore}${t.scade !== null ? ' (fino a ' + M.formatoData(S.camp, t.scade) + ')' : ''}`).join('; ') : '';
-  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`)];
+  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`), ...st.malus.map(m => chipMalus({ pg: p.id }, m))];
+  const note = v.note.filter(x => x.length < 90);
   return `<article class="pg${attivo ? ' attivo' : ''}" data-pg="${p.id}">
     <div class="pg-testa"><span class="pg-nome">${esc(s.nome)}</span><span class="pg-classe">${esc([s.classe || `Livello ${s.livello}`, s.razza].filter(Boolean).join(' · '))}</span>
-      <span class="spazio"></span><span class="num piccolo">Init ${segno(s.iniziativa)}</span>
+      <span class="spazio"></span><span class="num piccolo">Init ${n(v.iniziativa)}</span>
       <button class="eroe${st.eroe ? '' : ' no'}" data-az="eroe" data-id="${p.id}" title="Punto eroe (clic per dare o togliere)">Eroe ${st.eroe ? '●' : '○'}</button></div>
     <div class="barre num">
-      <span>Fatica</span><div class="barra fa"><i style="width:${pct(st.fatica, s.fatica_max)}%"></i></div><span>${st.fatica}/${s.fatica_max}</span>
-      <span>Ferita</span><div class="barra fe${st.ferita < 0 ? ' neg' : ''}"><i style="width:${pct(st.ferita, s.ferita_max)}%"></i></div><span class="${st.ferita < 0 ? 'mod' : ''}">${st.ferita}/${s.ferita_max}</span></div>
+      <span>Fatica</span><div class="barra fa"><i style="width:${pct(st.fatica, fmx.valore)}%"></i></div><span>${st.fatica}/${n(fmx, true)}</span>
+      <span>Ferita</span><div class="barra fe${st.ferita < 0 ? ' neg' : ''}"><i style="width:${pct(st.ferita, femx.valore)}%"></i></div><span><span class="${st.ferita < 0 ? 'mod' : ''}">${st.ferita}</span>/${n(femx, true)}</span></div>
     <div class="stat num"><span title="${esc(temp)}"><b>Temp</b>${v.temp}</span><span><b>Non letali</b>${st.nonletali}</span><span><b>Rifiatare</b>${st.rif_riserva}/${s.rif_dadi} d${s.rif_tipo}${s.rif_ripete ? '↻' : ''}</span></div>
-    <div class="stat num"><span><b>CA</b>${s.ca}</span><span><b>Ctt</b>${s.ca_contatto}</span><span><b>Spr</b>${s.ca_sprovvista}</span><span><b>DMC</b>${s.dmc}</span>${s.rd ? `<span><b>RD</b>${esc(s.rd)}</span>` : ''}</div>
+    <div class="stat num"><span><b>CA</b>${n(v.ca, true)}</span><span><b>Ctt</b>${n(v.ca_contatto, true)}</span><span><b>Spr</b>${n(v.ca_sprovvista, true)}</span><span><b>DMC</b>${n(v.dmc, true)}</span>${s.rd ? `<span><b>RD</b>${esc(s.rd)}</span>` : ''}${v.offuscato ? `<span class="cond-t">Offuscato ${v.offuscato}%</span>` : ''}</div>
     <div class="stat num"><span><b>Tem</b>${n(v.tempra)}</span><span><b>Rif</b>${n(v.riflessi)}</span><span><b>Vol</b>${n(v.volonta)}</span>${s.ts_note ? `<span class="tenue">${esc(s.ts_note)}</span>` : ''}</div>
     <div class="stat num"><span><b>Perc</b>${n(v.percezione)}</span><span><b>Intu</b>${n(v.intuizione)}</span><span><b>Furt</b>${n(v.furtivita)}</span>${v.libere.map(a => `<span><b>${esc(a.nome)}</b>${n(a)}</span>`).join('')}</div>
-    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}
+    ${st.morte && S.camp.coda.some(q => q.tipo === 'morte' && q.chi && q.chi.pg === p.id) ? `<div class="banda">Morte in sospeso: ${esc(st.morte.causa)}</div>` : ''}
+    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}${note.length ? `<div class="note-pg">${note.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
     <div class="fila"><button class="btn min" data-az="danno" data-id="${p.id}">Danno</button><button class="btn min" data-az="cura" data-id="${p.id}">Cura</button>
       <button class="btn min" data-az="temp" data-id="${p.id}">PF temp</button><button class="btn min" data-az="rifiata" data-id="${p.id}">Rifiata</button>
+      <button class="btn min oro" data-az="malus" data-chi="pg:${p.id}">Malus/Bonus</button><button class="btn min" data-az="feritaGrave" data-id="${p.id}">Ferita grave</button>
       <span class="spazio"></span><button class="btn min" data-az="modificaPG" data-id="${p.id}" title="Scheda">Scheda</button></div></article>`;
 }
 
@@ -353,7 +371,7 @@ function disegnaIniziativa() {
   const timer = cb.timer ? `<span class="timer" id="timer"></span>` : '';
   const righe = cb.ordine.map((id, i) => {
     const r = cb.righe[id];
-    const badge = [r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : ''].join('');
+    const badge = [r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : '', ...(r.tipo !== 'pg' ? (r.malus || []).map(m => chipMalus({ riga: r.id }, m)) : [])].join('');
     return `<li class="tipo-${r.tipo}${i === cb.turno ? ' ora' : ''}${S.ui.sel === id ? ' sel' : ''}${r.stato === 'fuori' ? ' fuori' : ''}" data-az="selRiga" data-id="${id}" tabindex="0">
       <span class="tot">${r.totale}</span><span class="nome">${esc(M.etichetta(r))}${r.nomeTv ? ` <span class="tenue piccolo">(TV: ${esc(r.nomeTv)})</span>` : ''}</span><span class="chips">${badge}</span></li>`;
   }).join('');
@@ -362,6 +380,7 @@ function disegnaIniziativa() {
   return `<div class="col-testa"><h2>Iniziativa</h2><span class="num tenue">Round ${cb.round}</span><span class="spazio"></span>${timer}</div>
     <div class="barra-turno"><span class="tenue piccolo">Tocca a</span><span class="chi">${a ? esc(M.etichetta(a)) : '—'}</span>
       ${a && a.prepara ? `<span class="piccolo">Azione preparata: ${esc(a.prepara.azione)}${a.prepara.innesco ? ' — se ' + esc(a.prepara.innesco) : ''}</span>` : ''}
+      ${a ? barraMalus(a) : ''}
       <span class="tenue piccolo">Poi: ${esc(pros.join(', ') || '—')}</span></div>
     <div class="comandi"><button class="btn grande prim" data-az="cmd" data-c="avanti">Avanti ▸</button>
       <button class="btn" data-az="indietro" ${cb.storia.length ? '' : 'disabled'}>◂ Indietro</button>
@@ -382,6 +401,7 @@ function disegnaAzioniRiga(r) {
       ${r.n > 1 ? `<button class="btn min" data-az="separa" data-id="${r.id}">Separa</button>` : ''}
       ${inOrdine ? `<button class="btn min" data-az="cmd" data-c="fuori" data-id="${r.id}" data-ritorna="${r.stato === 'fuori' ? 1 : ''}">${r.stato === 'fuori' ? 'Rientra' : 'Fuori combattimento'}</button>` : ''}
       <button class="btn min" data-az="cmd" data-c="nascondi" data-id="${r.id}" data-nascosta="${r.nascosta ? '' : 1}">${r.nascosta ? 'Rivela' : 'Nascondi'}</button>
+      <button class="btn min oro" data-az="malus" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Malus/Bonus</button>
       <button class="btn min" data-az="correggi" data-id="${r.id}">Correggi</button>
       <button class="btn min peric" data-az="togli" data-id="${r.id}">Togli</button></div></div>`;
 }
@@ -501,8 +521,16 @@ const AZ = {
         } else applica(M.avanza(S.camp, M.durataInRound(intero(f, 'n'), val(f, 'u').value), MET, rng, 'Salto'));
       } }] });
   },
-  codaFatto() { applica(M.togliDallaCoda(S.camp, 0)); },
-  codaTutti() { const c = M.clona(S.camp); c.coda = c.coda.filter(x => x.tipo === 'razionamento'); applica(c); },
+  codaFatto(el) { applica(M.togliDallaCoda(S.camp, +(el.dataset.i || 0))); },
+  codaFattoId(el) { applica(M.togliDallaCodaId(S.camp, el.dataset.q)); },
+  codaTutti() { const c = M.clona(S.camp); c.coda = c.coda.filter(x => DA_RISPONDERE.includes(x.tipo)); applica(c); },
+  esito(el) { applicaS(M.esitoPromemoria(S.camp, el.dataset.q, !!el.dataset.e, rng)); },
+  morte(el) { const r = M.risolviMorte(S.camp, el.dataset.q, el.dataset.s, rng); applicaS(r.camp);
+    if (r.tiro !== null) avviso(`d% ${r.tiro}: ${r.esito === 'morente' ? 'resta morente per 1 minuto (ultime parole)' : 'muore'}`); },
+  malus(el) { finestraMalus(chiDi(el)); },
+  vediMalus(el) { finestraDettaglioMalus(chiDi(el), el.dataset.id); },
+  feritaGrave(el) { const p = S.camp.pg.find(x => x.id === el.dataset.id); finestraFeritaGrave(p.id, p.stato.ferita < 0 ? Math.max(-15, p.stato.ferita) : null); },
+  base(el) { avviso(el.dataset.b); },
   razionamento(el) { finestraRazionamento(el.dataset.id); },
   impostazioni() { finestraImpostazioni(); },
   vediMeteo() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#zona'); if (z) z.scrollIntoView({ block: 'center' }); },
@@ -539,14 +567,17 @@ const AZ = {
         const n = intero(f, 'n');
         if (spunta(f, 'nl')) { applica(M.dannoNonLetale(S.camp, id, n)); const q = S.camp.pg.find(x => x.id === id); const st = M.statoNonLetali(q); if (st) avviso(`${q.scheda.nome}: ${st}`); return; }
         const r = M.danno(S.camp, id, n); applica(r.camp);
-        if (r.feritaGrave) finestraFeritaGrave(p.scheda.nome, r.feritaGrave.riga);
+        if (r.feritaGrave) finestraFeritaGrave(id, r.feritaGrave.riga);
       } }] });
   },
   cura(el) {
     const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
+    const dir = p.stato.malus.filter(m => m.pf !== undefined);
     apri({ titolo: `Cura a ${esc(p.scheda.nome)}`, corpo: `<label class="campo"><span>Punti curati</span><input type="number" name="n" min="1" inputmode="numeric"></label>
-        <p class="tenue piccolo">Cura magica o alchemica: prima i Punti Ferita fino al massimo, poi i Punti Fatica. Toglie anche altrettanti danni non letali.</p>`,
-      azioni: [{ testo: 'Annulla' }, { testo: 'Cura', classe: 'prim', fn: f => applica(M.cura(S.camp, id, intero(f, 'n'))) }] });
+        ${dir.length ? `<label class="campo"><span>Dirigi la cura su</span><select name="su"><option value="">Punti vita</option>${dir.map(m => `<option value="${m.id}">${esc(M.descriviMalus(S.camp, m))}</option>`).join('')}</select></label>` : ''}
+        <p class="tenue piccolo">Cura magica o alchemica: prima i Punti Ferita fino al massimo, poi i Punti Fatica. Toglie anche altrettanti danni non letali. Diretta a una ferita grave o a un'emorragia, va solo al suo contatore.</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Cura', classe: 'prim', fn: f => { const su = val(f, 'su') && val(f, 'su').value;
+        if (su) applicaS(M.curaDiretta(S.camp, { pg: id }, su, intero(f, 'n'))); else applica(M.cura(S.camp, id, intero(f, 'n'))); } }] });
   },
   temp(el) {
     const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
@@ -567,7 +598,7 @@ const AZ = {
       azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => {
         let c = S.camp; if (val(f, 'mz') && spunta(f, 'mz')) c = M.avanza(c, 300, MET, rng, 'Rifiatare');
         const r = M.rifiatare(c, id, intero(f, 'n'), rng); applica(r.camp);
-        apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}] → Punti Fatica ${r.camp.pg.find(x => x.id === id).stato.fatica}/${s.fatica_max}</p>` });
+        apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}]${r.divisore > 1 ? ` = ${r.tirati} ÷ ${r.divisore} (organo compromesso)` : ''} → Punti Fatica ${r.camp.pg.find(x => x.id === id).stato.fatica}/${M.massimi(r.camp, r.camp.pg.find(x => x.id === id)).fatica}</p>` });
       } }] });
   },
   // iniziativa
@@ -637,12 +668,175 @@ document.addEventListener('input', ev => {
 });
 document.addEventListener('change', ev => { const el = ev.target; if (el.dataset && el.dataset.bind && el.tagName === 'SELECT') el.dispatchEvent(new Event('input', { bubbles: true })); });
 
-// ================================================================= finestre di dettaglio
-function finestraFeritaGrave(nome, riga) {
-  apri({ titolo: 'Ferita grave', corpo: `<p><b>${esc(nome)}</b>: i Punti Ferita sono scesi sotto zero.</p><div class="risultato">Riga ${riga}</div>
-    <p class="tenue piccolo">Scegli la tabella delle Ferite gravi (Vol. 3, Imprevisti) e tira sulla riga ${riga}. Il tiro automatico e la divisione in malus arrivano con le Build 2 e 3.</p>`,
-    azioni: [{ testo: 'Chiudi senza tirare' }] });
+// ================================================================= Build 2a: malus e bonus (G), veleni e malattie (H), ferite ed emorragie (I)
+const FER = DATI.ferite, CONDIZ = DATI.condizioni.condizioni;
+const infoCond = nome => CONDIZ.find(x => x.nome === nome);
+const chiStr = chi => chi.pg ? 'pg:' + chi.pg : 'riga:' + chi.riga;
+const chiDi = el => { const [k, v] = el.dataset.chi.split(':'); return { [k]: v }; };
+function elencoChi(c, chi) { return chi.pg ? (c.pg.find(p => p.id === chi.pg) || { stato: { malus: [] } }).stato.malus : ((c.combattimento && c.combattimento.righe[chi.riga]) || { malus: [] }).malus || []; }
+function nomeChi(c, chi) { return chi.pg ? c.pg.find(p => p.id === chi.pg).scheda.nome : M.etichetta(c.combattimento.righe[chi.riga]); }
+// nel combattimento le azioni sui malus si annullano con «Indietro»
+function applicaS(dopo) { applica(M.conStoria(S.camp, dopo)); }
+function classeMalus(m) {
+  if (m.tipo === 'condizione') { const i = infoCond(m.nome); return i && i.rossa ? 'cond' : ''; }
+  if (m.tipo === 'bonus') return 'ok';
+  if (['ferita', 'emorragia_lieve', 'emorragia_grave', 'panico'].includes(m.tipo)) return 'fer';
+  if (m.vel) return 'vel';
+  return 'sv';
 }
+function aiutoMalus(m) {
+  const i = m.tipo === 'condizione' && infoCond(m.nome);
+  const ef = i ? (i.effetto ? 'Nel riquadro: ' + i.effetto + '. ' : '') + (i.testo_vol1 ? i.testo_vol1.replace(/^[^:]+: /, '') : '') : '';
+  return [ef, m.fonte ? 'Fonte: ' + m.fonte : ''].filter(Boolean).join(' ');
+}
+function chipMalus(chi, m) {
+  return `<button type="button" class="chip ${classeMalus(m)}" data-az="vediMalus" data-chi="${chiStr(chi)}" data-id="${m.id}" title="${esc(aiutoMalus(m))}">${esc(M.descriviMalus(S.camp, m))}</button>`;
+}
+function bottoniCoda(q, i) {
+  if (q.tipo === 'razionamento') return `<button class="btn min prim" data-az="razionamento" data-id="${q.razionamento}">Scegli chi</button>`;
+  if (q.tipo === 'ts' || q.tipo === 'veleno') return `<button class="btn min ok" data-az="esito" data-q="${q.id}" data-e="1">Superato</button><button class="btn min peric" data-az="esito" data-q="${q.id}" data-e="">Fallito</button>`;
+  if (q.tipo === 'morte') return `<button class="btn min prim" data-az="morte" data-q="${q.id}" data-s="morente">Tira il 20% del Morente</button><button class="btn min peric" data-az="morte" data-q="${q.id}" data-s="morto">Morto</button><button class="btn min" data-az="morte" data-q="${q.id}" data-s="ignora">Ignora</button>`;
+  return q.id ? `<button class="btn min" data-az="codaFattoId" data-q="${q.id}">Fatto</button>` : `<button class="btn min" data-az="codaFatto" data-i="${i}">Fatto</button>`;
+}
+const DA_RISPONDERE = ['razionamento', 'ts', 'veleno', 'morte'];
+function primoInCoda(c) { const pri = ['morte', 'ts', 'veleno', 'razionamento']; for (const t of pri) { const i = c.coda.findIndex(q => q.tipo === t); if (i >= 0) return i; } return 0; }
+
+// ---------- G: finestra «Malus/Bonus»
+const UNITA = [['round', 'round'], ['minuti', 'minuti'], ['ore', 'ore'], ['giorni', 'giorni'], ['incontro', 'fino a fine incontro'], ['permanente', 'permanente'], ['libera', 'senza durata (si toglie a mano)']];
+const opz = (lista, sel) => lista.map(([v, t]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${t}</option>`).join('');
+function finestraMalus(chi) {
+  const c = S.camp, cb = c.combattimento;
+  const righe = cb ? [...cb.ordine, ...cb.attesa].map(id => cb.righe[id]) : [];
+  const num = (n, et) => `<label class="campo"><span>${et}</span><input type="number" name="${n}" data-etichetta="${et}"></label>`;
+  const el = apri({ titolo: `Malus o bonus: ${esc(nomeChi(c, chi))}`, larga: true, corpo: `<div class="griglia">
+      <label class="campo"><span>Tipo</span><select name="tipo">${opz([['condizione', 'Condizione'], ['bonus', 'Bonus'], ['altro', 'Altro malus'], ['veleno', 'Veleno'], ['malattia', 'Malattia']], 'condizione')}</select></label>
+      <label class="campo" data-per="cond"><span>Condizione</span><select name="cond">${CONDIZ.map(x => `<option>${esc(x.nome)}</option>`).join('')}</select></label>
+      <label class="campo" data-per="perc"><span>Offuscato %</span><input type="number" name="perc" min="1" max="100" value="20"></label>
+      <label class="campo" data-per="n"><span>Livelli negativi</span><input type="number" name="n" min="1" value="1"></label>
+      <label class="campo" data-per="nome"><span>Nome</span><input type="text" name="nome" placeholder="es. Benedizione"></label>
+      <label class="campo"><span>Etichetta (facoltativa)</span><input type="text" name="etichetta" placeholder="es. Lupo 3"></label></div>
+    <fieldset data-per="durata"><legend>Durata</legend><div class="griglia">
+      <label class="campo"><span>Quantità</span><input type="number" name="dn" min="1" value="1"></label>
+      <label class="campo"><span>Unità</span><select name="du">${opz(UNITA, 'round')}</select></label>
+      ${cb ? `<label class="campo" style="grid-column:span 2"><span>I round scadono all'inizio del turno di</span><select name="sc"><option value="">${esc(nomeChi(c, chi))} (bersaglio)</option>${righe.map(r => `<option value="${r.id}">${esc(M.etichetta(r))} (chi l'ha causato)</option>`).join('')}</select></label>` : '<span class="tenue piccolo" style="grid-column:span 2">Fuori combattimento i round scorrono con l\'orologio (10 al minuto).</span>'}</div></fieldset>
+    <fieldset data-per="mods"><legend>Modificatori (facoltativi)</legend><div class="griglia stretta">
+      ${num('m_ts', 'TS (tutti)')}${num('m_tempra', 'Tempra')}${num('m_riflessi', 'Riflessi')}${num('m_volonta', 'Volontà')}${num('m_ca', 'CA')}${num('m_dmc', 'DMC')}${num('m_abilita', 'Abilità')}${num('m_iniziativa', 'Iniziativa')}${num('m_fatica_max', 'Fatica max')}</div>
+      <label class="campo"><span>Altro (solo etichetta, es. +1 TpC)</span><input type="text" name="m_altro"></label></fieldset>
+    <fieldset data-per="ts"><legend><label class="spunta"><input type="checkbox" name="tsOn"> TS periodico</label></legend><div class="griglia stretta">
+      <label class="campo"><span>TS</span><select name="tsT">${opz([['Tempra', 'Tempra'], ['Riflessi', 'Riflessi'], ['Volontà', 'Volontà']], 'Volontà')}</select></label>${num('tsCD', 'CD')}
+      <label class="campo"><span>Ogni</span><input type="number" name="tsN" min="1" value="1"></label><label class="campo"><span>Unità</span><select name="tsU">${opz(UNITA.slice(0, 4), 'round')}</select></label>
+      <label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="tsFin" checked> Superato = finisce</label></div></fieldset>
+    <fieldset data-per="veleno"><legend>Veleno o malattia</legend><div class="griglia stretta">
+      <label class="campo"><span>Tipo</span><select name="vF">${opz([['ferimento', 'ferimento'], ['contatto', 'contatto'], ['ingestione', 'ingestione'], ['inalazione', 'inalazione']], 'ferimento')}</select></label>
+      <label class="campo"><span>TS</span><select name="vT">${opz([['Tempra', 'Tempra'], ['Riflessi', 'Riflessi'], ['Volontà', 'Volontà']], 'Tempra')}</select></label>${num('vCD', 'CD')}
+      <label class="campo"><span>Insorgenza</span><input type="number" name="vIn" min="1" placeholder="nessuna"></label><label class="campo"><span>Unità</span><select name="vIu">${opz(UNITA.slice(0, 4), 'minuti')}</select></label>
+      <label class="campo"><span>Frequenza: 1 ogni</span><select name="vFu">${opz([['round', 'round'], ['minuti', 'minuto'], ['ore', 'ora'], ['giorni', 'giorno']], 'round')}</select></label>
+      <label class="campo"><span>Per N volte</span><input type="number" name="vN" min="1" value="6" placeholder="senza limite"></label>
+      <label class="campo" style="grid-column:span 2"><span>Effetto</span><input type="text" name="vE" placeholder="es. 1d2 For"></label>
+      <label class="campo"><span>Cura: TS consecutivi</span><input type="number" name="vC" min="1" value="1"></label></div>
+      <p class="tenue piccolo">Applicarlo vale come TS iniziale fallito: il primo effetto arriva subito (o alla fine dell'insorgenza), poi a ogni scadenza un promemoria con Superato e Fallito.</p></fieldset>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => {
+      const tipo = val(f, 'tipo').value, n = k => { const v = testo(f, k); if (v === '') return 0; const x = Number(v); if (!Number.isInteger(x)) throw new Error('Valore non valido: ' + (val(f, k).dataset.etichetta || k)); return x; };
+      const d = { tipo, etichetta: testo(f, 'etichetta') };
+      if (tipo === 'condizione') { d.nome = val(f, 'cond').value; if (d.nome === 'Offuscato') d.perc = n('perc'); if (d.nome === 'Livelli negativi') d.n = n('n'); }
+      else d.nome = testo(f, 'nome');
+      if (tipo === 'veleno' || tipo === 'malattia') {
+        const vin = testo(f, 'vIn'), vn = testo(f, 'vN');
+        d.veleno = { forma: val(f, 'vF').value, ts: val(f, 'vT').value, cd: n('vCD') || null, insorgenza: vin ? { n: n('vIn'), unita: val(f, 'vIu').value } : null,
+          frequenza: { unita: val(f, 'vFu').value, volte: vn ? n('vN') : null }, effetto: testo(f, 'vE'), cura: n('vC') };
+      } else {
+        const du = val(f, 'du').value; d.durata = ['incontro', 'permanente', 'libera'].includes(du) ? { unita: du } : { n: n('dn'), unita: du };
+        if (val(f, 'sc') && val(f, 'sc').value) { d.scadenza = 'causa'; d.causa = val(f, 'sc').value; }
+        d.mods = { altro: testo(f, 'm_altro') }; for (const k of ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max']) d.mods[k] = n('m_' + k);
+        if (spunta(f, 'tsOn')) d.ts = { tipo: val(f, 'tsT').value, cd: n('tsCD') || null, ogni: n('tsN'), unita: val(f, 'tsU').value, finisce: spunta(f, 'tsFin') };
+      }
+      applicaS(M.aggiungiMalus(S.camp, chi, d, rng));
+    } }] });
+  const aggiorna = () => {
+    const tipo = val(el, 'tipo').value, cnd = val(el, 'cond').value, vel = tipo === 'veleno' || tipo === 'malattia';
+    const vis = { cond: tipo === 'condizione', perc: tipo === 'condizione' && cnd === 'Offuscato', n: tipo === 'condizione' && cnd === 'Livelli negativi', nome: tipo !== 'condizione', durata: !vel, mods: !vel, ts: !vel, veleno: vel };
+    for (const [k, v] of Object.entries(vis)) for (const x of el.querySelectorAll(`[data-per="${k}"]`)) x.hidden = !v;
+    if (tipo === 'malattia' && !el.dataset.malattia) { el.dataset.malattia = 1; val(el, 'vFu').value = 'giorni'; val(el, 'vN').value = ''; val(el, 'vIu').value = 'giorni'; }
+  };
+  el.addEventListener('change', aggiorna); aggiorna();
+  return el;
+}
+// ---------- dettaglio di un malus
+function finestraDettaglioMalus(chi, id) {
+  const c = S.camp, m = elencoChi(c, chi).find(x => x.id === id); if (!m) return;
+  const riga = (t, v) => v ? `<div class="fila piccolo"><span class="tenue" style="min-width:8em">${t}</span><span>${v}</span></div>` : '';
+  const mods = Object.entries(m.mods || {}).map(([k, v]) => k === 'abilita_nome' ? Object.entries(v).map(([a, x]) => `${a} ${segno(x)}`).join(', ') : k === 'altro' ? esc(v) : `${k.replace('_max', ' max').replace('volonta', 'Volontà')} ${segno(v)}`).join(', ');
+  const leg = m.durata.tipo === 'curata' ? elencoChi(c, chi).find(x => x.id === m.durata.legata) : null;
+  const legate = elencoChi(c, chi).filter(x => x.durata.tipo === 'curata' && x.durata.legata === m.id).map(x => x.nome).join(', ');
+  const v = m.vel, pr = m.per;
+  const azioni = [{ testo: 'Chiudi' }];
+  if (m.pf !== undefined) azioni.push({ testo: 'Cura…', classe: 'oro', fn: () => { finestraCuraFerita(chi, id); } });
+  if (m.tipo === 'panico') azioni.push({ testo: 'Azione di round completo', classe: 'oro', fn: () => applicaS(M.spendiRoundCompleto(S.camp, chi, id)) });
+  if (v) azioni.push({ testo: 'Dose aggiuntiva', fn: () => applicaS(M.doseAggiuntiva(S.camp, chi, id)) });
+  azioni.push({ testo: 'Togli', classe: 'peric', fn: () => applicaS(M.togliMalus(S.camp, chi, id)) });
+  apri({ titolo: esc(M.nomeEsteso(m)), corpo: `<p class="piccolo">${esc(nomeChi(c, chi))}${m.etichetta ? ' · ' + esc(m.etichetta) : ''}</p>
+      ${riga('Durata', esc(M.descriviDurata(c, m) || 'senza durata'))}${riga('Legata a', leg ? esc(leg.nome) + ': sparisce quando guarisce' : '')}${riga('Fa durare', esc(legate))}
+      ${m.durata.tipo === 'round' && m.scadenza === 'causa' && c.combattimento && c.combattimento.righe[m.causa] ? riga('Scade al turno di', esc(M.etichetta(c.combattimento.righe[m.causa]))) : ''}
+      ${riga('Modificatori', mods)}${riga('Fonte', esc(m.fonte))}
+      ${pr && pr.kind === 'ts' ? riga('TS periodico', `${pr.ts} CD ${pr.cd}, ogni ${M.formatoDurata(pr.ogni)}${pr.finisce ? ', superato = finisce' : ''}`) : ''}
+      ${v ? riga('Veleno', `${esc(v.forma)} · ${pr.ts} CD ${pr.cd} · 1 ogni ${M.formatoDurata(pr.ogni)}${v.volte ? ` · ${v.volte - v.restanti}/${v.volte}` : ' · senza limite'} · effetto ${esc(v.effetto || '—')}${v.totale ? ` (totale ${v.totale})` : ''} · cura ${v.successi}/${v.cura} TS consecutivi`) + (v.primo ? riga('Primo effetto', esc(M.formatoData(c, pr.prossimo))) : riga('Prossimo TS', pr.attesa ? 'in coda' : esc(M.formatoData(c, pr.prossimo)))) : ''}
+      ${m.pf !== undefined ? riga('Cure', `${Math.min(m.cure, m.pf)}/${m.pf} PF (cure magiche dirette)`) + riga('Cerusico', m.cer.guarisce != null ? 'guarisce ' + esc(M.formatoData(c, m.cer.guarisce)) : `${m.cer.tentativi} tentativi` + (m.cer.prossimo != null ? `, di nuovo da ${esc(M.formatoData(c, m.cer.prossimo))} con CD ${m.cer.cd}` : '')) : ''}
+      ${m.morte_R != null ? riga('Morte', esc(M.formatoData(c, m.morte_R)) + ' se non è fermata') : ''}
+      ${m.p !== undefined ? riga('Probabilità', `${m.p}% all'ultimo tiro (+${m.passo || 5}% a ogni fine turno)`) : ''}
+      ${m.tipo === 'panico' ? riga('Per fermarlo', m.azioni === 2 ? 'due azioni di round completo consecutive' : 'un\'azione di round completo') : ''}
+      ${m.amp ? `<p class="piccolo">${esc(m.amp.singolo.testo)}</p>` : ''}
+      ${aiutoMalus(m) && m.tipo === 'condizione' ? `<p class="tenue piccolo">${esc(aiutoMalus(m))}</p>` : ''}`, azioni });
+}
+// ---------- I2: fermare le emorragie e curare le ferite gravi
+function finestraCuraFerita(chi, id) {
+  const c = S.camp, m = elencoChi(c, chi).find(x => x.id === id); if (!m) return;
+  const r = M.rigaFermare(FER, m), cd = m.cer.cd !== null ? m.cer.cd : r.cd;
+  const stato = m.cer.guarisce != null ? `Prova riuscita: guarisce il ${esc(M.formatoData(c, m.cer.guarisce))}.` : m.cer.prossimo != null && c.tempo.R < m.cer.prossimo ? `Si può ritentare da ${esc(M.formatoData(c, m.cer.prossimo))}.` : `Prossima prova: CD ${cd}.`;
+  apri({ titolo: `Curare: ${esc(m.nome)}`, corpo: `<p class="piccolo">${esc(nomeChi(c, chi))} · cure ${Math.min(m.cure, m.pf)}/${m.pf} PF · tentativi ${m.cer.tentativi}</p>
+      <div class="effetto"><b>${esc(r.ferita)}</b> ${r.medicinali} unità di medicinali · ${esc(r.testo.cd)} · ritentare ${esc(r.testo.ritentare)}</div>
+      <p class="piccolo"><b>${stato}</b></p>
+      <fieldset><legend>Professione (cerusico)</legend><div class="griglia"><label class="campo"><span>Risultato della prova</span><input type="number" name="t" inputmode="numeric"></label>
+        <label class="spunta"><input type="checkbox" name="senza"> Senza medicinali (${FER.senza_medicinali})</label></div></fieldset>
+      <fieldset><legend>Cure magiche dirette</legend><label class="campo"><span>Punti curati (vanno solo a questa ferita)</span><input type="number" name="pf" min="1"></label></fieldset>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Cure magiche', fn: f => applicaS(M.curaDiretta(S.camp, chi, id, intero(f, 'pf'))) },
+      { testo: 'Registra la prova', classe: 'prim', fn: f => { const x = M.cerusico(S.camp, chi, id, intero(f, 't'), spunta(f, 'senza'), rng, FER); applicaS(x.camp); avviso(`Prova ${x.totale} su CD ${x.cd}: ${x.riuscita ? 'riuscita' : 'fallita'}`, !x.riuscita); } }] });
+}
+// ---------- I1: risultato di una Ferita grave scritto o incollato e diviso nelle sue parti
+function finestraFeritaGrave(pgId, riga) {
+  const c = S.camp, p = c.pg.find(x => x.id === pgId); let comps = null, ultimo = '';
+  const anteprima = el => {
+    const t = testo(el, 't'); ultimo = t; comps = M.scomponiFerita(t, rng);
+    el.querySelector('#fg-anteprima').innerHTML = comps.length ? `<h3>Prima di attaccarla</h3>${comps.map((k, i) => `<div class="fila"><label class="spunta"><input type="checkbox" name="k${i}" checked> ${esc(M.descriviComponente(k))}</label>
+        ${(k.k === 'amputazione' && !k.parte) || k.k === 'dita' ? `<select name="l${i}" aria-label="Lato">${opz([['', 'lato non indicato'], ['sinistro', 'sinistro'], ['destro', 'destro']], k.lato)}</select>` : ''}</div>`).join('')}`
+      : '<p class="tenue piccolo">Niente da attaccare: scrivi il testo della riga.</p>';
+  };
+  const el = apri({ titolo: 'Ferita grave', larga: true, corpo: `<p><b>${esc(p.scheda.nome)}</b>${riga !== null ? ': i Punti Ferita sono scesi sotto zero.' : ''}</p>${riga !== null ? `<div class="risultato">Riga ${riga}</div>` : ''}
+      ${riga === -1 ? '<p class="piccolo">Le tabelle del Vol. 3 partono dalla riga −2: per la −1 non ci sono voci.</p>' : ''}
+      <p class="tenue piccolo">Scrivi o incolla il risultato della tabella (Vol. 3, Imprevisti): l'app lo divide nelle sue parti. Le tabelle e i loro tiri arrivano con la Build 3.</p>
+      <label class="campo"><span>Risultato</span><textarea name="t" rows="4" placeholder="es. Il colpo ti incrina alcune costole e a causa del dolore intenso sei barcollante finché la ferita di gravità 2 (20 PF) non viene curata."></textarea></label>
+      <div id="fg-anteprima"></div>`,
+    azioni: [{ testo: 'Chiudi senza tirare' }, { testo: 'Scomponi', fn: f => { anteprima(f); return false; } },
+      { testo: 'Attacca', classe: 'prim', fn: f => {
+        if (!comps || testo(f, 't') !== ultimo) { anteprima(f); return false; }
+        const scelti = comps.map((k, i) => ({ ...k, lato: val(f, 'l' + i) ? val(f, 'l' + i).value : k.lato })).filter((k, i) => spunta(f, 'k' + i));
+        if (!scelti.length) throw new Error('Niente da attaccare');
+        applicaS(M.attaccaFerita(S.camp, pgId, scelti, rng, FER, { titolo: riga !== null ? `Ferita grave ${riga}` : 'Ferita grave', testo: testo(f, 't') }));
+      } }] });
+  return el;
+}
+
+// barra del turno: malus di chi agisce, cosa scade ora, cosa tirare (J7)
+function barraMalus(a) {
+  const c = S.camp, cb = c.combattimento, chi = a.tipo === 'pg' ? { pg: a.pgId } : { riga: a.id };
+  const ml = elencoChi(c, chi), avv = cb.avvisi || [];
+  const pend = c.coda.filter(q => q.chi && (q.chi.riga === a.id || (a.pgId && q.chi.pg === a.pgId)));
+  if (!ml.length && !avv.length && !pend.length) return '';
+  return `${avv.length ? `<div class="chips">${avv.map(x => `<span class="chip ok">${esc(x)}</span>`).join('')}</div>` : ''}
+    ${ml.length ? `<div class="chips">${ml.map(m => chipMalus(chi, m)).join('')}</div>` : ''}
+    ${pend.length ? `<div class="pend">${pend.map(q => `<div class="fila"><span class="piccolo spazio">${esc(q.testo)}</span>${bottoniCoda(q)}</div>`).join('')}</div>` : ''}`;
+}
+
+// ================================================================= finestre di dettaglio
 function finestraRazionamento(id) {
   const c = S.camp, z = c.razionamenti.find(x => x.id === id); if (!z) return;
   const q = c.scorte[z.scorta], verbo = z.scorta === 'acqua' ? 'beve' : 'mangia', mal = z.mal === 'sete' ? 'Sete' : 'Fame';
