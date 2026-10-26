@@ -1,0 +1,838 @@
+<title>Schermo del Narratore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral+SC:wght@500;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Schermo da GM a tre colonne (Tavolo · Iniziativa · Viaggio/Log): pannelli di legno scuro,
+   numeri in monospazio come su uno schermo cartaceo, oro e arancio della Collana per i titoli. */
+:root{
+  --bg:#15120E; --pannello:#1E1914; --pannello2:#28211A; --riga:#3A3127; --testo:#ECE3D1; --tenue:#A5977F;
+  --arancio:#E07A35; --oro:#D4A84B; --oro-scuro:#8B6914; --rosso:#C00000; --rosso-chiaro:#F07A6E; --verde:#1E7A1E;
+  --fatica:#C9A13F; --ferita:#B84A3A; --sel:#3B2E1E; --ombra:0 8px 30px rgb(0 0 0 / .45);
+  --f-titolo:"Spectral SC", Georgia, serif; --f-testo:"IBM Plex Sans", system-ui, sans-serif; --f-num:"IBM Plex Mono", ui-monospace, monospace;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#EFEAE0; --pannello:#FBF8F2; --pannello2:#F1EADC; --riga:#D6CBB6; --testo:#1E1A15; --tenue:#6B5F4D;
+  --arancio:#C45911; --oro:#8B6914; --oro-scuro:#8B6914; --rosso:#C00000; --rosso-chiaro:#C00000; --verde:#1E7A1E;
+  --fatica:#B48A1E; --ferita:#A8372A; --sel:#F3E2C4; --ombra:0 8px 30px rgb(60 40 10 / .18); color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--testo);font:15px/1.45 var(--f-testo)}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px;max-width:1700px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-titolo);font-weight:700;letter-spacing:.02em;text-wrap:balance;margin:0}
+h2{font-size:1.15rem;color:var(--arancio)}
+h3{font-size:1rem;color:var(--oro)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.tenue{color:var(--tenue)}
+.piccolo{font-size:.82rem}
+:focus-visible{outline:2px solid var(--oro);outline-offset:2px}
+
+/* pulsanti */
+.btn{border:1px solid var(--riga);background:var(--pannello2);border-radius:6px;padding:6px 11px;cursor:pointer;line-height:1.2;white-space:nowrap}
+.btn:hover{border-color:var(--oro-scuro)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.prim{background:var(--arancio);border-color:var(--arancio);color:#1A0F05;font-weight:600}
+.btn.oro{border-color:var(--oro-scuro);color:var(--oro)}
+.btn.peric{border-color:var(--rosso);color:var(--rosso-chiaro)}
+.btn.min{padding:3px 8px;font-size:.85rem}
+.btn.grande{padding:10px 18px;font-size:1.05rem}
+.fila{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.spazio{flex:1}
+
+/* testata con orologio */
+header.testa{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--riga);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));padding-block:10px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.testa-riga{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.marchio{font-family:var(--f-titolo);color:var(--oro);font-size:.95rem;letter-spacing:.06em}
+.marchio b{color:var(--arancio)}
+.orologio{display:flex;flex-direction:column;min-width:0}
+.orologio .data{font-family:var(--f-titolo);font-size:1.2rem;color:var(--testo)}
+.orologio .ora{font-family:var(--f-num);font-size:1.55rem;color:var(--oro);line-height:1}
+.orologio .ora small{font-size:.8rem;color:var(--tenue);margin-left:6px}
+.meteo-chip{border:1px solid var(--riga);border-radius:999px;padding:4px 12px;background:var(--pannello);cursor:pointer;display:flex;gap:8px;align-items:center}
+.meteo-chip .z{color:var(--tenue);font-size:.8rem}
+.tasti-tempo{display:flex;flex-wrap:wrap;gap:5px}
+.coda{margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--oro-scuro);background:color-mix(in srgb,var(--oro-scuro) 18%,var(--pannello));border-radius:8px;padding:7px 10px}
+.coda .t{flex:1;min-width:200px}
+
+/* tre colonne */
+.colonne{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.9fr);gap:16px;margin-top:16px;align-items:start}
+@media (max-width:899px){.colonne{grid-template-columns:minmax(0,1fr)}header.testa{position:static}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.col-testa{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--riga);padding-bottom:6px}
+.vuoto{border:1px dashed var(--riga);border-radius:8px;padding:16px;color:var(--tenue)}
+
+/* riquadro del PG */
+.pg{background:var(--pannello);border:1px solid var(--riga);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.pg.attivo{border-color:var(--arancio);box-shadow:0 0 0 1px var(--arancio)}
+.pg-testa{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.pg-nome{font-family:var(--f-titolo);font-size:1.15rem;color:var(--arancio)}
+.pg-classe{color:var(--tenue);font-size:.88rem}
+.eroe{cursor:pointer;border:0;background:none;padding:0 2px;color:var(--oro);font-size:.9rem}
+.eroe.no{color:var(--tenue)}
+.barre{display:grid;grid-template-columns:auto 1fr auto;gap:3px 8px;align-items:center;font-size:.86rem}
+.barra{height:9px;border-radius:5px;background:var(--pannello2);overflow:hidden;border:1px solid var(--riga)}
+.barra i{display:block;height:100%}
+.barra.fa i{background:var(--fatica)} .barra.fe i{background:var(--ferita)}
+.barra.neg{border-color:var(--rosso);background:repeating-linear-gradient(45deg,var(--pannello2) 0 5px,color-mix(in srgb,var(--rosso) 35%,transparent) 5px 10px)}
+.stat{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:.88rem}
+.stat b{font-weight:500;color:var(--tenue);margin-right:3px}
+.mod{color:var(--rosso-chiaro);font-weight:600;cursor:help}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:.78rem;border-radius:4px;padding:1px 7px;border:1px solid var(--riga);background:var(--pannello2)}
+.chip.cond{background:var(--rosso);border-color:var(--rosso);color:#fff}
+.chip.sv{background:var(--rosso);border-color:var(--rosso);color:#fff}
+.chip.ok{background:var(--verde);border-color:var(--verde);color:#fff}
+.cond-t{color:var(--rosso-chiaro);font-weight:600}
+
+/* iniziativa */
+.barra-turno{background:var(--pannello);border:1px solid var(--oro-scuro);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.barra-turno .chi{font-family:var(--f-titolo);font-size:1.35rem;color:var(--arancio)}
+.timer{font-family:var(--f-num);font-size:1rem;color:var(--oro)}
+.timer.allarme{color:var(--rosso-chiaro)}
+.ordine{list-style:none;margin:0;padding:0;border:1px solid var(--riga);border-radius:8px;overflow:hidden;background:var(--pannello)}
+.ordine li{display:grid;grid-template-columns:3.2em 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-top:1px solid var(--riga);cursor:pointer}
+.ordine li:first-child{border-top:0}
+.ordine li.ora{background:var(--sel);box-shadow:inset 3px 0 0 var(--arancio)}
+.ordine li.sel{outline:1px solid var(--oro);outline-offset:-1px}
+.ordine li.fuori .nome{text-decoration:line-through;color:var(--tenue)}
+.ordine .tot{font-family:var(--f-num);font-size:1.1rem;color:var(--oro);text-align:right}
+.ordine .nome{min-width:0;overflow-wrap:anywhere}
+.ordine .tipo-pg .nome{color:var(--arancio);font-weight:600}
+.azioni-riga{background:var(--pannello2);border:1px solid var(--riga);border-radius:8px;padding:8px}
+.comandi{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+/* moduli */
+.campo{display:flex;flex-direction:column;gap:3px;min-width:0}
+.campo>span{font-size:.78rem;color:var(--tenue);text-transform:uppercase;letter-spacing:.05em}
+input[type=text],input[type=number],select,textarea{background:var(--bg);border:1px solid var(--riga);border-radius:5px;padding:6px 8px;width:100%;min-width:0}
+input[type=number]{font-family:var(--f-num)}
+textarea{min-height:90px;font-family:var(--f-num);font-size:.82rem}
+.griglia{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.griglia.stretta{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
+fieldset{border:1px solid var(--riga);border-radius:8px;padding:8px 10px 10px;margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{font-family:var(--f-titolo);color:var(--oro);padding:0 6px}
+label.spunta.spento{opacity:.55}
+label.spunta{display:flex;gap:6px;align-items:center;cursor:pointer}
+.tab-nemici{display:flex;flex-direction:column;gap:6px}
+.nemico{display:grid;grid-template-columns:minmax(0,2fr) 4.2em 3.6em minmax(0,1.3fr) auto;gap:5px;align-items:center}
+@media (max-width:520px){.nemico{grid-template-columns:minmax(0,1fr) 4.2em 3.6em}}
+.pgini{display:grid;grid-template-columns:minmax(0,1fr) 6em auto;gap:6px;align-items:center}
+
+/* pannelli della terza colonna */
+.pannello{background:var(--pannello);border:1px solid var(--riga);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.schede{display:flex;gap:2px;border-bottom:1px solid var(--riga)}
+.schede button{border:0;background:none;padding:6px 12px;cursor:pointer;color:var(--tenue);border-bottom:2px solid transparent}
+.schede button.on{color:var(--arancio);border-bottom-color:var(--arancio)}
+.effetto{border-left:3px solid var(--oro-scuro);padding-left:8px;font-size:.88rem}
+.effetto b{color:var(--oro);font-weight:600}
+.scorta{display:grid;grid-template-columns:4.5em 1fr auto;gap:6px;align-items:center}
+.scorta .q{font-family:var(--f-num);font-size:1.3rem;color:var(--oro)}
+.log{list-style:none;margin:0;padding:0;font-size:.85rem;max-height:60vh;overflow:auto}
+.log li{padding:4px 0;border-top:1px solid var(--riga);display:grid;grid-template-columns:7.5em 1fr;gap:8px}
+.log li .q{font-family:var(--f-num);color:var(--tenue);font-size:.76rem}
+
+/* elenco campagne */
+.lista-camp{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:18px}
+.camp{background:var(--pannello);border:1px solid var(--riga);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.camp h2{font-size:1.3rem}
+.titolo-app{padding-block:28px 6px;display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.titolo-app h1{font-size:clamp(1.8rem,4vw,2.6rem);color:var(--oro)}
+.titolo-app h1 b{color:var(--arancio)}
+
+/* finestre */
+.velo{position:fixed;inset:0;background:rgb(0 0 0 / .55);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
+.finestra{background:var(--pannello);border:1px solid var(--oro-scuro);border-radius:10px;box-shadow:var(--ombra);width:min(560px,100%);display:flex;flex-direction:column;max-height:calc(100dvh - 48px)}
+.finestra.larga{width:min(900px,100%)}
+.finestra>header{padding:12px 14px;border-bottom:1px solid var(--riga)}
+.finestra>.corpo{padding:12px 14px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.finestra>footer{padding:10px 14px;border-top:1px solid var(--riga);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.passi{display:flex;gap:4px;flex-wrap:wrap;font-size:.75rem;color:var(--tenue)}
+.passi span{padding:1px 6px;border-radius:4px;border:1px solid var(--riga)}
+.passi span.on{border-color:var(--arancio);color:var(--arancio)}
+.mesi{display:flex;flex-direction:column;gap:5px}
+.mese{display:grid;grid-template-columns:minmax(0,1fr) 4.5em 8em auto;gap:5px}
+.avviso{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--pannello2);border:1px solid var(--oro-scuro);border-radius:8px;padding:9px 14px;box-shadow:var(--ombra);max-width:min(92vw,560px)}
+.avviso.err{border-color:var(--rosso);color:var(--rosso-chiaro)}
+.banda{border:1px solid var(--rosso);border-radius:8px;padding:8px 10px;color:var(--rosso-chiaro);margin-top:10px}
+.risultato{font-family:var(--f-num);font-size:1.4rem;color:var(--oro)}
+@media (prefers-reduced-motion:no-preference){.btn,.ordine li{transition:background .15s,border-color .15s}}
+</style>
+<div class="wrap" id="app"></div>
+<div id="finestre"></div>
+<script>
+const DATI = __DATI__;
+const WEB = __WEB__;   // true nella pagina di prova: lì i file non si scaricano, si copiano
+__MOTORE__
+// ================================================================= archivio (IndexedDB nel browser e su Android, file JSON in Electron)
+const Archivio = (() => {
+  const D = typeof window !== 'undefined' && window.schermoDesktop;
+  if (D) return { tipo: 'file', lista: () => D.lista(), leggi: id => D.leggi(id), scrivi: c => D.scrivi(c), elimina: id => D.elimina(id), subito: c => D.scriviSubito(c) };
+  const memoria = new Map(); let dbp = null, inMemoria = false;
+  function db() {
+    if (!dbp) dbp = new Promise((ok, ko) => {
+      try { const r = indexedDB.open('schermo', 1);
+        r.onupgradeneeded = () => { r.result.createObjectStore('campagne', { keyPath: 'id' }); };
+        r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); r.onblocked = () => ko(new Error('bloccato'));
+      } catch (e) { ko(e); }
+    });
+    return dbp;
+  }
+  async function op(modo, f) {
+    if (!inMemoria) {
+      try { const d = await db(); return await new Promise((ok, ko) => { const t = d.transaction('campagne', modo); const r = f(t.objectStore('campagne')); t.oncomplete = () => ok(r && r.result); t.onerror = () => ko(t.error); t.onabort = () => ko(t.error); }); }
+      catch (e) { inMemoria = true; Archivio.problema = 'Questo browser non permette di salvare: le campagne restano solo finché la pagina è aperta. Usa Esporta per tenerle.'; }
+    }
+    return null;
+  }
+  return {
+    tipo: 'indexeddb', problema: null,
+    async lista() { const r = await op('readonly', s => s.getAll()); const v = inMemoria ? [...memoria.values()] : r || []; return v.map(c => ({ id: c.id, nome: c.nome, modificata: c.modificata, R: c.tempo.R, pg: c.pg.length, c })); },
+    async leggi(id) { const r = await op('readonly', s => s.get(id)); return inMemoria ? Motore.clona(memoria.get(id)) : r; },
+    async scrivi(c) { await op('readwrite', s => s.put(c)); if (inMemoria) memoria.set(c.id, Motore.clona(c)); },
+    async elimina(id) { await op('readwrite', s => s.delete(id)); memoria.delete(id); },
+    subito: null,
+  };
+})();
+
+// ================================================================= stato dell'interfaccia
+const M = Motore, MET = DATI.meteo;
+const rng = Math.random;
+const S = { schermata: 'campagne', elenco: [], camp: null, ui: { scheda: 'viaggio', sel: null, avvio: null } };
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const segno = n => (n >= 0 ? '+' : '−') + Math.abs(n);
+const CONDIZIONI = ['Azzoppato','Colto alla sprovvista','Offuscato','Sempre pronto','Affaticato','Abbagliato','Accecato','Accovacciato','Affascinato','Assordato','Barcollante','Confuso','Esausto','Frastornato','Immobilizzato','Impreparato','In Lotta','Inabile','Incorporeo','Indifeso','Infermo','Intralciato','Invisibile','Morto','Nauseato','Paralizzato','Scosso','Spaventato','In Preda al Panico','Pietrificato','Privo di Sensi','Prono','Rotto','Sanguinante','Scheggiato','Stabilizzato','Stordito'];
+let salvaTimer = null;
+function salvaPresto() {
+  clearTimeout(salvaTimer);
+  const c = S.camp; if (!c) return;
+  salvaTimer = setTimeout(() => { salvaTimer = null; Archivio.scrivi(c).catch(e => avviso('Salvataggio non riuscito: ' + e.message, true)); }, 1000);
+}
+function salvaOra() { if (salvaTimer && S.camp) { clearTimeout(salvaTimer); salvaTimer = null; if (Archivio.subito) Archivio.subito(S.camp); else Archivio.scrivi(S.camp); } }
+window.addEventListener('beforeunload', salvaOra);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') salvaOra(); });
+function applica(c) { c.modificata = Date.now(); S.camp = c; salvaPresto(); disegna(); }
+function prova(f) { try { return f(); } catch (e) { avviso(e.message, true); return undefined; } }
+let avvisoT = null;
+function avviso(testo, errore) {
+  let el = $('#avviso'); if (!el) { el = document.createElement('div'); el.id = 'avviso'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.className = 'avviso' + (errore ? ' err' : ''); el.textContent = testo; el.hidden = false;
+  clearTimeout(avvisoT); avvisoT = setTimeout(() => { el.hidden = true; }, errore ? 5000 : 2600);
+}
+function tema() { const t = S.camp ? S.camp.impostazioni.tema : (leggiPref('tema') || 'scuro'); document.documentElement.dataset.theme = t === 'chiaro' ? 'light' : 'dark'; }
+function leggiPref(k) { try { return localStorage.getItem('schermo-' + k); } catch (e) { return null; } }
+function scriviPref(k, v) { try { localStorage.setItem('schermo-' + k, v); } catch (e) { /* facoltativo */ } }
+
+// ================================================================= finestre (niente alert/confirm: non funzionano ovunque)
+const Fin = { pila: [] };
+function apri({ titolo, corpo, azioni = [{ testo: 'Chiudi' }], larga = false, dopo }) {
+  const id = 'f' + Date.now() + Math.floor(Math.random() * 1000);
+  const html = `<div class="velo" data-fin="${id}"><div class="finestra${larga ? ' larga' : ''}" role="dialog" aria-modal="true" aria-label="${esc(titolo)}">
+    <header><h2>${titolo}</h2></header><div class="corpo">${corpo}</div>
+    <footer>${azioni.map((a, i) => `<button class="btn ${a.classe || ''}" data-fazione="${i}" type="button">${a.testo}</button>`).join('')}</footer></div></div>`;
+  $('#finestre').insertAdjacentHTML('beforeend', html);
+  const el = document.querySelector(`[data-fin="${id}"]`);
+  Fin.pila.push({ id, el, azioni });
+  el.addEventListener('click', async ev => {
+    const b = ev.target.closest('[data-fazione]'); if (!b || b.disabled) return;
+    const a = azioni[+b.dataset.fazione];
+    let tieni = false;
+    if (a.fn) { try { let r = a.fn(el); if (r && typeof r.then === 'function') { b.disabled = true; try { r = await r; } finally { b.disabled = false; } } tieni = r === false; } catch (e) { avviso(e.message, true); tieni = true; } }
+    if (!tieni) chiudi(id);
+  });
+  el.addEventListener('keydown', ev => { if (ev.key === 'Escape') chiudi(id); if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') { const p = el.querySelector('.btn.prim'); if (p) { ev.preventDefault(); p.click(); } } });
+  const primo = el.querySelector('.corpo input, .corpo select, .corpo textarea, footer .btn.prim'); if (primo) setTimeout(() => primo.focus(), 30);
+  if (dopo) dopo(el);
+  return el;
+}
+function chiudi(id) { const i = Fin.pila.findIndex(f => f.id === id); if (i < 0) return; Fin.pila[i].el.remove(); Fin.pila.splice(i, 1); }
+function conferma(titolo, testo, fn, etichetta = 'Conferma', classe = 'prim') { apri({ titolo, corpo: `<p>${testo}</p>`, azioni: [{ testo: 'Annulla' }, { testo: etichetta, classe, fn }] }); }
+const val = (el, n) => el.querySelector(`[name="${n}"]`);
+const intero = (el, n, def) => { const v = val(el, n).value.trim(); if (v === '' && def !== undefined) return def; const x = Number(v); if (!Number.isInteger(x)) throw new Error('Valore non valido: ' + (val(el, n).dataset.etichetta || n)); return x; };
+const testo = (el, n) => val(el, n).value.trim();
+const spunta = (el, n) => val(el, n).checked;
+
+// ================================================================= disegno
+function disegna() {
+  tema();
+  const app = $('#app');
+  if (S.schermata === 'campagne' || !S.camp) { app.innerHTML = disegnaElenco(); return; }
+  app.innerHTML = disegnaTesta() + `<div class="colonne">
+    <section class="col" aria-label="Tavolo">${disegnaTavolo()}</section>
+    <section class="col" aria-label="Iniziativa">${disegnaIniziativa()}</section>
+    <section class="col" aria-label="Viaggio e log">${disegnaTerza()}</section></div>`;
+  aggiornaTimer();
+}
+
+// ---------- elenco campagne
+function disegnaElenco() {
+  const carte = S.elenco.map(e => !e.c ? `<article class="camp"><h2>${esc(e.nome)}</h2><div class="banda">${esc(e.errore || 'file non leggibile')}</div></article>` : `<article class="camp">
+      <h2>${esc(e.nome)}</h2>
+      <div class="tenue piccolo">${esc(M.formatoData(e.c))} · ${e.pg} PG</div>
+      <div class="tenue piccolo">Modificata ${e.modificata ? new Date(e.modificata).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' }) : '—'}</div>
+      <div class="fila"><button class="btn prim" data-az="apri" data-id="${e.id}">Apri</button>
+        <button class="btn" data-az="duplica" data-id="${e.id}">Duplica</button>
+        <button class="btn" data-az="esportaCamp" data-id="${e.id}">Esporta</button>
+        <span class="spazio"></span><button class="btn peric min" data-az="elimina" data-id="${e.id}">Elimina</button></div></article>`).join('');
+  return `<div class="titolo-app"><h1><b>Schermo</b> del Narratore</h1><span class="spazio"></span>
+      <button class="btn" data-az="temaElenco">${leggiPref('tema') === 'chiaro' ? 'Tema scuro' : 'Tema chiaro'}</button></div>
+    <p class="tenue">Ogni campagna è uno schermo a sé: PG, calendario, orologio, meteo, scorte e iniziativa.</p>
+    <div class="fila"><button class="btn prim grande" data-az="crea">Crea Schermo campagna</button>
+      <button class="btn" data-az="importa">Importa</button><button class="btn" data-az="esportaTutto" ${S.elenco.length ? '' : 'disabled'}>Esporta tutto</button>
+      <button class="btn" data-az="esempio">Carica una campagna d'esempio</button></div>
+    ${Archivio.problema ? `<div class="banda">${esc(Archivio.problema)}</div>` : ''}
+    <div class="lista-camp">${carte || '<div class="vuoto">Nessuna campagna. Crea uno schermo nuovo o carica la campagna d\'esempio per provare l\'app.</div>'}</div>`;
+}
+
+// ---------- testata con orologio, meteo, tempo e coda
+function disegnaTesta() {
+  const c = S.camp, t = M.scomponi(c), m = M.meteoCorrente(c, MET);
+  const giorno = t.sett !== null ? c.calendario.settimana[t.sett] : '';
+  const data = `${t.giorno} ${c.calendario.mesi[t.mese].nome} ${t.anno}${c.anno.etichetta ? ' ' + c.anno.etichetta : ''}`;
+  const comb = c.combattimento;
+  const coda = c.coda.length ? `<div class="coda" role="alert"><span class="chip sv num">${c.coda.length}</span><span class="t">${esc(c.coda[0].testo)} <span class="tenue piccolo">(${esc(M.formatoData(c, c.coda[0].R))})</span></span>
+      ${c.coda[0].tipo === 'razionamento' ? `<button class="btn min prim" data-az="razionamento" data-id="${c.coda[0].razionamento}">Scegli chi</button>` : '<button class="btn min" data-az="codaFatto">Fatto</button>'}${c.coda.filter(x => x.tipo !== 'razionamento').length > 1 ? '<button class="btn min" data-az="codaTutti">Tutti fatti</button>' : ''}</div>` : '';
+  return `<header class="testa"><div class="testa-riga">
+      <button class="btn min" data-az="campagne" title="Elenco delle campagne">◂ Campagne</button>
+      <div class="marchio"><b>${esc(c.nome)}</b></div>
+      <div class="orologio"><span class="data">${esc(giorno)} ${esc(data)}</span>
+        <span class="ora">${String(t.ore).padStart(2, '0')}:${String(t.min).padStart(2, '0')}<small>${comb ? `round ${comb.round}` : ''}</small></span></div>
+      <button class="meteo-chip" data-az="vediMeteo" title="Meteo del giorno">${m ? `<span>${esc(m.voci.join(' + '))}</span>` : '<span>—</span>'}<span class="z">${esc(M.nomeZona(MET, c.zona))}</span></button>
+      <span class="spazio"></span>
+      <div class="tasti-tempo" aria-label="Avanza il tempo">
+        <button class="btn min" data-az="tempo" data-r="1">+1 round</button><button class="btn min" data-az="tempo" data-r="10">+1 min</button>
+        <button class="btn min" data-az="tempo" data-r="100">+10 min</button><button class="btn min" data-az="tempo" data-r="600">+1 ora</button>
+        <button class="btn min oro" data-az="riposo">Riposo 8 ore</button><button class="btn min" data-az="salto">Salto…</button>
+        <button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
+    </div>${coda}</header>`;
+}
+
+// ---------- prima colonna: PG
+function disegnaTavolo() {
+  const c = S.camp;
+  const agente = c.combattimento && M.attuale(c.combattimento);
+  const pg = c.pg.map(p => disegnaPG(p, agente && agente.pgId === p.id)).join('');
+  return `<div class="col-testa"><h2>Tavolo</h2><span class="tenue piccolo">${c.pg.length} PG · ${c.scorte.accompagnatori} accompagnatori</span><span class="spazio"></span>
+      <button class="btn min" data-az="nuovoPG">+ PG</button></div>
+    ${pg || '<div class="vuoto">Nessun PG. Aggiungi i personaggi con «+ PG».</div>'}`;
+}
+function disegnaPG(p, attivo) {
+  const s = p.scheda, st = p.stato, v = M.valoriPG(S.camp, p);
+  const pct = (a, b) => b > 0 ? Math.max(0, Math.min(100, a / b * 100)) : 0;
+  const n = x => x.mod ? `<span class="mod" title="Base ${segno(x.base)}">${segno(x.valore)}</span>` : segno(x.valore);
+  const temp = st.temp.length ? st.temp.map(t => `${t.fonte} ${t.valore}${t.scade !== null ? ' (fino a ' + M.formatoData(S.camp, t.scade) + ')' : ''}`).join('; ') : '';
+  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`)];
+  return `<article class="pg${attivo ? ' attivo' : ''}" data-pg="${p.id}">
+    <div class="pg-testa"><span class="pg-nome">${esc(s.nome)}</span><span class="pg-classe">${esc([s.classe || `Livello ${s.livello}`, s.razza].filter(Boolean).join(' · '))}</span>
+      <span class="spazio"></span><span class="num piccolo">Init ${segno(s.iniziativa)}</span>
+      <button class="eroe${st.eroe ? '' : ' no'}" data-az="eroe" data-id="${p.id}" title="Punto eroe (clic per dare o togliere)">Eroe ${st.eroe ? '●' : '○'}</button></div>
+    <div class="barre num">
+      <span>Fatica</span><div class="barra fa"><i style="width:${pct(st.fatica, s.fatica_max)}%"></i></div><span>${st.fatica}/${s.fatica_max}</span>
+      <span>Ferita</span><div class="barra fe${st.ferita < 0 ? ' neg' : ''}"><i style="width:${pct(st.ferita, s.ferita_max)}%"></i></div><span class="${st.ferita < 0 ? 'mod' : ''}">${st.ferita}/${s.ferita_max}</span></div>
+    <div class="stat num"><span title="${esc(temp)}"><b>Temp</b>${v.temp}</span><span><b>Non letali</b>${st.nonletali}</span><span><b>Rifiatare</b>${st.rif_riserva}/${s.rif_dadi} d${s.rif_tipo}${s.rif_ripete ? '↻' : ''}</span></div>
+    <div class="stat num"><span><b>CA</b>${s.ca}</span><span><b>Ctt</b>${s.ca_contatto}</span><span><b>Spr</b>${s.ca_sprovvista}</span><span><b>DMC</b>${s.dmc}</span>${s.rd ? `<span><b>RD</b>${esc(s.rd)}</span>` : ''}</div>
+    <div class="stat num"><span><b>Tem</b>${n(v.tempra)}</span><span><b>Rif</b>${n(v.riflessi)}</span><span><b>Vol</b>${n(v.volonta)}</span>${s.ts_note ? `<span class="tenue">${esc(s.ts_note)}</span>` : ''}</div>
+    <div class="stat num"><span><b>Perc</b>${n(v.percezione)}</span><span><b>Intu</b>${n(v.intuizione)}</span><span><b>Furt</b>${n(v.furtivita)}</span>${v.libere.map(a => `<span><b>${esc(a.nome)}</b>${n(a)}</span>`).join('')}</div>
+    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}
+    <div class="fila"><button class="btn min" data-az="danno" data-id="${p.id}">Danno</button><button class="btn min" data-az="cura" data-id="${p.id}">Cura</button>
+      <button class="btn min" data-az="temp" data-id="${p.id}">PF temp</button><button class="btn min" data-az="rifiata" data-id="${p.id}">Rifiata</button>
+      <span class="spazio"></span><button class="btn min" data-az="modificaPG" data-id="${p.id}" title="Scheda">Scheda</button></div></article>`;
+}
+
+// ---------- seconda colonna: iniziativa
+function disegnaIniziativa() {
+  const c = S.camp, cb = c.combattimento;
+  if (!cb) return `<div class="col-testa"><h2>Iniziativa</h2></div>${disegnaAvvio()}`;
+  const a = M.attuale(cb);
+  const pros = cb.ordine.slice(cb.turno + 1).map(id => cb.righe[id]).filter(r => r.stato !== 'fuori').slice(0, 2).map(M.etichetta);
+  const timer = cb.timer ? `<span class="timer" id="timer"></span>` : '';
+  const righe = cb.ordine.map((id, i) => {
+    const r = cb.righe[id];
+    const badge = [r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : ''].join('');
+    return `<li class="tipo-${r.tipo}${i === cb.turno ? ' ora' : ''}${S.ui.sel === id ? ' sel' : ''}${r.stato === 'fuori' ? ' fuori' : ''}" data-az="selRiga" data-id="${id}" tabindex="0">
+      <span class="tot">${r.totale}</span><span class="nome">${esc(M.etichetta(r))}${r.nomeTv ? ` <span class="tenue piccolo">(TV: ${esc(r.nomeTv)})</span>` : ''}</span><span class="chips">${badge}</span></li>`;
+  }).join('');
+  const attesa = cb.attesa.map(id => `<div class="fila"><span class="spazio">${esc(M.etichetta(cb.righe[id]))} <span class="tenue piccolo">in attesa</span></span>
+      <button class="btn min oro" data-az="entraOra" data-id="${id}">Entra ora</button></div>`).join('');
+  return `<div class="col-testa"><h2>Iniziativa</h2><span class="num tenue">Round ${cb.round}</span><span class="spazio"></span>${timer}</div>
+    <div class="barra-turno"><span class="tenue piccolo">Tocca a</span><span class="chi">${a ? esc(M.etichetta(a)) : '—'}</span>
+      ${a && a.prepara ? `<span class="piccolo">Azione preparata: ${esc(a.prepara.azione)}${a.prepara.innesco ? ' — se ' + esc(a.prepara.innesco) : ''}</span>` : ''}
+      <span class="tenue piccolo">Poi: ${esc(pros.join(', ') || '—')}</span></div>
+    <div class="comandi"><button class="btn grande prim" data-az="cmd" data-c="avanti">Avanti ▸</button>
+      <button class="btn" data-az="indietro" ${cb.storia.length ? '' : 'disabled'}>◂ Indietro</button>
+      <button class="btn" data-az="cmd" data-c="ritardare">Ritardare</button>
+      ${cb.timer ? `<button class="btn" data-az="cmd" data-c="pausa">${cb.timer.pausa !== null ? 'Riprendi' : 'Pausa'}</button>` : ''}</div>
+    <ol class="ordine">${righe}</ol>
+    ${attesa ? `<div class="pannello"><h3>In attesa</h3>${attesa}</div>` : ''}
+    ${S.ui.sel && cb.righe[S.ui.sel] ? disegnaAzioniRiga(cb.righe[S.ui.sel]) : '<p class="tenue piccolo">Tocca una riga per le sue azioni: Preparare, Punto eroe, Separa, Fuori combattimento, Nascondi, Correggi.</p>'}
+    <div class="comandi"><button class="btn" data-az="rinforzi">+ Rinforzi</button><span class="spazio"></span><button class="btn peric" data-az="fineComb">Fine combattimento</button></div>`;
+}
+function disegnaAzioniRiga(r) {
+  const cb = S.camp.combattimento, inOrdine = cb.ordine.includes(r.id);
+  const pg = r.tipo === 'pg' ? S.camp.pg.find(p => p.id === r.pgId) : null;
+  return `<div class="azioni-riga"><div class="fila"><h3>${esc(M.etichetta(r))}</h3><span class="tenue piccolo num">iniziativa ${r.totale} (bonus ${segno(r.bonus)}${r.nat ? ', d20 ' + r.nat : ''})</span></div>
+    <div class="fila" style="margin-top:6px">
+      ${r.prepara ? `<button class="btn min oro" data-az="cmd" data-c="scatta" data-id="${r.id}">Scatta</button>` : `<button class="btn min" data-az="preparare" data-id="${r.id}">Preparare</button>`}
+      ${pg ? `<button class="btn min oro" data-az="cmd" data-c="puntoEroe" data-id="${r.id}" ${pg.stato.eroe ? '' : 'disabled'}>Punto eroe</button>` : ''}
+      ${r.n > 1 ? `<button class="btn min" data-az="separa" data-id="${r.id}">Separa</button>` : ''}
+      ${inOrdine ? `<button class="btn min" data-az="cmd" data-c="fuori" data-id="${r.id}" data-ritorna="${r.stato === 'fuori' ? 1 : ''}">${r.stato === 'fuori' ? 'Rientra' : 'Fuori combattimento'}</button>` : ''}
+      <button class="btn min" data-az="cmd" data-c="nascondi" data-id="${r.id}" data-nascosta="${r.nascosta ? '' : 1}">${r.nascosta ? 'Rivela' : 'Nascondi'}</button>
+      <button class="btn min" data-az="correggi" data-id="${r.id}">Correggi</button>
+      <button class="btn min peric" data-az="togli" data-id="${r.id}">Togli</button></div></div>`;
+}
+function nuovoAvvio() {
+  const av = { usaD20: false, pg: {}, nemici: [{ nome: '', bonus: 0, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '' }] };
+  for (const p of S.camp.pg) av.pg[p.id] = { incluso: true, valore: '', imp: false };
+  return av;
+}
+function disegnaAvvio() {
+  const c = S.camp;
+  if (!S.ui.avvio || S.ui.avvio.campagna !== c.id) { S.ui.avvio = nuovoAvvio(); S.ui.avvio.campagna = c.id; }
+  const av = S.ui.avvio;
+  for (const p of c.pg) if (!av.pg[p.id]) av.pg[p.id] = { incluso: true, valore: '', imp: false };
+  const pg = c.pg.map(p => { const x = av.pg[p.id]; return `<div class="pgini">
+      <label class="spunta"><input type="checkbox" data-bind="pg.${p.id}.incluso" ${x.incluso ? 'checked' : ''}> ${esc(p.scheda.nome)} <span class="tenue piccolo num">${segno(p.scheda.iniziativa)}</span></label>
+      <input type="number" inputmode="numeric" data-bind="pg.${p.id}.valore" value="${esc(x.valore)}" placeholder="${av.usaD20 ? 'd20' : 'totale'}" aria-label="${av.usaD20 ? 'd20' : 'Totale'} di ${esc(p.scheda.nome)}">
+      <label class="spunta piccolo" title="Impreparato: −${p.scheda.imp_pen}"><input type="checkbox" data-bind="pg.${p.id}.imp" ${x.imp ? 'checked' : ''}> impr.</label></div>`; }).join('');
+  const nem = av.nemici.map((x, i) => `<div class="nemico">
+      <input type="text" data-bind="nemici.${i}.nome" value="${esc(x.nome)}" placeholder="Nome (es. Lupo)" aria-label="Nome">
+      <input type="number" data-bind="nemici.${i}.bonus" value="${esc(x.bonus)}" aria-label="Bonus di iniziativa" title="Bonus di iniziativa">
+      <input type="number" min="1" data-bind="nemici.${i}.n" value="${esc(x.n)}" aria-label="Quantità" title="Quantità">
+      <select data-bind="nemici.${i}.modo" aria-label="Tiro"><option value="tipo" ${x.modo === 'tipo' ? 'selected' : ''}>per tipo</option><option value="singolo" ${x.modo === 'singolo' ? 'selected' : ''}>per singolo</option></select>
+      <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-bind="nemici.${i}.imp" ${x.imp ? 'checked' : ''}> impr.</label>
+        <label class="spunta piccolo"><input type="checkbox" data-bind="nemici.${i}.nascosto" ${x.nascosto ? 'checked' : ''}> nascosto</label>
+        <button class="btn min" data-az="togliNemico" data-i="${i}" aria-label="Togli">✕</button></div></div>`).join('');
+  return `<div class="pannello"><h3>Avvio del combattimento</h3>
+      <label class="spunta piccolo"><input type="checkbox" data-az-cambio="usaD20" ${av.usaD20 ? 'checked' : ''}> Inserisco il d20 dei PG (l'app aggiunge il bonus; 20 = 30, 1 = −10)</label>
+      ${pg || '<span class="tenue piccolo">Nessun PG nella campagna.</span>'}
+      <h3>Nemici</h3><div class="tab-nemici">${nem}</div>
+      <div class="fila"><button class="btn min" data-az="aggNemico">+ Nemico</button><span class="spazio"></span>
+        <span class="tenue piccolo">Per tipo: una riga «Lupo ×5»; per singolo: Lupo 1, 2…</span></div>
+      <div class="fila"><button class="btn prim grande" data-az="avvia">Tira e avvia</button></div></div>`;
+}
+
+// ---------- terza colonna: viaggio e log
+function disegnaTerza() {
+  const sch = S.ui.scheda;
+  return `<div class="schede" role="tablist"><button role="tab" class="${sch === 'viaggio' ? 'on' : ''}" data-az="scheda" data-s="viaggio">Viaggio</button>
+      <button role="tab" class="${sch === 'log' ? 'on' : ''}" data-az="scheda" data-s="log">Log</button></div>
+    ${sch === 'log' ? disegnaLog() : disegnaViaggio()}`;
+}
+function disegnaViaggio() {
+  const c = S.camp, m = M.meteoCorrente(c, MET), sc = c.scorte, k = M.consumoGiornaliero(c);
+  const staz = M.stagione(c, MET, c.tempo.R);
+  const opz = m && m.opzioni.length > 1 ? `<div class="fila">${m.opzioni.map((o, i) => `<button class="btn min ${i === m.scelta ? 'oro' : ''}" data-az="opzMeteo" data-i="${i}">${esc(o.join(' + '))}</button>`).join('')}</div>` : '';
+  const bast = chi => { const b = M.bastanoPer(c, chi); return b === Infinity ? '—' : `bastano per ${b} ${b === 1 ? 'giorno' : 'giorni'}`; };
+  const stato = (nome, x) => x && x.penalita ? `<span class="chip sv">${nome} ${x.penalita}</span>${x.giorni_senza ? ` <span class="tenue piccolo">${x.giorni_senza} ${x.giorni_senza === 1 ? 'giorno' : 'giorni'} senza</span>` : ''}` : '';
+  const perPG = c.pg.map(p => { const x = stato('Sete', p.stato.sete) + ' ' + stato('Fame', p.stato.fame); return x.trim() ? `<div class="fila"><span class="piccolo">${esc(p.scheda.nome)}</span> ${x}</div>` : ''; }).join('');
+  const z = M.razionamentoAperto(c);
+  return `<div class="pannello"><div class="fila"><h3>Meteo</h3><span class="tenue piccolo">${esc(M.nomeStagione(MET, c.zona, staz))}${m && m.tiro ? ` · d% ${m.tiro}` : m && m.manuale ? ' · a mano' : ''}</span></div>
+      ${m ? `<div class="risultato" style="font-size:1.15rem">${esc(m.testo)}</div>${opz}${m.effetti.map(e => `<div class="effetto"><b>${esc(e.nome)}</b> ${coloraCondizioni(esc(e.testo))}</div>`).join('')}` : '<span class="tenue">Nessun meteo.</span>'}
+      <div class="fila"><label class="campo" style="flex:1"><span>Zona climatica</span><select id="zona" data-az-cambio="zona">${MET.zone.map(z => `<option value="${z.id}" ${z.id === c.zona ? 'selected' : ''}>${z.nome}</option>`).join('')}</select></label>
+        <button class="btn" data-az="ritira">Ritira</button><button class="btn" data-az="impostaMeteo">Imposta</button></div></div>
+    <div class="pannello"><div class="fila"><h3>Scorte</h3><span class="tenue piccolo">consumo ${k} al giorno (${c.pg.length} PG + ${sc.accompagnatori} accompagnatori)</span></div>
+      ${['cibo', 'acqua'].map(chi => `<div class="scorta"><span class="q">${sc[chi]}</span><span>${chi === 'cibo' ? 'Cibo' : 'Acqua'} <span class="tenue piccolo">razioni · ${bast(chi)}</span></span>
+        <span class="fila"><button class="btn min" data-az="scorta" data-chi="${chi}" data-d="-1">−1</button><button class="btn min" data-az="scorta" data-chi="${chi}" data-d="1">+1</button><button class="btn min" data-az="scortaN" data-chi="${chi}">±…</button></span></div>`).join('')}
+      ${z ? `<div class="fila"><span class="chip sv">${z.scorta === 'acqua' ? 'Acqua' : 'Cibo'} da razionare</span><button class="btn min prim" data-az="razionamento" data-id="${z.id}">Scegli chi</button></div>` : ''}${perPG}
+      <div class="fila"><span class="spazio piccolo tenue">Accompagnatori</span><button class="btn min" data-az="accomp" data-d="-1">−</button><span class="num">${sc.accompagnatori}</span><button class="btn min" data-az="accomp" data-d="1">+</button></div></div>`;
+}
+function coloraCondizioni(html) {
+  return html.replace(/\b(affaticat[oaie]|esaust[oaie]|prive? di sensi|privo di sensi|prona|prono)\b/gi, m => `<span class="cond-t">${m}</span>`);
+}
+function disegnaLog() {
+  const c = S.camp, v = c.log.slice(-300).reverse();
+  return `<div class="pannello"><div class="fila"><h3>Log della sessione</h3><span class="spazio"></span><button class="btn min" data-az="esportaLog">Esporta .txt</button></div>
+    <ul class="log">${v.map(e => `<li><span class="q">${esc(M.formatoData(c, e.R).replace(/^\S+ /, ''))}</span><span>${esc(e.testo)}</span></li>`).join('')}</ul></div>`;
+}
+function aggiornaTimer() {
+  const el = $('#timer'), cb = S.camp && S.camp.combattimento; if (!el || !cb || !cb.timer) return;
+  const L = M.timerLetture(cb, Date.now()), soglia = S.camp.impostazioni.soglia_timer;
+  el.textContent = `turno ${M.mmss(L.turno)} · totale ${M.mmss(L.combattimento)}${L.inPausa ? ' · in pausa' : ''}`;
+  el.classList.toggle('allarme', soglia > 0 && L.turno > soglia * 1000);
+}
+setInterval(aggiornaTimer, 1000);
+
+// ================================================================= azioni
+const AZ = {
+  async apri(el) { const c = await Archivio.leggi(el.dataset.id); if (!c) return avviso('Campagna non trovata', true); S.camp = M.migra(c); S.schermata = 'campagna'; S.ui.sel = null; S.ui.avvio = null; disegna(); },
+  async campagne() { salvaOra(); S.camp = null; S.schermata = 'campagne'; await ricaricaElenco(); },
+  temaElenco() { scriviPref('tema', leggiPref('tema') === 'chiaro' ? 'scuro' : 'chiaro'); disegna(); },
+  crea() { procedura(); },
+  async duplica(el) { const c = await Archivio.leggi(el.dataset.id); await Archivio.scrivi(M.duplicaCampagna(c, rng, Date.now())); await ricaricaElenco(); avviso('Campagna duplicata'); },
+  elimina(el) {
+    const e = S.elenco.find(x => x.id === el.dataset.id);
+    conferma('Elimina campagna', `Eliminare <b>${esc(e.nome)}</b>? PG, calendario, scorte e log andranno persi. Se vuoi tenerla, prima usa Esporta.`, () => { Archivio.elimina(e.id).then(ricaricaElenco); avviso('Campagna eliminata'); }, 'Elimina', 'peric');
+  },
+  async esportaCamp(el) { const c = await Archivio.leggi(el.dataset.id); finestraEsporta(`${c.nome}.json`, M.esporta(c, 'campagna')); },
+  async esportaTutto() { const tutte = await Promise.all(S.elenco.map(e => Archivio.leggi(e.id))); finestraEsporta('schermo-tutte-le-campagne.json', M.esporta({ campagne: tutte }, 'tutto')); },
+  importa() { finestraImporta(); },
+  async esempio() { await Archivio.scrivi(campagnaEsempio()); await ricaricaElenco(); avviso('Campagna d\'esempio caricata'); },
+  // tempo
+  tempo(el) { applica(M.avanza(S.camp, +el.dataset.r, MET, rng, 'Orologio')); },
+  riposo() {
+    const c = S.camp;
+    apri({ titolo: 'Riposo 8 ore', corpo: `<p class="piccolo">Fatica al massimo, +1 Punto Ferita per livello, riserva del Rifiatare piena; l'orologio avanza di 8 ore con le sue scadenze. Il Punto eroe non cambia.</p>
+        <p class="piccolo">Un solo riposo nelle 24 ore; dopo un riposo a cavallo di due giorni, il giorno dopo si può di nuovo, ma non prima di 12 ore dalla fine.</p>
+        ${c.pg.map(p => { const r = M.puoRiposare(c, p); return r.ok
+          ? `<label class="spunta"><input type="checkbox" name="r_${p.id}" checked> ${esc(p.scheda.nome)}</label>`
+          : `<label class="spunta spento"><input type="checkbox" name="r_${p.id}" disabled> ${esc(p.scheda.nome)} <span class="piccolo">— di nuovo da ${esc(M.formatoData(c, r.da))}</span></label>`; }).join('')}`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Riposa', classe: 'prim', fn: f => { const ids = c.pg.filter(p => spunta(f, 'r_' + p.id)).map(p => p.id); applica(M.riposo(S.camp, MET, rng, ids)); } }] });
+  },
+  salto() {
+    const c = S.camp, t = M.scomponi(c);
+    apri({ titolo: 'Salto di tempo', corpo: `<fieldset><legend>Avanza di</legend><div class="griglia stretta">
+        <label class="campo"><span>Quantità</span><input type="number" name="n" min="0" value="1"></label>
+        <label class="campo"><span>Unità</span><select name="u"><option value="round">round</option><option value="minuti">minuti</option><option value="ore" selected>ore</option><option value="giorni">giorni</option></select></label></div></fieldset>
+        <fieldset><legend>Oppure vai a</legend><div class="griglia stretta">
+        <label class="campo"><span>Giorno</span><input type="number" name="g" min="1" placeholder="${t.giorno}"></label>
+        <label class="campo"><span>Mese</span><select name="m">${c.calendario.mesi.map((m, i) => `<option value="${i}" ${i === t.mese ? 'selected' : ''}>${esc(m.nome)}</option>`).join('')}</select></label>
+        <label class="campo"><span>Anno</span><input type="number" name="a" value="${t.anno}"></label>
+        <label class="campo"><span>Ora</span><input type="text" name="h" placeholder="hh:mm"></label></div></fieldset>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Avanza', classe: 'prim', fn: f => {
+        if (testo(f, 'g') || testo(f, 'h')) {
+          const hh = (testo(f, 'h') || '00:00').match(/^(\d{1,2})(?::(\d{2}))?$/); if (!hh || +hh[1] > 23 || +(hh[2] || 0) > 59) throw new Error('Ora non valida (hh:mm)');
+          const R = M.tempoAssoluto(S.camp, intero(f, 'a'), +val(f, 'm').value, intero(f, 'g', t.giorno), +hh[1], +(hh[2] || 0));
+          applica(M.vaiA(S.camp, R, MET, rng, 'Salto'));
+        } else applica(M.avanza(S.camp, M.durataInRound(intero(f, 'n'), val(f, 'u').value), MET, rng, 'Salto'));
+      } }] });
+  },
+  codaFatto() { applica(M.togliDallaCoda(S.camp, 0)); },
+  codaTutti() { const c = M.clona(S.camp); c.coda = c.coda.filter(x => x.tipo === 'razionamento'); applica(c); },
+  razionamento(el) { finestraRazionamento(el.dataset.id); },
+  impostazioni() { finestraImpostazioni(); },
+  vediMeteo() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#zona'); if (z) z.scrollIntoView({ block: 'center' }); },
+  scheda(el) { S.ui.scheda = el.dataset.s; disegna(); },
+  ritira() { applica(M.tiraMeteo(S.camp, MET, rng)); },
+  impostaMeteo() {
+    const c = S.camp, staz = M.stagione(c, MET, c.tempo.R), righe = MET.tabelle[c.zona][staz];
+    apri({ titolo: 'Imposta il meteo', corpo: `<label class="campo"><span>${esc(M.nomeZona(MET, c.zona))} · ${esc(M.nomeStagione(MET, c.zona, staz))}</span>
+        <select name="r">${righe.map(r => `<option>${esc(r.testo)}</option>`).join('')}</select></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Imposta', classe: 'prim', fn: f => applica(M.impostaMeteo(S.camp, MET, val(f, 'r').value)) }] });
+  },
+  opzMeteo(el) { applica(M.scegliOpzioneMeteo(S.camp, +el.dataset.i)); },
+  scorta(el) { applica(M.modificaScorta(S.camp, el.dataset.chi, +el.dataset.d)); },
+  scortaN(el) {
+    const chi = el.dataset.chi;
+    apri({ titolo: `Scorta di ${chi}`, corpo: `<p class="piccolo tenue">Rifornimenti, caccia (+) o perdite (−), in razioni giornaliere.</p><label class="campo"><span>Razioni (+/−)</span><input type="number" name="n" value="0"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => applica(M.modificaScorta(S.camp, chi, intero(f, 'n'))) }] });
+  },
+  accomp(el) { applica(M.impostaAccompagnatori(S.camp, Math.max(0, S.camp.scorte.accompagnatori + +el.dataset.d))); },
+  esportaLog() {
+    const c = S.camp;
+    finestraEsporta(`${c.nome} - log.txt`, c.log.map(e => `[${M.formatoData(c, e.R)}] ${e.testo}`).join('\n'), 'text/plain');
+  },
+  // PG
+  nuovoPG() { finestraPG(null); },
+  modificaPG(el) { finestraPG(el.dataset.id); },
+  eroe(el) { const p = S.camp.pg.find(x => x.id === el.dataset.id); applica(M.puntoEroe(S.camp, p.id, !p.stato.eroe)); },
+  danno(el) {
+    const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
+    apri({ titolo: `Danno a ${esc(p.scheda.nome)}`, corpo: `<label class="campo"><span>Danni</span><input type="number" name="n" min="1" inputmode="numeric"></label>
+        <label class="spunta"><input type="checkbox" name="nl"> Danno non letale</label>
+        <p class="tenue piccolo">Prima i PF temporanei, poi i Punti Fatica, poi i Punti Ferita.</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => {
+        const n = intero(f, 'n');
+        if (spunta(f, 'nl')) { applica(M.dannoNonLetale(S.camp, id, n)); const q = S.camp.pg.find(x => x.id === id); const st = M.statoNonLetali(q); if (st) avviso(`${q.scheda.nome}: ${st}`); return; }
+        const r = M.danno(S.camp, id, n); applica(r.camp);
+        if (r.feritaGrave) finestraFeritaGrave(p.scheda.nome, r.feritaGrave.riga);
+      } }] });
+  },
+  cura(el) {
+    const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
+    apri({ titolo: `Cura a ${esc(p.scheda.nome)}`, corpo: `<label class="campo"><span>Punti curati</span><input type="number" name="n" min="1" inputmode="numeric"></label>
+        <p class="tenue piccolo">Cura magica o alchemica: prima i Punti Ferita fino al massimo, poi i Punti Fatica. Toglie anche altrettanti danni non letali.</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Cura', classe: 'prim', fn: f => applica(M.cura(S.camp, id, intero(f, 'n'))) }] });
+  },
+  temp(el) {
+    const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id);
+    apri({ titolo: `PF temporanei a ${esc(p.scheda.nome)}`, corpo: `<div class="griglia">
+        <label class="campo"><span>Fonte</span><input type="text" name="f" placeholder="es. Falsa vita"></label>
+        <label class="campo"><span>Valore</span><input type="number" name="v" min="1"></label>
+        <label class="campo"><span>Durata</span><input type="number" name="d" min="1" placeholder="vuoto = finché non si usano"></label>
+        <label class="campo"><span>Unità</span><select name="u"><option value="round">round</option><option value="minuti">minuti</option><option value="ore" selected>ore</option><option value="giorni">giorni</option></select></label></div>
+        <p class="tenue piccolo">Stessa fonte: resta il valore più alto. Fonti diverse si sommano.</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { const d = testo(f, 'd'); applica(M.pfTemporanei(S.camp, id, testo(f, 'f'), intero(f, 'v'), d ? M.durataInRound(intero(f, 'd'), val(f, 'u').value) : null)); } }] });
+  },
+  rifiata(el) {
+    const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id), s = p.scheda;
+    if (!p.stato.rif_riserva) return avviso(`${s.nome} non ha più dadi nella riserva del Rifiatare`, true);
+    apri({ titolo: `Rifiatare: ${esc(s.nome)}`, corpo: `<label class="campo"><span>Dadi da usare (riserva ${p.stato.rif_riserva}/${s.rif_dadi} d${s.rif_tipo})</span><input type="number" name="n" min="1" max="${p.stato.rif_riserva}" value="${p.stato.rif_riserva}"></label>
+        ${S.camp.combattimento ? '' : '<label class="spunta"><input type="checkbox" name="mz" checked> Avanza l\'orologio di 30 minuti (Rifiatare richiede mezz\'ora d\'inattività)</label>'}
+        <p class="tenue piccolo">Il totale va solo ai Punti Fatica${s.rif_ripete ? '; si ripetono i risultati di 1 e 2' : ''}.</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => {
+        let c = S.camp; if (val(f, 'mz') && spunta(f, 'mz')) c = M.avanza(c, 300, MET, rng, 'Rifiatare');
+        const r = M.rifiatare(c, id, intero(f, 'n'), rng); applica(r.camp);
+        apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}] → Punti Fatica ${r.camp.pg.find(x => x.id === id).stato.fatica}/${s.fatica_max}</p>` });
+      } }] });
+  },
+  // iniziativa
+  aggNemico() { S.ui.avvio.nemici.push({ nome: '', bonus: 0, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '' }); disegna(); },
+  togliNemico(el) { S.ui.avvio.nemici.splice(+el.dataset.i, 1); disegna(); },
+  avvia() {
+    const c = S.camp, av = S.ui.avvio, part = [];
+    for (const p of c.pg) { const x = av.pg[p.id]; if (!x || !x.incluso) continue;
+      const v = String(x.valore).trim(); if (v === '') throw new Error(`Manca ${av.usaD20 ? 'il d20' : 'il totale'} di ${p.scheda.nome}`);
+      part.push({ tipo: 'pg', pgId: p.id, impreparato: x.imp, ...(av.usaD20 ? { d20: +v } : { totale: +v }) }); }
+    for (const x of av.nemici) if (String(x.nome).trim()) part.push({ tipo: 'nemico', nome: x.nome.trim(), bonus: +x.bonus || 0, n: Math.max(1, +x.n || 1), modo: x.modo, impreparato: x.imp, nascosto: x.nascosto, nomeTv: x.nomeTv });
+    applica(M.avviaCombattimento(c, part, rng, Date.now())); S.ui.sel = null; S.ui.avvio = null; disegna();
+  },
+  selRiga(el) { S.ui.sel = S.ui.sel === el.dataset.id ? null : el.dataset.id; disegna(); },
+  cmd(el) {
+    const a = { id: el.dataset.id, ritorna: !!el.dataset.ritorna, nascosta: !!el.dataset.nascosta };
+    applica(M.comando(S.camp, el.dataset.c, a, MET, rng, Date.now()));
+  },
+  indietro() { applica(M.indietro(S.camp)); },
+  entraOra(el) { applica(M.comando(S.camp, 'entraOra', { id: el.dataset.id }, MET, rng, Date.now())); },
+  preparare(el) {
+    apri({ titolo: 'Preparare', corpo: `<p class="tenue piccolo">L'ordine dell'iniziativa non cambia: la creatura resta al suo posto con l'azione segnata.</p>
+        <label class="campo"><span>Azione</span><input type="text" name="a" placeholder="es. Attacca"></label><label class="campo"><span>Innesco</span><input type="text" name="i" placeholder="es. se il goblin esce dalla porta"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Prepara', classe: 'prim', fn: f => applica(M.comando(S.camp, 'preparare', { id: el.dataset.id, azione: testo(f, 'a') || 'azione preparata', innesco: testo(f, 'i') }, MET, rng, Date.now())) }] });
+  },
+  separa(el) {
+    const r = S.camp.combattimento.righe[el.dataset.id];
+    apri({ titolo: `Separa da ${esc(M.etichetta(r))}`, corpo: `<label class="campo"><span>Nome della creatura separata</span><input type="text" name="n" value="${esc(r.nome)} ${r.n}"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Separa', classe: 'prim', fn: f => applica(M.comando(S.camp, 'separa', { id: r.id, nome: testo(f, 'n') }, MET, rng, Date.now())) }] });
+  },
+  correggi(el) {
+    const r = S.camp.combattimento.righe[el.dataset.id];
+    apri({ titolo: `Correggi l'iniziativa: ${esc(M.etichetta(r))}`, corpo: `<label class="campo"><span>Totale</span><input type="number" name="t" value="${r.totale}"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Correggi', classe: 'prim', fn: f => applica(M.comando(S.camp, 'correggi', { id: r.id, totale: intero(f, 't') }, MET, rng, Date.now())) }] });
+  },
+  togli(el) { const id = el.dataset.id; applica(M.comando(S.camp, 'togli', { id }, MET, rng, Date.now())); S.ui.sel = null; disegna(); },
+  rinforzi() {
+    apri({ titolo: 'Rinforzi', corpo: `<div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" placeholder="es. Goblin"></label>
+        <label class="campo"><span>Bonus</span><input type="number" name="b" value="0"></label><label class="campo"><span>Quantità</span><input type="number" name="q" min="1" value="1"></label>
+        <label class="campo"><span>Tiro</span><select name="m"><option value="tipo">per tipo</option><option value="singolo">per singolo</option></select></label></div>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Tira ed entra', classe: 'prim', fn: f => { if (!testo(f, 'n')) throw new Error('Nome mancante');
+        applica(M.comando(S.camp, 'rinforzi', { partecipanti: [{ tipo: 'nemico', nome: testo(f, 'n'), bonus: intero(f, 'b', 0), n: Math.max(1, intero(f, 'q', 1)), modo: val(f, 'm').value }] }, MET, rng, Date.now())); } }] });
+  },
+  fineComb() {
+    conferma('Fine del combattimento', 'Chiudere il combattimento? Il riepilogo va nel log; dopo non si può più annullare.', () => {
+      const r = M.fineCombattimento(S.camp, Date.now()); applica(r.camp); S.ui.sel = null;
+      apri({ titolo: 'Riepilogo', corpo: `<p>${esc(r.riepilogo.testo)}</p>` });
+    }, 'Chiudi il combattimento', 'peric');
+  },
+};
+const CAMBI = {
+  usaD20(el) { S.ui.avvio.usaD20 = el.checked; disegna(); },
+  zona(el) { const c = M.cambiaZona(S.camp, MET, el.value); applica(c); avviso('Zona cambiata: il meteo del giorno resta, «Ritira» per tirarlo nella zona nuova'); },
+};
+document.addEventListener('click', async ev => {
+  const el = ev.target.closest('[data-az]'); if (!el || el.closest('.velo')) return;
+  const f = AZ[el.dataset.az]; if (!f) return;
+  try { await f(el); } catch (e) { avviso(e.message, true); }
+});
+document.addEventListener('keydown', ev => { const el = ev.target.closest && ev.target.closest('li[data-az]'); if (el && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); el.click(); } });
+document.addEventListener('change', ev => { const el = ev.target.closest('[data-az-cambio]'); if (el && !el.closest('.velo')) prova(() => CAMBI[el.dataset.azCambio](el)); });
+document.addEventListener('input', ev => {
+  const el = ev.target; if (!el.dataset || !el.dataset.bind || !S.ui.avvio) return;
+  const parti = el.dataset.bind.split('.'); let o = S.ui.avvio;
+  for (const p of parti.slice(0, -1)) o = o[p];
+  o[parti.at(-1)] = el.type === 'checkbox' ? el.checked : el.type === 'number' ? (el.value === '' ? '' : Number(el.value)) : el.value;
+});
+document.addEventListener('change', ev => { const el = ev.target; if (el.dataset && el.dataset.bind && el.tagName === 'SELECT') el.dispatchEvent(new Event('input', { bubbles: true })); });
+
+// ================================================================= finestre di dettaglio
+function finestraFeritaGrave(nome, riga) {
+  apri({ titolo: 'Ferita grave', corpo: `<p><b>${esc(nome)}</b>: i Punti Ferita sono scesi sotto zero.</p><div class="risultato">Riga ${riga}</div>
+    <p class="tenue piccolo">Scegli la tabella delle Ferite gravi (Vol. 3, Imprevisti) e tira sulla riga ${riga}. Il tiro automatico e la divisione in malus arrivano con le Build 2 e 3.</p>`,
+    azioni: [{ testo: 'Chiudi senza tirare' }] });
+}
+function finestraRazionamento(id) {
+  const c = S.camp, z = c.razionamenti.find(x => x.id === id); if (!z) return;
+  const q = c.scorte[z.scorta], verbo = z.scorta === 'acqua' ? 'beve' : 'mangia', mal = z.mal === 'sete' ? 'Sete' : 'Fame';
+  const el = apri({ titolo: `${z.scorta === 'acqua' ? 'Acqua' : 'Cibo'}: chi ${verbo}?`, corpo: `<p class="piccolo">${esc(M.formatoData(c, z.R, false))}: <b class="num">${q}</b> razioni per ${M.consumoGiornaliero(c)} persone.
+      Chi non ${verbo} prende ${mal} +1; chi ${verbo} scende di 1.</p>
+      ${c.pg.map(p => `<label class="spunta"><input type="checkbox" name="r_${p.id}"> ${esc(p.scheda.nome)} <span class="tenue piccolo">${p.stato[z.mal].penalita ? mal + ' ' + p.stato[z.mal].penalita : ''}</span></label>`).join('')}
+      ${c.scorte.accompagnatori ? `<label class="campo"><span>Accompagnatori che ${verbo === 'beve' ? 'bevono' : 'mangiano'} (su ${c.scorte.accompagnatori})</span><input type="number" name="acc" min="0" max="${c.scorte.accompagnatori}" value="0"></label>` : ''}
+      <p class="piccolo num" id="r-conto"></p>`,
+    azioni: [{ testo: 'Più tardi' }, { testo: 'Conferma', classe: 'prim', fn: f => {
+      const ids = c.pg.filter(p => spunta(f, 'r_' + p.id)).map(p => p.id), acc = val(f, 'acc') ? intero(f, 'acc', 0) : 0;
+      applica(M.risolviRazionamento(S.camp, id, ids, acc, MET));
+    } }] });
+  const conto = () => { const n = c.pg.filter(p => spunta(el, 'r_' + p.id)).length + (val(el, 'acc') ? Number(val(el, 'acc').value) || 0 : 0);
+    const out = el.querySelector('#r-conto'); out.textContent = `Razioni usate: ${n} su ${q}`; out.className = 'piccolo num' + (n > q ? ' mod' : ''); };
+  el.addEventListener('input', conto); el.addEventListener('change', conto); conto();
+}
+function finestraEsporta(nome, contenuto, tipo = 'application/json') {
+  apri({ titolo: 'Esporta', larga: true, corpo: `<p class="piccolo tenue">${esc(nome)} · ${contenuto.length.toLocaleString('it-IT')} caratteri. ${WEB ? '«Copia» lo mette negli appunti (nella pagina di prova i file non si scaricano).' : '«Scarica» salva il file; «Copia» lo mette negli appunti.'}</p><textarea readonly name="t" rows="10">${esc(contenuto)}</textarea>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Copia', fn: f => { const t = val(f, 't'); navigator.clipboard.writeText(contenuto).then(() => avviso('Copiato'), () => { t.select(); avviso('Seleziona e copia il testo'); }); return false; } },
+      ...(WEB ? [] : [{ testo: 'Scarica', classe: 'prim', fn: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([contenuto], { type: tipo + ';charset=utf-8' })); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); return false; } }])] });
+}
+function finestraImporta() {
+  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna o tutte). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già.</p>
+      <input type="file" name="f" accept=".json,application/json"><label class="campo"><span>Oppure incolla il JSON</span><textarea name="t" rows="8"></textarea></label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Importa', classe: 'prim', fn: f => {
+      const file = val(f, 'f').files[0];
+      const fai = async txt => { const r = M.importa(txt); const esistenti = new Set(S.elenco.map(e => e.id)); let copie = 0;
+        for (let c of r.campagne) { if (esistenti.has(c.id)) { c = M.duplicaCampagna(c, rng, Date.now()); copie++; } await Archivio.scrivi(c); }
+        await ricaricaElenco(); avviso(`Importate ${r.campagne.length} campagne` + (copie ? ` (${copie} come copia)` : '')); };
+      if (file) { file.text().then(fai).catch(e => avviso(e.message, true)); return; }
+      const t = testo(f, 't'); if (!t) throw new Error('Scegli un file o incolla il JSON');
+      M.importa(t); fai(t).catch(e => avviso(e.message, true));
+    } }] });
+}
+function finestraImpostazioni() {
+  const i = S.camp.impostazioni;
+  const voce = (k, testoV, nota) => `<label class="spunta"><input type="checkbox" name="${k}" ${i[k] ? 'checked' : ''}> ${testoV}${nota ? ` <span class="tenue piccolo">${nota}</span>` : ''}</label>`;
+  apri({ titolo: 'Impostazioni della campagna', corpo: `<fieldset><legend>Campagna</legend>
+      <label class="campo"><span>Nome</span><input type="text" name="nome" value="${esc(S.camp.nome)}"></label>
+      <label class="campo"><span>Etichetta dell'anno</span><input type="text" name="etichetta" value="${esc(S.camp.anno.etichetta)}"></label>
+      ${voce('xp', 'Usa gli XP', '(dalla Build 2)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dalla Build 2)')}${voce('incontri_casuali', 'Incontri casuali', '(dalla Build 3)')}</fieldset>
+    <fieldset><legend>Timer reale</legend>${voce('timer', 'Timer reale del turno e del combattimento')}
+      <label class="campo"><span>Soglia di avviso del turno (secondi, 0 = nessuna)</span><input type="number" name="soglia_timer" min="0" value="${i.soglia_timer}"></label></fieldset>
+    <fieldset><legend>Finestra TV (Build 4)</legend>${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento')}${voce('tv_ora', 'Ora del giorno')}${voce('tv_meteo', 'Meteo')}${voce('timer_tv', 'Timer sulla TV')}${voce('f10', 'Tasto F10: turno successivo')}
+      <label class="campo"><span>Creature fuori combattimento</span><select name="tv_fuori"><option value="barrate" ${i.tv_fuori === 'barrate' ? 'selected' : ''}>barrate</option><option value="tolte" ${i.tv_fuori === 'tolte' ? 'selected' : ''}>tolte</option></select></label></fieldset>
+    <fieldset><legend>Aspetto</legend><label class="campo"><span>Tema</span><select name="tema"><option value="scuro" ${i.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${i.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label></fieldset>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => {
+      const c = M.clona(S.camp), x = c.impostazioni;
+      if (!testo(f, 'nome')) throw new Error('Nome della campagna mancante');
+      c.nome = testo(f, 'nome'); c.anno.etichetta = testo(f, 'etichetta');
+      for (const k of ['xp', 'pf_nemici', 'incontri_casuali', 'timer', 'tv_xn', 'tv_solo_combattimento', 'tv_ora', 'tv_meteo', 'timer_tv', 'f10']) x[k] = spunta(f, k);
+      x.soglia_timer = Math.max(0, intero(f, 'soglia_timer', 0)); x.tv_fuori = val(f, 'tv_fuori').value; x.tema = val(f, 'tema').value;
+      let c2 = c; if (x.timer && c.combattimento && !c.combattimento.timer) c2 = M.attivaTimer(c, Date.now());
+      if (!x.timer && c2.combattimento) c2.combattimento.timer = null;
+      scriviPref('tema', x.tema); applica(c2);
+    } }] });
+}
+const CAMPI_PG = [
+  ['Identità', [['nome', 'Nome', 't'], ['giocatore', 'Giocatore', 't'], ['razza', 'Razza', 't'], ['classe', 'Classe e livello', 't'], ['livello', 'Livello (riposo)', 'n']]],
+  ['Punti vita e Rifiatare', [['fatica_max', 'Punti Fatica max', 'n'], ['ferita_max', 'Punti Ferita max', 'n'], ['rif_dadi', 'Dadi del Rifiatare (DV)', 'n'], ['rif_tipo', 'Dado', 'dado'], ['rif_ripete', 'Ripete 1 e 2 (Recupero rapido, Zangue troll, Linfa curativa, Linfa rigenerante)', 'c']]],
+  ['Difese', [['ca', 'CA', 'n'], ['ca_contatto', 'CA contatto', 'n'], ['ca_sprovvista', 'CA colto alla sprovvista', 'n'], ['dmc', 'DMC', 'n'], ['rd', 'RD', 't'], ['resistenze', 'Resistenze', 't'], ['immunita', 'Immunità', 't']]],
+  ['Tiri Salvezza', [['tempra', 'Tempra', 'n'], ['riflessi', 'Riflessi', 'n'], ['volonta', 'Volontà', 'n'], ['ts_note', 'Note (es. +2 vs [PAURA])', 't']]],
+  ['Abilità e iniziativa', [['percezione', 'Percezione', 'n'], ['intuizione', 'Intuizione', 'n'], ['furtivita', 'Furtività', 'n'], ['lib0', 'Abilità libera 1', 'lib'], ['lib1', 'Abilità libera 2', 'lib'], ['iniziativa', 'Bonus di iniziativa', 'n'], ['imp_pen', 'Impreparato', 'imp']]],
+  ['Altro', [['velocita', 'Velocità', 't'], ['sensi', 'Sensi', 't'], ['note', 'Note', 't']]],
+];
+function campiPGhtml(s) {
+  return CAMPI_PG.map(([leg, campi]) => `<fieldset><legend>${leg}</legend><div class="griglia">${campi.map(([k, et, tipo]) => {
+    if (tipo === 'c') return `<label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="${k}" ${s[k] ? 'checked' : ''}> ${et}</label>`;
+    if (tipo === 'dado') return `<label class="campo"><span>${et}</span><select name="${k}">${[4, 6, 8, 10, 12].map(x => `<option value="${x}" ${s[k] === x ? 'selected' : ''}>d${x}</option>`).join('')}</select></label>`;
+    if (tipo === 'imp') return `<label class="campo"><span>${et}</span><select name="${k}"><option value="6" ${s[k] === 6 ? 'selected' : ''}>−6 (normale)</option><option value="3" ${s[k] === 3 ? 'selected' : ''}>−3 (Vigili, Paranoico…)</option><option value="0" ${s[k] === 0 ? 'selected' : ''}>0 (Sempre pronto)</option></select></label>`;
+    if (tipo === 'lib') { const a = s.abilita_libere[+k.slice(3)] || { nome: '', valore: 0 }; return `<label class="campo"><span>${et}</span><span class="fila" style="flex-wrap:nowrap"><input type="text" name="${k}n" value="${esc(a.nome)}" placeholder="nome"><input type="number" name="${k}v" value="${a.valore}" style="width:5em"></span></label>`; }
+    const lungo = k === 'note' || k === 'ts_note' || k === 'classe' ? ' style="grid-column:span 2"' : '';
+    return `<label class="campo"${lungo}><span>${et}</span><input type="${tipo === 'n' ? 'number' : 'text'}" name="${k}" data-etichetta="${et}" value="${esc(s[k])}"></label>`;
+  }).join('')}</div></fieldset>`).join('');
+}
+function leggiCampiPG(f) {
+  const s = {};
+  for (const [, campi] of CAMPI_PG) for (const [k, , tipo] of campi) {
+    if (tipo === 'c') s[k] = spunta(f, k); else if (tipo === 'dado' || tipo === 'imp') s[k] = +val(f, k).value;
+    else if (tipo === 'lib') continue; else if (tipo === 'n') s[k] = intero(f, k, 0); else s[k] = testo(f, k);
+  }
+  s.abilita_libere = [0, 1].map(i => ({ nome: testo(f, `lib${i}n`), valore: intero(f, `lib${i}v`, 0) }));
+  return s;
+}
+function finestraPG(id, dopo) {
+  const p = id ? S.camp.pg.find(x => x.id === id) : null, s = p ? p.scheda : M.SCHEDA_VUOTA;
+  apri({ titolo: p ? `Scheda di ${esc(s.nome)}` : 'Nuovo PG', larga: true, corpo: campiPGhtml(s) + '<p class="tenue piccolo">I valori correnti (PF, Punto eroe, riserva del Rifiatare) si salvano da soli.</p>',
+    azioni: [...(p ? [{ testo: 'Togli dal gruppo', classe: 'peric', fn: () => { conferma('Togli PG', `Togliere ${esc(s.nome)} dalla campagna?`, () => applica(M.rimuoviPG(S.camp, id)), 'Togli', 'peric'); } }] : []),
+      { testo: 'Annulla' }, { testo: p ? 'Salva' : 'Aggiungi', classe: 'prim', fn: f => { const sc = leggiCampiPG(f); if (dopo) return dopo(sc); applica(p ? M.modificaPG(S.camp, id, sc) : M.aggiungiPG(S.camp, sc, rng)); } }] });
+}
+
+// ================================================================= «Crea Schermo campagna» (procedura guidata, B2)
+const PASSI = ['Nome', 'Calendario e anno', 'Data e ora', 'Zona climatica', 'PG', 'Accompagnatori', 'Cibo e acqua', 'Impostazioni'];
+function procedura() {
+  const W = { passo: 0, nome: '', tipo: 'reale', mesi: [{ nome: 'Primo mese', giorni: 30, stagione: 'inverno' }], settimana: 'lunedì, martedì, mercoledì, giovedì, venerdì, sabato, domenica', anno: 1, etichetta: '',
+    mese: 0, giorno: 1, ora: '08:00', sett: 0, zona: 'temperata', pg: [], accompagnatori: 0, cibo: 7, acqua: 7, imp: { ...M.IMPOSTAZIONI, tema: leggiPref('tema') || 'scuro' } };
+  let el = null;
+  const cal = () => W.tipo === 'reale' ? M.calendarioReale() : { tipo: 'personalizzato', mesi: W.mesi, settimana: W.settimana.split(',').map(x => x.trim()).filter(Boolean) };
+  function corpo() {
+    const passi = `<div class="passi">${PASSI.map((p, i) => `<span class="${i === W.passo ? 'on' : ''}">${i + 1}. ${p}</span>`).join('')}</div>`;
+    const c = cal();
+    switch (W.passo) {
+      case 0: return passi + `<label class="campo"><span>Nome della campagna</span><input type="text" id="w-nome" value="${esc(W.nome)}" placeholder="es. Storie di criptorei"></label>`;
+      case 1: return passi + `<div class="fila"><label class="spunta"><input type="radio" name="w-tipo" value="reale" ${W.tipo === 'reale' ? 'checked' : ''}> Calendario reale</label>
+          <label class="spunta"><input type="radio" name="w-tipo" value="personalizzato" ${W.tipo === 'personalizzato' ? 'checked' : ''}> Personalizzato</label></div>
+        ${W.tipo === 'reale' ? '<p class="tenue piccolo">Gennaio–dicembre con i giorni veri (febbraio 28, senza bisestili), settimana da lunedì a domenica; stagioni del meteo dalle date della Guida.</p>' :
+          `<p class="tenue piccolo">Per ogni mese: nome, giorni e stagione (serve al meteo).</p><div class="mesi">${W.mesi.map((m, i) => `<div class="mese"><input type="text" id="w-mn${i}" value="${esc(m.nome)}" aria-label="Nome del mese">
+            <input type="number" id="w-mg${i}" min="1" value="${m.giorni}" aria-label="Giorni"><select id="w-ms${i}" aria-label="Stagione">${['primavera', 'estate', 'autunno', 'inverno'].map(s => `<option ${m.stagione === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
+            <button class="btn min" data-w="togliMese" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}</div><div><button class="btn min" data-w="aggMese">+ Mese</button></div>
+          <label class="campo"><span>Giorni della settimana, separati da virgole (vuoto = nessuno)</span><input type="text" id="w-sett" value="${esc(W.settimana)}"></label>`}
+        <div class="griglia"><label class="campo"><span>Anno</span><input type="number" id="w-anno" value="${W.anno}"></label><label class="campo" style="grid-column:span 2"><span>Etichetta dell'anno (facoltativa)</span><input type="text" id="w-etic" value="${esc(W.etichetta)}" placeholder="es. dopo la Caduta"></label></div>`;
+      case 2: return passi + `<div class="griglia"><label class="campo"><span>Giorno</span><input type="number" id="w-g" min="1" value="${W.giorno}"></label>
+          <label class="campo"><span>Mese</span><select id="w-m">${c.mesi.map((m, i) => `<option value="${i}" ${i === W.mese ? 'selected' : ''}>${esc(m.nome)}</option>`).join('')}</select></label>
+          <label class="campo"><span>Ora</span><input type="text" id="w-ora" value="${esc(W.ora)}" placeholder="hh:mm"></label>
+          ${c.settimana && c.settimana.length ? `<label class="campo"><span>Giorno della settimana</span><select id="w-s">${c.settimana.map((g, i) => `<option value="${i}" ${i === W.sett ? 'selected' : ''}>${esc(g)}</option>`).join('')}</select></label>` : ''}</div>`;
+      case 3: return passi + `<div class="fila">${MET.zone.map(z => `<label class="spunta"><input type="radio" name="w-zona" value="${z.id}" ${W.zona === z.id ? 'checked' : ''}> ${z.nome}</label>`).join('')}</div><p class="tenue piccolo">Si cambia mentre si viaggia. Il meteo si tira a ogni cambio di giorno, in base a zona e stagione.</p>`;
+      case 4: return passi + `<p class="tenue piccolo">Si possono aggiungere anche dopo.</p>${W.pg.map((s, i) => `<div class="fila"><span class="spazio">${esc(s.nome)} <span class="tenue piccolo">${esc(s.classe)}</span></span><button class="btn min" data-w="togliPG" data-i="${i}">Togli</button></div>`).join('') || '<span class="tenue">Nessun PG.</span>'}
+        <div><button class="btn" data-w="aggPG">+ PG</button></div>`;
+      case 5: return passi + `<label class="campo"><span>Numero di accompagnatori (mangiano e bevono come i PG)</span><input type="number" id="w-acc" min="0" value="${W.accompagnatori}"></label>`;
+      case 6: return passi + `<div class="griglia"><label class="campo"><span>Cibo (razioni)</span><input type="number" id="w-cibo" min="0" value="${W.cibo}"></label><label class="campo"><span>Acqua (razioni)</span><input type="number" id="w-acqua" min="0" value="${W.acqua}"></label></div>
+        <p class="tenue piccolo">1 razione = 1 persona per 1 giorno. Consumo: ${W.pg.length} PG + ${W.accompagnatori} accompagnatori = ${W.pg.length + W.accompagnatori} al giorno.</p>`;
+      case 7: return passi + `${[['timer', 'Timer reale'], ['xp', 'Usa gli XP'], ['pf_nemici', 'Scala i PF dei nemici'], ['incontri_casuali', 'Incontri casuali']].map(([k, t]) => `<label class="spunta"><input type="checkbox" id="w-i-${k}" ${W.imp[k] ? 'checked' : ''}> ${t}</label>`).join('')}
+        <label class="campo"><span>Tema</span><select id="w-tema"><option value="scuro" ${W.imp.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${W.imp.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label>
+        <p class="tenue piccolo">Le altre impostazioni (finestra TV, F10) sono in ⚙ dentro la campagna.</p>`;
+    }
+  }
+  const leggiNum = (id, et) => { const x = Number($(id).value); if (!Number.isInteger(x)) throw new Error(et + ': numero non valido'); return x; };
+  function leggi() { // salva i campi del passo corrente e lo controlla
+    switch (W.passo) {
+      case 0: W.nome = $('#w-nome').value.trim(); if (!W.nome) throw new Error('Scrivi il nome della campagna'); break;
+      case 1: W.tipo = el.querySelector('[name="w-tipo"]:checked').value;
+        if (W.tipo === 'personalizzato' && $('#w-sett')) { W.mesi = W.mesi.map((m, i) => ({ nome: $('#w-mn' + i).value.trim(), giorni: Number($('#w-mg' + i).value), stagione: $('#w-ms' + i).value })); W.settimana = $('#w-sett').value; }
+        W.anno = leggiNum('#w-anno', 'Anno'); W.etichetta = $('#w-etic').value.trim();
+        if (W.tipo === 'personalizzato') { const e = M.controllaCalendario(cal()); if (e.length) throw new Error(e.join('; ')); }
+        W.mese = Math.min(W.mese, cal().mesi.length - 1); break;
+      case 2: { W.giorno = leggiNum('#w-g', 'Giorno'); W.mese = +$('#w-m').value; const g = cal().mesi[W.mese].giorni; if (W.giorno < 1 || W.giorno > g) throw new Error(`Il mese ha ${g} giorni`);
+        const h = $('#w-ora').value.trim().match(/^(\d{1,2})(?::(\d{2}))?$/); if (!h || +h[1] > 23 || +(h[2] || 0) > 59) throw new Error('Ora non valida (hh:mm)'); W.ora = $('#w-ora').value.trim(); W.sett = $('#w-s') ? +$('#w-s').value : 0; break; }
+      case 3: W.zona = el.querySelector('[name="w-zona"]:checked').value; break;
+      case 5: W.accompagnatori = leggiNum('#w-acc', 'Accompagnatori'); if (W.accompagnatori < 0) throw new Error('Accompagnatori: almeno 0'); break;
+      case 6: W.cibo = leggiNum('#w-cibo', 'Cibo'); W.acqua = leggiNum('#w-acqua', 'Acqua'); if (W.cibo < 0 || W.acqua < 0) throw new Error('Le scorte non possono essere negative'); break;
+      case 7: for (const k of ['timer', 'xp', 'pf_nemici', 'incontri_casuali']) W.imp[k] = $('#w-i-' + k).checked; W.imp.tema = $('#w-tema').value; break;
+    }
+  }
+  function ridisegna() { el.querySelector('.corpo').innerHTML = corpo(); const pr = el.querySelector('[data-fazione="2"]'); pr.textContent = W.passo === PASSI.length - 1 ? 'Crea' : 'Avanti'; el.querySelector('[data-fazione="1"]').disabled = W.passo === 0; const x = el.querySelector('.corpo input,.corpo select'); if (x) x.focus(); }
+  el = apri({ titolo: 'Crea Schermo campagna', larga: true, corpo: corpo(), azioni: [{ testo: 'Annulla' },
+    { testo: 'Indietro', fn: () => { W.passo = Math.max(0, W.passo - 1); ridisegna(); return false; } },
+    { testo: 'Avanti', classe: 'prim', fn: async () => {
+      leggi();
+      if (W.passo < PASSI.length - 1) { W.passo++; ridisegna(); return false; }
+      const [hh, mm] = W.ora.split(':').map(Number);
+      const c = M.creaCampagna({ nome: W.nome, calendario: cal(), anno: { numero: W.anno, etichetta: W.etichetta }, partenza: { mese: W.mese, giorno: W.giorno, ore: hh, min: mm || 0, sett: W.sett },
+        zona: W.zona, pg: W.pg, accompagnatori: W.accompagnatori, cibo: W.cibo, acqua: W.acqua, impostazioni: W.imp }, MET, rng, Date.now());
+      scriviPref('tema', W.imp.tema);
+      await Archivio.scrivi(c); S.camp = c; S.schermata = 'campagna'; S.ui.avvio = null; disegna(); avviso('Campagna creata');
+    } }] });
+  el.querySelector('[data-fazione="1"]').disabled = true;
+  el.addEventListener('change', ev => { if (ev.target.name === 'w-tipo') { leggiParziale(); W.tipo = ev.target.value; ridisegna(); } });
+  function leggiParziale() { if (W.passo === 1 && $('#w-sett')) { W.mesi = W.mesi.map((m, i) => ({ nome: $('#w-mn' + i).value, giorni: Number($('#w-mg' + i).value), stagione: $('#w-ms' + i).value })); W.settimana = $('#w-sett').value; } }
+  el.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-w]'); if (!b) return;
+    const a = b.dataset.w;
+    if (a === 'aggMese') { leggiParziale(); W.mesi.push({ nome: '', giorni: 30, stagione: 'primavera' }); ridisegna(); }
+    if (a === 'togliMese') { leggiParziale(); if (W.mesi.length > 1) W.mesi.splice(+b.dataset.i, 1); ridisegna(); }
+    if (a === 'togliPG') { W.pg.splice(+b.dataset.i, 1); ridisegna(); }
+    if (a === 'aggPG') { finestraPGprocedura(s => { const e = M.controllaScheda({ ...M.SCHEDA_VUOTA, ...s }); if (e.length) throw new Error(e.join('; ')); W.pg.push(s); ridisegna(); }); }
+  });
+}
+function finestraPGprocedura(fatto) {
+  apri({ titolo: 'Nuovo PG', larga: true, corpo: campiPGhtml(M.SCHEDA_VUOTA), azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { fatto(leggiCampiPG(f)); } }] });
+}
+
+// ================================================================= campagna d'esempio (per la prova)
+function campagnaEsempio() {
+  const pg = [
+    { nome: 'Aria', giocatore: 'Giocatore 1', razza: 'Elfa', classe: 'Ladro 7', livello: 7, fatica_max: 42, ferita_max: 40, rif_dadi: 7, rif_tipo: 8, ca: 19, ca_contatto: 14, ca_sprovvista: 15, dmc: 21,
+      tempra: 5, riflessi: 9, volonta: 3, ts_note: '+2 vs [PAURA]', percezione: 12, intuizione: 8, furtivita: 14, iniziativa: 6, imp_pen: 3, abilita_libere: [{ nome: 'Acrobazia', valore: 13 }, { nome: '', valore: 0 }] },
+    { nome: 'Bruno', giocatore: 'Giocatore 2', razza: 'Orco', classe: 'Barbaro 7', livello: 7, fatica_max: 48, ferita_max: 49, rif_dadi: 7, rif_tipo: 12, rif_ripete: true, ca: 17, ca_contatto: 11, ca_sprovvista: 15, dmc: 24,
+      tempra: 9, riflessi: 4, volonta: 3, percezione: 9, intuizione: 2, furtivita: 1, iniziativa: 2, imp_pen: 6, abilita_libere: [{ nome: 'Intimidire', valore: 11 }, { nome: '', valore: 0 }] },
+    { nome: 'Cira', giocatore: 'Giocatore 3', razza: 'Umana', classe: 'Sacerdote 7', livello: 7, fatica_max: 32, ferita_max: 33, rif_dadi: 7, rif_tipo: 8, ca: 20, ca_contatto: 11, ca_sprovvista: 19, dmc: 18,
+      tempra: 7, riflessi: 3, volonta: 9, percezione: 10, intuizione: 12, furtivita: 0, iniziativa: 1, imp_pen: 6, abilita_libere: [{ nome: 'Professione (cerusico)', valore: 12 }, { nome: '', valore: 0 }] },
+  ];
+  return M.creaCampagna({ nome: 'Campagna d\'esempio', anno: { numero: 1462, etichetta: 'dopo la Caduta' }, partenza: { mese: 9, giorno: 26, ore: 17, min: 30, sett: 0 },
+    zona: 'temperata', pg, accompagnatori: 2, cibo: 12, acqua: 9 }, MET, rng, Date.now());
+}
+
+// ================================================================= avvio
+async function ricaricaElenco() {
+  try { S.elenco = (await Archivio.lista()).sort((a, b) => (b.modificata || 0) - (a.modificata || 0)); }
+  catch (e) { S.elenco = []; avviso('Archivio non leggibile: ' + e.message, true); }
+  disegna();
+}
+ricaricaElenco();
+</script>

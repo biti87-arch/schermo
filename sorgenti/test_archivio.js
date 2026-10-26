@@ -1,0 +1,22 @@
+// Test dei salvataggi su file dell'app Windows (desktop/archivio.js). Uso: node sorgenti/test_archivio.js
+'use strict';
+const fs = require('fs'), os = require('os'), path = require('path');
+const { crea } = require('../desktop/archivio.js');
+const M = require('./motore.js'), meteo = require('./meteo.json');
+let ok = 0, ko = 0; const t = (n, c) => { if (c) ok++; else { ko++; console.log('ERRORE', n); } };
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'schermo-'));
+const A = crea(dir);
+const c = M.creaCampagna({ nome: 'Prova', anno: { numero: 1 }, zona: 'temperata', accompagnatori: 0, cibo: 1, acqua: 1 }, meteo, Math.random, 12345);
+t('scrittura', A.scrivi(c, new Date(2026, 9, 26)));
+t('lettura identica', JSON.stringify(A.leggi(c.id)) === JSON.stringify(c));
+t('elenco', A.lista().length === 1 && A.lista()[0].nome === 'Prova');
+t('backup del giorno creato una volta', fs.existsSync(path.join(dir, 'backup', '2026-10-26')) && !A.backupGiornaliero(new Date(2026, 9, 26)));
+for (let g = 1; g <= 12; g++) A.scrivi(c, new Date(2026, 10, g));
+t('tenuti gli ultimi 10 backup', fs.readdirSync(path.join(dir, 'backup')).length === 10 && !fs.existsSync(path.join(dir, 'backup', '2026-10-26')));
+fs.writeFileSync(path.join(dir, 'campagne', 'rotto.json'), '{x');
+t('file illeggibile segnalato', A.lista().some(x => x.errore));
+t('elimina = rinomina', A.elimina(c.id) && A.leggi(c.id) === null && fs.existsSync(path.join(dir, 'campagne', c.id + '.json.eliminato')));
+let err = ''; try { A.leggi('../x'); } catch (e) { err = e.message; } t('identificativo con percorso rifiutato', /non valido/.test(err));
+err = ''; try { A.scrivi({ id: 'x', formato: 'altro' }); } catch (e) { err = e.message; } t('formato sbagliato rifiutato', /non valida/.test(err));
+fs.rmSync(dir, { recursive: true, force: true });
+console.log(`test archivio: ${ok} superati, ${ko} falliti`); process.exit(ko ? 1 : 0);

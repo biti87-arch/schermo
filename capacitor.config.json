@@ -1,0 +1,13 @@
+{
+  "appId": "it.collana.schermo",
+  "appName": "Schermo del Narratore",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

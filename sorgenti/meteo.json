@@ -1,0 +1,154 @@
+{
+  "fonte": "Guida del DM.pdf: «Tabelle del tempo atmosferico» e «Fame e sete» (estratto in sorgenti/guida/guida_meteo_fame_sete.txt)",
+  "correzioni": [
+    "Zona temperata, estate: «2 giugno – 22 settembre» letto 22 giugno (la primavera finisce il 21 giugno).",
+    "Sete: «non abbia mangiato nel giorno precedente» letto «non abbia bevuto»."
+  ],
+  "zone": [
+    {"id": "temperata", "nome": "Temperata"},
+    {"id": "desertica", "nome": "Desertica"},
+    {"id": "artica", "nome": "Artica"}
+  ],
+  "stagioni": {
+    "temperata": [
+      {"id": "primavera", "nome": "Primavera", "da": [21, 3], "a": [21, 6]},
+      {"id": "estate", "nome": "Estate", "da": [22, 6], "a": [22, 9]},
+      {"id": "autunno", "nome": "Autunno", "da": [23, 9], "a": [21, 12]},
+      {"id": "inverno", "nome": "Inverno", "da": [22, 12], "a": [20, 3]}
+    ],
+    "desertica": [
+      {"id": "primavera-estate", "nome": "Primavera – estate", "da": [21, 3], "a": [22, 9]},
+      {"id": "autunno-inverno", "nome": "Autunno – inverno", "da": [23, 9], "a": [20, 3]}
+    ],
+    "artica": [
+      {"id": "primavera-estate", "nome": "Primavera – estate", "da": [21, 3], "a": [22, 9]},
+      {"id": "autunno-inverno", "nome": "Autunno – inverno", "da": [23, 9], "a": [20, 3]}
+    ]
+  },
+  "stagione_del_mese": {
+    "temperata": {"primavera": "primavera", "estate": "estate", "autunno": "autunno", "inverno": "inverno"},
+    "desertica": {"primavera": "primavera-estate", "estate": "primavera-estate", "autunno": "autunno-inverno", "inverno": "autunno-inverno"},
+    "artica": {"primavera": "primavera-estate", "estate": "primavera-estate", "autunno": "autunno-inverno", "inverno": "autunno-inverno"}
+  },
+  "tabelle": {
+    "temperata": {
+      "primavera": [
+        {"da": 1, "a": 85, "testo": "Clima mite"},
+        {"da": 86, "a": 90, "testo": "Pioggia battente"},
+        {"da": 91, "a": 94, "testo": "Acquazzone"},
+        {"da": 95, "a": 97, "testo": "Vento forte"},
+        {"da": 98, "a": 99, "testo": "Vento molto forte"},
+        {"da": 100, "a": 100, "testo": "Nebbia"}
+      ],
+      "estate": [
+        {"da": 1, "a": 75, "testo": "Clima caldo"},
+        {"da": 76, "a": 90, "testo": "Pioggia battente"},
+        {"da": 91, "a": 94, "testo": "Arsura"},
+        {"da": 95, "a": 96, "testo": "Acquazzone"},
+        {"da": 97, "a": 98, "testo": "Vento forte"},
+        {"da": 99, "a": 100, "testo": "Vento molto forte"}
+      ],
+      "autunno": [
+        {"da": 1, "a": 80, "testo": "Clima fresco"},
+        {"da": 81, "a": 89, "testo": "Pioggia battente"},
+        {"da": 90, "a": 94, "testo": "Acquazzone"},
+        {"da": 95, "a": 96, "testo": "Vento forte"},
+        {"da": 97, "a": 98, "testo": "Vento molto forte"},
+        {"da": 99, "a": 100, "testo": "Nebbia"}
+      ],
+      "inverno": [
+        {"da": 1, "a": 75, "testo": "Clima freddo"},
+        {"da": 76, "a": 90, "testo": "Pioggia battente / Neve"},
+        {"da": 91, "a": 94, "testo": "Gelo"},
+        {"da": 95, "a": 96, "testo": "Acquazzone / Neve fitta"},
+        {"da": 97, "a": 98, "testo": "Vento forte"},
+        {"da": 99, "a": 100, "testo": "Vento molto forte"}
+      ]
+    },
+    "desertica": {
+      "primavera-estate": [
+        {"da": 1, "a": 85, "testo": "Arsura"},
+        {"da": 86, "a": 90, "testo": "Clima caldo"},
+        {"da": 91, "a": 94, "testo": "Clima caldo + Vento forte"},
+        {"da": 95, "a": 97, "testo": "Clima caldo + Vento molto forte"},
+        {"da": 98, "a": 99, "testo": "Monsone"},
+        {"da": 100, "a": 100, "testo": "Clima caldo + Tempesta di polvere/sabbia"}
+      ],
+      "autunno-inverno": [
+        {"da": 1, "a": 75, "testo": "Clima caldo"},
+        {"da": 76, "a": 90, "testo": "Arsura"},
+        {"da": 91, "a": 94, "testo": "Clima caldo + Vento forte"},
+        {"da": 95, "a": 96, "testo": "Clima caldo + Vento molto forte"},
+        {"da": 97, "a": 98, "testo": "Acquazzone"},
+        {"da": 99, "a": 100, "testo": "Monsone"}
+      ]
+    },
+    "artica": {
+      "primavera-estate": [
+        {"da": 1, "a": 75, "testo": "Clima freddo"},
+        {"da": 76, "a": 90, "testo": "Gelo"},
+        {"da": 91, "a": 94, "testo": "Clima freddo + Vento forte"},
+        {"da": 95, "a": 96, "testo": "Clima freddo + Vento molto forte"},
+        {"da": 97, "a": 98, "testo": "Clima freddo + Neve"},
+        {"da": 99, "a": 100, "testo": "Clima freddo + Neve fitta"}
+      ],
+      "autunno-inverno": [
+        {"da": 1, "a": 85, "testo": "Gelo"},
+        {"da": 86, "a": 90, "testo": "Gelo + Vento forte"},
+        {"da": 91, "a": 94, "testo": "Gelo + Vento molto forte"},
+        {"da": 95, "a": 97, "testo": "Gelo + Neve"},
+        {"da": 98, "a": 99, "testo": "Gelo + Neve fitta"},
+        {"da": 100, "a": 100, "testo": "Gelo + Tempesta di grandine"}
+      ]
+    }
+  },
+  "voci": {
+    "Clima mite": "Clima mite/fresco",
+    "Clima fresco": "Clima mite/fresco",
+    "Clima caldo": "Clima caldo/freddo",
+    "Clima freddo": "Clima caldo/freddo",
+    "Arsura": "Arsura/gelo",
+    "Gelo": "Arsura/gelo",
+    "Pioggia battente": "Pioggia battente",
+    "Acquazzone": "Acquazzone",
+    "Monsone": "Monsone",
+    "Nebbia": "Nebbia",
+    "Neve": "Neve e nevischio",
+    "Neve fitta": "Neve fitta",
+    "Vento forte": "Vento forte",
+    "Vento molto forte": "Vento molto forte",
+    "Tempesta di polvere/sabbia": "Tempesta di grandine/polvere/sabbia",
+    "Tempesta di grandine": "Tempesta di grandine/polvere/sabbia"
+  },
+  "effetti": {
+    "Acquazzone": "Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.",
+    "Arsura/gelo": "Giornata di caldo/freddo intenso. Una creatura senza abiti estivi/invernali, dopo 1 ora è esausta.",
+    "Clima caldo/freddo": "Il tipico clima estivo/invernale. Una creatura senza abiti estivi/invernali, dopo 1 ora è affaticata.",
+    "Clima mite/fresco": "Il tipico clima primaverile/autunnale. Nessun effetto particolare.",
+    "Monsone": "Visibilità massima 15 caselle. Penalità -4 ai tiri per colpire a distanza e alle prove di Percezione. Si spengono automaticamente le fiamme non protette.",
+    "Nebbia": "Le creature oltre 3 metri godono di Occultamento 50%.",
+    "Neve e nevischio": "Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione e -2 ai tiri per colpire a distanza. Se la neve si è già depositata il terreno è difficile (x2).",
+    "Neve fitta": "(solo in luoghi plausibili). Visibilità massima 10 caselle. Penalità -4 alle prove di Percezione e -2 ai Tiri per Colpire a distanza. Le creature oltre 3 metri godono di Occultamento 50%. Se la neve si è già depositata il terreno è difficile (x4).",
+    "Pioggia battente": "Penalità -2 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.",
+    "Tempesta di grandine/polvere/sabbia": "Visibilità massima 5 caselle. I tiri per colpire a distanza falliscono automaticamente. Si spengono automaticamente le fiamme protette e non. Ogni minuto si subiscono 1d4 danni letali a causa delle escoriazioni, cadute, asfissia, etc.",
+    "Vento forte": "Penalità -2 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette.",
+    "Vento molto forte": "Penalità -4 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette e quelle protette hanno una probabilità del 50% di spegnersi ogni 10 minuti."
+  },
+  "fame_sete": {
+    "sete": {
+      "nome": "Sete",
+      "scorta": "acqua",
+      "giorno_prova": 4,
+      "cd": 10,
+      "testo": "1) Una creatura che non abbia bevuto nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto. 2) A partire dal quarto, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."
+    },
+    "fame": {
+      "nome": "Fame",
+      "scorta": "cibo",
+      "giorno_prova": 7,
+      "cd": 10,
+      "testo": "1) Una creatura che non abbia mangiato nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato. 2) A partire dal settimo, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."
+    },
+    "nota_vol1": "Affaticato o esausto dovuti a fame o sete si tolgono solo rifocillandosi (Vol. 1)."
+  }
+}

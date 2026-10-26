@@ -1,0 +1,39 @@
+{
+  "name": "schermo",
+  "productName": "Schermo del Narratore",
+  "version": "1.0.0",
+  "description": "Schermo del GM della Collana: campagne, PG, iniziativa, orologio e meteo",
+  "author": "Collana",
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "it.collana.schermo",
+    "productName": "Schermo del Narratore",
+    "files": [
+      "main.js",
+      "preload.js",
+      "archivio.js",
+      "icon.png",
+      "www/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "icon.png"
+    },
+    "portable": {
+      "artifactName": "Schermo-${version}-portatile.exe"
+    },
+    "nsis": {
+      "artifactName": "Schermo-${version}-installazione.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": null
+  }
+}
