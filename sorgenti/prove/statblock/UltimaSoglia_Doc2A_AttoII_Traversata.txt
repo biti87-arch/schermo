@@ -1,0 +1,361 @@
+SGUSCIATO — Criptoreo base (×6) · GS 4 · XP 1.200 ciascuno
+Aberrazione Piccola (criptoreo, acquatica) | Neutrale
+Iniziativa +7 | Sensi: scurovisione 18 m, fiutare cristalli 18 m | Percezione +11
+── DIFESA ──
+CA 17 (tocco 14, colto in fallo 14) [10 + 3 Des + 3 naturale + 1 taglia]
+PF 42 (5d8+20) — Punti Fatica 21 / Punti Ferita 21
+TS Tempra +5, Riflessi +4, Volontà +5
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Senza cristalli addosso ×0,20 · Con un cristallo addosso ×1,0 · Cristallo in pugno ×1,5
+Si applica prima di RD e resistenze; non è RD e nessun talento la aggira.
+── OFFESA ──
+Velocità 6 m, nuotare 12 m | Spazio 1,5 m, portata 1,5 m
+BaB +3 | BMC +2 (+6 per rubare un cristallo) | DMC 15
+Morso +12 (1d8+1) · 2 chele +12 (1d4+1)
+── ATTACCHI SPECIALI ──
+STRAPPARE IL CRISTALLO (Str) — Quando colpisce col morso una creatura che porta
+  cristalli, tenta una manovra Rubare gratuita (BMC +6) contro la sua DMC.
+  Se riesce prende un cristallo (il GM sceglie un base se ce n'è uno).
+MANGIARE (Str) — Azione di movimento, nel turno dopo: mangia il cristallo
+  (perduto per sempre), recupera 10 PF e guadagna 1 PN (3 se raro).
+FIUTARE CRISTALLI (Sop) — Sa dove sono i cristalli entro 18 m, anche in borse
+  e casse. Non attraverso il piombo (lo scrigno della leva di Sleppen).
+── STATISTICHE ──
+For 12 Des 16 Cos 18 Int 2 Sag 12 Car 6
+Talenti: Allerta, Arma accurata, Iniziativa migliorata
+Abilità: Percezione +11, Furtività +13, Nuotare +9 | Linguaggi: nessuno
+Ambiente: secche del lago | Organizzazione: covata (6-20) | Tesoro: nessuno.
+  Un cristallo (base). | PN: 0–7, a 8 diventa un Primo Nato
+── TATTICHE ──
+Puntano chi porta più cristalli (Harun). Ignorano chi non ne ha, salvo per
+difendersi. Sotto 10 PF tornano in un guscio (Furtività +13, +4 nei gusci).
+
+IL PRIMO NATO — Criptoreo, Evoluzione 1 · GS 7 · XP 3.200
+Aberrazione Media (criptoreo, acquatica) | Neutrale
+Iniziativa +7 | Sensi: scurovisione 18 m, fiutare cristalli 36 m | Percezione +14
+── DIFESA ──
+CA 20 (tocco 13, colto in fallo 17) [10 + 3 Des + 7 naturale]
+PF 85 (9d8+45) — Punti Fatica 42 / Punti Ferita 43
+TS Tempra +8, Riflessi +6, Volontà +7
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Senza cristalli addosso ×0,20 · Con un cristallo addosso ×1,0 · Cristallo in pugno ×1,5
+── OFFESA ──
+Velocità 9 m, nuotare 12 m | Spazio 1,5 m, portata 1,5 m
+BaB +6 | BMC +10 (+14 per rubare un cristallo) | DMC 23
+Morso +15 (2d8+4) · 2 chele +15 (1d8+4)
+── ATTACCHI SPECIALI ──
+DIVORARE IL FRATELLO (Str) — Azione standard: mangia uno Sgusciato adiacente,
+  vivo o morto. Recupera 20 PF e guadagna 1 PN.
+STRAPPARE IL CRISTALLO, MANGIARE, FIUTARE — come lo Sgusciato (BMC +14, 36 m).
+CAPACITÀ MAGICHE (Mag) — LI 7
+  3/giorno: Nube di nebbia
+  1/giorno: Immagine minore (CD 12) — un cristallo che brilla sul fondo, a 10 m:
+           un'esca per chi lo va a prendere.
+── STATISTICHE ──
+For 18 Des 16 Cos 20 Int 3 Sag 12 Car 10
+Talenti: Allerta, Combattere alla cieca, Iniziativa migliorata, Mobilità,
+  Riflessi in combattimento
+Abilità: Percezione +14, Furtività +11, Nuotare +12 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (raro). | PN: 8 (raggiunti) / 20
+── TATTICHE ──
+Esce al round 3 e mangia un fratello davanti a tutti. Round 4: Nube di nebbia
+sulla secca (combatte alla cieca). Punta la borsa di Harun. Sotto 20 Punti
+Ferita si infila nel fondo e scompare: non muore, e se ne ricorderà.
+
+BROOK — Bardo 6 / Intrepido 5 · GS 10 · XP 9.600 (alleato: non si assegna)
+Non morto Medio (umano in vita; ★ «tornato», libero) | Caotico Buono
+Iniziativa +9 | Sensi: scurovisione 18 m | Percezione +15
+── DIFESA ──
+CA 21 (tocco 19, colto in fallo 14)
+  [10 + 5 Des + 2 abiti (sintonia) + 1 leggiadria + 1 schivare + 2 bonus eroico]
+PF 102 (6d8 + 5d10 + 44, Car) — Punti Fatica 51 / Punti Ferita 51
+TS Tempra +8, Riflessi +15, Volontà +8 (bonus eroico +1 compreso)
+  (+4 contro esibizioni bardiche, effetti uditivi e dipendenti dal linguaggio)
+Vita affascinante 3/giorno (azione immediata: +4 a un TS)
+Immunità: tratti dei non morti (influenza mentale, veleno, sonno, paralisi,
+  stordimento, malattia, effetti di morte). Non respira, non mangia, non dorme.
+⚠️ Le cure di energia positiva lo feriscono. Il Controllo della Soglia lo tocca.
+── OFFESA ──
+Velocità 9 m (corsa sull'acqua) | BaB +9/+4 | BMC +9 | DMC 26
+Mischia: stocco nel bastone +2 «Lama fredda» +18/+13
+  (1d6+10 più 1d6 freddo, 18–20/×2)
+Esibizioni bardiche: 18 round/giorno, azione di movimento, CD 17 —
+  Affascinare, Controcanto, Distrazione, Ispirare coraggio +2,
+  Ispirare competenza +2, Suggestione
+Eleganza: 4 punti. Gesta: Rialzarsi di colpo, Parata dei dardi, Colpo d'elsa,
+  Affondo preciso, Grazia dell'intrepido · Parata e risposta di opportunità
+Incantesimi da bardo (LI 6, CD 14 + livello; slot dal Vol. 2):
+  2° — Calmare emozioni, Immagine minore, Suggestione
+  1° — Charme su persone, Confusione inferiore, Sonno
+── CAPACITÀ SPECIALI ──
+CORSA SULL'ACQUA (Str) ★ — Se nel round si muove di almeno 9 m, corre sulla
+  superficie come su terreno solido. Fermo, galleggia: le ossa non pesano.
+FUORI DAL CORPO (Sop) ★ — 1/giorno, round completo, fino a 10 minuti: l'anima
+  esce, Incorporeo, volare 12 m, passa attraverso legno e acqua, non attacca.
+  Le ossa restano Indifeso. (Lore §XVII)
+LAMA FREDDA ★ — capacità dell'arma, equivalente +1 (come Gelo), dentro il
+  tetto di sintonia +2. Mai un'arma +X trovata (Lore §XVII).
+── STATISTICHE ──
+For 10 Des 20 Cos — Int 12 Sag 12 Car 18
+Talenti: Abilità focalizzata (Intrattenere: tastiera), Arma focalizzata (stocco),
+  Arma specializzata (stocco), Attacco rapido, Iniziativa migliorata,
+  Mobilità, Riflessi in combattimento, Schivare
+Abilità: Acrobazia +19, Diplomazia +18, Intrattenere (strumenti a tastiera) +24,
+  Intrattenere (canto) +18, Intuizione +11, Percezione +15,
+  Professione (marinaio) +15 (+3 sul lago)
+Linguaggi: Comune | Tratto: Musico girovago (generico)
+Equipaggiamento: stocco nel bastone, abiti eleganti e cilindro (sintonia),
+  violino, 🗝️ il cilindro dei Pirati Rumba, fonografo a tromba (rotto). Nessun tesoro.
+── TATTICHE ──
+Non tira l'iniziativa se non è costretto. Se lo attaccano corre via sull'acqua.
+Contro le Sirene: CONTROCANTO — gli alleati entro 9 m usano la sua prova di
+  Intrattenere (+24) al posto del TS contro il canto. È la sua scena.
+Contro i non morti dell'Isola (evento 17): si fa da parte; vogliono lui.
+Se il battello imbarca acqua: Fuori dal corpo per trovare la falla.
+
+LECCAPECE — Criptoreo, Evoluzione 1 · GS 9 · XP 6.400
+Aberrazione Grande (criptoreo, acquatica) | Neutrale
+Iniziativa +5 | Sensi: scurovisione 36 m, percepire vibrazioni (in acqua) 36 m | Percezione +17
+── DIFESA ──
+CA 24 (tocco 10, colto in fallo 21) [10 + 1 Des + 12 naturale − 1 taglia]
+PF 114 (12d8+60) — Punti Fatica 57 / Punti Ferita 57
+TS Tempra +11, Riflessi +7, Volontà +12
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Colpo pulito ×0,20 · Pece (arma unta o creatura impeciata) ×1,0 ·
+  Pece bollente, o fuoco sulla pece ×1,5
+── OFFESA ──
+Velocità 3 m, nuotare 12 m | Spazio 3 m, portata 3 m (lingua 6 m)
+BaB +9 | BMC +17 (+21 lottare) | DMC 28
+Lingua +18 (2d6+6 più afferrare e impeciare) · morso +17 (2d8+6) ·
+  2 tentacoli +12 (1d8+3)
+── ATTACCHI SPECIALI ──
+CALAFATO AL ROVESCIO (Str) — Attaccato allo scafo (azione di movimento per
+  attaccarsi), all'inizio del suo turno: scafo 2d6+6 ignorando la Durezza;
+  una falla ogni 2 round.
+LINGUA (Str) — Se colpisce, lotta gratuita (BMC +21). Ogni round trascina il
+  bersaglio di 3 m verso di sé: dal ponte, Riflessi CD 15 alla ringhiera o in
+  acqua. Chi è colpito dalla lingua è Intralciato 1 round (pece).
+CAPACITÀ MAGICHE (Mag) — LI 9
+  3/giorno: Unto (CD 11) — sul ponte, attorno a chi tenta di colpirlo
+  1/giorno: Oscurità — sott'acqua, una nube nera come inchiostro
+── STATISTICHE ──
+For 22 Des 12 Cos 20 Int 2 Sag 14 Car 10
+Talenti: Allerta, Arma focalizzata (lingua), Iniziativa migliorata,
+  Riflessi fulminei, Tempra possente, Volontà di ferro
+Abilità: Percezione +17, Furtività +6 (+14 sotto uno scafo), Nuotare +14
+Linguaggi: nessuno | Tesoro: nessuno. Un cristallo (raro). | PN: 10 / 25
+── TATTICHE ──
+Arriva di notte. Si attacca a poppa, dove la pece è più spessa. Non sale mai
+sul ponte. Lingua contro chi si sporge. Se lo staccano torna in 1d3 round.
+Insegue un vaso di pece lanciato in acqua (vedi round 5). Sotto 25 Punti
+Ferita si stacca e segue la scia, leccando: 🌱 tornerà.
+
+DIVORAGELO — Criptoreo, Evoluzione 2 · GS 13 · XP 25.600
+Aberrazione Enorme (criptoreo, acquatica, fuoco) | Neutrale
+Iniziativa +4 | Sensi: scurovisione 36 m, sentire il freddo 1,5 km | Percezione +24
+Aura: la Pentola (18 m)
+── DIFESA ──
+CA 26 (tocco 8, colto in fallo 26) [10 + 18 naturale − 2 taglia]
+PF 178 (17d8+102) — Punti Fatica 89 / Punti Ferita 89
+TS Tempra +15, Riflessi +7, Volontà +15
+Immunità: fuoco
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Bagnato d'acqua di fondale ×1,0 · Bomba a 12 m entro 9 m ×1,5
+── OFFESA ──
+Velocità 3 m, nuotare 12 m | Spazio 4,5 m, portata 4,5 m (tentacoli 6 m)
+BaB +12 | BMC +23 (+27 lottare) | DMC 33
+Morso +18 (3d8+8) · 2 tentacoli +19 (2d8+8 più 2d6 fuoco più afferrare)
+── ATTACCHI SPECIALI ──
+LA PENTOLA (Sop) — Aura 18 m. Chi è immerso nell'acqua dell'aura subisce 3d6
+  fuoco all'inizio del suo turno (Tempra CD 21 dimezza). Sul ponte entro 9 m:
+  vapore, occultamento 20%. Il metallo entro 9 m scotta (1d6 fuoco al contatto).
+MANGIARE IL FREDDO (Sop) — Il freddo non magico entro 9 m si scalda alla fine
+  del round successivo. +1 PN per barile consumato.
+BOLLORE (Sop) — Ricarica 1d4 round: cono di vapore 9 m, 6d6 fuoco,
+  Riflessi CD 21 dimezza.
+AFFERRARE (Str) — Tentacolo, BMC +27. Con una seconda lotta riuscita trascina
+  la vittima nell'acqua bollente.
+CAPACITÀ MAGICHE (Mag) — LI 13
+  A volontà: Riscaldare il metallo (CD 14) — armature, armi, ringhiera
+  3/giorno: Nube di nebbia (vapore)
+  1/giorno: Muro di fuoco (CD 16) — sull'acqua è un muro di vapore rovente
+── STATISTICHE ──
+For 26 Des 10 Cos 26 Int 3 Sag 16 Car 14
+Talenti: Allerta, Arma focalizzata (tentacolo), Attacco poderoso (della casa),
+  Combattere alla cieca, Iniziativa migliorata, Riflessi fulminei,
+  Riflessi in combattimento, Tempra possente, Volontà di ferro
+Abilità: Percezione +24, Nuotare +16 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (maestoso). | PN: 25 / 50
+── TATTICHE ──
+Sale accanto alla murata. Il primo tentacolo va sempre al freddo (barile,
+sonda, chi è bagnato). Riscaldare il metallo su chi ha più armatura.
+Bollore appena ricarica. Muro di vapore lungo il fianco libero.
+MORALE: sotto 45 Punti Ferita si inabissa e non torna: la Pentola è libera.
+
+SMAGATORE — Criptoreo base (×6) · GS 4 · XP 1.200 ciascuno
+Aberrazione Minuscola (criptoreo) | Neutrale
+Iniziativa +8 | Sensi: scurovisione 18 m, percepire la magia 36 m | Percezione +10
+── DIFESA ──
+CA 18 (tocco 16, colto in fallo 14) [10 + 4 Des + 2 naturale + 2 taglia]
+PF 27 (5d8+5) — Punti Fatica 13 / Punti Ferita 14
+TS Tempra +2, Riflessi +5, Volontà +5
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Con magia attiva addosso ×0,20 · Senza magia attiva addosso ×1,0 ·
+  Asta, o «lo do in pasto» ×1,5
+── OFFESA ──
+Velocità 3 m, volare 12 m (buona) | Spazio 0,75 m, portata 0 m
+BaB +3 | BMC +5 | DMC 15
+Morso +9 (1d4 più divorare la magia)
+── ATTACCHI SPECIALI ──
+DIVORARE LA MAGIA (Sop) — Su un morso riuscito: 1d20+5 contro 11 + LI
+  dell'effetto magico attivo più alto sul bersaglio. Se riesce l'effetto finisce,
+  lo Smagatore recupera 5 PF e guadagna 1 PN, e si accende di viola.
+RODERE IL RELIQUIARIO (Sop) — Un round intero adiacente al mobiletto con le
+  chiavi: tutte le funzioni del Reliquiario, passive comprese, si spengono
+  per 1d4 round. Le chiavi non si toccano.
+PERCEPIRE LA MAGIA (Sop) — Costante, come Individuazione del magico, 36 m.
+── STATISTICHE ──
+For 3 Des 18 Cos 12 Int 2 Sag 12 Car 8
+Talenti: Allerta, Arma accurata, Iniziativa migliorata
+Abilità: Percezione +10, Volare +12 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (base). | PN: 0–7
+── TATTICHE ──
+Puntano ciò che brilla di più alla loro vista: l'incantatore con più effetti
+addosso, poi il Reliquiario. Ignorano Asta. Quando a bordo non resta niente
+di magico acceso, se ne vanno.
+
+SIRENA — Criptoreo, Evoluzione 1 (×3) · GS 9 · XP 6.400 ciascuna
+Aberrazione Media (criptoreo, acquatica) | Neutrale
+Iniziativa +9 | Sensi: scurovisione 18 m, sentire il respiro 30 m | Percezione +16
+── DIFESA ──
+CA 25 (tocco 16, colto in fallo 16) [10 + 5 Des + 6 naturale + 1 schivare]
+PF 102 (12d8+48) — Punti Fatica 51 / Punti Ferita 51
+TS Tempra +8, Riflessi +9, Volontà +11
+Immunità: effetti di influenza mentale delle altre Sirene
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Chi colpisce non respira ×1,0 · Riportato su dall'annegamento ×1,5
+── OFFESA ──
+Velocità 3 m, nuotare 18 m | BaB +9 | BMC +9 (+13 lottare) | DMC 25
+2 artigli +18 (1d8 più afferrare) · morso +18 (1d6)
+── ATTACCHI SPECIALI ──
+CANTO (Sop) — Azione standard, effetto uditivo di influenza mentale, senza
+  parole. Tutti quelli che lo sentono entro 90 m: Volontà CD 19 o Affascinato.
+  L'affascinato a ogni suo turno va verso la Sirena più vicina per la via più
+  diretta: scavalca la ringhiera e si getta in acqua. Non si difende. Un nuovo
+  TS se lo si scuote o lo si ferisce. Superato il TS, immune 24 ore a QUELLA Sirena.
+TRASCINARE SOTTO (Str) — Se lotta con una creatura in acqua, ogni round la
+  porta giù di 3 m. La vittima trattiene il fiato (Cos × 2 round, poi Costituzione
+  CD 10, +1 a round).
+BERE L'ULTIMO RESPIRO (Sop) — Quando la vittima fallisce la prova di Costituzione
+  diventa Privo di sensi; la Sirena beve la bolla: +20 PF e 3 PN. ❓ Al round
+  dopo la vittima subisce una Ferita grave per annegamento (Vol. 3), al terzo muore,
+  se nessuno la tira su. (Conversione dell'annegamento PF1e: Morente non esiste.)
+CAPACITÀ MAGICHE (Mag) — LI 9
+  A volontà: Immagine silenziosa (CD 14) — il viso caro sull'acqua
+  3/giorno: Charme su persone (CD 14)
+  1/giorno: Sonno profondo (CD 16)
+── STATISTICHE ──
+For 10 Des 20 Cos 18 Int 4 Sag 12 Car 16
+Talenti: Arma accurata, Attacco rapido, Iniziativa migliorata, Mobilità,
+  Riflessi in combattimento, Schivare
+Abilità: Percezione +16, Furtività +14, Nuotare +13 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (raro). | PN: 10 / 25
+── TATTICHE ──
+Round 1: tutte e tre cantano. Ignorano chi non respira (Brook). Prendono chi
+arriva in acqua e lo portano giù. Si tengono lontane da chi è tornato su.
+Sotto 25 Punti Ferita una Sirena si immerge e non torna.
+
+IMBALSAMATO DEL LAGO (×5) · GS 5 · XP 1.600 ciascuno — Mummia (PF1e Bestiary, fonte segnalata), adattata
+Non morto Medio | Legale Malvagio
+Iniziativa +0 | Sensi: scurovisione 18 m | Percezione +16
+Aura: disperazione (9 m, Volontà CD 16 o Paralizzato per 1d4 round; una volta
+  ogni 24 ore per creatura)
+── DIFESA ──
+CA 20 (tocco 10, colto in fallo 20) [10 + 10 naturale]
+PF 60 (8d8+24) — Punti Fatica 30 / Punti Ferita 30 (totale PF1e diviso a metà)
+TS Tempra +4, Riflessi +2, Volontà +8
+RD 5/— | Immunità: tratti dei non morti | Vulnerabilità: fuoco
+── OFFESA ──
+Velocità 6 m (non nuotano: in acqua affondano e camminano sul fondo)
+BaB +6 | BMC +13 (+17 lottare per trasportare) | DMC 23
+Schianto +14 (1d8+10 più putrefazione della mummia)
+── ATTACCHI SPECIALI ──
+PUTREFAZIONE DELLA MUMMIA (Sop) — maledizione e malattia, schianto, Tempra CD 16,
+  ogni minuto 1d6 Cos e 1d6 Car. Non guarisce da sola: serve togliere prima
+  la maledizione, poi la malattia. ⚠️ Malattie della Collana: verificare sul Vol. 3.
+PORTARE VIA (Str) ★ — Due Imbalsamati che lottano con lo stesso bersaglio
+  possono muoversi insieme alla velocità piena portandolo con sé.
+── STATISTICHE ──
+For 24 Des 10 Cos — Int 6 Sag 15 Car 15
+Talenti: Abilità focalizzata (Percezione), Arma focalizzata (schianto),
+  Attacco poderoso (della casa), Robustezza
+Abilità: Furtività +11, Percezione +16 | Linguaggi: Comune (non parlano)
+Tesoro: nessuno (bende, piastrine).
+── TATTICHE ──
+Due rampini sulla murata. Round 2: salgono. Due vanno a Brook e lottano per
+portarlo via; tre fanno muro. Non fuggono e non trattano: obbediscono.
+
+SEGUACE DEI PERDIROTTA — Criptoreo, Evoluzione 1 (×2) · GS 7 · XP 3.200 ciascuno
+Aberrazione Grande (criptoreo, acquatica) | Neutrale
+Iniziativa +6 | Sensi: scurovisione 36 m, senso della rotta 90 m | Percezione +15
+Aura: bussola impazzita (30 m)
+── DIFESA ──
+CA 20 (tocco 11, colto in fallo 18) [10 + 2 Des + 9 naturale − 1 taglia]
+PF 85 (10d8+40) — Punti Fatica 42 / Punti Ferita 43
+TS Tempra +7, Riflessi +5, Volontà +9
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Qualcuno entro 9 m ha tenuto la rotta in questo round ×1,0 ·
+  La prua del battello è girata verso casa ×1,5
+── OFFESA ──
+Velocità 3 m, nuotare 18 m | Spazio 3 m, portata 1,5 m
+BaB +7 | BMC +14 | DMC 26
+Morso +11 (2d6+5) · coda +6 (1d8+2)
+── ATTACCHI SPECIALI ──
+BUSSOLA IMPAZZITA (Sop) — Entro 30 m i compassi girano. Finché resta nella scia
+  (entro 1 km), −2 alla prova di rotta.
+SENSO DELLA ROTTA (Sop) — Sa dove vuole andare ogni creatura entro 90 m. Trova
+  sempre chi è al timone.
+CAPACITÀ MAGICHE (Mag) — LI 7
+  3/giorno: Confusione inferiore (CD 13), Immagine minore (CD 14) — una costa,
+           una luce, un faro che non c'è
+  1/giorno: Confusione (CD 16)
+── STATISTICHE ──
+For 20 Des 14 Cos 18 Int 3 Sag 14 Car 14
+Talenti: Allerta, Iniziativa migliorata, Mobilità, Riflessi in combattimento,
+  Volontà di ferro
+Abilità: Percezione +15, Furtività +4, Nuotare +13 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (raro). | PN: 10 / 25 (a 25: stadio successivo;
+  i Grandi Perdirotta sono il Megararo, Doc 2B)
+── TATTICHE ──
+Puntano chi è al timone. Confusione inferiore su di lui al round 3.
+Si tengono lontani dalla prua quando è girata verso casa. Sotto 20 Punti
+Ferita si immergono e tornano nella scia: −2 alla rotta finché non muoiono.
+
+IL MANGIACARBONE — Criptoreo base · GS 6 · XP 2.400
+Aberrazione Media (criptoreo) | Neutrale
+Iniziativa +6 | Sensi: scurovisione 18 m, fiutare il carbone 36 m | Percezione +11
+── DIFESA ──
+CA 19 (tocco 12, colto in fallo 17) [10 + 2 Des + 7 naturale]
+PF 68 (8d8+32) — Punti Fatica 34 / Punti Ferita 34
+TS Tempra +6, Riflessi +4, Volontà +7
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Mani o arma nere di carbone ×1,0 · Arma arroventata o carbone
+  acceso ×1,5
+── OFFESA ──
+Velocità 9 m, scalare 6 m | BaB +6 | BMC +10 | DMC 22
+Morso +10 (1d8+4) · 2 artigli +10 (1d6+4)
+── ATTACCHI SPECIALI ──
+SOFFIO DI FULIGGINE (Str) — Ricarica 1d4 round: cono 4,5 m, Tempra CD 16 o
+  Accecato per 1 round.
+MANGIARE IL CARBONE (Str) — Un round nella carbonaia: −¼ di giorno di autonomia,
+  +1 PN, +5 PF.
+CAPACITÀ MAGICHE (Mag) — LI 6
+  3/giorno: Oscurità — una nube di polvere di carbone
+── STATISTICHE ──
+For 18 Des 14 Cos 18 Int 2 Sag 12 Car 8
+Talenti: Allerta, Combattere alla cieca, Iniziativa migliorata, Riflessi in combattimento
+Abilità: Percezione +11, Scalare +12 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (base). | PN: 0–7, a 8 la metamorfosi
+── TATTICHE ──
+Va dritto al boccaporto della carbonaia. Combatte solo chi lo blocca.
+Oscurità sul boccaporto. Non fugge: ha appena trovato da mangiare.

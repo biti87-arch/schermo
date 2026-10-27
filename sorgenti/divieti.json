@@ -1,0 +1,381 @@
+{
+ "fonte": "Struttura_Scheda_PNG.md §9 (copia in sorgenti/guida/struttura_scheda_png.md) e Regole_Collana.md §3–§6 (sorgenti/guida/regole_collana.md). Le espressioni sono JavaScript; «campi»: dove si cercano (talenti = solo l'elenco dei talenti, abilita = solo le abilità, tutto = tutto il testo della scheda). «salvo_comune» e «salvo»: se la frase in cui cade la parola contiene queste espressioni (es. «Spezzare migliorato tolto: proibito», «Morente non esiste») non è una segnalazione.",
+ "divieti": [
+  {
+   "id": "colpo_vitale",
+   "gruppo": "talento proibito",
+   "re": "\\bColpo vitale\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "struttura",
+   "cita": "Colpo vitale",
+   "si": [
+    "Colpo vitale"
+   ],
+   "no": [
+    "Colpo violento"
+   ]
+  },
+  {
+   "id": "maestria",
+   "gruppo": "talento proibito",
+   "re": "\\bMaestria in combattimento\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "struttura",
+   "cita": "Maestria in combattimento",
+   "si": [
+    "Maestria in Combattimento"
+   ],
+   "no": [
+    "Maestria nelle armi"
+   ]
+  },
+  {
+   "id": "tiro_multiplo",
+   "gruppo": "talento proibito",
+   "re": "\\bTiro multiplo\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "struttura",
+   "cita": "Tiro multiplo",
+   "si": [
+    "Tiro multiplo"
+   ],
+   "no": [
+    "Tiro rapido"
+   ]
+  },
+  {
+   "id": "armi_esotiche",
+   "gruppo": "talento proibito",
+   "re": "\\bCompetenza nelle armi esotiche\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "struttura",
+   "cita": "Competenza nelle armi esotiche",
+   "si": [
+    "Competenza nelle Armi Esotiche (spada bastarda)"
+   ],
+   "no": [
+    "Competenza nelle armi da guerra"
+   ]
+  },
+  {
+   "id": "creazione",
+   "gruppo": "talento proibito",
+   "re": "\\b(Creazione (di )?oggett\\w*|Creare (armi e armature magiche|bacchette|bastoni|oggetti meravigliosi|verghe|costrutti)|Forgiare anelli|Mescere pozioni|Scrivere pergamene)\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "struttura",
+   "cita": "Creazione oggetto",
+   "si": [
+    "Creare Oggetti Meravigliosi",
+    "Scrivere pergamene"
+   ],
+   "no": [
+    "Creatura oscura"
+   ]
+  },
+  {
+   "id": "mitici",
+   "gruppo": "talento proibito",
+   "re": "\\bmitic[oaie]\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "struttura",
+   "cita": "mitici",
+   "si": [
+    "Attacco poderoso mitico"
+   ],
+   "no": [
+    "Attacco poderoso"
+   ]
+  },
+  {
+   "id": "critico_cond",
+   "gruppo": "talento proibito",
+   "re": "\\bCritico (accecante|stordente)\\b",
+   "flag": "i",
+   "campi": "talenti",
+   "fonte": "regole",
+   "cita": "Critico accecante/stordente",
+   "si": [
+    "Critico stordente"
+   ],
+   "no": [
+    "Critico migliorato"
+   ]
+  },
+  {
+   "id": "addestrare",
+   "gruppo": "abilità inesistente",
+   "re": "\\bAddestrare animali\\b",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "Addestrare animali",
+   "si": [
+    "Addestrare animali +5"
+   ],
+   "no": [
+    "Addestramento"
+   ]
+  },
+  {
+   "id": "linguistica",
+   "gruppo": "abilità inesistente",
+   "re": "\\bLinguistica\\b",
+   "flag": "",
+   "campi": "abilita",
+   "fonte": "struttura",
+   "cita": "Linguistica",
+   "si": [
+    "Linguistica +4"
+   ],
+   "no": [
+    "linguaggi"
+   ]
+  },
+  {
+   "id": "artigianato",
+   "gruppo": "abilità inesistente",
+   "re": "\\bArtigianato\\b",
+   "flag": "",
+   "campi": "abilita",
+   "fonte": "struttura",
+   "cita": "Artigianato",
+   "si": [
+    "Artigianato (armi) +6"
+   ],
+   "no": [
+    "Professione (fabbro) +6"
+   ]
+  },
+  {
+   "id": "guarire",
+   "gruppo": "abilità inesistente",
+   "re": "\\bGuarire\\b(?! (eidolon|cavalcatura|di massa))",
+   "flag": "",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "Guarire → Professione (cerusico)",
+   "sostituto": "Professione (cerusico)",
+   "si": [
+    "Guarire +8"
+   ],
+   "no": [
+    "Guarire eidolon",
+    "guarire le ferite"
+   ]
+  },
+  {
+   "id": "conoscenze_generali",
+   "gruppo": "abilità inesistente",
+   "re": "\\bConoscenze \\((locali|geografia)\\)",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "Conoscenze (locali/geografia) → (generali)",
+   "sostituto": "Conoscenze (generali)",
+   "si": [
+    "Conoscenze (locali) +7"
+   ],
+   "no": [
+    "Conoscenze (generali) +7"
+   ]
+  },
+  {
+   "id": "conoscenze_piani",
+   "gruppo": "abilità inesistente",
+   "re": "\\bConoscenze \\(piani\\)",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "(piani) → (proibite)",
+   "sostituto": "Conoscenze (proibite)",
+   "si": [
+    "Conoscenze (piani) +7"
+   ],
+   "no": [
+    "Conoscenze (proibite) +7"
+   ]
+  },
+  {
+   "id": "oggetti_magici",
+   "gruppo": "abilità inesistente",
+   "re": "\\bUtilizzare oggetti magici\\b",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "regole",
+   "cita": "L'abilità si chiama «Utilizzare congegni magici».",
+   "sostituto": "Utilizzare congegni magici",
+   "si": [
+    "Utilizzare oggetti magici +9"
+   ],
+   "no": [
+    "Utilizzare congegni magici +9"
+   ]
+  },
+  {
+   "id": "invisibilita",
+   "gruppo": "incantesimo inesistente",
+   "re": "\\binvisibilità(?! minore)",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "Invisibilità, Invisibilità superiore",
+   "sostituto": "Svanire",
+   "si": [
+    "Invisibilità superiore",
+    "1/giorno: invisibilità"
+   ],
+   "no": [
+    "Invisibile",
+    "Svanire",
+    "Invisibilità minore"
+   ]
+  },
+  {
+   "id": "evoca_mostri",
+   "gruppo": "incantesimo inesistente",
+   "re": "\\bEvoca(re)? mostr",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "Evoca mostri",
+   "sostituto": "Evoca esterno o Evoca elementale",
+   "si": [
+    "Evoca mostri III"
+   ],
+   "no": [
+    "Evoca esterno III"
+   ]
+  },
+  {
+   "id": "evoca_alleato",
+   "gruppo": "incantesimo inesistente",
+   "re": "\\bEvoca(re)? alleat[oi] natural",
+   "flag": "i",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "Evoca alleato naturale",
+   "si": [
+    "Evoca alleato naturale II"
+   ],
+   "no": [
+    "alleato"
+   ]
+  },
+  {
+   "id": "teletrasporto",
+   "gruppo": "incantesimo inesistente",
+   "re": "\\b[Tt]eletrasport",
+   "flag": "",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "teletrasporto a lunga distanza",
+   "verifica": true,
+   "si": [
+    "Teletrasporto"
+   ],
+   "no": [
+    "trasporto"
+   ]
+  },
+  {
+   "id": "morente",
+   "gruppo": "condizione inesistente",
+   "re": "\\b[Mm]orent[ei]\\b",
+   "flag": "",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "condizione «Morente»",
+   "si": [
+    "resta morente"
+   ],
+   "no": [
+    "morto",
+    "Morto",
+    "Morente non esiste",
+    "il libro dice «morente»"
+   ],
+   "salvo": "«[Mm]orente»|[Mm]orente è|narrativ"
+  },
+  {
+   "id": "disarmare",
+   "gruppo": "manovra proibita",
+   "re": "\\bDisarmare\\b",
+   "flag": "",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "manovre Disarmare e Spezzare",
+   "si": [
+    "Disarmare migliorato"
+   ],
+   "no": [
+    "disarmato",
+    "Disarmare migliorato (tolto: proibito)"
+   ]
+  },
+  {
+   "id": "spezzare",
+   "gruppo": "manovra proibita",
+   "re": "\\bSpezzare\\b(?! le difese)",
+   "flag": "",
+   "campi": "tutto",
+   "fonte": "struttura",
+   "cita": "manovre Disarmare e Spezzare",
+   "si": [
+    "Spezzare superiore"
+   ],
+   "no": [
+    "spezzata",
+    "Spezzare le difese",
+    "Spezzare migliorato tolto: proibito"
+   ]
+  }
+ ],
+ "regole": [
+  {
+   "id": "sintonia",
+   "fonte": "struttura",
+   "cita": "sintonia di un oggetto oltre il tetto del livello",
+   "tetto": [
+    [
+     4,
+     1
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     12,
+     3
+    ],
+    [
+     15,
+     4
+    ],
+    [
+     17,
+     5
+    ]
+   ],
+   "cita_tetto": "+1 al 4°, +2 al 9°, +3 al 12°, +4 al 15°, +5 al 17°"
+  },
+  {
+   "id": "volo",
+   "fonte": "struttura",
+   "cita": "volo oltre 1 m per un PNG senza motivo dichiarato",
+   "livello": 17
+  },
+  {
+   "id": "tattiche",
+   "fonte": "struttura",
+   "cita": "tattiche senza `fuga_o_resa` o senza tratto razziale"
+  }
+ ],
+ "salvo_comune": "\\b(tolt[oaie]|proibit[oaie]|non esist[eo]n?[oe]?|non c'è)\\b"
+}

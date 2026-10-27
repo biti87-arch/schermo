@@ -1,0 +1,137 @@
+VASH STAMPIDE — Pistolero (Pistolero agile) 13 · Risvegliato di Mortimer ★ · GS 13 · XP 25.600
+Non morto Medio (in vita: umano) · tratto bonus: Razionale | Neutrale Buono (costretto)
+Iniziativa +10 | Sensi: scurovisione 18 m | Percezione +19
+Aura: paura (3 m, Volontà CD 18 o scosso finché resta nell'aura; una volta ogni
+  24 ore per creatura) — firma ★
+── DIFESA ──
+CA 28 (contatto 23, colto alla sprovvista 19)
+[10 + armatura 5 (cuoio 2 + sintonia 3) + Des 6 + Leggiadria +3 + bonus eroico 4]
+PF 127 (13d10; Car per Cos; Robustezza) — Punti Fatica 63 / Punti Ferita 64
+  [10 + 12 × 6,5 + Car 2 × 13 + Robustezza 13 = 127]
+TS Tempra +12, Riflessi +16, Volontà +9 (bonus eroico +2 compreso; Car alla Tempra)
+   (+11 contro illusioni, Razionale)
+Immunità: tratti dei non morti (modello ★, Doc 3A §4.4)
+── OFFESA ──
+Velocità 9 m (12 m con Acrobata) | BaB +13/+8/+3 | BMC +13 | DMC 33
+Distanza: pistole dello Straniero, due revolver spettrali (sintonia +2 ciascuno)
+  attacco completo +20/+15/+10 e +20/+15 (1d8+8, 19–20/×3, incremento 6 m)
+  un colpo solo +22 (1d8+8) · con Mira letale +18 (1d8+16), mai con due armi
+  entro 9 m: +1 al colpire e ai danni (Tiro ravvicinato)
+  entro 6 m: contro la CA di contatto (Vol. 3, «Penetrazione speciale»)
+  [colpire: BaB 13 + Des 6 + sintonia 2 + Arma focalizzata 1 − 2 due armi]
+  [danni: 1d8 + sintonia 2 + Des 6 (Mira del pistolero migliorata)]
+Attacchi speciali: Colpo dello straniero ★ (round completo; CA di contatto a
+  qualsiasi distanza in linea di vista; una minaccia di critico è confermata;
+  +6d6 danni) · Colpo minaccioso (1 grinta, azione standard: spara in aria,
+  nemici entro 9 m Volontà CD 19 o in preda al panico; chi supera è scosso
+  1 round) · Colpo sorprendente (azione standard: se colpisce può mancare
+  apposta, il bersaglio è colto alla sprovvista fino al suo turno dopo) ·
+  Doppio colpo in movimento (con Tirare in movimento, due attacchi)
+Grinta 3 (Sag) — +1 quando uccide o conferma un critico con un'arma da fuoco
+── STATISTICHE ──
+For 10, Des 22, Cos —, Int 10, Sag 16, Car 14
+Talenti: Arma focalizzata (revolver), Combattere con due armi migliorato,
+  Estrazione rapida, Iniziativa migliorata, Riflessi in combattimento,
+  Tiro preciso, Tiro ravvicinato · Robustezza (R) · Critico migliorato
+  (revolver), Mira letale, Mobilità (C) [7 di livello + 1 (R) + 3 (C)]
+Gesta: Acrobata, Ricarica mobile, Pistole gemelle (1°) · Tirare in
+  movimento (3°) · Ricarica immediata (5°) · Colpo sorprendente (7°) ·
+  Fuoco ravvicinato (9°) · Doppio colpo in movimento (11°) · Colpo
+  minaccioso (13°) — le gesta del Pistolero agile sostituiscono 1°, 3°, 5°,
+  9° e 11°
+Abilità: Acrobazia +22, Intimidire +18, Percezione +19, Scalare +9,
+  Sopravvivenza +19, Furtività +13 · Professione (ingegnere bellico) +19 (bg),
+  Conoscenze (generali) +13 (bg)
+Lingue: Comune, dialetto dell'Andoran
+Sintonia: armi +2 e +2 (le due pistole) · armatura +3 (cuoio) · scudo —
+Equipaggiamento: spolverino di cuoio, cappello a tesa larga, due fondine vuote,
+  una scatola di cartucce mai aperta
+── TATTICHE ──
+Grado «Fermali»: Colpo minaccioso sul gruppo all'arco; poi Colpo sorprendente
+  su chi avanza. Resta a 9–24 m, sulla cornice, mai in mischia.
+Grado «Nessuno scende»: TS di disobbedienza a inizio turno. Se fallisce,
+  Tirare in movimento + Doppio colpo in movimento su chi è più in basso; se
+  qualcuno sale sulla cornice, Fuoco ravvicinato e attacco completo.
+Finita la Fatica: smette di muoversi. Sta fermo e spara; tra un colpo e
+  l'altro dice i nomi dei vecchi compagni, sottovoce.
+Fuga o resa: non fugge. Si ferma se nessuno è più sulla rampa, se è in lotta
+  e immobilizzato, se lo portano a credere che nessuno «scenda» (5.3).
+Tratto razziale: Razionale — le illusioni contro di lui hanno −2 (+2 ai TS).
+
+IL CORPO DI SLEPPEN — Inventore 9 · Risvegliato di Mortimer ★ · GS 9 · XP 6.400
+Non morto Piccolo (in vita: skaven) · tratto bonus: Inventore di talento | Neutrale Buono (costretto)
+Iniziativa +5 (Reattivi) | Sensi: scurovisione 18 m, visione crepuscolare | Percezione +15
+── DIFESA ──
+CA 15 (contatto 15, colto alla sprovvista 11) — fuori dal guscio
+[10 + Des 3 + taglia 1 + schivare 1] · dentro il guscio: copertura totale
+PF 61 (9d8; Car per Cos; Robustezza) — Punti Fatica 30 / Punti Ferita 31
+  [8 + 8 × 5,5 + Car 0 + Robustezza 9 = 61]
+TS Tempra +7, Riflessi +9, Volontà +10 (bonus eroico +1 compreso)
+Immunità: tratti dei non morti (modello ★, Doc 3A §4.4)
+── OFFESA ──
+Velocità 9 m | BaB +6/+1 | BMC +2 | DMC 15
+Mischia: trapano elettrico +5/+0 (1d4−2, ×4)
+Mechanus (CD 16 + livello del mechanus: Int 5, Mechanus potenziati) — al giorno 7 / 5 / 4
+  1° Droni assassini (5 droni, 1d4+1 forza ciascuno, non mancano) · Elettrificante
+     (+11 contatto, 5d6 elettricità) · Generatore di campo (+3 scudo) ·
+     Lanciarazzi (+11 contatto a distanza, 3d6 fuoco e abbagliato 1 round; 6 missili)
+  2° Congelante (9d4 freddo e barcollante 2 round, Tempra CD 18 dimezza e nega) ·
+     Killer-cercatore (+11 contatto a distanza, 2d6 acido + 2d6 per 3 round) ·
+     Intrappolante (come Ragnatela, Riflessi CD 18)
+  3° Folgorante (3d6 elettricità a round, Riflessi CD 19 dimezza) · Impallinatore
+     (cono 9 m, 4d8 perforanti, Riflessi CD 19 dimezza) · Stordifuoco (6 m,
+     Riflessi CD 19 o accecato e assordato 2 round)
+Riparazioni: 9 al giorno, azione standard senza attacchi di opportunità, 5d6 al guscio
+Gadget: Torretta automatica (+11, 1d6+2, gittata 30 m, Tiro preciso, Tiro
+  ravvicinato, Mira letale; CA 10, Durezza 10, 60 PF; si posa come azione di
+  movimento) · T.E.S. (1 al giorno, 6d6 fuoco) · Braccia ausiliarie · Attrezzo
+  multifunzione · Scanner · Fiamma ossidrica
+── STATISTICHE ──
+For 6, Des 16, Cos —, Int 20, Sag 12, Car 10
+Talenti: Abilità focalizzata (Conoscenze (ingegneria)), Riflessi fulminei,
+  Robustezza, Schivare, Volontà di ferro [5 di livello]
+Doti e optional: Braccia ausiliarie (2°), Torretta automatica (4°),
+  Riparazioni sicure (6°), Riparazioni extra (8°) · Mechanus potenziati (tratto)
+Abilità: Conoscenze (ingegneria) +24, Conoscenze (scientifiche) +21, Disattivare
+  congegni +15, Intuizione +13, Percezione +15, Pilotare mezzi terrestri +15,
+  Utilizzare congegni magici +12 · Professione (fabbro) +13 (bg), Valutare +17 (bg)
+  (+20 oggetti di metallo) · Pensiero tecnologico: +4 alle Conoscenze
+Lingue: Comune, Skaven, Nanico, Gnoll, Halfling
+Sintonia: armatura +2 (il guscio) · arma —
+── TATTICHE ──
+Prima: è dentro il guscio, alla macchina. Non attacca per primo.
+Round 1: Generatore di campo e Torretta (azione di movimento); il guscio avanza.
+Round 2–3: Congelante sul più forte, Stordifuoco sul gruppo; Riparazioni al guscio
+  quando scende sotto metà.
+Finita la Fatica (o fuori dal guscio): Droni assassini e Killer-cercatore da dietro
+  i pistoni; cerca di riallacciare il cordone.
+Fuga o resa: non fugge dalla sala. Si ferma se Sleppen glielo chiede e il GM vuole.
+Tratto razziale: Reattivi (+2 Iniziativa); taglia Piccola fuori dal guscio.
+
+IL GUSCIO NERO — l'esoscheletro del corpo, rifatto da Mortimer ★ · vale GS 11 · XP 12.800
+Costrutto Grande, a forma di topo, alto 3 m | agisce nel turno del corpo
+── DIFESA ──
+CA 25 (contatto 9, colto alla sprovvista 25)
+[10 + armatura 12 (piastre 9 + Armatura migliorata 1 + sintonia 2) + naturale 4 − 1 taglia]
+PF 130 — Punti Fatica 65 / Punti Ferita 65 (★ si dividono come i mostri presi da PF1)
+TS quelli del corpo | RD 10/adamantio | Immunità: tratti dei costrutti (PF1e)
+Curato dall'energia negativa, ferito da quella positiva (i cuori di vetro)
+── OFFESA ──
+Velocità 9 m, scalare 6 m | BMC +20 | DMC 30
+Mischia: 2 artigli +18 (2d6+8) e coda +13 (1d8+4, portata 4,5 m; se colpisce,
+  Sbilanciare gratuito con BMC +20)
+Sparachiodi a vapore: azione standard, linea 18 m, 8d6 perforanti, Riflessi CD 19
+  dimezza; si ricarica in 1d4 round
+── SPECIALE ──
+Pilota: il corpo sta dentro, con copertura totale; gli effetti ad area lo
+  raggiungono a metà danni. Ogni round il guscio ha un'azione standard e una di
+  movimento sue, e il corpo ha le sue (mechanus, Riparazioni sul guscio).
+Il cordone: cavo d'osso e rame lungo 18 m, legato a una valvola della sala
+  (CA 18, 30 PF, Durezza 5). Tagliato: il guscio è barcollante finché il corpo
+  non lo riallaccia (round completo, fuori dal guscio). Conoscenze (ingegneria)
+  CD 22 per capirlo; chi ha il requisito del motore lo capisce subito.
+Il portellone: a 0 PF il guscio si apre; il corpo cade fuori, prono.
+For 26, Des 10 | sostituisce l'esoscheletro pesante di classe (Inventore, 5°)
+── GS ──
+❓ Corpo GS 9 (6.400) + guscio GS 11 (12.800) = 19.200 XP = GS 12 (PF1e: XP
+  sommati; la Collana tace). Coerente con C.1 #102 («GS 12–13»).

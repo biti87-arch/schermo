@@ -540,7 +540,7 @@ const attacca = (c, tab, n, s = 5) => M.attaccaFerita(c, GA, M.scomponiFerita(ri
   t('malus su un nemico', c.combattimento.righe[orco].malus.length === 1);
   lancia('causa fuori dall\'iniziativa', () => M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'round' }, { scadenza: 'causa', causa: 'r999' }), rng), 'iniziativa'); }
 
-// ---------------------------------------------------------------- dati e migrazione delle campagne della Build 1
+// ---------------------------------------------------------------- dati e migrazione delle campagne della Build 1 (e, più sotto, della 2a)
 t('ferite.json: 5 righe per fermare e 8 amputazioni', FER.fermare.length === 5 && FER.amputazioni.length === 8 && M.rigaFermare(FER, { tipo: 'ferita', gravita: 3 }).cd === 25);
 { const g = fs.readFileSync(path.join(__dirname, 'guida', 'vol1_condizioni.txt'), 'utf8').split('\n');
   const v1 = COND.condizioni.filter(x => x.testo_vol1);
@@ -554,6 +554,212 @@ t('ferite.json: 5 righe per fermare e 8 amputazioni', FER.fermare.length === 5 &
   x = M.comando(x, 'avanti', {}, meteo, rng, 0); x = M.comando(x, 'avanti', {}, meteo, rng, 0); x = M.comando(x, 'avanti', {}, meteo, rng, 0);
   t('Build 1: malus e turni sulla campagna migrata', x.combattimento.round >= 2 && M.valoriPG(x, x.pg[0]).tempra.mod <= -2 || x.pg[0].stato.malus.length === 0);
   t('Build 1: migra non cambia i valori correnti', c.pg[0].stato.ferita === JSON.parse(vecchia).dati.pg[0].stato.ferita && c.coda.length === JSON.parse(vecchia).dati.coda.length); }
+
+// ================================================================ Build 2b: bestiario e PNG (M), incontri (N), tattiche (O)
+const RAZZE = require('./razze.json'), DIV = require('./divieti.json');
+const SB = path.join(__dirname, 'prove', 'statblock');
+const leggi = f => M.leggiStatBlock(fs.readFileSync(path.join(SB, f), 'utf8'));
+const tuttiBlocchi = fs.readdirSync(SB).filter(f => f.startsWith('UltimaSoglia_')).flatMap(f => leggi(f).map(b => ({ f, ...b })));
+const conGS = fs.readdirSync(SB).filter(f => f.startsWith('UltimaSoglia_')).reduce((a, f) => a + fs.readFileSync(path.join(SB, f), 'utf8').split('\n').filter(r => /·\s*(vale\s+)?GS\s*\d/.test(r) && /^[A-ZÀ-Ý]/.test(r)).length, 0);
+t('Incolla: un blocco per ogni testata «NOME … · GS N» dei documenti (43)', tuttiBlocchi.length === conGS && conGS === 43, [tuttiBlocchi.length, conGS]);
+t('Incolla: ogni blocco ha nome, GS, CA e PF', tuttiBlocchi.every(b => b.scheda.nome && b.scheda.gs && b.scheda.ca !== null && b.scheda.pf !== null), tuttiBlocchi.filter(b => !(b.scheda.ca !== null && b.scheda.pf !== null)).map(b => b.scheda.nome));
+t('Incolla: Fatica + Ferita = PF in tutti i blocchi', tuttiBlocchi.every(b => b.scheda.fatica + b.scheda.ferita === b.scheda.pf));
+t('Incolla: niente righe perse nei blocchi tranne le note «❓» (Guscio nero)', tuttiBlocchi.filter(b => b.scheda.altro).every(b => /❓|^[\d.]+ /.test(b.scheda.altro)), tuttiBlocchi.filter(b => b.scheda.altro).map(b => b.scheda.nome + ': ' + b.scheda.altro.slice(0, 40)));
+{ const s = leggi('UltimaSoglia_Doc2B_AttoII_LaBarriera.txt')[0].scheda;
+  t('Merkh: testata (PNG alleato, Pistolero 7, GS 6, XP 2.400)', s.nome === 'Merkh' && s.tipo_scheda === 'png' && s.alleato && s.livello === 7 && s.gs === '6' && s.xp === 2400 && s.classi_testo === 'Pistolero 7', s);
+  t('Merkh: iniziativa, sensi e Percezione', s.iniziativa === 7 && s.sensi === 'visione crepuscolare' && s.percezione === 13);
+  t('Merkh: CA, scomposizione e PF', s.ca === 18 && s.ca_contatto === 15 && s.ca_sprovvista === 13 && /^\[10 \+ 3 armatura/.test(s.ca_scomp) && s.pf === 63 && s.fatica === 31 && s.ferita === 32);
+  t('Merkh: TS, BaB, BMC, DMC', s.tempra === 7 && s.riflessi === 8 && s.volonta === 5 && s.bab === '+7/+2' && s.bmc === '+9' && s.dmc === '22');
+  t('Merkh: attacchi a distanza e in mischia', /^fucile \+1 \(sintonia\) \+12\/\+7/.test(s.distanza) && /^morso \+4/.test(s.mischia) && /Bocca da fuoco/.test(s.speciali));
+  t('Merkh: caratteristiche, talenti, abilità, lingue, tratti, sintonia', s.car.For === 14 && s.car.Car === 8 && /Iniziativa migliorata/.test(s.talenti) && /^Acrobazia \+13/.test(s.abilita) && /^comune, felino/.test(s.lingue) && /^Sensi acuti/.test(s.tratti) && /^fucile \+1/.test(s.sintonia) && /^fucile \(arma/.test(s.equip));
+  t('Merkh: le cinque tattiche', ['prima', 'r1', 'r23', 'fatica', 'fuga'].every(k => s.tattiche[k]) && /^mai dal battello/.test(s.tattiche.fuga));
+  t('Merkh: senza tratto razziale nelle tattiche → da verificare', M.segnalazioni(s, DIV).some(x => x.livello === 'verifica' && /tratto razziale/.test(x.testo)));
+  const piatto = fs.readFileSync(path.join(SB, 'UltimaSoglia_Doc2B_AttoII_LaBarriera.txt'), 'utf8').split('\n').map(r => r.trim()).join('\n');
+  const p = M.leggiStatBlock(piatto)[0].scheda;
+  t('Incolla senza rientri: stessi valori', p.ca === s.ca && p.pf === s.pf && p.tempra === s.tempra && p.bab === s.bab && Object.keys(s.tattiche).every(k => !!p.tattiche[k] === !!s.tattiche[k]), [p.tattiche, s.tattiche]); }
+{ const b = leggi('UltimaSoglia_Doc3B_AttoIII_XinGrafar.txt'), v = b[0].scheda, sl = b[1].scheda, g = b[2].scheda;
+  t('Vash: nome, classe con archetipo, livello', v.nome === 'Vash Stampide' && v.classi_testo === 'Pistolero (Pistolero agile) 13' && v.livello === 13 && v.note_testata === 'Risvegliato di Mortimer ★');
+  t('Vash: scomposizione della CA = 28, nessun errore', M.sommaScomposizione(v.ca_scomp) === 28 && !M.segnalazioni(v, DIV).some(x => x.livello === 'errore'), M.segnalazioni(v, DIV));
+  t('Vash: nota di PF e nota dei TS', /^\[10 \+ 12 × 6,5/.test(v.pf_nota) && /bonus eroico \+2 compreso/.test(v.ts_note) && /contro illusioni/.test(v.ts_note));
+  t('Sleppen: CA 15 con la nota «fuori dal guscio», PF 61', sl.ca === 15 && /fuori dal guscio/.test(sl.ca_scomp) && M.sommaScomposizione(sl.ca_scomp) === 15 && sl.pf === 61);
+  t('Sleppen: «Prima:» e «Finita la Fatica (o fuori dal guscio):»', /^è dentro il guscio/.test(sl.tattiche.prima) && /^\(o fuori dal guscio\) Droni/.test(sl.tattiche.fatica));
+  t('Guscio nero: «vale GS 11» è un blocco a sé', g.nome === 'Il Guscio Nero' && g.gs === '11' && g.tipo_scheda === 'mostro_pf1'); }
+{ const b = leggi('UltimaSoglia_Doc4B_AttoV_LImbalsamatore.txt'), mo = b[4].scheda;
+  t('Mortimer: nome in minuscolo con le particelle', mo.nome === 'Mortimer von Crist, «l\'Imbalsamatore»', mo.nome);
+  t('Mortimer: GS 16 con livello 13 → da verificare (modello ★)', M.segnalazioni(mo, DIV).some(x => x.livello === 'verifica' && /GS 16 con livello 13/.test(x.testo)));
+  t('Squadra del presidio: truppa ★, una voce sola', b[0].scheda.nome === 'Squadra del Presidio ★' && b[0].scheda.pf === 120); }
+{ const s = leggi('UltimaSoglia_Doc2A_AttoII_Traversata.txt')[3].scheda;
+  t('Leccapece: CA 24 ma la scomposizione fa 22 (errore del documento)', s.nome === 'Leccapece' && M.segnalazioni(s, DIV).some(x => x.livello === 'errore' && x.testo === 'CA 24, ma la scomposizione fa 22'));
+  t('Leccapece: sezione «RIDUZIONE ONTOLOGICA (Sop)» dopo la DIFESA, capacità magiche', s.extra.length === 1 && s.extra[0].dopo === 'difesa' && /^Colpo pulito/.test(s.extra[0].testo) && /^CAPACITÀ MAGICHE \(Mag\)/.test(s.incantesimi)); }
+{ const b = leggi('sezione_Doc1_Bevek_docx2txt.txt'), bv = b[0].scheda, sc = b[1].scheda;
+  t('Sezione del Doc 1 (righe vuote, formato vecchio): Bevek e gli sciacalli', b.length === 2 && bv.nome === 'Bevek' && bv.epiteto === 'sergente disertore' && bv.classi_testo === 'Guerriero 8' && bv.livello === 8);
+  t('Bevek: «tocco» e «colto in fallo», «CA = 10 + …», CMB/CMD', bv.ca === 23 && bv.ca_contatto === 10 && M.sommaScomposizione(bv.ca_scomp) === 23 && bv.bmc === '+12' && bv.dmc === '23');
+  t('Bevek: PF senza divisione → divisi dall\'app', bv.pf === 68 && bv.fatica === 34 && bv.ferita === 34 && b[0].avvisi.some(a => /divisi/.test(a)));
+  t('Bevek: Competenza nelle armi esotiche → talento proibito', M.segnalazioni(bv, DIV).some(x => x.livello === 'errore' && /talento proibito: «Competenza nelle Armi Esotiche»/.test(x.testo)));
+  t('Sciacallo (x4): quantità suggerita, GS 3 ciascuno', sc.n_suggerito === 4 && sc.gs === '3' && sc.xp === 800 && sc.nome === 'Sciacallo');
+  t('Bevek: la sezione «💰 RICOMPENSE» chiude il blocco', !/RICOMPENSE|TESORO CASUALE/.test(M.testoStatBlock(sc))); }
+{ const b = leggi('sezione_Doc4B_6-2_6-3_docx2txt.txt');
+  t('Sezione 6.2–6.3 del Doc 4B: Mohrg, Imbalsamato e Golem; il testo fra i blocchi resta fuori', b.length === 3 && b.map(x => x.scheda.nome).join(',') === 'Mohrg,Imbalsamato,Golem di Carne Imbalsamato ★' && !/golem/i.test(b[1].scheda.tattiche.generale), b.map(x => x.scheda.nome));
+  t('Mohrg: «solo Punti Ferita» (non morto della Collana)', b[0].scheda.fatica === 0 && b[0].scheda.ferita === 98 && b[0].scheda.solo_ferita && !M.segnalazioni(b[0].scheda, DIV).some(x => /divisione/.test(x.testo))); }
+// «Copia come testo» e di nuovo «Incolla»: gli stessi valori (ordine del §10)
+{ const CHIAVI = ['nome', 'gs', 'xp', 'livello', 'iniziativa', 'percezione', 'ca', 'ca_contatto', 'ca_sprovvista', 'pf', 'fatica', 'ferita', 'tempra', 'riflessi', 'volonta', 'bab', 'bmc', 'dmc', 'alleato', 'tipo_scheda'];
+  const diversi = [];
+  for (const b of tuttiBlocchi) { const s = b.scheda, txt = M.testoStatBlock(s), r = M.leggiStatBlock(txt);
+    if (r.length !== 1) { diversi.push(s.nome + ': blocchi ' + r.length); continue; }
+    const x = r[0].scheda; for (const k of CHIAVI) if (JSON.stringify(x[k]) !== JSON.stringify(s[k])) diversi.push(`${s.nome}: ${k} ${JSON.stringify(s[k])} → ${JSON.stringify(x[k])}`);
+    for (const k of Object.keys(s.tattiche)) if (!!x.tattiche[k] !== !!s.tattiche[k]) diversi.push(`${s.nome}: tattica ${k}`); }
+  t('Copia come testo → Incolla: stessi valori in tutti i 43 blocchi', !diversi.length, diversi.slice(0, 8));
+  const txt = M.testoStatBlock(tuttiBlocchi.find(b => b.scheda.nome === 'Merkh').scheda).split('\n');
+  t('Copia come testo: ordine del §10', /^MERKH — Pistolero 7 · GS 6 · XP 2\.400 \(alleato: non si assegna\)/.test(txt[0]) && /^Razza: /.test(txt[1]) && /^Iniziativa \+7 \| Sensi/.test(txt[2]) &&
+    txt.indexOf('── DIFESA ──') < txt.indexOf('── OFFESA ──') && txt.indexOf('── OFFESA ──') < txt.indexOf('── STATISTICHE ──') && txt.indexOf('── STATISTICHE ──') < txt.indexOf('── TATTICHE ──'), txt.slice(0, 3));
+  const xp = M.testoStatBlock({ ...tuttiBlocchi[0].scheda, gs: '9', xp: null });
+  const ts = { ...tuttiBlocchi[0].scheda, tesoro: { livello: '12', quantita: '1 primario', dove: 'addosso a Inuviel', note: 'arma e armatura' } }, rt = M.leggiStatBlock(M.testoStatBlock(ts))[0].scheda.tesoro;
+  t('Promemoria del tesoro (💰): Copia come testo e di nuovo Incolla', JSON.stringify(rt) === JSON.stringify(ts.tesoro), rt);
+  t('Copia come testo: XP dalla tabella con il punto delle migliaia', /· GS 9 · XP 6\.400/.test(xp), xp.split('\n')[0]); }
+// segnalazioni (M6)
+{ const s = M.schedaVuota('png'); s.nome = 'Prova'; s.livello = 5; s.gs = '4'; s.xp = 1200;
+  s.talenti = 'Colpo vitale, Arma focalizzata, Spezzare le difese'; s.abilita = 'Guarire +6, Linguistica +3, Conoscenze (locali) +4, Conoscenze (piani) +2';
+  s.speciali = 'Evoca mostri II · Invisibilità 1/giorno · Disarmare migliorato (tolto: proibito)'; s.velocita = '9 m, volare 9 m'; s.sintonia = 'spada +2';
+  s.tattiche = { r1: 'Attacca', prima: '', r23: '', fatica: 'Resta morente a terra', fuga: '', tratto: '', generale: '' };
+  const sg = M.segnalazioni(s, DIV), ha = re => sg.some(x => re.test(x.testo));
+  t('Segnalazioni: talento proibito', ha(/talento proibito: «Colpo vitale»/) && !ha(/Spezzare/));
+  t('Segnalazioni: abilità inesistenti con il sostituto', ha(/«Guarire» → Professione \(cerusico\)/) && ha(/«Linguistica»/) && ha(/«Conoscenze \(locali\)» → Conoscenze \(generali\)/) && ha(/«Conoscenze \(piani\)» → Conoscenze \(proibite\)/));
+  t('Segnalazioni: incantesimi inesistenti; la manovra tolta non si segnala', ha(/«Evoca mostri»/) && ha(/«Invisibilità» → Svanire/) && !ha(/Disarmare/));
+  t('Segnalazioni: Morente, volo del PNG, Sintonia oltre il tetto (+1 al 5°)', ha(/«morente»/) && ha(/volo oltre 1 m/) && ha(/Sintonia \+2 oltre il tetto \+1 al 5°/));
+  t('Segnalazioni: tattiche senza fuga e senza tratto razziale', ha(/senza fuga o resa/) && ha(/senza tratto razziale/));
+  s.velocita = '9 m, volare 9 m (eccezione: ali del modello)'; t('Segnalazioni: volo con motivo dichiarato', !M.segnalazioni(s, DIV).some(x => /volo/.test(x.testo)));
+  const mo = { ...s, tipo_scheda: 'mostro_pf1', velocita: '9 m, volare 18 m' }; t('Segnalazioni: i mostri hanno il volo standard', !M.segnalazioni(mo, DIV).some(x => /volo/.test(x.testo)));
+  t('Segnalazioni: XP diversi dalla tabella', M.segnalazioni({ ...s, xp: 999 }, DIV).some(x => /XP 999: per GS 4 sono 1\.200/.test(x.testo)));
+  t('Segnalazioni: GS diverso da livello − 1 o livello', M.segnalazioni({ ...s, gs: '7', velocita: '9 m' }, DIV).some(x => x.livello === 'errore' && /GS 7 con livello 5/.test(x.testo)));
+  t('Segnalazioni: scheda senza tattiche', M.segnalazioni(M.schedaVuota('png'), DIV).some(x => /mancano le tattiche/.test(x.testo))); }
+// scheda guidata (M4): stessi numeri dello statblock.py della campagna (Guardia del molo)
+const guidata = (dati, car, extra) => { const s = M.schedaVuota('png'); s.nome = 'Prova'; Object.assign(s.car, car || {}); Object.assign(s.guida, dati); Object.assign(s, extra || {}); return s; };
+{ const s = guidata({ classi: [{ classe: 'Guerriero', livello: 9, dv: 10 }], bab: 9, ts_base: { tempra: 6, riflessi: 3, volonta: 3 }, razza: 'Nani', taglia: 'media',
+    armatura: { nome: 'corazza di bande', base: 7, sintonia: 2, des_max: 1 }, scudo: { nome: 'scudo pesante', base: 2, sintonia: 0 },
+    armi: [{ nome: 'ascia da battaglia', sintonia: 2, danni: '1d8', critico: '×3' }] }, { For: 18, Des: 12, Cos: 14, Int: 10, Sag: 12, Car: 8 }, { allineamento: 'LN' });
+  const r = M.calcolaGuida(s, RAZZE), c = r.campi;
+  t('Guidata: CA 22 (contatto 11, sprovvista 21) con la scomposizione', c.ca === 22 && c.ca_contatto === 11 && c.ca_sprovvista === 21 && c.ca_scomp === '[10 + armatura 9 (corazza di bande 7 + sintonia 2) + scudo 2 (scudo pesante 2) + Des 1]', c);
+  t('Guidata: PF 80 (primo DV pieno + 6,5 × 8 + Cos), Fatica 40 / Ferita 40', c.pf === 80 && c.fatica === 40 && c.ferita === 40 && c.pf_dadi === '9d10+18');
+  t('Guidata: TS con il bonus eroico +1 al 9°', c.tempra === 9 && c.riflessi === 5 && c.volonta === 5 && c.ts_note === '(bonus eroico +1 compreso)');
+  t('Guidata: BaB iterativo, BMC, DMC, attacco', c.bab === '+9/+4' && c.bmc === '+13' && c.dmc === '24' && c.mischia === 'ascia da battaglia +2 (sintonia) +15/+10 (1d8+6, ×3)', c.mischia);
+  t('Guidata: GS 8, XP 4.800, razza dal Razze.md', c.gs === '8' && c.xp === 4800 && c.razza_riga === 'Umanoide Medio (nano) · LN' && M.applicaGuida(s, RAZZE).sensi === 'scurovisione 18 m' && M.applicaGuida(s, RAZZE).velocita === '6 m', c.razza_riga);
+  t('Guidata: nessun avviso; controllo del BAB', !r.avvisi.length && /veloce 9/.test(r.det.bab)); }
+{ const s = guidata({ classi: [{ classe: 'Guerriero', livello: 12, dv: 10 }], bab: 12, ts_base: { tempra: 8, riflessi: 4, volonta: 4 }, taglia: 'piccola',
+    armi: [{ nome: 'spadone', sintonia: 3, danni: '2d6', critico: '19–20', due_mani: true }], attacco_poderoso: true, talenti: [{ nome: 'Iniziativa migliorata', tipo: 'liv' }, { nome: 'Attacco poderoso', tipo: 'C' }],
+    abilita: [{ nome: 'Furtività', gradi: 5, di_classe: true }, { nome: 'Percezione', gradi: 0, di_classe: true }] }, { For: 16, Des: 14, Cos: 12, Sag: 10 });
+  const c = M.calcolaGuida(s, RAZZE).campi;
+  t('Guidata 12° piccola: CA con taglia +1 e bonus eroico +3', c.ca === 10 + 2 + 1 + 3 && c.ca_contatto === 16 && /taglia 1 \+ bonus eroico 3/.test(c.ca_scomp), c);
+  t('Guidata 12°: TS con il bonus eroico +2, DMC con +3 e taglia −2', c.tempra === 8 + 1 + 2 && c.dmc === String(10 + 12 + 3 + 2 - 2 + 3) && c.bmc === '+13');
+  t('Guidata: Iniziativa migliorata +4', c.iniziativa === 6);
+  t('Guidata: Attacco poderoso a BAB 12 (4 gradini, +50% a due mani)', /\n  con Attacco poderoso: \+15\/\+10\/\+5 \(2d6\+19\)/.test(c.mischia), c.mischia);
+  t('Guidata: Furtività con la taglia, +3 di classe solo con gradi', /Furtività \+12/.test(c.abilita) && /Percezione \+0/.test(c.abilita) && c.percezione === 0, c.abilita);
+  t('Guidata: talenti con (C) e il conteggio', c.talenti === 'Iniziativa migliorata, Attacco poderoso (C)' && M.calcolaGuida(s, RAZZE).det.talenti === '1 di livello + 1 (C) + 0 (R)'); }
+{ const s = guidata({ classi: [{ classe: 'Bardo', livello: 6, dv: 8 }, { classe: 'Intrepido', livello: 5, dv: 10 }], bab: 9, robustezza: true }, { Cos: 12 });
+  t('Guidata multiclasse: PF 8 + 5 × 5,5 + 5 × 6,5 + Cos + Robustezza', M.calcolaGuida(s, RAZZE).campi.pf === Math.floor(8 + 27.5 + 32.5 + 11 + 11) && M.calcolaGuida(s, RAZZE).campi.classi_testo === 'Bardo 6 / Intrepido 5'); }
+{ const s = guidata({ classi: [{ classe: 'Ladro', livello: 1, dv: 8 }], bab: 1 }); t('Guidata: GS 1/2 al 1° livello, 1 con capacità o trama', M.calcolaGuida(s, RAZZE).campi.gs === '1/2' && M.calcolaGuida({ ...s, capacita_trama: true }, RAZZE).campi.gs === '1');
+  const a = M.calcolaGuida(guidata({ classi: [{ classe: 'Ladro', livello: 8, dv: 8 }], bab: 5, armatura: { base: 2, sintonia: 2 } }), RAZZE).avvisi;
+  t('Guidata: BAB fuori progressione e Sintonia oltre il tetto', a.some(x => /BAB \+5 non corrisponde/.test(x)) && a.some(x => /armatura \+2 oltre il tetto \+1/.test(x)), a);
+  const al = M.calcolaGuida(guidata({ classi: [{ classe: 'Ladro', livello: 6, dv: 8 }], bab: 4 }, {}, { alleato: true }), RAZZE).campi; t('Guidata: alleato senza XP', al.gs === '5' && al.xp === null); }
+{ const s = M.schedaVuota('mostro_pf1'); s.guida.pf_bestiario = 75; s.guida.gs_bestiario = '1/2'; const c = M.calcolaGuida(s, RAZZE).campi;
+  t('Mostro da PF1: PF del bestiario divisi (dispari ai Ferita), GS e XP del bestiario', c.fatica === 37 && c.ferita === 38 && c.xp === 200 && s.guida.attiva === false); }
+t('Razze: 40 razze e 18 tratti generici, taglie della struttura', RAZZE.razze.length === 40 && RAZZE.generici.voci.length === 18 && RAZZE.razze.every(r => M.TAGLIE_PNG[r.taglia]));
+// schede: elenchi, ricerca, unione dei mostri importati
+{ let L = []; const a = M.nuovaScheda({ nome: 'Lupo', gs: '1', preferito: false, etichette: ['bosco'] }, rng, 5, 'm'), b = M.nuovaScheda({ nome: 'Orco', gs: '3', preferito: true, razza_riga: 'Umanoide Medio (orco)' }, rng, 5, 'm');
+  L = M.salvaScheda(M.salvaScheda(L, a, 6), b, 6);
+  t('Schede: id diversi, salvate in ordine', a.id !== b.id && L.length === 2 && /^m/.test(a.id));
+  lancia('Schede: senza nome', () => M.salvaScheda(L, { ...a, nome: ' ' }), 'nome');
+  t('Schede: ricerca per nome, tipo, GS, etichetta, preferiti (preferiti in testa)', M.cercaSchede(L, {})[0].nome === 'Orco' && M.cercaSchede(L, { testo: 'lup' }).length === 1 && M.cercaSchede(L, { tipo: 'umanoide' })[0].nome === 'Orco'
+    && M.cercaSchede(L, { gs_min: 2 }).length === 1 && M.cercaSchede(L, { etichetta: 'bos' })[0].nome === 'Lupo' && M.cercaSchede(L, { preferiti: true }).length === 1);
+  const u = M.unisciMostri(L, [a, { ...b, gs: '4' }, M.nuovaScheda({ nome: 'Troll' }, rng, 7, 'm')], rng, 8);
+  t('Mostri importati: aggiunti i nuovi, copia di quelli cambiati', u.aggiunti === 1 && u.copie === 1 && u.lista.length === 4 && u.lista.some(x => x.nome === 'Orco (importato)'));
+  t('Mostri importati da una campagna: solo quelli che mancano', M.unisciMostri(L, [{ ...b, gs: '4' }], rng, 8, true).lista.length === 2); }
+// incontri (N), avvio, tattiche nella barra (O), PF dei nemici (J9), ferite gravi dei nemici
+{ const best = [M.nuovaScheda(tuttiBlocchi.find(b => b.scheda.nome === 'Sciacallo' || b.scheda.nome === 'Imbalsamato').scheda, rng, 1, 'm')];
+  const sch = { ...tuttiBlocchi.find(b => b.scheda.nome === 'Merkh').scheda };
+  let c = M.creaCampagna({ ...base, nome: 'Incontri', pg: [{ ...M.SCHEDA_VUOTA, nome: 'Aria', fatica_max: 20, ferita_max: 20, iniziativa: 3 }, { ...M.SCHEDA_VUOTA, nome: 'Bruno', fatica_max: 20, ferita_max: 20 }] }, meteo, semi(9), 1);
+  const png = M.nuovaScheda({ ...sch, alleato: false, nome: 'Capitano' }, rng, 2, 'p'); c = M.salvaPNG(c, png, 3);
+  const schedaDi = rif => rif.fonte === 'mostro' ? best.find(m => m.id === rif.id) : c.png.find(p => p.id === rif.id);
+  const inc = { titolo: 'Agguato al molo', atto: 'Atto II', capitolo: 'Cap. 2', luogo: 'molo', note: '**Attenti** al ponte\n- uno\n- due',
+    partecipanti: [{ rif: { fonte: 'mostro', id: best[0].id }, nome: best[0].nome, n: 3, modo: 'tipo', nascosto: false, nomeTv: 'Figure bendate' },
+      { rif: { fonte: 'png', id: png.id }, nome: 'Capitano', n: 1, modo: 'singolo' }], promemoria: [{ round: 2, testo: 'crolla il ponte' }, { round: 1, testo: 'nebbia' }] };
+  lancia('Incontro senza titolo', () => M.salvaIncontro(c, { ...inc, titolo: '' }), 'titolo');
+  lancia('Incontro: quantità non valida', () => M.salvaIncontro(c, { ...inc, partecipanti: [{ nome: 'x', n: 0 }] }), 'quantità');
+  c = M.salvaIncontro(c, inc); const id = c.incontri[0].id;
+  t('Incontro salvato, promemoria in ordine di round', c.incontri.length === 1 && c.incontri[0].promemoria[0].round === 1 && c.incontri[0].stato === 'da giocare');
+  let d2 = M.duplicaIncontro(c, id); c = M.salvaIncontro(d2.camp, { ...d2.camp.incontri.find(x => x.id === d2.id), atto: 'Atto I', capitolo: '' });
+  c = M.salvaIncontro(c, { ...inc, titolo: 'Il ritorno', atto: 'Atto II', capitolo: 'Cap. 10' });
+  const k = M.cartelle(c);
+  t('Cartelle per atto e capitolo, in ordine naturale', k.length === 2 && k[0].atto === 'Atto I' && k[1].capitoli.map(x => x.capitolo).join(',') === 'Cap. 2,Cap. 10' && k[0].capitoli[0].incontri[0].titolo === 'Agguato al molo (copia)');
+  const xp = M.xpIncontro(c.incontri[0], schedaDi);
+  t('XP dell\'incontro: somma dei partecipanti × quantità', xp.totale === M.xpDi(best[0]) * 3 + M.xpDi(png) && !xp.mancanti.length, xp);
+  t('XP dell\'incontro: alleati esclusi, schede mancanti segnalate', M.xpIncontro({ partecipanti: [{ rif: { fonte: 'png', id: png.id }, nome: 'x', n: 1 }, { rif: { fonte: 'mostro', id: 'zz' }, nome: 'Fantasma', n: 1 }] }, r => r.id === png.id ? { ...png, alleato: true } : null).mancanti[0] === 'Fantasma');
+  const nem = c.incontri[0].partecipanti.map(p => M.nemicoDaPartecipante(p, schedaDi));
+  t('Avvia: il bonus d\'iniziativa viene dalla scheda', nem[0].bonus === best[0].iniziativa && nem[1].bonus === 7 && nem[0].nomeTv === 'Figure bendate' && nem[0].rif.id === best[0].id);
+  // combattimento dall'incontro, PF dei nemici spenti
+  const part = [{ tipo: 'pg', pgId: c.pg[0].id, totale: 30 }, { tipo: 'pg', pgId: c.pg[1].id, totale: 1 }, ...nem.map(x => ({ tipo: 'nemico', ...x, pf: M.pfDaScheda(schedaDi(x.rif)) }))];
+  let x = M.avviaCombattimento(c, part, semi(4), 0, { incontro: id, promemoria: c.incontri[0].promemoria, titolo: inc.titolo });
+  const righe = Object.values(x.combattimento.righe), lupi = righe.find(r => r.n === 3), cap = righe.find(r => r.nome === 'Capitano');
+  t('Avvio dall\'incontro: righe con la scheda, gruppo ×3, senza PF (J9 spenta)', lupi && cap && lupi.rif.id === best[0].id && lupi.pf === null && x.combattimento.incontro === id);
+  t('Promemoria del round 1 nel log', x.log.some(e => e.testo === 'Round 1: nebbia'));
+  const tCap = M.tatticheTurno(x, schedaDi, cap.id);
+  t('Tattiche round 1: Prima del combattimento e Round 1; Fuga o resa a parte', tCap.voci.map(v => v.k).join(',') === 'prima,r1' && /^mai dal battello/.test(tCap.fuga));
+  x = M.comando(x, 'faticaFinita', { id: cap.id }, meteo, rng, 0);
+  t('«Fatica finita» (J9 spenta): compare la tattica', M.tatticheTurno(x, schedaDi, cap.id).voci.some(v => v.k === 'fatica'));
+  x = M.indietro(x); t('Indietro annulla «Fatica finita»', !M.tatticheTurno(x, schedaDi, cap.id).voci.some(v => v.k === 'fatica'));
+  while (x.combattimento.round === 1) x = M.comando(x, 'avanti', {}, meteo, rng, 0);
+  t('Round 2: tattica «Round 2–3» e promemoria del round', M.tatticheTurno(x, schedaDi, cap.id).voci.map(v => v.k).join(',') === 'r23' && M.promemoriaRound(x)[0] === 'crolla il ponte' && x.log.some(e => e.testo === 'Round 2: crolla il ponte'));
+  while (x.combattimento.round < 4) x = M.comando(x, 'avanti', {}, meteo, rng, 0);
+  t('Round 4: nessuna tattica automatica', M.tatticheTurno(x, schedaDi, cap.id).voci.length === 0);
+  t('Istantanee di «Indietro» senza PNG e incontri', x.combattimento.storia.every(st => !/"png":|"incontri":/.test(st)));
+  x = M.salvaPNG(x, { ...png, nome: 'Capitano Rossi' }, 9); x = M.indietro(x);
+  t('Indietro non cancella le modifiche ai PNG', x.png[0].nome === 'Capitano Rossi' && x.incontri.length === 3);
+  x = M.comando(x, 'fuori', { id: lupi.id }, meteo, rng, 0);
+  const f = M.fineCombattimento({ ...x, impostazioni: { ...x.impostazioni, xp: true } }, 0, schedaDi);
+  t('Fine del combattimento: incontro giocato con la data', f.camp.incontri.find(i => i.id === id).stato === 'giocato' && f.camp.incontri.find(i => i.id === id).giocato_R === x.tempo.R);
+  t('Fine: XP dei nemici sconfitti divisi per i PG (J10)', f.riepilogo.xp.sconfitti === M.xpDi(best[0]) * 3 && f.riepilogo.xp.perPG === Math.floor(M.xpDi(best[0]) * 3 / 2), f.riepilogo.xp);
+  t('Fine senza XP nella campagna: niente XP', M.fineCombattimento(x, 0, schedaDi).riepilogo.xp === undefined);
+  // J9 accesa: PF per creatura, danno, separazione e ferita grave del nemico
+  let y = M.avviaCombattimento({ ...c, impostazioni: { ...c.impostazioni, pf_nemici: true } }, part, semi(4), 0, { incontro: id });
+  const g3 = Object.values(y.combattimento.righe).find(r => r.n === 3), pf0 = M.pfDaScheda(best[0]);
+  t('J9: tre creature con i loro PF', g3.pf.length === 3 && g3.pf[1].fatica === pf0.fatica && g3.pf[1].ferita_max === pf0.ferita);
+  let r1 = M.dannoRiga(y, g3.id, 1, pf0.fatica); y = r1.camp;
+  t('J9: danno prima ai Fatica; Fatica finita → tattica', y.combattimento.righe[g3.id].pf[1].fatica === 0 && r1.feritaGrave === null && M.faticaFinita(y.combattimento.righe[g3.id]));
+  y = M.curaRiga(y, g3.id, 1, 3); t('J9: la cura va prima ai Ferita (pieni) poi ai Fatica', y.combattimento.righe[g3.id].pf[1].fatica === 3);
+  r1 = M.dannoRiga(y, g3.id, 1, 3 + pf0.ferita + 4); y = r1.camp;
+  const sep = y.combattimento.righe[r1.feritaGrave.id];
+  t('J9: Ferita sotto 0 in un gruppo → la creatura si separa, riga della ferita −4', r1.feritaGrave.riga === -4 && sep.n === 1 && sep.nome === `${best[0].nome} 2` && y.combattimento.righe[g3.id].n === 2 && y.combattimento.righe[g3.id].pf.length === 2 && sep.pf[0].ferita === -4);
+  const fg = M.feritaDaTabella(FER, 'costituzione', -1, rng);
+  y = M.attaccaFerita(y, { riga: sep.id }, fg.comps, rng, FER, { titolo: fg.titolo });
+  t('Ferita grave sul nemico: riga −1 «ultimo nell\'iniziativa» sulla riga separata', y.combattimento.ordine[y.combattimento.ordine.length - 1] === sep.id);
+  const fg2 = M.feritaDaTabella(FER, 'area', -11, rng); y = M.attaccaFerita(y, { riga: sep.id }, fg2.comps, rng, FER, { titolo: fg2.titolo });
+  t('Ferita grave sul nemico: ferita ed emorragia sulla riga', y.combattimento.righe[sep.id].malus.some(m => m.tipo === 'ferita') && y.combattimento.righe[sep.id].malus.some(m => m.tipo === 'emorragia_lieve'));
+  const fg3 = M.feritaDaTabella(FER, 'area', -15, rng); y = M.attaccaFerita(y, { riga: sep.id }, fg3.comps, rng, FER, { titolo: fg3.titolo });
+  const qm = y.coda.find(q => q.tipo === 'morte' && q.chi.riga === sep.id);
+  t('Morte del nemico: avviso; «Morto» lo mette fuori combattimento', qm && M.risolviMorte(y, qm.id, 'morto', rng).camp.combattimento.righe[sep.id].stato === 'fuori');
+  const s2 = M.separaPerFerita(y, g3.id, 0); t('Ferita grave dal pulsante su un gruppo: prima si separa una creatura', s2.camp.combattimento.righe[s2.id].n === 1 && s2.camp.combattimento.righe[g3.id].n === 1);
+  y = M.comando(y, 'separa', { id: g3.id, nome: 'Ultimo' }, meteo, rng, 0);
+  t('Separa con i PF: la creatura separata porta i suoi', Object.values(y.combattimento.righe).find(r => r.nome === 'Ultimo').pf.length === 1 && y.combattimento.righe[g3.id].pf.length === 1);
+  // esporta e importa con i mostri condivisi
+  const e = M.esporta(c, 'campagna', M.mostriUsati(c, best)), im = M.importa(e);
+  t('Esporta una campagna con i mostri dei suoi incontri', im.mostri.length === 1 && im.mostri[0].id === best[0].id && im.campagne[0].incontri.length === 3 && im.campagne[0].png.length === 1);
+  const tutto = M.importa(M.esporta({ campagne: [c], bestiario: { mostri: best } }, 'tutto'));
+  const solo = M.importa(M.esporta({ mostri: best }, 'bestiario'));
+  t('Esporta tutto e solo il bestiario', tutto.campagne.length === 1 && tutto.mostri.length === 1 && solo.campagne.length === 0 && solo.mostri[0].nome === best[0].nome);
+  lancia('Importa: mostri non validi', () => M.importa(JSON.stringify({ formato: M.FORMATO, tipo: 'bestiario', dati: { mostri: [{ x: 1 }] } })), 'mostri'); }
+// migrazione: le campagne della Build 1 e della Build 2a si aprono e si usano
+for (const f of ['campagna_build1.json', 'campagna_build2a.json']) {
+  const vecchia = fs.readFileSync(path.join(__dirname, 'prove', f), 'utf8'), c = M.importa(vecchia).campagne[0], j = JSON.parse(vecchia).dati;
+  t(`${f}: PNG e incontri vuoti, righe senza scheda`, Array.isArray(c.png) && Array.isArray(c.incontri) && Object.values(c.combattimento.righe).every(r => r.rif === null && r.pf === null));
+  t(`${f}: malus, PF e coda invariati`, c.pg.every((p, i) => p.stato.ferita === j.pg[i].stato.ferita && p.stato.malus.length === (j.pg[i].stato.malus || []).length) && c.coda.length === j.coda.length);
+  let x = M.salvaPNG(c, M.nuovaScheda({ nome: 'Oste' }, rng, 1, 'p'), 1); x = M.salvaIncontro(x, { titolo: 'Rissa', partecipanti: [{ nome: 'Oste', n: 1, rif: { fonte: 'png', id: x.png[0].id } }] });
+  x = M.comando(x, 'avanti', {}, meteo, rng, 0); x = M.comando(x, 'avanti', {}, meteo, rng, 0); x = M.indietro(x);
+  t(`${f}: turni, Indietro, PNG e incontri sulla campagna migrata`, x.png.length === 1 && x.incontri.length === 1 && M.tatticheTurno(x, () => null) === null);
+  if (f === 'campagna_build2a.json') {
+    const br = x.pg.find(p => p.scheda.nome === 'Bruno');
+    t('Build 2a: veleno, ferita gravità 3, emorragia e dita (mano sinistra) restano', ['veleno', 'ferita', 'emorragia_lieve', 'dita'].every(k => br.stato.malus.some(m => m.tipo === k)) && M.amputazioniAttive(br).length === 0 && br.stato.malus.some(m => m.nome === 'Dita perse: 2 (mano sinistra)'));
+    const r = M.fineCombattimento(x, 0, () => null); t('Build 2a: fine del combattimento sulla campagna migrata', !r.camp.combattimento && r.riepilogo.xp === undefined);
+  }
+}
 
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

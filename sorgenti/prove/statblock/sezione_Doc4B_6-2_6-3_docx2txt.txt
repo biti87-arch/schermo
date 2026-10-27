@@ -1,0 +1,150 @@
+6.2 — Mohrg e Imbalsamati, uno per uno
+
+📖 [Da Doc 3A, nodi A e B] Stat block ripresi senza modifiche. Gli Imbalsamati servono per quelli che entrano nell'anello (Avanzare); i Mohrg sono i capi delle squadre e combattono da soli, dalla seconda fila.
+
+MOHRG · GS 8 · XP 4.800 — non morto del Necrarca (Libro dei Morti v2.4, 13°) · ❓ GS dal PF1e
+
+Non morto Medio (Ghoul) | Neutrale (non morto della Collana)
+
+Iniziativa +4 | Sensi: scurovisione 18 m | Percezione +13
+
+── DIFESA ──
+
+CA 23 (contatto 16, colto alla sprovvista 19)
+
+PF 98 (13 DV) — solo Punti Ferita (non morto della Collana)
+
+TS Tempra +6, Riflessi +10, Volontà +9 | Immunità: tratti dei non morti
+
+── OFFESA ──
+
+Velocità 9 m | BMC +15 (+21 lottare) | DMC 30
+
+2 schianti +15 (2d8+5 più afferrare) e lingua +10 contatto (frastornamento)
+
+Frastornamento (Sop) — chi è toccato dalla lingua: Tempra CD 20 o frastornato 1 round
+
+── STATISTICHE ──
+
+For 21 Des 19 Cos — Int 7 Sag 10 Car 14
+
+Talenti: Attacco rapido, Capacità focalizzata (frastornamento), Critico
+
+  migliorato (schianto), Lottare migliorato, Mobilità, Robustezza
+
+Abilità: Furtività +21, Percezione +13
+
+── TATTICHE ──
+
+Capo della squadra. Lingua su chi tiene il quarto, poi afferra e stritola.
+
+Se cadono tutti e due i capi, la squadra torna al posto.
+
+
+
+IMBALSAMATO · GS 5 · XP 1.600 — Mummia (PF1e Bestiario, segnalato), adattata (Doc 2A)
+
+Non morto Medio | Legale Malvagio
+
+Iniziativa +0 | Sensi: scurovisione 18 m | Percezione +16
+
+Aura: disperazione (9 m, Volontà CD 16 o paralizzato 1d4 round; una volta ogni 24 ore)
+
+── DIFESA ──
+
+CA 20 (contatto 10, colto alla sprovvista 20) [10 + 10 naturale]
+
+PF 60 (8d8+24) — Punti Fatica 30 / Punti Ferita 30 (PF1e diviso a metà)
+
+TS Tempra +4, Riflessi +2, Volontà +8 | RD 5/— | Vulnerabilità: fuoco
+
+── OFFESA ──
+
+Velocità 6 m | BaB +6 | BMC +13 (+17 lottare per trasportare) | DMC 23
+
+Schianto +14 (1d8+10 più putrefazione della mummia, Tempra CD 16)
+
+Portare via (Str) ★ — due Imbalsamati in lotta con lo stesso bersaglio
+
+  si muovono insieme a velocità piena portandolo con sé.
+
+── STATISTICHE ──
+
+For 24 Des 10 Cos — Int 6 Sag 15 Car 15
+
+Talenti: Abilità focalizzata (Percezione), Arma focalizzata (schianto),
+
+  Attacco poderoso (della casa), Robustezza
+
+── TATTICHE (nell'anello) ──
+
+Vanno su chi esegue il gesto del round; due insieme provano a portarlo
+
+fuori. Con Brook in vista, vanno da lui.
+
+
+
+6.3 — I golem sotto il drappo
+
+🧱 LA CONSEGNA DEI GOLEM ❓
+
+Due figure enormi sotto un drappo nero, a est e a ovest dell'altare. Sono costrutti: la Soglia non li tocca, e non hanno bisogno di ordini (C.1 #150). Mortimer li ha fatti con una consegna sola: «Se il cuore smette di battere, rimettetelo in moto.»
+
+Quando partono. Quando l'altare smette di respirare e non riprende: alla fine della fase ④ riuscita (round 12, 4A §6.3), o se qualcuno strozza il condotto fuori dal rito. Al primo segno (fase ①, «l'altare smette di respirare per un battito») il drappo si muove appena, e basta.
+
+Cosa fanno. Round 13: tolgono il drappo e arrivano al bordo. Round 14: entrano nell'anello (4A, gesto 14). Dentro, vanno all'altare: un golem adiacente all'altare a fine round strappa la presa ad Asta con una prova di lottare (BMC +24 contro la DMC di chi tiene la Chiave). Se riesce: 4A §6.5.
+
+Come si fermano. Fuori dall'anello: spingerli (BMC contro DMC 35) o tenerli lontani col corpo. Fuoco o freddo magici li rallentano per 2d6 round, senza TS: le tecniche di Fuoco di Toky funzionano. Ogni golem nell'anello a fine round 15: −2 alla prova della fase ⑤.
+
+Con l'offerta di Tar-Baphon accettata (4A §6.7): il motore non si ferma, è lui a respirare. L'altare continua a «respirare» e i golem non partono.
+
+
+
+GOLEM DI CARNE IMBALSAMATO ★ · GS 10 · XP 9.600 — Golem di carne (PF1e Bestiario, GS 7, da AoN)
+
+Costrutto Grande | Neutrale
+
+Base PF1e + modello avanzato (+1) + 6 DV (≈ +2) = GS 10 ❓ (calcolo proposto)
+
+Iniziativa +1 | Sensi: scurovisione 18 m, visione crepuscolare | Percezione +2
+
+── DIFESA ──
+
+CA 24 (contatto 8, colto alla sprovvista 24) [10 − 1 Des − 1 taglia + 12 nat. + 4 avanzato]
+
+PF 142 (15d10+30, +30 avanzato) — Punti Fatica 71 / Punti Ferita 71
+
+TS Tempra +7, Riflessi +6, Volontà +7
+
+RD 5/adamantio | Immunità: tratti dei costrutti, magia (sotto)
+
+Immunità alla magia (Str): immune agli incantesimi e alle capacità magiche
+
+  che concedono RI. Fuoco o freddo magici: rallentato 2d6 round, nessun TS.
+
+  Elettricità magica: toglie il rallentamento e lo cura di 1 PF ogni 3 danni.
+
+── OFFESA ──
+
+Velocità 9 m | Spazio 3 m, portata 3 m | BaB +15 | BMC +24 | DMC 35
+
+Mischia: 2 schianti +21 (2d8+7)
+
+Furia (Str): 1% cumulativo per round di combattimento. Se scatta, attacca
+
+  la creatura viva più vicina. Mortimer lo riprende con Carisma CD 19.
+
+── STATISTICHE ──
+
+For 20, Des 9, Cos —, Int —, Sag 11, Car 1 (prove +2, modello avanzato)
+
+Bende al balsamo d'imbalsamazione: ★ contro il Mangiamarcio (Doc 3A)
+
+── TATTICHE ──
+
+Solo la consegna. Vanno all'altare per la strada più corta, colpiscono chi
+
+si mette in mezzo, e mettono le mani sulla serratura. Non inseguono.
+
+
+

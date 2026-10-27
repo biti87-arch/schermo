@@ -19,6 +19,9 @@ app.whenReady().then(() => {
   ipcMain.handle('archivio:scrivi', (e, c) => archivio.scrivi(c));
   ipcMain.handle('archivio:elimina', (e, id) => archivio.elimina(id));
   ipcMain.on('archivio:scriviSubito', (e, c) => { try { e.returnValue = archivio.scrivi(c); } catch (err) { e.returnValue = false; } });
+  ipcMain.handle('bestiario:leggi', () => archivio.leggiBestiario());
+  ipcMain.handle('bestiario:scrivi', (e, b) => archivio.scriviBestiario(b));
+  ipcMain.on('bestiario:scriviSubito', (e, b) => { try { e.returnValue = archivio.scriviBestiario(b); } catch (err) { e.returnValue = false; } });
   finestra();
 });
 app.on('window-all-closed', () => app.quit());

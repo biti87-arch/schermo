@@ -172,6 +172,39 @@ label.spunta{display:flex;gap:6px;align-items:center;cursor:pointer}
 .avviso.err{border-color:var(--rosso);color:var(--rosso-chiaro)}
 .banda{border:1px solid var(--rosso);border-radius:8px;padding:8px 10px;color:var(--rosso-chiaro);margin-top:10px}
 .risultato{font-family:var(--f-num);font-size:1.4rem;color:var(--oro)}
+/* Build 2b: bestiario, scheda, incontri */
+.schede.piccole button{padding:4px 8px;font-size:.85rem}
+.voci{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.voce{display:flex;gap:6px;align-items:center;border:1px solid var(--riga);border-radius:6px;background:var(--pannello2);padding:4px 6px;min-width:0}
+.voce.sel{border-color:var(--oro)}
+.voce-corpo{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;background:none;border:0;padding:2px;text-align:left;cursor:pointer;color:inherit;font:inherit}
+span.voce-corpo{cursor:default}
+.voce-nome{font-weight:600;color:var(--arancio);overflow-wrap:anywhere}
+.stella{background:none;border:0;cursor:pointer;color:var(--tenue);font-size:1.05rem;padding:0 2px}
+.stella.on{color:var(--oro)}
+.chip.ver{background:color-mix(in srgb,var(--oro-scuro) 45%,var(--pannello2));border-color:var(--oro-scuro);color:var(--testo)}
+.chip.promem{border-color:var(--oro);color:var(--oro);background:color-mix(in srgb,var(--oro-scuro) 22%,var(--pannello2))}
+.sb{font-size:.86rem;line-height:1.4;border-left:3px solid var(--oro-scuro);padding-left:9px;overflow-wrap:anywhere}
+.sb p{margin:0 0 2px}
+.sb p.rientro{padding-left:1.2em}
+.sb .sb-testa{font-family:var(--f-titolo);color:var(--arancio);font-size:.98rem;margin-bottom:4px}
+.sb h4{font-family:var(--f-titolo);color:var(--oro);font-size:.82rem;letter-spacing:.08em;margin:8px 0 2px;font-weight:700}
+.sb b{color:var(--tenue);font-weight:600}
+.sb .sb-tesoro{margin-top:6px;color:var(--oro)}
+h4.sotto{font-family:var(--f-titolo);color:var(--oro);font-size:.85rem;margin:4px 0 0}
+.segn{margin:0;padding-left:1.1em;font-size:.85rem;display:flex;flex-direction:column;gap:3px}
+.segn li.errore b{color:var(--rosso-chiaro)}
+.segn li.verifica b{color:var(--oro)}
+.riga-tab{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;align-items:end;border-bottom:1px dashed var(--riga);padding-bottom:6px;margin-bottom:4px}
+.campo.calc input,.campo.calc textarea{border-style:dashed;color:var(--oro)}
+details.cartella>summary{cursor:pointer;font-family:var(--f-titolo);color:var(--oro);padding:2px 0}
+.capitolo{font-size:.8rem;color:var(--tenue);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 3px}
+.note-inc p{margin:0 0 4px}.note-inc ul.md{margin:0 0 4px;padding-left:1.2em}
+.tattica{border-left:3px solid var(--arancio);padding-left:8px;font-size:.88rem}
+.tattica b{color:var(--arancio);font-weight:600}
+.tattica.fuga{border-left-color:var(--rosso)}
+.voce-inc{border:1px solid var(--riga);border-radius:6px;padding:6px 8px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.voce-inc select{width:auto}
 @media (prefers-reduced-motion:no-preference){.btn,.ordine li{transition:background .15s,border-color .15s}}
 </style>
 <div class="wrap" id="app"></div>
@@ -183,20 +216,22 @@ __MOTORE__
 // ================================================================= archivio (IndexedDB nel browser e su Android, file JSON in Electron)
 const Archivio = (() => {
   const D = typeof window !== 'undefined' && window.schermoDesktop;
-  if (D) return { tipo: 'file', lista: () => D.lista(), leggi: id => D.leggi(id), scrivi: c => D.scrivi(c), elimina: id => D.elimina(id), subito: c => D.scriviSubito(c) };
-  const memoria = new Map(); let dbp = null, inMemoria = false;
+  if (D) return { tipo: 'file', lista: () => D.lista(), leggi: id => D.leggi(id), scrivi: c => D.scrivi(c), elimina: id => D.elimina(id), subito: c => D.scriviSubito(c),
+    leggiBestiario: () => D.leggiBestiario(), scriviBestiario: b => D.scriviBestiario(b), bestiarioSubito: b => D.scriviBestiarioSubito(b) };
+  const memoria = new Map(); let dbp = null, inMemoria = false, memBest = null;
   function db() {
     if (!dbp) dbp = new Promise((ok, ko) => {
-      try { const r = indexedDB.open('schermo', 1);
-        r.onupgradeneeded = () => { r.result.createObjectStore('campagne', { keyPath: 'id' }); };
+      try { const r = indexedDB.open('schermo', 2); // v2 (Build 2b): archivio «bestiario» con i mostri condivisi
+        r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('campagne')) d.createObjectStore('campagne', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('bestiario')) d.createObjectStore('bestiario', { keyPath: 'id' }); };
         r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); r.onblocked = () => ko(new Error('bloccato'));
       } catch (e) { ko(e); }
     });
     return dbp;
   }
-  async function op(modo, f) {
+  async function op(modo, f, archivio = 'campagne') {
     if (!inMemoria) {
-      try { const d = await db(); return await new Promise((ok, ko) => { const t = d.transaction('campagne', modo); const r = f(t.objectStore('campagne')); t.oncomplete = () => ok(r && r.result); t.onerror = () => ko(t.error); t.onabort = () => ko(t.error); }); }
+      try { const d = await db(); return await new Promise((ok, ko) => { const t = d.transaction(archivio, modo); const r = f(t.objectStore(archivio)); t.oncomplete = () => ok(r && r.result); t.onerror = () => ko(t.error); t.onabort = () => ko(t.error); }); }
       catch (e) { inMemoria = true; Archivio.problema = 'Questo browser non permette di salvare: le campagne restano solo finché la pagina è aperta. Usa Esporta per tenerle.'; }
     }
     return null;
@@ -207,14 +242,17 @@ const Archivio = (() => {
     async leggi(id) { const r = await op('readonly', s => s.get(id)); return inMemoria ? Motore.clona(memoria.get(id)) : r; },
     async scrivi(c) { await op('readwrite', s => s.put(c)); if (inMemoria) memoria.set(c.id, Motore.clona(c)); },
     async elimina(id) { await op('readwrite', s => s.delete(id)); memoria.delete(id); },
-    subito: null,
+    async leggiBestiario() { const r = await op('readonly', s => s.get('mostri'), 'bestiario'); return inMemoria ? Motore.clona(memBest) : r || null; },
+    async scriviBestiario(b) { await op('readwrite', s => s.put({ ...b, id: 'mostri' }), 'bestiario'); if (inMemoria) memBest = Motore.clona(b); },
+    subito: null, bestiarioSubito: null,
   };
 })();
 
 // ================================================================= stato dell'interfaccia
 const M = Motore, MET = DATI.meteo;
 const rng = Math.random;
-const S = { schermata: 'campagne', elenco: [], camp: null, ui: { scheda: 'viaggio', sel: null, avvio: null } };
+const S = { schermata: 'campagne', elenco: [], camp: null, ui: { scheda: 'viaggio', sel: null, avvio: null, vista: null, incontro: null, fuga: {},
+  best: { fonte: 'png', testo: '', tipo: '', etichetta: '', gs_min: '', gs_max: '', preferiti: false } } };
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const segno = n => (n >= 0 ? '+' : '−') + Math.abs(n);
@@ -278,7 +316,7 @@ function disegna() {
   app.innerHTML = disegnaTesta() + `<div class="colonne">
     <section class="col" aria-label="Tavolo">${disegnaTavolo()}</section>
     <section class="col" aria-label="Iniziativa">${disegnaIniziativa()}</section>
-    <section class="col" aria-label="Viaggio e log">${disegnaTerza()}</section></div>`;
+    <section class="col" id="col-terza" aria-label="Viaggio, bestiario, incontri e log">${disegnaTerza()}</section></div>`;
   aggiornaTimer();
 }
 
@@ -371,7 +409,8 @@ function disegnaIniziativa() {
   const timer = cb.timer ? `<span class="timer" id="timer"></span>` : '';
   const righe = cb.ordine.map((id, i) => {
     const r = cb.righe[id];
-    const badge = [r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : '', ...(r.tipo !== 'pg' ? (r.malus || []).map(m => chipMalus({ riga: r.id }, m)) : [])].join('');
+    const badge = [r.rif ? `<span class="chip" title="Con la scheda: tocca la riga per lo stat block">📜</span>` : '', pfRiga(r), r.faticaFinita ? '<span class="chip ver">Fatica finita</span>' : '',
+      r.prepara ? `<span class="chip">Prepara: ${esc(r.prepara.azione)}</span>` : '', r.nascosta ? '<span class="chip">Nascosta</span>' : '', r.nat === 20 ? '<span class="chip ok">20</span>' : r.nat === 1 ? '<span class="chip sv">1</span>' : '', r.stato === 'fuori' ? '<span class="chip">Fuori</span>' : '', ...(r.tipo !== 'pg' ? (r.malus || []).map(m => chipMalus({ riga: r.id }, m)) : [])].join('');
     return `<li class="tipo-${r.tipo}${i === cb.turno ? ' ora' : ''}${S.ui.sel === id ? ' sel' : ''}${r.stato === 'fuori' ? ' fuori' : ''}" data-az="selRiga" data-id="${id}" tabindex="0">
       <span class="tot">${r.totale}</span><span class="nome">${esc(M.etichetta(r))}${r.nomeTv ? ` <span class="tenue piccolo">(TV: ${esc(r.nomeTv)})</span>` : ''}</span><span class="chips">${badge}</span></li>`;
   }).join('');
@@ -380,7 +419,7 @@ function disegnaIniziativa() {
   return `<div class="col-testa"><h2>Iniziativa</h2><span class="num tenue">Round ${cb.round}</span><span class="spazio"></span>${timer}</div>
     <div class="barra-turno"><span class="tenue piccolo">Tocca a</span><span class="chi">${a ? esc(M.etichetta(a)) : '—'}</span>
       ${a && a.prepara ? `<span class="piccolo">Azione preparata: ${esc(a.prepara.azione)}${a.prepara.innesco ? ' — se ' + esc(a.prepara.innesco) : ''}</span>` : ''}
-      ${a ? barraMalus(a) : ''}
+      ${a ? barraMalus(a) : ''}${a ? barraTattiche(a) : ''}
       <span class="tenue piccolo">Poi: ${esc(pros.join(', ') || '—')}</span></div>
     <div class="comandi"><button class="btn grande prim" data-az="cmd" data-c="avanti">Avanti ▸</button>
       <button class="btn" data-az="indietro" ${cb.storia.length ? '' : 'disabled'}>◂ Indietro</button>
@@ -388,7 +427,7 @@ function disegnaIniziativa() {
       ${cb.timer ? `<button class="btn" data-az="cmd" data-c="pausa">${cb.timer.pausa !== null ? 'Riprendi' : 'Pausa'}</button>` : ''}</div>
     <ol class="ordine">${righe}</ol>
     ${attesa ? `<div class="pannello"><h3>In attesa</h3>${attesa}</div>` : ''}
-    ${S.ui.sel && cb.righe[S.ui.sel] ? disegnaAzioniRiga(cb.righe[S.ui.sel]) : '<p class="tenue piccolo">Tocca una riga per le sue azioni: Preparare, Punto eroe, Separa, Fuori combattimento, Nascondi, Correggi.</p>'}
+    ${S.ui.sel && cb.righe[S.ui.sel] ? disegnaAzioniRiga(cb.righe[S.ui.sel]) : '<p class="tenue piccolo">Tocca una riga per le sue azioni (Preparare, Punto eroe, Separa, Fuori combattimento, Nascondi, Correggi) e, se ha una scheda, per lo stat block di lato.</p>'}
     <div class="comandi"><button class="btn" data-az="rinforzi">+ Rinforzi</button><span class="spazio"></span><button class="btn peric" data-az="fineComb">Fine combattimento</button></div>`;
 }
 function disegnaAzioniRiga(r) {
@@ -403,7 +442,11 @@ function disegnaAzioniRiga(r) {
       <button class="btn min" data-az="cmd" data-c="nascondi" data-id="${r.id}" data-nascosta="${r.nascosta ? '' : 1}">${r.nascosta ? 'Rivela' : 'Nascondi'}</button>
       <button class="btn min oro" data-az="malus" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Malus/Bonus</button>
       <button class="btn min" data-az="correggi" data-id="${r.id}">Correggi</button>
-      <button class="btn min peric" data-az="togli" data-id="${r.id}">Togli</button></div></div>`;
+      <button class="btn min peric" data-az="togli" data-id="${r.id}">Togli</button></div>
+    ${r.tipo !== 'pg' ? `<div class="fila" style="margin-top:6px">${r.rif ? `<button class="btn min" data-az="statBlockRiga" data-id="${r.id}">Stat block</button>` : ''}
+      ${r.pf ? `<button class="btn min" data-az="dannoRiga" data-id="${r.id}">Danno</button><button class="btn min" data-az="curaRiga" data-id="${r.id}">Cura</button>`
+        : r.rif ? `<button class="btn min${r.faticaFinita ? ' oro' : ''}" data-az="cmd" data-c="faticaFinita" data-id="${r.id}">${r.faticaFinita ? 'Fatica finita ✓' : 'Fatica finita'}</button>` : ''}
+      <button class="btn min" data-az="feritaRiga" data-id="${r.id}">Ferita grave</button></div>` : ''}</div>`;
 }
 function nuovoAvvio() {
   const av = { usaD20: false, pg: {}, nemici: [{ nome: '', bonus: 0, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '' }] };
@@ -420,28 +463,31 @@ function disegnaAvvio() {
       <input type="number" inputmode="numeric" data-bind="pg.${p.id}.valore" value="${esc(x.valore)}" placeholder="${av.usaD20 ? 'd20' : 'totale'}" aria-label="${av.usaD20 ? 'd20' : 'Totale'} di ${esc(p.scheda.nome)}">
       <label class="spunta piccolo" title="Impreparato: −${p.scheda.imp_pen}"><input type="checkbox" data-bind="pg.${p.id}.imp" ${x.imp ? 'checked' : ''}> impr.</label></div>`; }).join('');
   const nem = av.nemici.map((x, i) => `<div class="nemico">
-      <input type="text" data-bind="nemici.${i}.nome" value="${esc(x.nome)}" placeholder="Nome (es. Lupo)" aria-label="Nome">
+      <input type="text" data-bind="nemici.${i}.nome" value="${esc(x.nome)}" placeholder="Nome (es. Lupo)" aria-label="Nome"${x.rif ? ` title="Con la scheda: ${esc((schedaDi(x.rif) || { nome: 'non trovata' }).nome)}" style="border-color:var(--oro-scuro)"` : ''}>
       <input type="number" data-bind="nemici.${i}.bonus" value="${esc(x.bonus)}" aria-label="Bonus di iniziativa" title="Bonus di iniziativa">
       <input type="number" min="1" data-bind="nemici.${i}.n" value="${esc(x.n)}" aria-label="Quantità" title="Quantità">
       <select data-bind="nemici.${i}.modo" aria-label="Tiro"><option value="tipo" ${x.modo === 'tipo' ? 'selected' : ''}>per tipo</option><option value="singolo" ${x.modo === 'singolo' ? 'selected' : ''}>per singolo</option></select>
       <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-bind="nemici.${i}.imp" ${x.imp ? 'checked' : ''}> impr.</label>
         <label class="spunta piccolo"><input type="checkbox" data-bind="nemici.${i}.nascosto" ${x.nascosto ? 'checked' : ''}> nascosto</label>
         <button class="btn min" data-az="togliNemico" data-i="${i}" aria-label="Togli">✕</button></div></div>`).join('');
-  return `<div class="pannello"><h3>Avvio del combattimento</h3>
+  const inc = av.incontro && c.incontri.find(x => x.id === av.incontro);
+  return `<div class="pannello" id="avvio"><h3>Avvio del combattimento</h3>
+      ${inc ? `<div class="fila"><span class="chip ok">Incontro: ${esc(inc.titolo)}</span>${(av.promemoria || []).length ? `<span class="tenue piccolo">${av.promemoria.length} promemoria per round</span>` : ''}<button class="btn min" data-az="staccaIncontro" title="Avvia senza l'incontro">✕</button></div>` : ''}
       <label class="spunta piccolo"><input type="checkbox" data-az-cambio="usaD20" ${av.usaD20 ? 'checked' : ''}> Inserisco il d20 dei PG (l'app aggiunge il bonus; 20 = 30, 1 = −10)</label>
       ${pg || '<span class="tenue piccolo">Nessun PG nella campagna.</span>'}
       <h3>Nemici</h3><div class="tab-nemici">${nem}</div>
-      <div class="fila"><button class="btn min" data-az="aggNemico">+ Nemico</button><span class="spazio"></span>
-        <span class="tenue piccolo">Per tipo: una riga «Lupo ×5»; per singolo: Lupo 1, 2…</span></div>
+      <div class="fila"><button class="btn min" data-az="aggNemico">+ Nemico</button>
+        ${c.png.length || Best.mostri.length ? `<select data-az-cambio="aggScheda" aria-label="Aggiungi dal bestiario" style="width:auto;max-width:100%"><option value="">+ dal bestiario…</option>${opzSchede('').replace('<option value="">— senza scheda —</option>', '')}</select>` : ''}
+        <span class="spazio"></span><span class="tenue piccolo">Per tipo: una riga «Lupo ×5»; per singolo: Lupo 1, 2…</span></div>
       <div class="fila"><button class="btn prim grande" data-az="avvia">Tira e avvia</button></div></div>`;
 }
 
 // ---------- terza colonna: viaggio e log
 function disegnaTerza() {
-  const sch = S.ui.scheda;
-  return `<div class="schede" role="tablist"><button role="tab" class="${sch === 'viaggio' ? 'on' : ''}" data-az="scheda" data-s="viaggio">Viaggio</button>
-      <button role="tab" class="${sch === 'log' ? 'on' : ''}" data-az="scheda" data-s="log">Log</button></div>
-    ${sch === 'log' ? disegnaLog() : disegnaViaggio()}`;
+  let sch = S.ui.scheda; if (sch === 'vista' && !S.ui.vista) sch = S.ui.scheda = 'bestiario';
+  const tab = (k, t) => `<button role="tab" class="${sch === k ? 'on' : ''}" data-az="scheda" data-s="${k}">${t}</button>`;
+  return `<div class="schede" role="tablist">${tab('viaggio', 'Viaggio')}${tab('bestiario', 'Bestiario')}${tab('incontri', 'Incontri')}${tab('log', 'Log')}${S.ui.vista ? tab('vista', 'Scheda') : ''}</div>
+    ${sch === 'log' ? disegnaLog() : sch === 'bestiario' ? disegnaBestiario() : sch === 'incontri' ? disegnaIncontri() : sch === 'vista' ? disegnaVista() : disegnaViaggio()}`;
 }
 function disegnaViaggio() {
   const c = S.camp, m = M.meteoCorrente(c, MET), sc = c.scorte, k = M.consumoGiornaliero(c);
@@ -488,10 +534,10 @@ const AZ = {
     const e = S.elenco.find(x => x.id === el.dataset.id);
     conferma('Elimina campagna', `Eliminare <b>${esc(e.nome)}</b>? PG, calendario, scorte e log andranno persi. Se vuoi tenerla, prima usa Esporta.`, () => { Archivio.elimina(e.id).then(ricaricaElenco); avviso('Campagna eliminata'); }, 'Elimina', 'peric');
   },
-  async esportaCamp(el) { const c = await Archivio.leggi(el.dataset.id); finestraEsporta(`${c.nome}.json`, M.esporta(c, 'campagna')); },
-  async esportaTutto() { const tutte = await Promise.all(S.elenco.map(e => Archivio.leggi(e.id))); finestraEsporta('schermo-tutte-le-campagne.json', M.esporta({ campagne: tutte }, 'tutto')); },
+  async esportaCamp(el) { const c = await Archivio.leggi(el.dataset.id); finestraEsporta(`${c.nome}.json`, M.esporta(c, 'campagna', M.mostriUsati(M.migra(c), Best.mostri))); },
+  async esportaTutto() { const tutte = await Promise.all(S.elenco.map(e => Archivio.leggi(e.id))); finestraEsporta('schermo-tutte-le-campagne.json', M.esporta({ campagne: tutte, bestiario: docBest() }, 'tutto')); },
   importa() { finestraImporta(); },
-  async esempio() { await Archivio.scrivi(campagnaEsempio()); await ricaricaElenco(); avviso('Campagna d\'esempio caricata'); },
+  async esempio() { await Archivio.scrivi(campagnaEsempio()); await ricaricaElenco(); avviso('Campagna d\'esempio caricata (con un PNG, un mostro condiviso e un incontro)'); },
   // tempo
   tempo(el) { applica(M.avanza(S.camp, +el.dataset.r, MET, rng, 'Orologio')); },
   riposo() {
@@ -609,10 +655,12 @@ const AZ = {
     for (const p of c.pg) { const x = av.pg[p.id]; if (!x || !x.incluso) continue;
       const v = String(x.valore).trim(); if (v === '') throw new Error(`Manca ${av.usaD20 ? 'il d20' : 'il totale'} di ${p.scheda.nome}`);
       part.push({ tipo: 'pg', pgId: p.id, impreparato: x.imp, ...(av.usaD20 ? { d20: +v } : { totale: +v }) }); }
-    for (const x of av.nemici) if (String(x.nome).trim()) part.push({ tipo: 'nemico', nome: x.nome.trim(), bonus: +x.bonus || 0, n: Math.max(1, +x.n || 1), modo: x.modo, impreparato: x.imp, nascosto: x.nascosto, nomeTv: x.nomeTv });
-    applica(M.avviaCombattimento(c, part, rng, Date.now())); S.ui.sel = null; S.ui.avvio = null; disegna();
+    for (const x of av.nemici) if (String(x.nome).trim()) part.push({ tipo: 'nemico', nome: x.nome.trim(), bonus: +x.bonus || 0, n: Math.max(1, +x.n || 1), modo: x.modo, impreparato: x.imp, nascosto: x.nascosto, nomeTv: x.nomeTv,
+      rif: x.rif || null, pf: x.rif ? M.pfDaScheda(schedaDi(x.rif)) : null });
+    applica(M.avviaCombattimento(c, part, rng, Date.now(), av.incontro ? { incontro: av.incontro, promemoria: av.promemoria, titolo: av.titolo } : {})); S.ui.sel = null; S.ui.avvio = null; S.ui.fuga = {}; disegna();
   },
-  selRiga(el) { S.ui.sel = S.ui.sel === el.dataset.id ? null : el.dataset.id; disegna(); },
+  selRiga(el) { S.ui.sel = S.ui.sel === el.dataset.id ? null : el.dataset.id;
+    const r = S.ui.sel && S.camp.combattimento.righe[S.ui.sel]; if (r && r.rif) { S.ui.vista = { rif: r.rif, riga: r.id }; S.ui.scheda = 'vista'; } disegna(); },
   cmd(el) {
     const a = { id: el.dataset.id, ritorna: !!el.dataset.ritorna, nascosta: !!el.dataset.nascosta };
     applica(M.comando(S.camp, el.dataset.c, a, MET, rng, Date.now()));
@@ -635,24 +683,36 @@ const AZ = {
       azioni: [{ testo: 'Annulla' }, { testo: 'Correggi', classe: 'prim', fn: f => applica(M.comando(S.camp, 'correggi', { id: r.id, totale: intero(f, 't') }, MET, rng, Date.now())) }] });
   },
   togli(el) { const id = el.dataset.id; applica(M.comando(S.camp, 'togli', { id }, MET, rng, Date.now())); S.ui.sel = null; disegna(); },
-  rinforzi() {
-    apri({ titolo: 'Rinforzi', corpo: `<div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" placeholder="es. Goblin"></label>
-        <label class="campo"><span>Bonus</span><input type="number" name="b" value="0"></label><label class="campo"><span>Quantità</span><input type="number" name="q" min="1" value="1"></label>
+  rinforzi(el, rif) {
+    const s0 = rif && schedaDi(rif);
+    const f0 = apri({ titolo: 'Rinforzi', corpo: `${S.camp.png.length || Best.mostri.length ? `<label class="campo"><span>Scheda (facoltativa)</span><select name="s">${opzSchede(rifStr(rif))}</select></label>` : ''}
+        <div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" placeholder="es. Goblin" value="${esc(s0 ? s0.nome : '')}"></label>
+        <label class="campo"><span>Bonus</span><input type="number" name="b" value="${s0 && s0.iniziativa !== null ? s0.iniziativa : 0}"></label><label class="campo"><span>Quantità</span><input type="number" name="q" min="1" value="${s0 ? s0.n_suggerito || 1 : 1}"></label>
         <label class="campo"><span>Tiro</span><select name="m"><option value="tipo">per tipo</option><option value="singolo">per singolo</option></select></label></div>`,
       azioni: [{ testo: 'Annulla' }, { testo: 'Tira ed entra', classe: 'prim', fn: f => { if (!testo(f, 'n')) throw new Error('Nome mancante');
-        applica(M.comando(S.camp, 'rinforzi', { partecipanti: [{ tipo: 'nemico', nome: testo(f, 'n'), bonus: intero(f, 'b', 0), n: Math.max(1, intero(f, 'q', 1)), modo: val(f, 'm').value }] }, MET, rng, Date.now())); } }] });
+        const r = val(f, 's') ? rifDa(val(f, 's').value) : null;
+        applica(M.comando(S.camp, 'rinforzi', { partecipanti: [{ tipo: 'nemico', nome: testo(f, 'n'), bonus: intero(f, 'b', 0), n: Math.max(1, intero(f, 'q', 1)), modo: val(f, 'm').value, rif: r, pf: r ? M.pfDaScheda(schedaDi(r)) : null }] }, MET, rng, Date.now())); } }] });
+    f0.addEventListener('change', ev => { if (ev.target.name !== 's') return; const s = schedaDi(rifDa(ev.target.value)); if (!s) return;
+      val(f0, 'n').value = s.nome; val(f0, 'b').value = s.iniziativa ?? 0; val(f0, 'q').value = s.n_suggerito || 1; });
   },
   fineComb() {
     conferma('Fine del combattimento', 'Chiudere il combattimento? Il riepilogo va nel log; dopo non si può più annullare.', () => {
-      const r = M.fineCombattimento(S.camp, Date.now()); applica(r.camp); S.ui.sel = null;
-      apri({ titolo: 'Riepilogo', corpo: `<p>${esc(r.riepilogo.testo)}</p>` });
+      const r = M.fineCombattimento(S.camp, Date.now(), schedaDi); applica(r.camp); S.ui.sel = null; S.ui.fuga = {};
+      const x = r.riepilogo.xp;
+      apri({ titolo: 'Riepilogo', corpo: `<p>${esc(r.riepilogo.testo)}</p>${r.riepilogo.incontro ? `<p class="piccolo">Incontro «${esc(r.riepilogo.incontro)}» segnato come giocato.</p>` : ''}
+        ${x ? `<p class="piccolo"><b>XP dei nemici sconfitti:</b> <span class="num">${migl(x.sconfitti)}</span> (su ${migl(x.tutti)}) · <b class="num">${migl(x.perPG)}</b> a PG · <span class="num">${migl(x.perPGconAcc)}</span> contando gli accompagnatori</p>` : ''}` });
     }, 'Chiudi il combattimento', 'peric');
   },
 };
 const CAMBI = {
   usaD20(el) { S.ui.avvio.usaD20 = el.checked; disegna(); },
   zona(el) { const c = M.cambiaZona(S.camp, MET, el.value); applica(c); avviso('Zona cambiata: il meteo del giorno resta, «Ritira» per tirarlo nella zona nuova'); },
+  aggScheda(el) { const r = rifDa(el.value), s = schedaDi(r); if (!s) return; const av = S.ui.avvio;
+    const x = { nome: s.nome, bonus: s.iniziativa ?? 0, n: s.n_suggerito || 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '', rif: r };
+    if (av.nemici.length === 1 && !String(av.nemici[0].nome).trim()) av.nemici[0] = x; else av.nemici.push(x); disegna(); },
 };
+document.addEventListener('input', ev => { const el = ev.target; if (!el.dataset || !el.dataset.best || el.closest('.velo')) return;
+  S.ui.best[el.dataset.best] = el.type === 'checkbox' ? el.checked : el.value; const l = $('#best-lista'); if (l) l.innerHTML = listaSchede(); });
 document.addEventListener('click', async ev => {
   const el = ev.target.closest('[data-az]'); if (!el || el.closest('.velo')) return;
   const f = AZ[el.dataset.az]; if (!f) return;
@@ -803,7 +863,7 @@ function finestraCuraFerita(chi, id) {
 }
 // ---------- I1: risultato di una Ferita grave scritto o incollato e diviso nelle sue parti
 function finestraFeritaGrave(pgId, riga) {
-  const c = S.camp, p = c.pg.find(x => x.id === pgId);
+  const c = S.camp, chi = typeof pgId === 'object' ? pgId : { pg: pgId }, p = { scheda: { nome: nomeChi(c, chi) } };
   const st = { modo: null, comps: null, ris: null, locN: null, testo: '' };
   const TAB = FER.ferite_gravi, colp = TAB.find(t => t.locazioni);
   const disegnaComps = (el, testa) => {
@@ -821,7 +881,7 @@ function finestraFeritaGrave(pgId, riga) {
     disegnaComps(el, `<div class="effetto"><b>${esc(st.ris.titolo)}</b><br>${coloraCondizioni(esc(st.ris.testo))}</div>`);
   };
   const daTesto = el => { st.testo = testo(el, 't'); st.comps = M.scomponiFerita(st.testo, rng); st.modo = 'testo'; st.ris = null; disegnaComps(el, ''); };
-  const el = apri({ titolo: 'Ferita grave', larga: true, corpo: `<p><b>${esc(p.scheda.nome)}</b>${riga !== null ? ': i Punti Ferita sono scesi sotto zero.' : ''}</p>${riga !== null ? `<div class="risultato">Riga ${riga}</div>` : ''}
+  const el = apri({ titolo: 'Ferita grave', larga: true, corpo: `<p><b>${esc(p.scheda.nome)}</b>${riga !== null ? ': i Punti Ferita sono scesi sotto zero.' : ''}${chi.riga ? ' <span class="tenue piccolo">(nemico: amputazioni e penalità restano come etichette sulla riga)</span>' : ''}</p>${riga !== null ? `<div class="risultato">Riga ${riga}</div>` : ''}
       <div class="griglia"><label class="campo"><span>Riga</span><select name="riga">${Array.from({ length: 15 }, (_, k) => -(k + 1)).map(n => `<option value="${n}" ${n === (riga ?? -1) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
         <label class="campo" id="fg-loc" hidden><span>Locazione</span><select name="loc">${colp.locazioni.map(l => `<option value="${l.da}">${esc(l.nome)}</option>`).join('')}</select><small id="fg-tiroloc" class="tenue num"></small></label></div>
       <fieldset><legend>Tabella (Vol. 3, Imprevisti)</legend>${TAB.map(t => `<label class="spunta"><input type="radio" name="tab" value="${t.id}"> ${esc(t.nome)}${t.locazioni ? ' <span class="tenue piccolo">(locazione con il 1d8)</span>' : ''}</label>`).join('')}</fieldset>
@@ -834,7 +894,7 @@ function finestraFeritaGrave(pgId, riga) {
         const scelti = st.comps.map((k, i) => ({ ...k, lato: val(f, 'l' + i) ? val(f, 'l' + i).value : k.lato })).filter((k, i) => spunta(f, 'k' + i));
         if (!scelti.length) throw new Error('Niente da attaccare');
         const meta = st.modo === 'tabella' ? { titolo: st.ris.titolo + (st.ris.tiroLoc ? ` (${st.ris.tiroLoc})` : ''), testo: st.ris.testo } : { titolo: `Ferita grave ${val(f, 'riga').value}`, testo: st.testo };
-        applicaS(M.attaccaFerita(S.camp, pgId, scelti, rng, FER, meta));
+        applicaS(M.attaccaFerita(S.camp, chi, scelti, rng, FER, meta));
       } }] });
   el.addEventListener('change', ev => {
     const n = ev.target.name;
@@ -879,13 +939,16 @@ function finestraEsporta(nome, contenuto, tipo = 'application/json') {
       ...(WEB ? [] : [{ testo: 'Scarica', classe: 'prim', fn: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([contenuto], { type: tipo + ';charset=utf-8' })); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); return false; } }])] });
 }
 function finestraImporta() {
-  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna o tutte). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già.</p>
+  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna, tutte o il bestiario). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già. I mostri condivisi che mancano entrano nel bestiario; con una campagna arrivano anche i mostri dei suoi incontri.</p>
       <input type="file" name="f" accept=".json,application/json"><label class="campo"><span>Oppure incolla il JSON</span><textarea name="t" rows="8"></textarea></label>`,
     azioni: [{ testo: 'Annulla' }, { testo: 'Importa', classe: 'prim', fn: f => {
       const file = val(f, 'f').files[0];
       const fai = async txt => { const r = M.importa(txt); const esistenti = new Set(S.elenco.map(e => e.id)); let copie = 0;
         for (let c of r.campagne) { if (esistenti.has(c.id)) { c = M.duplicaCampagna(c, rng, Date.now()); copie++; } await Archivio.scrivi(c); }
-        await ricaricaElenco(); avviso(`Importate ${r.campagne.length} campagne` + (copie ? ` (${copie} come copia)` : '')); };
+        let mo = ''; if (r.mostri.length) { const u = M.unisciMostri(Best.mostri, r.mostri, rng, Date.now(), r.tipo === 'campagna'); Best.mostri = u.lista; salvaBestiario();
+          mo = ` · mostri condivisi: ${u.aggiunti} nuovi` + (u.copie ? `, ${u.copie} come copia` : ''); }
+        if (S.camp) disegna(); else await ricaricaElenco();
+        avviso((r.tipo === 'bestiario' ? 'Bestiario importato' : `Importate ${r.campagne.length} campagne` + (copie ? ` (${copie} come copia)` : '')) + mo); };
       if (file) { file.text().then(fai).catch(e => avviso(e.message, true)); return; }
       const t = testo(f, 't'); if (!t) throw new Error('Scegli un file o incolla il JSON');
       M.importa(t); fai(t).catch(e => avviso(e.message, true));
@@ -897,7 +960,7 @@ function finestraImpostazioni() {
   apri({ titolo: 'Impostazioni della campagna', corpo: `<fieldset><legend>Campagna</legend>
       <label class="campo"><span>Nome</span><input type="text" name="nome" value="${esc(S.camp.nome)}"></label>
       <label class="campo"><span>Etichetta dell'anno</span><input type="text" name="etichetta" value="${esc(S.camp.anno.etichetta)}"></label>
-      ${voce('xp', 'Usa gli XP', '(dalla Build 2)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dalla Build 2)')}${voce('incontri_casuali', 'Incontri casuali', '(dalla Build 3)')}</fieldset>
+      ${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(dalla Build 3)')}</fieldset>
     <fieldset><legend>Timer reale</legend>${voce('timer', 'Timer reale del turno e del combattimento')}
       <label class="campo"><span>Soglia di avviso del turno (secondi, 0 = nessuna)</span><input type="number" name="soglia_timer" min="0" value="${i.soglia_timer}"></label></fieldset>
     <fieldset><legend>Finestra TV (Build 4)</legend>${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento')}${voce('tv_ora', 'Ora del giorno')}${voce('tv_meteo', 'Meteo')}${voce('timer_tv', 'Timer sulla TV')}${voce('f10', 'Tasto F10: turno successivo')}
@@ -1028,6 +1091,439 @@ function finestraPGprocedura(fatto) {
   apri({ titolo: 'Nuovo PG', larga: true, corpo: campiPGhtml(M.SCHEDA_VUOTA), azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { fatto(leggiCampiPG(f)); } }] });
 }
 
+// ================================================================= Build 2b: bestiario e PNG (M), incontri (N), tattiche (O)
+const RAZZE = DATI.razze, DIV = DATI.divieti;
+// mostri condivisi fra le campagne (bestiario.json in Windows, IndexedDB nel browser e su Android)
+const Best = { mostri: [], timer: null };
+const docBest = () => ({ formato: M.FORMATO, tipo: 'bestiario', mostri: Best.mostri });
+function salvaBestiario() { clearTimeout(Best.timer); Best.timer = setTimeout(() => { Best.timer = null; Archivio.scriviBestiario(docBest()).catch(e => avviso('Salvataggio del bestiario non riuscito: ' + e.message, true)); }, 1000); }
+function salvaBestiarioOra() { if (!Best.timer) return; clearTimeout(Best.timer); Best.timer = null; if (Archivio.bestiarioSubito) Archivio.bestiarioSubito(docBest()); else Archivio.scriviBestiario(docBest()); }
+window.addEventListener('beforeunload', salvaBestiarioOra);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') salvaBestiarioOra(); });
+function aggiornaMostri(lista) { Best.mostri = lista; salvaBestiario(); disegna(); }
+const schedaDi = rif => !rif ? null : rif.fonte === 'mostro' ? Best.mostri.find(m => m.id === rif.id) || null : ((S.camp && S.camp.png) || []).find(p => p.id === rif.id) || null;
+const usaXP = () => !!(S.camp && S.camp.impostazioni.xp);
+const rifStr = rif => rif ? rif.fonte + ':' + rif.id : '';
+const rifDa = v => { if (!v) return null; const [fonte, ...id] = v.split(':'); return { fonte, id: id.join(':') }; };
+const migl = n => M.migliaia(n);
+// tutte le condizioni in rosso, con plurali e femminili (Morente no: è narrativa)
+const RE_COND = (() => {
+  const forme = CONDIZIONI.map(n => n.toLowerCase()).map(n => n === 'morto' ? 'mort[oa]' : n.split(' ').map((w, i, a) => i === 0 || i === a.length - 1 && a.length === 2 && a[0] === 'sempre'
+    ? (/o$/.test(w) ? w.slice(0, -1) + '[oaie]' : /e$/.test(w) && !/^(in)$/.test(w) ? w.slice(0, -1) + '[ei]' : w) : w).join('\\s+'));
+  return new RegExp(`(?<![\\p{L}])(${forme.sort((a, b) => b.length - a.length).join('|')})(?![\\p{L}])`, 'giu');
+})();
+const coloraTutte = html => html.replace(RE_COND, m => `<span class="cond-t">${m}</span>`);
+// note degli incontri: **grassetto** ed elenchi con «- »
+function mdLite(t) {
+  const righe = esc(t || '').split('\n'); let out = '', lista = false;
+  for (const r of righe) { const li = r.match(/^\s*[-•]\s+(.*)$/);
+    if (li) { if (!lista) { out += '<ul class="md">'; lista = true; } out += `<li>${li[1]}</li>`; continue; }
+    if (lista) { out += '</ul>'; lista = false; } if (r.trim()) out += `<p>${r}</p>`; }
+  if (lista) out += '</ul>';
+  return out.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+}
+const ETICHETTE_SB = /^(Razza|Iniziativa|Aura|CA|PF|TS|RD|Immunità|Velocità|Mischia|Distanza|Incantesimi|Talenti|Abilità|Lingue|Sintonia|Prima del combattimento|Round 1|Round 2–3|Finita la Fatica|Fuga o resa|Tratto razziale)\b/;
+function htmlStatBlock(s) {
+  const L = M.testoStatBlock(s, { xp: usaXP() }).split('\n');
+  return L.map((r, i) => {
+    if (i === 0) return `<p class="sb-testa">${esc(r)}</p>`;
+    const h = r.match(/^── (.+) ──$/); if (h) return `<h4>${esc(h[1])}</h4>`;
+    if (/^💰/u.test(r)) return `<p class="sb-tesoro">${esc(r)}</p>`;
+    const rientro = /^\s/.test(r);
+    let x = /^CA \d/.test(r) ? esc(r.trim()) : coloraTutte(esc(r.trim())); // «colto alla sprovvista» della CA non è la condizione
+    x = x.replace(ETICHETTE_SB, '<b>$1</b>');
+    return `<p class="${rientro ? 'rientro' : ''}">${x}</p>`;
+  }).join('');
+}
+function badgeSegn(s) {
+  const sg = M.segnalazioni(s, DIV), e = sg.filter(x => x.livello === 'errore').length, v = sg.length - e;
+  return (e ? `<span class="chip sv" title="Da correggere">${e}</span>` : '') + (v ? `<span class="chip ver" title="Da verificare">${v}</span>` : '');
+}
+function elencoSegn(s) {
+  const sg = M.segnalazioni(s, DIV); if (!sg.length) return '<p class="tenue piccolo">Nessuna segnalazione.</p>';
+  return `<ul class="segn">${sg.map(x => `<li class="${x.livello}"><b>${x.livello === 'errore' ? 'Da correggere' : 'Da verificare'}</b> ${esc(x.testo)}</li>`).join('')}</ul>`;
+}
+
+// ---------- terza colonna: Bestiario
+function disegnaBestiario() {
+  const c = S.camp, f = S.ui.best;
+  return `<div class="pannello"><div class="fila"><div class="schede piccole" role="tablist">
+      <button role="tab" class="${f.fonte === 'png' ? 'on' : ''}" data-az="bestFonte" data-f="png">PNG della campagna (${c.png.length})</button>
+      <button role="tab" class="${f.fonte === 'mostro' ? 'on' : ''}" data-az="bestFonte" data-f="mostro">Mostri condivisi (${Best.mostri.length})</button></div></div>
+    <div class="griglia">
+      <label class="campo" style="grid-column:span 2"><span>Cerca per nome</span><input type="text" data-best="testo" value="${esc(f.testo)}" placeholder="es. imbalsamato"></label>
+      <label class="campo"><span>Tipo</span><input type="text" data-best="tipo" value="${esc(f.tipo)}" placeholder="es. non morto"></label>
+      <label class="campo"><span>Etichetta</span><input type="text" data-best="etichetta" value="${esc(f.etichetta)}"></label>
+      <label class="campo"><span>GS da</span><input type="number" data-best="gs_min" value="${esc(f.gs_min)}"></label>
+      <label class="campo"><span>GS a</span><input type="number" data-best="gs_max" value="${esc(f.gs_max)}"></label></div>
+    <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-best="preferiti" ${f.preferiti ? 'checked' : ''}> solo preferiti ★</label><span class="spazio"></span>
+      <button class="btn min prim" data-az="nuovaScheda">+ Scheda</button><button class="btn min oro" data-az="incolla">Incolla</button>
+      ${f.fonte === 'mostro' ? '<button class="btn min" data-az="esportaBest">Esporta</button>' : ''}</div>
+    <div id="best-lista">${listaSchede()}</div></div>`;
+}
+function listaSchede() {
+  const f = S.ui.best, lista = f.fonte === 'mostro' ? Best.mostri : S.camp.png, res = M.cercaSchede(lista, f);
+  if (!lista.length) return `<div class="vuoto">${f.fonte === 'mostro' ? 'Nessun mostro condiviso.' : 'Nessun PNG in questa campagna.'} Crea una scheda con «+ Scheda» o incolla uno stat block da un documento d'avventura.</div>`;
+  if (!res.length) return '<p class="tenue piccolo">Nessuna scheda con questi filtri.</p>';
+  return `<ul class="voci">${res.map(s => { const xp = usaXP() && M.xpDi(s) ? ` · ${migl(M.xpDi(s))} XP` : '';
+    return `<li class="voce${S.ui.vista && S.ui.vista.rif.id === s.id ? ' sel' : ''}"><button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${f.fonte}:${s.id}" title="Preferito" aria-label="Preferito">${s.preferito ? '★' : '☆'}</button>
+      <button class="voce-corpo" data-az="vediScheda" data-rif="${f.fonte}:${s.id}"><span class="voce-nome">${esc(s.nome)}</span>
+        <span class="tenue piccolo">${esc([s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs + xp : ''].filter(Boolean).join(' · '))}</span>
+        ${(s.etichette || []).length ? `<span class="piccolo">${s.etichette.map(e => `<span class="chip">${esc(e)}</span>`).join(' ')}</span>` : ''}</button>
+      <span class="chips">${badgeSegn(s)}</span></li>`; }).join('')}</ul>`;
+}
+// ---------- terza colonna: la scheda (stat block di lato, O1)
+function disegnaVista() {
+  const v = S.ui.vista, s = v && schedaDi(v.rif), c = S.camp, cb = c.combattimento;
+  if (!s) return `<div class="pannello"><p class="tenue">Scheda non trovata${v && v.rif.fonte === 'mostro' ? ' nel bestiario condiviso' : ''}.</p></div>`;
+  const r = v.riga && cb && cb.righe[v.riga];
+  const fonte = v.rif.fonte === 'mostro' ? 'Mostro condiviso' : 'PNG della campagna';
+  return `<div class="pannello"><div class="fila"><button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${rifStr(v.rif)}">${s.preferito ? '★' : '☆'}</button><h3>${esc(s.nome)}</h3>
+      <span class="tenue piccolo">${fonte}${r ? ` · riga «${esc(M.etichetta(r))}»` : ''}</span></div>
+    <div class="fila">${badgeSegn(s)}<span class="spazio"></span><button class="btn min" data-az="segnScheda" data-rif="${rifStr(v.rif)}">Segnalazioni</button>
+      <button class="btn min prim" data-az="modificaScheda" data-rif="${rifStr(v.rif)}">Modifica</button><button class="btn min oro" data-az="copiaTesto" data-rif="${rifStr(v.rif)}">Copia come testo</button></div>
+    <div class="sb">${htmlStatBlock(s)}</div>
+    <div class="fila"><button class="btn min" data-az="duplicaScheda" data-rif="${rifStr(v.rif)}">Duplica</button>
+      <button class="btn min" data-az="copiaAltrove" data-rif="${rifStr(v.rif)}">${v.rif.fonte === 'mostro' ? 'Copia nei PNG' : 'Copia nei Mostri'}</button>
+      ${v.rif.fonte === 'png' ? `<button class="btn min" data-az="copiaCampagna" data-rif="${rifStr(v.rif)}">Copia in un'altra campagna</button>` : ''}
+      <button class="btn min" data-az="schedaInIncontro" data-rif="${rifStr(v.rif)}">In un incontro</button>
+      ${cb ? `<button class="btn min oro" data-az="schedaRinforzi" data-rif="${rifStr(v.rif)}">+ Al combattimento</button>` : ''}
+      <span class="spazio"></span><button class="btn min peric" data-az="eliminaScheda" data-rif="${rifStr(v.rif)}">Elimina</button></div></div>`;
+}
+// ---------- terza colonna: Incontri (N)
+function disegnaIncontri() {
+  const c = S.camp, k = M.cartelle(c), inc = S.ui.incontro && c.incontri.find(x => x.id === S.ui.incontro);
+  const riga = i => { const xp = usaXP() ? M.xpIncontro(i, schedaDi).totale : 0;
+    return `<li class="voce${S.ui.incontro === i.id ? ' sel' : ''}"><button class="voce-corpo" data-az="selIncontro" data-id="${i.id}"><span class="voce-nome">${esc(i.titolo)}</span>
+      <span class="tenue piccolo">${esc([i.luogo, i.partecipanti.map(p => `${p.nome}${p.n > 1 ? ' ×' + p.n : ''}`).join(', '), xp ? migl(xp) + ' XP' : ''].filter(Boolean).join(' · '))}</span></button>
+      <span class="chips">${i.stato === 'giocato' ? '<span class="chip ok">giocato</span>' : ''}</span></li>`; };
+  return `<div class="pannello"><div class="fila"><h3>Incontri</h3><span class="tenue piccolo">${c.incontri.length}</span><span class="spazio"></span><button class="btn min prim" data-az="nuovoIncontro">+ Incontro</button></div>
+    ${k.length ? k.map(a => `<details class="cartella" open><summary>${esc(a.atto)}</summary>${a.capitoli.map(cp => `${cp.capitolo ? `<div class="capitolo">${esc(cp.capitolo)}</div>` : ''}<ul class="voci">${cp.incontri.map(riga).join('')}</ul>`).join('')}</details>`).join('')
+      : '<div class="vuoto">Nessun incontro. Un incontro raccoglie mostri e PNG con le quantità, i promemoria per round e il tesoro; «Avvia» lo porta nell\'iniziativa.</div>'}</div>
+    ${inc ? disegnaIncontro(inc) : ''}`;
+}
+function disegnaIncontro(inc) {
+  const c = S.camp, xp = M.xpIncontro(inc, schedaDi);
+  const tesori = inc.partecipanti.map(p => ({ p, s: schedaDi(p.rif) })).filter(x => x.s && x.s.tesoro);
+  return `<div class="pannello"><div class="fila"><h3>${esc(inc.titolo)}</h3><span class="tenue piccolo">${esc([inc.atto, inc.capitolo, inc.luogo].filter(Boolean).join(' · '))}</span></div>
+    ${inc.stato === 'giocato' ? `<span class="chip ok">giocato${inc.giocato_R != null ? ' il ' + esc(M.formatoData(c, inc.giocato_R, false)) : ''}</span>` : ''}
+    ${inc.note ? `<div class="note-inc">${mdLite(inc.note)}</div>` : ''}
+    <h4 class="sotto">Partecipanti</h4><ul class="voci">${inc.partecipanti.map(p => { const s = schedaDi(p.rif);
+      return `<li class="voce"><span class="voce-corpo"><span class="voce-nome">${esc(p.nome)}${p.n > 1 ? ' ×' + p.n : ''}</span>
+        <span class="tenue piccolo">${esc([p.modo === 'singolo' && p.n > 1 ? 'iniziativa per singolo' : p.n > 1 ? 'iniziativa per tipo' : '', p.nascosto ? 'nascosto all\'inizio' : '', p.nomeTv ? 'TV: ' + p.nomeTv : '', s ? (s.gs !== '' ? 'GS ' + s.gs : '') : p.rif ? 'scheda non trovata' : 'senza scheda'].filter(Boolean).join(' · '))}</span></span>
+        ${s ? `<button class="btn min" data-az="vediScheda" data-rif="${rifStr(p.rif)}">Scheda</button>` : ''}</li>`; }).join('')}</ul>
+    ${inc.promemoria.length ? `<h4 class="sotto">Promemoria per round</h4>${inc.promemoria.map(p => `<div class="piccolo"><b class="num">Round ${p.round}</b> ${esc(p.testo)}</div>`).join('')}` : ''}
+    ${inc.tesoro || tesori.length ? `<h4 class="sotto">💰 Tesoro</h4>${inc.tesoro ? mdLite(inc.tesoro) : ''}${tesori.map(x => `<div class="piccolo">${esc(x.p.nome)}: ${esc([x.s.tesoro.livello ? 'livello ' + x.s.tesoro.livello : '', x.s.tesoro.quantita, x.s.tesoro.dove, x.s.tesoro.note].filter(Boolean).join(' · ') || 'da generare')}</div>`).join('')}
+      <p class="tenue piccolo">Il tesoro si genera con l'app dei Tesori.</p>` : ''}
+    ${usaXP() ? `<p class="piccolo"><b>XP dell'incontro:</b> <span class="num">${migl(xp.totale)}</span>${xp.mancanti.length ? ` <span class="tenue">(senza scheda: ${esc(xp.mancanti.join(', '))})</span>` : ''}</p>` : ''}
+    <div class="fila"><button class="btn prim" data-az="avviaIncontro" data-id="${inc.id}">Avvia</button><button class="btn" data-az="modificaIncontro" data-id="${inc.id}">Modifica</button>
+      <button class="btn" data-az="duplicaIncontro" data-id="${inc.id}">Duplica</button><span class="spazio"></span><button class="btn min peric" data-az="eliminaIncontro" data-id="${inc.id}">Elimina</button></div></div>`;
+}
+// ---------- barra del turno: promemoria del round e tattiche della scheda (O2)
+function barraTattiche(a) {
+  const c = S.camp, pr = M.promemoriaRound(c), T = M.tatticheTurno(c, schedaDi, a.id);
+  let h = pr.length ? `<div class="chips">${pr.map(x => `<span class="chip promem">Round ${c.combattimento.round}: ${esc(x)}</span>`).join('')}</div>` : '';
+  if (!T) return h;
+  if (T.mancante) return h + '<span class="tenue piccolo">Scheda non trovata.</span>';
+  h += T.voci.map(v => `<div class="tattica"><b>${esc(v.titolo)}</b> ${coloraTutte(esc(v.testo))}</div>`).join('');
+  const fuga = S.ui.fuga[a.id];
+  h += `<div class="fila">${T.fuga ? `<button class="btn min${fuga ? ' oro' : ''}" data-az="fuga" data-id="${a.id}">Fuga o resa</button>` : ''}
+    ${!a.pf ? `<button class="btn min${a.faticaFinita ? ' oro' : ''}" data-az="cmd" data-c="faticaFinita" data-id="${a.id}">${a.faticaFinita ? 'Fatica finita ✓' : 'Fatica finita'}</button>` : ''}
+    <button class="btn min" data-az="vediRiga" data-id="${a.id}">Stat block</button></div>`;
+  if (fuga && T.fuga) h += `<div class="tattica fuga"><b>Fuga o resa</b> ${coloraTutte(esc(T.fuga))}</div>`;
+  return h;
+}
+function pfRiga(r) {
+  if (!r.pf) return '';
+  return r.pf.map((p, k) => `<span class="chip num${p.ferita < 0 ? ' fer' : p.fatica <= 0 ? ' ver' : ''}" title="${r.n > 1 ? esc(r.nome) + ' ' + (k + 1) + ': ' : ''}Fatica ${p.fatica}/${p.fatica_max}, Ferita ${p.ferita}/${p.ferita_max}">${r.n > 1 ? (k + 1) + ': ' : ''}${p.fatica}/${p.ferita}</span>`).join('');
+}
+
+// ---------- finestra della scheda (valori in linea, calcolo guidato M4, tattiche e tesoro)
+const getP = (o, p) => p.split('.').reduce((x, k) => x == null ? x : x[k], o);
+function setP(o, p, v) { const k = p.split('.'); let x = o; for (const a of k.slice(0, -1)) { if (x[a] == null) x[a] = /^\d+$/.test(a) ? [] : {}; x = x[a]; } x[k.at(-1)] = v; }
+function leggiCampo(el) {
+  const t = el.dataset.t;
+  if (t === 'c') return el.checked;
+  if (t === 'n') return el.value.trim() === '' ? null : Number(el.value);
+  if (t === 'i') return el.value.trim() === '' ? 0 : Number(el.value);
+  if (t === 'e') return el.value.split(',').map(x => x.trim()).filter(Boolean);
+  return el.value;
+}
+function campoS(W, k, et, t = 't', o = {}) {
+  const v = getP(W, k), ro = o.calcolato ? ' readonly title="Calcolato dalla scheda guidata"' : '', cls = o.calcolato ? ' calc' : '', span = o.span ? ` style="grid-column:span ${o.span}"` : '';
+  if (t === 'c') return `<label class="spunta"${span}><input type="checkbox" data-k="${k}" data-t="c" ${v ? 'checked' : ''}> ${et}</label>`;
+  if (t === 'a') return `<label class="campo${cls}" style="grid-column:1/-1"><span>${et}</span><textarea data-k="${k}" data-t="t" rows="${o.righe || 3}"${ro}>${esc(v)}</textarea></label>`;
+  if (t === 'sel') return `<label class="campo"${span}><span>${et}</span><select data-k="${k}" data-t="${o.tipo || 's'}">${o.opz.map(([a, b]) => `<option value="${esc(a)}" ${String(a) === String(v ?? '') ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></label>`;
+  const val = t === 'e' ? (v || []).join(', ') : v ?? '';
+  return `<label class="campo${cls}"${span}><span>${et}</span><input type="${t === 'n' || t === 'i' ? 'number' : 'text'}" data-k="${k}" data-t="${t}" value="${esc(val)}"${o.lista ? ` list="${o.lista}"` : ''}${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}${ro}></label>`;
+}
+function finestraScheda(fonte, id, iniziale) {
+  const lista = fonte === 'mostro' ? Best.mostri : S.camp.png, orig = id ? lista.find(s => s.id === id) : null;
+  const W = M.clona(orig || iniziale || M.schedaVuota(fonte === 'mostro' ? 'mostro_pf1' : 'png'));
+  if (!W.guida) W.guida = M.guidaVuota(W.tipo_scheda);
+  let tab = iniziale && iniziale.__tab || (orig ? 'valori' : W.guida.attiva ? 'guida' : 'valori'); delete W.__tab;
+  const calcolati = () => W.guida && W.guida.attiva ? Object.keys(M.calcolaGuida(W, RAZZE).campi) : [];
+  const C = (k, et, t, o = {}) => { const calc = calcolati().includes(k); return campoS(calc ? M.applicaGuida(W, RAZZE) : W, k, et, t, { ...o, calcolato: calc }); };
+  const razza = () => RAZZE.razze.find(r => r.nome === W.guida.razza);
+  function corpoValori() {
+    return `<fieldset><legend>Testata</legend><div class="griglia">${C('epiteto', 'Epiteto')}
+        ${C('classi_testo', 'Classi e livelli', 't', { span: 2, ph: 'es. Guerriero 8 / Ladro 2' })}${C('livello', 'Livello totale', 'n')}${C('gs', 'GS')}${C('xp', 'XP', 'n')}
+        ${C('note_testata', 'Note della testata', 't', { span: 2, ph: 'es. Risvegliato di Mortimer ★' })}${C('fonte', 'Fonte', 't', { span: 2, ph: 'es. PF1e Bestiario, segnalato' })}
+        ${C('n_suggerito', 'Quantità di solito', 'i')}${C('etichette', 'Etichette (separate da virgole)', 'e', { span: 2 })}
+        ${C('alleato', 'Alleato (GS sì, XP no)', 'c')}${C('capacita_trama', 'Capacità dall\'app o oggetto di trama (GS = livello)', 'c', { span: 2 })}</div></fieldset>
+      <fieldset><legend>Razza e sensi</legend><div class="griglia">${C('razza_riga', 'Riga «Razza:»', 't', { span: 3, ph: 'Umanoide Medio (nano) · tratto bonus: … · Neutrale' })}${C('allineamento', 'Allineamento')}
+        ${C('iniziativa', 'Iniziativa', 'n')}${C('ini_nota', 'Nota')}${C('sensi', 'Sensi', 't', { span: 2 })}${C('percezione', 'Percezione', 'n')}${C('perc_nota', 'Nota')}${C('aura', 'Aura', 'a', { righe: 2 })}</div></fieldset>
+      <fieldset><legend>Difesa</legend><div class="griglia stretta">${C('ca', 'CA', 'n')}${C('ca_contatto', 'Contatto', 'n')}${C('ca_sprovvista', 'Sprovvista', 'n')}
+        ${C('pf', 'PF', 'n')}${C('fatica', 'Fatica', 'n')}${C('ferita', 'Ferita', 'n')}${C('tempra', 'Tempra', 'n')}${C('riflessi', 'Riflessi', 'n')}${C('volonta', 'Volontà', 'n')}</div>
+        <div class="griglia">${C('ca_scomp', 'Scomposizione della CA', 't', { span: 3, ph: '[10 + armatura … + Des …]' })}${C('pf_dadi', 'Dadi dei PF')}${C('pf_nota', 'Nota dei PF', 't', { span: 2 })}
+        ${C('solo_ferita', 'Solo Punti Ferita (non morto della Collana)', 'c', { span: 2 })}${C('ts_note', 'Note dei TS', 't', { span: 2, ph: '(+2 contro veleni)' })}${C('difese', 'RD, RE, RI, immunità, vulnerabilità', 'a', { righe: 2 })}</div></fieldset>
+      <fieldset><legend>Offesa</legend><div class="griglia">${C('velocita', 'Velocità', 't', { span: 2 })}${C('bab', 'BaB')}${C('bmc', 'BMC')}${C('dmc', 'DMC')}
+        ${C('mischia', 'Mischia', 'a', { righe: 2 })}${C('distanza', 'Distanza', 'a', { righe: 2 })}${C('speciali', 'Attacchi e capacità speciali', 'a', { righe: 3 })}${C('incantesimi', 'Incantesimi e capacità magiche', 'a', { righe: 2 })}</div></fieldset>
+      <fieldset><legend>Statistiche</legend><div class="griglia stretta">${M_CAR.map(k => campoS(W, 'car.' + k, k + ' (vuoto = —)', 'n')).join('')}</div>
+        <div class="griglia">${C('talenti', 'Talenti', 'a', { righe: 2 })}${C('abilita', 'Abilità', 'a', { righe: 2 })}${C('lingue', 'Lingue', 't', { span: 2 })}${C('sintonia', 'Sintonia', 't', { span: 2 })}
+        ${C('tratti', 'Tratti razziali', 'a', { righe: 2 })}${C('equip', 'Equipaggiamento', 'a', { righe: 2 })}${C('statistiche_altro', 'Altro (gesta, doti…)', 'a', { righe: 2 })}</div></fieldset>
+      ${(W.extra || []).map((e, i) => `<fieldset><legend>Sezione «${esc(e.titolo)}»</legend>${campoS(W, `extra.${i}.testo`, 'Testo', 'a', { righe: 3 })}</fieldset>`).join('')}
+      <fieldset><legend>Non riconosciuto</legend>${C('altro', 'Testo che l\'app non ha riconosciuto (esce in «Note»)', 'a', { righe: 2 })}</fieldset>`;
+  }
+  function corpoGuida() {
+    const g = W.guida, rz = razza();
+    if (W.tipo_scheda === 'mostro_pf1') return `<label class="spunta"><input type="checkbox" data-k="guida.attiva" data-t="c" ${g.attiva ? 'checked' : ''}> Usa il calcolo (PF del bestiario divisi, GS e XP)</label>
+      <div class="griglia">${campoS(W, 'guida.pf_bestiario', 'PF del bestiario', 'n')}${campoS(W, 'guida.gs_bestiario', 'GS del bestiario')}</div>
+      <p class="tenue piccolo">Mostro da PF1: Fatica = metà dei PF, Ferita = l'altra metà (il dispari ai Ferita); volo standard; GS e XP del bestiario. Gli altri valori si scrivono in «Valori».</p>`;
+    const opzRazze = [['', '— nessuna —'], ...RAZZE.razze.map(r => [r.nome, r.nome])];
+    const tratti = rz ? [['', '—'], ...rz.opzioni.voci.map(v => [v.nome, v.nome]), ...RAZZE.generici.voci.map(v => [v.nome, v.nome + ' (generico)'])] : [['', '—']];
+    const righe = (path, campi, piu) => `${getP(W, path).map((x, i) => `<div class="riga-tab">${campi(i)}<button class="btn min" data-sk="togli" data-p="${path}" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<button class="btn min" data-sk="aggiungi" data-p="${path}">${piu}</button>`;
+    return `<label class="spunta"><input type="checkbox" data-k="guida.attiva" data-t="c" ${g.attiva ? 'checked' : ''}> Usa il calcolo guidato (i valori calcolati riempiono la scheda)</label>
+      <fieldset><legend>Classi</legend>${righe('guida.classi', i => `${campoS(W, `guida.classi.${i}.classe`, 'Classe', 'sel', { opz: [['', '—'], ...M.CLASSI.map(x => [x, x])] })}${campoS(W, `guida.classi.${i}.livello`, 'Livello', 'i')}
+        ${campoS(W, `guida.classi.${i}.archetipo`, 'Archetipo')}${campoS(W, `guida.classi.${i}.dv`, 'DV', 'sel', { tipo: 'i', opz: [[6, 'd6'], [8, 'd8'], [10, 'd10'], [12, 'd12']] })}`, '+ Classe')}
+        <div class="griglia stretta">${campoS(W, 'guida.bab', 'BAB (tabella)', 'i')}${campoS(W, 'guida.ts_base.tempra', 'Tempra base', 'i')}${campoS(W, 'guida.ts_base.riflessi', 'Riflessi base', 'i')}${campoS(W, 'guida.ts_base.volonta', 'Volontà base', 'i')}</div>
+        <p class="tenue piccolo">BAB e TS base dalla tabella della classe (Vol. 2). Primo DV pieno, poi le medie col ritiro: d6 4 · d8 5,5 · d10 6,5 · d12 8.</p></fieldset>
+      <fieldset><legend>Razza (Razze.md)</legend><div class="griglia">${campoS(W, 'guida.razza', 'Razza', 'sel', { opz: opzRazze })}${campoS(W, 'guida.tratto_bonus', 'Tratto bonus', 'sel', { opz: tratti })}
+        ${campoS(W, 'guida.taglia', 'Taglia', 'sel', { opz: Object.entries(M.TAGLIE_PNG).map(([k, v]) => [k, v.nome]) })}${campoS(W, 'tiro_razza', 'Tiro della razza (facoltativo)', 't', { ph: 'd100 = 57 → nano' })}</div>
+        ${rz ? `<p class="piccolo"><b>${esc(rz.tipo_scheda)}</b> · ${esc(rz.movimento)}${rz.sensi.length ? ' · ' + esc(rz.sensi.join(', ')) : ''} · ${esc(rz.dati.Caratteristiche.split('.')[0])}</p>
+          <p class="piccolo tenue">Tratti: ${esc(rz.tratti.map(t => t.nome).join(', '))}</p><div><button class="btn min" data-sk="tratti">Copia i tratti nella scheda</button></div>` : ''}</fieldset>
+      <fieldset><legend>Caratteristiche</legend><div class="griglia stretta">${M_CAR.map(k => campoS(W, 'car.' + k, k, 'n')).join('')}</div></fieldset>
+      <fieldset><legend>Difesa</legend><div class="griglia stretta">${campoS(W, 'guida.armatura.nome', 'Armatura')}${campoS(W, 'guida.armatura.base', 'Bonus', 'i')}${campoS(W, 'guida.armatura.sintonia', 'Sintonia', 'i')}${campoS(W, 'guida.armatura.des_max', 'Des max', 'n')}
+        ${campoS(W, 'guida.scudo.nome', 'Scudo')}${campoS(W, 'guida.scudo.base', 'Bonus', 'i')}${campoS(W, 'guida.scudo.sintonia', 'Sintonia', 'i')}
+        ${campoS(W, 'guida.naturale', 'Naturale', 'i')}${campoS(W, 'guida.deviazione', 'Deviazione', 'i')}${campoS(W, 'guida.schivare', 'Schivare', 'i')}${campoS(W, 'guida.altri_ca', 'Altri CA', 'i')}
+        ${campoS(W, 'guida.pf_extra', 'PF extra', 'i')}${campoS(W, 'guida.ts_extra.tempra', 'Tempra extra', 'i')}${campoS(W, 'guida.ts_extra.riflessi', 'Riflessi extra', 'i')}${campoS(W, 'guida.ts_extra.volonta', 'Volontà extra', 'i')}</div>
+        <div class="griglia">${campoS(W, 'guida.robustezza', 'Robustezza (+1 PF per livello)', 'c', { span: 2 })}${campoS(W, 'guida.ts_condizionali', 'TS condizionali', 't', { span: 2, ph: '+2 contro veleni' })}</div></fieldset>
+      <fieldset><legend>Offesa</legend><div class="griglia">${campoS(W, 'guida.iniziativa_extra', 'Iniziativa extra', 'i')}${campoS(W, 'guida.attacco_poderoso', 'Attacco poderoso (della casa)', 'c', { span: 2 })}</div>
+        ${righe('guida.armi', i => `${campoS(W, `guida.armi.${i}.nome`, 'Arma')}${campoS(W, `guida.armi.${i}.danni`, 'Danni', 't', { ph: '1d8' })}${campoS(W, `guida.armi.${i}.critico`, 'Critico', 't', { ph: '19–20/×2' })}
+          ${campoS(W, `guida.armi.${i}.sintonia`, 'Sintonia', 'i')}${campoS(W, `guida.armi.${i}.tc_extra`, 'Colpire extra', 'i')}${campoS(W, `guida.armi.${i}.danni_extra`, 'Danni extra', 'i')}${campoS(W, `guida.armi.${i}.incremento`, 'Incremento')}
+          ${campoS(W, `guida.armi.${i}.distanza`, 'a distanza', 'c')}${campoS(W, `guida.armi.${i}.due_mani`, 'a due mani', 'c')}${campoS(W, `guida.armi.${i}.for_ai_danni`, 'For ai danni', 'c')}`, '+ Arma')}</fieldset>
+      <fieldset><legend>Abilità</legend>${righe('guida.abilita', i => `${campoS(W, `guida.abilita.${i}.nome`, 'Abilità', 't', { lista: 'lista-abil' })}${campoS(W, `guida.abilita.${i}.gradi`, 'Gradi', 'i')}
+          ${campoS(W, `guida.abilita.${i}.razziale`, 'Razziale', 'i')}${campoS(W, `guida.abilita.${i}.vari`, 'Vari', 'i')}${campoS(W, `guida.abilita.${i}.di_classe`, 'di classe', 'c')}${campoS(W, `guida.abilita.${i}.background`, 'background', 'c')}`, '+ Abilità')}
+        <datalist id="lista-abil">${Object.keys(M.ABIL_CAR).map(a => `<option value="${a}">`).join('')}<option value="Conoscenze (generali)"><option value="Professione (cerusico)"></datalist></fieldset>
+      <fieldset><legend>Talenti</legend>${righe('guida.talenti', i => `${campoS(W, `guida.talenti.${i}.nome`, 'Talento', 't')}${campoS(W, `guida.talenti.${i}.tipo`, 'Tipo', 'sel', { opz: [['liv', 'di livello'], ['C', 'di classe (C)'], ['R', 'razziale (R)']] })}`, '+ Talento')}</fieldset>`;
+  }
+  function corpoTattiche() {
+    const t = W.tesoro;
+    return `<p class="tenue piccolo">Obbligatorie: almeno un momento, la fuga o la resa e (per i PNG) il tratto razziale usato. «Round 1», «Round 2–3» e «Finita la Fatica» compaiono da sole nella barra del turno; «Fuga o resa» è sempre a un clic.</p>
+      ${campoS(W, 'tattiche.generale', 'Tattiche in generale (senza un momento preciso)', 'a', { righe: 2 })}${M.TATTICHE.map(([k, et]) => campoS(W, 'tattiche.' + k, et, 'a', { righe: 2 })).join('')}
+      <fieldset><legend>💰 Tesoro</legend><label class="spunta"><input type="checkbox" data-sk="tesoro" ${t ? 'checked' : ''}> Porta un tesoro</label>
+        ${t ? `<div class="griglia">${campoS(W, 'tesoro.livello', 'Livello di riferimento')}${campoS(W, 'tesoro.quantita', 'Quantità')}${campoS(W, 'tesoro.dove', 'Chi lo porta, dove', 't', { span: 2 })}${campoS(W, 'tesoro.note', 'Note', 'a', { righe: 2 })}</div>` : ''}
+        <p class="tenue piccolo">Il tesoro si genera con l'app dei Tesori: qui resta il promemoria.</p></fieldset>`;
+  }
+  function risultato() {
+    if (!W.guida.attiva) return '<p class="tenue piccolo">Calcolo guidato spento: valgono i valori scritti.</p>';
+    const r = M.calcolaGuida(W, RAZZE), c = r.campi, d = r.det;
+    const riga = (et, v) => v === undefined || v === null || v === '' ? '' : `<div><b>${et}</b> ${esc(v)}</div>`;
+    return `${riga('CA', c.ca !== undefined ? `${c.ca} (contatto ${c.ca_contatto}, sprovvista ${c.ca_sprovvista}) ${c.ca_scomp}` : '')}${riga('PF', c.pf !== undefined ? `${c.pf} — Fatica ${c.fatica} / Ferita ${c.ferita}${d.pf ? ' · ' + d.pf : ''}` : '')}
+      ${riga('TS', c.tempra !== undefined ? `Tempra ${segno(c.tempra)}, Riflessi ${segno(c.riflessi)}, Volontà ${segno(c.volonta)} ${c.ts_note || ''}` : '')}${riga('Iniziativa', c.iniziativa !== undefined ? segno(c.iniziativa) : '')}
+      ${riga('BaB / BMC / DMC', c.bab ? `${c.bab} / ${c.bmc} / ${c.dmc}` : '')}${riga('Attacchi', [c.mischia, c.distanza].filter(Boolean).join(' · '))}${riga('Abilità', c.abilita)}${riga('Talenti', d.talenti)}
+      ${riga('Sintonia', d.sintonia)}${riga('GS', c.gs !== undefined ? `${c.gs}${c.xp ? ` · ${migl(c.xp)} XP` : W.alleato ? ' · alleato, niente XP' : ''} (${d.gs || 'bestiario'})` : '')}${riga('BAB', d.bab)}
+      ${r.avvisi.map(a => `<div class="mod">${esc(a)}</div>`).join('')}`;
+  }
+  const titolo = () => orig ? `Scheda: ${esc(orig.nome)}` : fonte === 'mostro' ? 'Nuovo mostro condiviso' : 'Nuovo PNG';
+  const tipi = [['png', 'PNG (classi della Collana)'], ['mostro_pf1', 'Mostro da PF1 o bestiario']];
+  const corpo = () => `<div class="griglia">${campoS(W, 'nome', 'Nome', 't', { span: 2 })}${campoS(W, 'tipo_scheda', 'Tipo di scheda', 'sel', { opz: tipi })}</div><div class="schede" role="tablist">${[['valori', 'Valori'], ['guida', 'Calcolo guidato'], ['tattiche', 'Tattiche e tesoro']].map(([k, t]) => `<button role="tab" type="button" class="${tab === k ? 'on' : ''}" data-sk="tab" data-v="${k}">${t}</button>`).join('')}</div>
+    <div id="sk-corpo">${tab === 'valori' ? corpoValori() : tab === 'guida' ? corpoGuida() : corpoTattiche()}</div>
+    <fieldset><legend>Calcolo</legend><div id="sk-calcolo" class="piccolo">${risultato()}</div></fieldset>
+    <fieldset><legend>Segnalazioni</legend><div id="sk-segn">${elencoSegn(M.applicaGuida(W, RAZZE))}</div></fieldset>`;
+  const el = apri({ titolo: titolo(), larga: true, corpo: corpo(), azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: () => {
+    const fin = M.applicaGuida(W, RAZZE); if (!String(fin.nome).trim()) throw new Error('Scrivi il nome');
+    const ora = Date.now(), s = orig ? fin : M.nuovaScheda(fin, rng, ora, fonte === 'mostro' ? 'm' : 'p');
+    if (fonte === 'mostro') aggiornaMostri(M.salvaScheda(Best.mostri, s, ora)); else applica(M.salvaPNG(S.camp, s, ora));
+    S.ui.best.fonte = fonte; S.ui.vista = { rif: { fonte, id: s.id } }; S.ui.scheda = 'vista'; disegna(); avviso(orig ? 'Scheda salvata' : 'Scheda creata');
+  } }] });
+  const ridisegna = () => { const y = el.querySelector('.corpo').scrollTop; el.querySelector('.corpo').innerHTML = corpo(); el.querySelector('.corpo').scrollTop = y; };
+  const aggiorna = () => { const x = M.applicaGuida(W, RAZZE); el.querySelector('#sk-calcolo').innerHTML = risultato(); el.querySelector('#sk-segn').innerHTML = elencoSegn(x);
+    for (const i of el.querySelectorAll('.calc [data-k]')) { const v = getP(x, i.dataset.k); if (document.activeElement !== i) i.value = v ?? ''; } };
+  const leggi = ev => { const x = ev.target; if (!x.dataset || !x.dataset.k) return false; setP(W, x.dataset.k, leggiCampo(x)); return x.dataset.k; };
+  el.addEventListener('input', ev => { const k = leggi(ev); if (k && !/^(guida\.razza|guida\.attiva|tipo_scheda)$/.test(k)) aggiorna(); });
+  el.addEventListener('change', ev => {
+    const k = leggi(ev); if (!k) return;
+    if (k === 'guida.razza') { const rz = razza(); if (rz) W.guida.taglia = rz.taglia; W.guida.tratto_bonus = ''; ridisegna(); }
+    else if (k === 'tipo_scheda') { const att = W.guida.attiva; W.guida = { ...M.guidaVuota(W.tipo_scheda), ...W.guida, attiva: W.tipo_scheda === 'png' ? att : false }; ridisegna(); }
+    else if (k === 'guida.attiva' || k.startsWith('guida.classi')) ridisegna(); else aggiorna();
+  });
+  el.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-sk]'); if (!b) return;
+    const a = b.dataset.sk;
+    if (a === 'tab') { tab = b.dataset.v; ridisegna(); }
+    if (a === 'aggiungi') { const vuoti = { 'guida.classi': { classe: '', livello: 1, archetipo: '', dv: 8 }, 'guida.armi': { nome: '', danni: '1d8', critico: '×2', sintonia: 0 }, 'guida.abilita': { nome: '', gradi: 0, di_classe: false }, 'guida.talenti': { nome: '', tipo: 'liv' } };
+      getP(W, b.dataset.p).push(vuoti[b.dataset.p]); ridisegna(); }
+    if (a === 'togli') { getP(W, b.dataset.p).splice(+b.dataset.i, 1); ridisegna(); }
+    if (a === 'tratti') { const rz = razza(); W.tratti = rz.tratti.map(t => t.nome).join(', '); avviso('Tratti copiati nella scheda'); aggiorna(); }
+    if (a === 'tesoro') { W.tesoro = b.checked ? { livello: '', quantita: '', dove: '', note: '' } : null; ridisegna(); }
+  });
+  return el;
+}
+const M_CAR = ['For', 'Des', 'Cos', 'Int', 'Sag', 'Car'];
+// ---------- «Incolla» (M3): uno o più stat block da un documento d'avventura
+function finestraIncolla() {
+  const st = { blocchi: [] };
+  const anteprima = el => {
+    el.querySelector('#inc-ant').innerHTML = st.blocchi.length ? `<p class="piccolo"><b>${st.blocchi.length}</b> ${st.blocchi.length === 1 ? 'stat block trovato' : 'stat block trovati'}.</p>${st.blocchi.map((b, i) => { const s = b.scheda, sg = M.segnalazioni(s, DIV);
+      return `<div class="voce-inc"><label class="spunta"><input type="checkbox" name="k${i}" checked> <b>${esc(s.nome)}</b></label>
+        <span class="tenue piccolo">${esc([s.tipo_scheda === 'png' ? 'PNG' : 'mostro', s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs : '', s.n_suggerito > 1 ? '×' + s.n_suggerito : '', s.ca !== null ? 'CA ' + s.ca : '', s.pf !== null ? `PF ${s.pf} (${s.fatica}/${s.ferita})` : '', s.iniziativa !== null ? 'Iniz. ' + segno(s.iniziativa) : ''].filter(Boolean).join(' · '))}</span>
+        <select name="d${i}" aria-label="Dove"><option value="png" ${s.tipo_scheda === 'png' ? 'selected' : ''}>PNG della campagna</option><option value="mostro" ${s.tipo_scheda !== 'png' ? 'selected' : ''}>Mostri condivisi</option></select>
+        ${b.avvisi.length ? `<div class="piccolo tenue">${esc(b.avvisi.join(' · '))}</div>` : ''}${sg.length ? `<div class="piccolo">${badgeSegn(s)} ${esc(sg.slice(0, 3).map(x => x.testo).join(' · '))}${sg.length > 3 ? ' …' : ''}</div>` : ''}</div>`; }).join('')}`
+      : '<p class="tenue piccolo">Nessuno stat block: la riga del titolo deve essere come «NOME — Classe N · GS N · XP N» (o «NOME · GS N · XP N»).</p>';
+  };
+  const el = apri({ titolo: 'Incolla stat block', larga: true, corpo: `<p class="tenue piccolo">Incolla uno o più stat block copiati da un documento d'avventura (anche un'intera sezione): l'app trova i blocchi «NOME — … · GS N» e li legge campo per campo. Ciò che non riconosce resta come testo nella scheda.</p>
+      <textarea name="t" rows="10" placeholder="MERKH — Pistolero 7 · GS 6 · XP 2.400&#10;Razza: …&#10;Iniziativa +7 | Sensi: … | Percezione +13&#10;── DIFESA ──&#10;…"></textarea><div id="inc-ant"></div>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Leggi', fn: f => { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); return false; } },
+      { testo: 'Importa', classe: 'prim', fn: f => {
+        if (!st.blocchi.length) { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); if (!st.blocchi.length) throw new Error('Nessuno stat block da importare'); return false; }
+        const ora = Date.now(); let c = S.camp, mostri = Best.mostri, n = 0, ultimo = null;
+        st.blocchi.forEach((b, i) => { if (!spunta(f, 'k' + i)) return; const dove = val(f, 'd' + i).value, s = M.nuovaScheda(b.scheda, rng, ora, dove === 'mostro' ? 'm' : 'p');
+          if (dove === 'mostro') mostri = M.salvaScheda(mostri, s, ora); else c = M.salvaPNG(c, s, ora); n++; ultimo = { fonte: dove, id: s.id }; });
+        if (!n) throw new Error('Nessuno stat block scelto');
+        Best.mostri = mostri; salvaBestiario(); S.ui.scheda = 'bestiario'; S.ui.best.fonte = c.png.length > S.camp.png.length ? 'png' : 'mostro'; if (n === 1) { S.ui.vista = { rif: ultimo }; S.ui.scheda = 'vista'; }
+        applica(c); avviso(`Importate ${n} schede`);
+      } }] });
+  el.addEventListener('input', ev => { if (ev.target.name === 't') { st.blocchi = []; el.querySelector('#inc-ant').innerHTML = ''; } });
+  return el;
+}
+// ---------- finestra dell'incontro (N1)
+function opzSchede(sel) {
+  const g = (et, l, f) => l.length ? `<optgroup label="${et}">${M.cercaSchede(l, {}).map(s => `<option value="${f}:${s.id}" ${sel === f + ':' + s.id ? 'selected' : ''}>${esc(s.nome)}${s.gs !== '' ? ' · GS ' + s.gs : ''}</option>`).join('')}</optgroup>` : '';
+  return `<option value="">— senza scheda —</option>${g('PNG della campagna', S.camp.png, 'png')}${g('Mostri condivisi', Best.mostri, 'mostro')}`;
+}
+function finestraIncontro(id, iniziale) {
+  const c = S.camp, orig = id ? c.incontri.find(x => x.id === id) : null;
+  const W = M.clona(orig || { ...M.incontroVuoto(), ...(iniziale || {}) });
+  const atti = [...new Set(c.incontri.map(i => i.atto).filter(Boolean))], capi = [...new Set(c.incontri.map(i => i.capitolo).filter(Boolean))];
+  const xpTot = () => usaXP() ? `<p class="piccolo"><b>XP dell'incontro:</b> <span class="num">${migl(M.xpIncontro(W, schedaDi).totale)}</span></p>` : '';
+  const corpo = () => `<div class="griglia">${campoS(W, 'titolo', 'Titolo', 't', { span: 2 })}${campoS(W, 'luogo', 'Luogo')}
+      ${campoS(W, 'atto', 'Atto (cartella)', 't', { lista: 'lista-atti', ph: 'es. Atto II' })}${campoS(W, 'capitolo', 'Capitolo', 't', { lista: 'lista-capi', ph: 'es. Cap. 3' })}
+      ${campoS(W, 'stato', 'Stato', 'sel', { opz: [['da giocare', 'da giocare'], ['giocato', 'giocato']] })}</div>
+      <datalist id="lista-atti">${atti.map(a => `<option value="${esc(a)}">`).join('')}</datalist><datalist id="lista-capi">${capi.map(a => `<option value="${esc(a)}">`).join('')}</datalist>
+    <fieldset><legend>Partecipanti</legend>${W.partecipanti.map((p, i) => `<div class="riga-tab">
+        <label class="campo" style="grid-column:span 2"><span>Scheda</span><select data-inc="rif" data-i="${i}">${opzSchede(rifStr(p.rif))}</select></label>
+        ${campoS(W, `partecipanti.${i}.nome`, 'Nome')}${campoS(W, `partecipanti.${i}.n`, 'Quantità', 'i')}
+        ${campoS(W, `partecipanti.${i}.modo`, 'Iniziativa', 'sel', { opz: [['tipo', 'per tipo'], ['singolo', 'per singolo']] })}${p.rif ? '' : campoS(W, `partecipanti.${i}.bonus`, 'Bonus iniz.', 'i')}
+        ${campoS(W, `partecipanti.${i}.nomeTv`, 'Nome per i giocatori', 't', { ph: 'es. Figura incappucciata' })}${campoS(W, `partecipanti.${i}.nascosto`, 'nascosto all\'inizio', 'c')}${campoS(W, `partecipanti.${i}.imp`, 'impreparato', 'c')}
+        <button class="btn min" data-ic="togliP" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<button class="btn min" data-ic="aggP">+ Partecipante</button></fieldset>
+    <fieldset><legend>Promemoria per round</legend>${W.promemoria.map((p, i) => `<div class="riga-tab">${campoS(W, `promemoria.${i}.round`, 'Round', 'i')}${campoS(W, `promemoria.${i}.testo`, 'Promemoria', 't', { span: 3, ph: 'es. crolla il ponte' })}
+        <button class="btn min" data-ic="togliR" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<button class="btn min" data-ic="aggR">+ Promemoria</button></fieldset>
+    ${campoS(W, 'note', 'Note (**grassetto**, elenchi con «- »)', 'a', { righe: 4 })}<div id="inc-anteprima" class="note-inc piccolo">${mdLite(W.note)}</div>
+    ${campoS(W, 'tesoro', 'Tesoro (testo)', 'a', { righe: 2 })}<div id="inc-xp">${xpTot()}</div>`;
+  const azioni = [{ testo: 'Annulla' }, { testo: orig ? 'Salva' : 'Crea', classe: 'prim', fn: () => {
+    for (const p of W.partecipanti) { p.n = Number(p.n); if (!p.nome && p.rif) { const s = schedaDi(p.rif); if (s) p.nome = s.nome; } }
+    const c2 = M.salvaIncontro(S.camp, W); const nuovo = orig ? orig.id : c2.incontri[c2.incontri.length - 1].id;
+    S.ui.incontro = nuovo; S.ui.scheda = 'incontri'; applica(c2); avviso(orig ? 'Incontro salvato' : 'Incontro creato'); } }];
+  if (orig) azioni.unshift({ testo: 'Elimina', classe: 'peric', fn: () => { AZ.eliminaIncontro({ dataset: { id: orig.id } }); } });
+  const el = apri({ titolo: orig ? `Incontro: ${esc(orig.titolo)}` : 'Nuovo incontro', larga: true, corpo: corpo(), azioni });
+  const ridisegna = () => { const y = el.querySelector('.corpo').scrollTop; el.querySelector('.corpo').innerHTML = corpo(); el.querySelector('.corpo').scrollTop = y; };
+  el.addEventListener('input', ev => { const x = ev.target; if (x.dataset.k) { setP(W, x.dataset.k, leggiCampo(x)); if (x.dataset.k === 'note') el.querySelector('#inc-anteprima').innerHTML = mdLite(W.note); if (/\.n$/.test(x.dataset.k)) el.querySelector('#inc-xp').innerHTML = xpTot(); } });
+  el.addEventListener('change', ev => { const x = ev.target; if (x.dataset.inc === 'rif') { const p = W.partecipanti[+x.dataset.i], prima = schedaDi(p.rif); p.rif = rifDa(x.value); const s = schedaDi(p.rif);
+      if (s && (!p.nome || (prima && p.nome === prima.nome))) p.nome = s.nome; if (s && p.n === 1 && s.n_suggerito > 1) p.n = s.n_suggerito; ridisegna(); } else if (x.dataset.k) setP(W, x.dataset.k, leggiCampo(x)); });
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-ic]'); if (!b) return; const a = b.dataset.ic;
+    if (a === 'aggP') W.partecipanti.push({ rif: null, nome: '', n: 1, modo: 'tipo', nascosto: false, nomeTv: '', imp: false, bonus: 0 });
+    if (a === 'togliP') W.partecipanti.splice(+b.dataset.i, 1);
+    if (a === 'aggR') W.promemoria.push({ round: (W.promemoria.at(-1) || { round: 0 }).round + 1, testo: '' });
+    if (a === 'togliR') W.promemoria.splice(+b.dataset.i, 1);
+    ridisegna(); });
+  return el;
+}
+// riferimenti di una scheda negli incontri (prima di eliminarla)
+const incontriCon = rif => S.camp.incontri.filter(i => i.partecipanti.some(p => p.rif && p.rif.fonte === rif.fonte && p.rif.id === rif.id));
+function finestraStatBlock(rif) {
+  const s = schedaDi(rif); if (!s) return avviso('Scheda non trovata', true);
+  apri({ titolo: esc(s.nome), larga: true, corpo: `<div class="fila">${badgeSegn(s)}</div><div class="sb">${htmlStatBlock(s)}</div>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Copia come testo', fn: () => { finestraEsporta(`${s.nome}.txt`, M.testoStatBlock(s, { xp: true }), 'text/plain'); } }, { testo: 'Modifica', classe: 'prim', fn: () => { finestraScheda(rif.fonte, s.id); } }] });
+}
+Object.assign(AZ, {
+  bestFonte(el) { S.ui.best.fonte = el.dataset.f; disegna(); },
+  nuovaScheda() { const f = S.ui.best.fonte; finestraScheda(f, null); },
+  incolla() { finestraIncolla(); },
+  esportaBest() { finestraEsporta('schermo-bestiario.json', M.esporta(docBest(), 'bestiario')); },
+  vediScheda(el) { S.ui.vista = { rif: rifDa(el.dataset.rif) }; S.ui.scheda = 'vista'; disegna(); const v = $('#col-terza'); if (v && window.innerWidth < 900) v.scrollIntoView({ block: 'start' }); },
+  vediRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; if (!r || !r.rif) return; S.ui.vista = { rif: r.rif, riga: r.id }; S.ui.scheda = 'vista'; disegna(); },
+  statBlockRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; finestraStatBlock(r.rif); },
+  modificaScheda(el) { const r = rifDa(el.dataset.rif); finestraScheda(r.fonte, r.id); },
+  segnScheda(el) { const s = schedaDi(rifDa(el.dataset.rif)); apri({ titolo: `Segnalazioni: ${esc(s.nome)}`, corpo: elencoSegn(s) + '<p class="tenue piccolo">Struttura della scheda §9: talenti proibiti, abilità e incantesimi inesistenti, Morente, Disarmare e Spezzare, Sintonia oltre il tetto, volo dei PNG, tattiche; più i conti (CA, PF, GS e XP).</p>' }); },
+  copiaTesto(el) { const s = schedaDi(rifDa(el.dataset.rif)); finestraEsporta(`${s.nome}.txt`, M.testoStatBlock(s, { xp: true }), 'text/plain'); },
+  preferito(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r); if (!s) return; const x = { ...M.clona(s), preferito: !s.preferito }, ora = Date.now();
+    if (r.fonte === 'mostro') aggiornaMostri(M.salvaScheda(Best.mostri, x, ora)); else applica(M.salvaPNG(S.camp, x, ora)); },
+  duplicaScheda(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), ora = Date.now(), x = M.nuovaScheda({ ...s, nome: s.nome + ' (copia)' }, rng, ora, r.fonte === 'mostro' ? 'm' : 'p');
+    if (r.fonte === 'mostro') Best.mostri = M.salvaScheda(Best.mostri, x, ora), salvaBestiario(); else S.camp = M.salvaPNG(S.camp, x, ora);
+    S.ui.vista = { rif: { fonte: r.fonte, id: x.id } }; applica(S.camp); avviso('Scheda duplicata'); },
+  copiaAltrove(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), ora = Date.now(), dove = r.fonte === 'mostro' ? 'png' : 'mostro', x = M.nuovaScheda(s, rng, ora, dove === 'mostro' ? 'm' : 'p');
+    if (dove === 'mostro') { Best.mostri = M.salvaScheda(Best.mostri, x, ora); salvaBestiario(); disegna(); } else applica(M.salvaPNG(S.camp, x, ora));
+    avviso(dove === 'mostro' ? 'Copiata nei Mostri condivisi' : 'Copiata nei PNG della campagna'); },
+  async copiaCampagna(el) {
+    const s = schedaDi(rifDa(el.dataset.rif)), altre = (await Archivio.lista()).filter(e => e.c && e.id !== S.camp.id);
+    if (!altre.length) return avviso('Non ci sono altre campagne', true);
+    apri({ titolo: `Copia «${esc(s.nome)}» in un'altra campagna`, corpo: `<label class="campo"><span>Campagna</span><select name="c">${altre.map(e => `<option value="${e.id}">${esc(e.nome)}</option>`).join('')}</select></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Copia', classe: 'prim', fn: async f => { const id = val(f, 'c').value, c2 = M.migra(await Archivio.leggi(id)), ora = Date.now();
+        await Archivio.scrivi(M.salvaPNG(c2, M.nuovaScheda(s, rng, ora, 'p'), ora)); avviso(`Copiata in «${c2.nome}»`); } }] });
+  },
+  schedaInIncontro(el) {
+    const r = rifDa(el.dataset.rif), s = schedaDi(r), c = S.camp;
+    apri({ titolo: `«${esc(s.nome)}» in un incontro`, corpo: `<label class="campo"><span>Incontro</span><select name="i"><option value="">+ nuovo incontro</option>${c.incontri.map(i => `<option value="${i.id}">${esc(i.titolo)}</option>`).join('')}</select></label>
+        <label class="campo"><span>Quantità</span><input type="number" name="n" min="1" value="${s.n_suggerito || 1}"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { const p = { rif: r, nome: s.nome, n: intero(f, 'n', 1), modo: 'tipo', nascosto: false, nomeTv: '', imp: false };
+        const id = val(f, 'i').value; if (!id) { finestraIncontro(null, { titolo: '', partecipanti: [p] }); return; }
+        const inc = M.clona(c.incontri.find(i => i.id === id)); inc.partecipanti.push(p); S.ui.incontro = id; S.ui.scheda = 'incontri'; applica(M.salvaIncontro(S.camp, inc)); avviso('Aggiunta all\'incontro'); } }] });
+  },
+  schedaRinforzi(el) { const r = rifDa(el.dataset.rif); AZ.rinforzi(null, r); },
+  eliminaScheda(el) {
+    const r = rifDa(el.dataset.rif), s = schedaDi(r), usi = incontriCon(r);
+    conferma('Elimina la scheda', `Eliminare <b>${esc(s.nome)}</b>${r.fonte === 'mostro' ? ' dal bestiario condiviso (vale per tutte le campagne)' : ''}?${usi.length ? ` Compare in ${usi.length} ${usi.length === 1 ? 'incontro' : 'incontri'} (${esc(usi.map(i => i.titolo).join(', '))}): lì resterà il nome, senza scheda.` : ''}`, () => {
+      S.ui.vista = null; S.ui.scheda = 'bestiario';
+      if (r.fonte === 'mostro') aggiornaMostri(Best.mostri.filter(m => m.id !== r.id)); else applica(M.eliminaPNG(S.camp, r.id)); avviso('Scheda eliminata'); }, 'Elimina', 'peric');
+  },
+  nuovoIncontro() { finestraIncontro(null); },
+  selIncontro(el) { S.ui.incontro = el.dataset.id; disegna(); },
+  modificaIncontro(el) { finestraIncontro(el.dataset.id); },
+  duplicaIncontro(el) { const r = M.duplicaIncontro(S.camp, el.dataset.id); S.ui.incontro = r.id; applica(r.camp); avviso('Incontro duplicato'); },
+  eliminaIncontro(el) { const i = S.camp.incontri.find(x => x.id === el.dataset.id);
+    conferma('Elimina l\'incontro', `Eliminare <b>${esc(i.titolo)}</b>? Le schede dei partecipanti restano.`, () => { S.ui.incontro = null; applica(M.eliminaIncontro(S.camp, i.id)); avviso('Incontro eliminato'); }, 'Elimina', 'peric'); },
+  avviaIncontro(el) {
+    const c = S.camp, inc = c.incontri.find(x => x.id === el.dataset.id);
+    if (c.combattimento) throw new Error('C\'è già un combattimento in corso: chiudilo prima, oppure usa «+ Rinforzi»');
+    const av = nuovoAvvio(); av.campagna = c.id; av.incontro = inc.id; av.titolo = inc.titolo; av.promemoria = M.clona(inc.promemoria);
+    av.nemici = inc.partecipanti.map(p => { const x = M.nemicoDaPartecipante(p, schedaDi); return { nome: x.nome, bonus: x.bonus, n: x.n, modo: x.modo, imp: x.imp, nascosto: x.nascosto, nomeTv: x.nomeTv, rif: x.rif }; });
+    if (!av.nemici.length) av.nemici = [{ nome: '', bonus: 0, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '' }];
+    S.ui.avvio = av; disegna(); const p = $('#avvio'); if (p) p.scrollIntoView({ block: 'start' });
+    avviso('Inserisci l\'iniziativa dei PG e premi «Tira e avvia»');
+  },
+  staccaIncontro() { const av = S.ui.avvio; delete av.incontro; delete av.titolo; delete av.promemoria; disegna(); },
+  fuga(el) { S.ui.fuga[el.dataset.id] = !S.ui.fuga[el.dataset.id]; disegna(); },
+  dannoRiga(el) { finestraPFriga(el.dataset.id, 'danno'); },
+  curaRiga(el) { finestraPFriga(el.dataset.id, 'cura'); },
+  feritaRiga(el) {
+    const c = S.camp, r = c.combattimento.righe[el.dataset.id];
+    const vai = (camp, id) => { applicaS(camp); finestraFeritaGrave({ riga: id }, null); };
+    if (r.n > 1) { conferma('Ferita grave in un gruppo', `La ferita grave è di una sola creatura: «${esc(M.etichetta(r))}» si divide e la creatura ferita diventa una riga a sé.`, () => { const x = M.separaPerFerita(S.camp, r.id, 0); vai(x.camp, x.id); }, 'Separa e continua'); return; }
+    finestraFeritaGrave({ riga: r.id }, r.pf && r.pf[0].ferita < 0 ? Math.max(-15, r.pf[0].ferita) : null);
+  },
+});
+// J9: danno o cura a una creatura di una riga (con i PF dei nemici accesi)
+function finestraPFriga(id, modo) {
+  const r = S.camp.combattimento.righe[id];
+  apri({ titolo: `${modo === 'danno' ? 'Danno' : 'Cura'}: ${esc(M.etichetta(r))}`, corpo: `${r.n > 1 ? `<label class="campo"><span>Creatura</span><select name="k">${r.pf.map((p, k) => `<option value="${k}">${esc(r.nome)} ${k + 1} — Fatica ${p.fatica}/${p.fatica_max}, Ferita ${p.ferita}/${p.ferita_max}</option>`).join('')}</select></label>` : `<p class="piccolo num">Fatica ${r.pf[0].fatica}/${r.pf[0].fatica_max} · Ferita ${r.pf[0].ferita}/${r.pf[0].ferita_max}</p>`}
+      <label class="campo"><span>${modo === 'danno' ? 'Danni' : 'Punti curati'}</span><input type="number" name="n" min="1" inputmode="numeric"></label>
+      <p class="tenue piccolo">${modo === 'danno' ? 'Prima i Punti Fatica, poi i Punti Ferita; sotto zero si apre la ferita grave (la creatura di un gruppo si separa).' : 'Prima i Punti Ferita fino al massimo, poi i Punti Fatica.'}</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: modo === 'danno' ? 'Applica' : 'Cura', classe: 'prim', fn: f => { const k = val(f, 'k') ? +val(f, 'k').value : 0, n = intero(f, 'n');
+      if (modo === 'cura') return applicaS(M.curaRiga(S.camp, id, k, n));
+      const x = M.dannoRiga(S.camp, id, k, n); applicaS(x.camp); if (x.feritaGrave) finestraFeritaGrave({ riga: x.feritaGrave.id }, x.feritaGrave.riga); } }] });
+}
+
 // ================================================================= campagna d'esempio (per la prova)
 function campagnaEsempio() {
   const pg = [
@@ -1038,9 +1534,65 @@ function campagnaEsempio() {
     { nome: 'Cira', giocatore: 'Giocatore 3', razza: 'Umana', classe: 'Sacerdote 7', livello: 7, fatica_max: 32, ferita_max: 33, rif_dadi: 7, rif_tipo: 8, ca: 20, ca_contatto: 11, ca_sprovvista: 19, dmc: 18,
       tempra: 7, riflessi: 3, volonta: 9, percezione: 10, intuizione: 12, furtivita: 0, iniziativa: 1, imp_pen: 6, abilita_libere: [{ nome: 'Professione (cerusico)', valore: 12 }, { nome: '', valore: 0 }] },
   ];
-  return M.creaCampagna({ nome: 'Campagna d\'esempio', anno: { numero: 1462, etichetta: 'dopo la Caduta' }, partenza: { mese: 9, giorno: 26, ore: 17, min: 30, sett: 0 },
+  let c = M.creaCampagna({ nome: 'Campagna d\'esempio', anno: { numero: 1462, etichetta: 'dopo la Caduta' }, partenza: { mese: 9, giorno: 26, ore: 17, min: 30, sett: 0 },
     zona: 'temperata', pg, accompagnatori: 2, cibo: 12, acqua: 9 }, MET, rng, Date.now());
+  // Build 2b: un PNG della campagna, un mostro condiviso e un incontro che li usa
+  const [band, lupo] = M.leggiStatBlock(ESEMPIO_SB).map(b => b.scheda), ora = Date.now();
+  const b = M.nuovaScheda(band, rng, ora, 'p'); c = M.salvaPNG(c, b, ora);
+  if (!Best.mostri.some(m => m.id === 'mesempiolupo')) { Best.mostri = M.salvaScheda(Best.mostri, { ...M.nuovaScheda(lupo, rng, ora, 'm'), id: 'mesempiolupo', etichette: ['animale', 'bosco'] }, ora); salvaBestiario(); }
+  c = M.salvaIncontro(c, { titolo: 'Agguato sulla strada', atto: 'Atto I', capitolo: 'La strada del mulino', luogo: 'strada del mulino',
+    note: '**I lupi** sono addestrati dal bandito.\n- Se il bandito cade, i lupi fuggono\n- La refurtiva è nella sacca del bandito', tesoro: 'La sacca con la refurtiva della settimana.',
+    partecipanti: [{ rif: { fonte: 'mostro', id: 'mesempiolupo' }, nome: 'Lupo', n: 4, modo: 'tipo', nascosto: false, nomeTv: '', imp: false },
+      { rif: { fonte: 'png', id: b.id }, nome: 'Bandito della strada', n: 1, modo: 'tipo', nascosto: false, nomeTv: 'Figura incappucciata', imp: false }],
+    promemoria: [{ round: 3, testo: 'dal bosco arrivano altri due banditi' }] });
+  return c;
 }
+const ESEMPIO_SB = `BANDITO DELLA STRADA — Guerriero 4 · GS 3 · XP 800
+Razza: Umanoide Medio (umano) · tratto bonus: Adattabilità marziale · Neutrale Malvagio
+Iniziativa +6 | Sensi: normali | Percezione +7
+── DIFESA ──
+CA 18 (contatto 12, colto alla sprovvista 16)
+[10 + armatura 5 (giaco di maglia 4 + sintonia 1) + scudo 1 (scudo leggero 1) + Des 2]
+PF 37 (4d10+8) — Punti Fatica 18 / Punti Ferita 19
+TS Tempra +6, Riflessi +3, Volontà +1
+── OFFESA ──
+Velocità 9 m | BaB +4 | BMC +7 | DMC 19
+Mischia: spada lunga +1 (sintonia) +8 (1d8+4, 19–20)
+Distanza: arco corto +6 (1d6, ×3, incremento 18 m)
+── STATISTICHE ──
+For 16, Des 14, Cos 14, Int 10, Sag 10, Car 8
+Talenti: Arma focalizzata (spada lunga), Attacco poderoso, Iniziativa migliorata (C), Robustezza (C)
+Abilità: Intimidire +6, Percezione +7, Sopravvivenza +5
+Lingue: comune | Tratti razziali: Adattabilità marziale, Esperti
+Sintonia: armatura +1 | Equipaggiamento: giaco di maglia, scudo leggero, spada lunga, arco corto, 20 frecce, sacca della refurtiva
+── TATTICHE ──
+Prima del combattimento: aspetta nel bosco e manda avanti i lupi.
+Round 1: scocca frecce su chi è a cavallo.
+Round 2–3: spada e scudo sul più debole; Attacco poderoso solo sui feriti.
+Finita la Fatica: chiama i lupi intorno a sé e arretra verso il bosco.
+Fuga o resa: se i lupi fuggono si arrende e offre la refurtiva.
+Tratto razziale: Adattabilità marziale — usa l'arco corto anche senza addestramento.
+💰 TESORO — da generare · Livello di riferimento: 4 · Quantità: 1 primario · Dove/chi lo porta: nella sacca del bandito
+
+LUPO · GS 1 · XP 400 — PF1e Bestiario
+Animale Medio | Neutrale
+Iniziativa +2 | Sensi: visione crepuscolare, fiuto | Percezione +8
+── DIFESA ──
+CA 14 (contatto 12, colto alla sprovvista 12) [10 + 2 Des + 2 naturale]
+PF 13 (2d8+4) — Punti Fatica 6 / Punti Ferita 7
+TS Tempra +5, Riflessi +5, Volontà +1
+── OFFESA ──
+Velocità 15 m | BaB +1 | BMC +2 | DMC 14 (18 contro sbilanciare)
+Mischia: morso +2 (1d6+1 più sbilanciare)
+── STATISTICHE ──
+For 13, Des 15, Cos 15, Int 2, Sag 12, Car 6
+Talenti: Abilità focalizzata (Percezione)
+Abilità: Furtività +6, Percezione +8, Sopravvivenza +1 (+5 seguire tracce con il fiuto)
+── TATTICHE ──
+Round 1: il branco accerchia il bersaglio più vicino.
+Round 2–3: morde per sbilanciare, due lupi sullo stesso bersaglio.
+Finita la Fatica: si allontana zoppicando e ulula.
+Fuga o resa: il branco fugge quando metà dei lupi è a terra o se il bandito cade.`;
 
 // ================================================================= avvio
 async function ricaricaElenco() {
@@ -1048,5 +1600,5 @@ async function ricaricaElenco() {
   catch (e) { S.elenco = []; avviso('Archivio non leggibile: ' + e.message, true); }
   disegna();
 }
-ricaricaElenco();
+(async () => { try { const b = await Archivio.leggiBestiario(); Best.mostri = (b && b.mostri) || []; } catch (e) { avviso('Bestiario non leggibile: ' + e.message, true); } ricaricaElenco(); })();
 </script>

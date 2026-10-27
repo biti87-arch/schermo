@@ -183,7 +183,7 @@ function creaCampagna(dati, meteo, rng, oraReale) {
     calendario: cal, anno: { base: dati.anno.numero, etichetta: (dati.anno.etichetta || '').trim() },
     tempo: { R: 0 }, zona: dati.zona, meteo: null,
     scorte: { cibo: dati.cibo, acqua: dati.acqua, accompagnatori: dati.accompagnatori }, razionamenti: [],
-    pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) },
+    pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) }, png: [], incontri: [],
   };
   camp.tempo.R = tempoAssoluto(camp, dati.anno.numero, p.mese || 0, p.giorno || 1, p.ore || 0, p.min || 0);
   const L = cal.settimana ? cal.settimana.length : 0;
@@ -196,14 +196,24 @@ function creaCampagna(dati, meteo, rng, oraReale) {
 function duplicaCampagna(camp, rng, oraReale) {
   const c = clona(camp); c.id = (oraReale || 0).toString(36) + nuovoId(rng); c.nome = camp.nome + ' (copia)'; c.creata = c.modificata = oraReale || 0; return c;
 }
-function esporta(oggetto, tipo) { return JSON.stringify({ formato: FORMATO, tipo, dati: oggetto }, null, 1); }
+// tipo: 'campagna' (con i mostri condivisi usati dagli incontri e dai combattimenti), 'tutto' ({campagne, bestiario}), 'bestiario'
+function esporta(oggetto, tipo, mostri) { return JSON.stringify({ formato: FORMATO, tipo, dati: oggetto, ...(mostri ? { mostri } : {}) }, null, 1); }
+// mostri del bestiario a cui la campagna fa riferimento (incontri e righe dell'iniziativa)
+function mostriUsati(camp, bestiario) {
+  const ids = new Set();
+  for (const i of camp.incontri || []) for (const p of i.partecipanti) if (p.rif && p.rif.fonte === 'mostro') ids.add(p.rif.id);
+  if (camp.combattimento) for (const r of Object.values(camp.combattimento.righe)) if (r.rif && r.rif.fonte === 'mostro') ids.add(r.rif.id);
+  return (bestiario || []).filter(m => ids.has(m.id));
+}
 function importa(testo) {
   let j; try { j = JSON.parse(testo); } catch (e) { throw new Error('il file non è un JSON valido'); }
   if (!j || j.formato !== FORMATO) throw new Error('formato non riconosciuto (atteso ' + FORMATO + ')');
-  const lista = j.tipo === 'tutto' ? j.dati.campagne : j.tipo === 'campagna' ? [j.dati] : null;
+  const lista = j.tipo === 'tutto' ? j.dati.campagne : j.tipo === 'campagna' ? [j.dati] : j.tipo === 'bestiario' ? [] : null;
   if (!lista) throw new Error('contenuto non riconosciuto');
   for (const c of lista) if (!c || c.formato !== FORMATO || !c.id || !c.calendario || !c.tempo) throw new Error('campagna non valida nel file');
-  return { tipo: j.tipo, campagne: lista.map(migra) };
+  const mostri = j.tipo === 'bestiario' ? (j.dati && j.dati.mostri) : j.tipo === 'tutto' ? (j.dati.bestiario && j.dati.bestiario.mostri) : j.mostri;
+  if (mostri && (!Array.isArray(mostri) || mostri.some(m => !m || !m.id || !m.nome))) throw new Error('mostri non validi nel file');
+  return { tipo: j.tipo, campagne: lista.map(migra), mostri: mostri || [] };
 }
 function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 → v2…)
   const x = clona(c);
@@ -218,6 +228,14 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   // Build 2a: malus su PG e righe dell'iniziativa, avvisi del turno
   for (const p of x.pg) p.stato.malus = p.stato.malus || [];
   if (x.combattimento) { x.combattimento.avvisi = x.combattimento.avvisi || []; for (const r of Object.values(x.combattimento.righe)) r.malus = r.malus || []; }
+  // Build 2b: PNG e incontri della campagna; righe dell'iniziativa con il riferimento alla scheda e i PF (J9)
+  x.png = x.png || []; x.incontri = x.incontri || [];
+  const accorda = m => { if (m.tipo === 'dita' && m.dita) m.nome = `Dita perse: ${m.dita.n} (${m.dita.parte}${conLato(m.dita.parte, m.dita.lato)})`;
+    if (m.tipo === 'amputazione') m.nome = m.nome.replace(/\b(Mano|Gamba) (sinistr|destr)o\b/, '$1 $2a'); }; // «mano sinistra» (Build 2b)
+  for (const p of x.pg) p.stato.malus.forEach(accorda);
+  if (x.combattimento) for (const r of Object.values(x.combattimento.righe)) (r.malus || []).forEach(accorda);
+  if (x.combattimento) { const cb = x.combattimento; cb.promemoria = cb.promemoria || []; cb.incontro = cb.incontro || null;
+    for (const r of Object.values(cb.righe)) { if (r.rif === undefined) r.rif = null; if (r.pf === undefined) r.pf = null; if (r.faticaFinita === undefined) r.faticaFinita = false; } }
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -499,7 +517,7 @@ function togliDallaCoda(camp, i) {
 // ------------------------------------------------------------------ iniziativa
 // partecipanti: [{tipo:'pg', pgId, totale | d20, impreparato} | {tipo:'nemico', nome, bonus, n, modo:'tipo'|'singolo', impreparato, imp_pen, nomeTv, nascosto}]
 function tiroIniziativa(nat, bonus, pen) { return valoreD20(nat) + bonus - pen; }
-function avviaCombattimento(camp, partecipanti, rng, oraReale) {
+function avviaCombattimento(camp, partecipanti, rng, oraReale, opz = {}) {
   const c = clona(camp);
   if (c.combattimento) throw new Error('c\'è già un combattimento in corso');
   const righe = [];
@@ -507,8 +525,10 @@ function avviaCombattimento(camp, partecipanti, rng, oraReale) {
   if (!righe.length) throw new Error('nessun partecipante');
   ordina(righe);
   c.combattimento = { round: 1, ordine: righe.map(r => r.id), righe: Object.fromEntries(righe.map(r => [r.id, r])), turno: 0,
-    attesa: [], avvisi: [], inizioR: c.tempo.R, storia: [], timer: c.impostazioni.timer ? nuovoTimer(oraReale) : null };
-  log(c, 'Inizio del combattimento: ' + righe.map(r => `${etichetta(r)} ${r.totale}`).join(', '));
+    attesa: [], avvisi: [], inizioR: c.tempo.R, storia: [], timer: c.impostazioni.timer ? nuovoTimer(oraReale) : null,
+    incontro: opz.incontro || null, promemoria: clona(opz.promemoria || []) };
+  log(c, 'Inizio del combattimento' + (opz.titolo ? ` (${opz.titolo})` : '') + ': ' + righe.map(r => `${etichetta(r)} ${r.totale}`).join(', '));
+  for (const t of promemoriaRound(c)) log(c, `Round 1: ${t}`);
   saltaFuori(c.combattimento);
   return c;
 }
@@ -522,7 +542,9 @@ function righeDa(c, x, rng) {
   }
   const n = x.n || 1, pen = x.impreparato ? (x.imp_pen === undefined ? 6 : x.imp_pen) : 0, out = [];
   if (!String(x.nome || '').trim()) throw new Error('nemico senza nome');
-  const riga = (nome, k) => { const nat = d(20, rng); return { id: prossimoId(c, 'r'), tipo: 'nemico', nome, bonus: x.bonus || 0, nat, totale: tiroIniziativa(nat, x.bonus || 0, pen), n: k, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: !!x.nascosto, nomeTv: x.nomeTv || '', malus: [] }; };
+  const pf = x.pf && c.impostazioni.pf_nemici ? x.pf : null; // J9: PF dei nemici solo con l'impostazione accesa
+  const riga = (nome, k) => { const nat = d(20, rng); return { id: prossimoId(c, 'r'), tipo: 'nemico', nome, bonus: x.bonus || 0, nat, totale: tiroIniziativa(nat, x.bonus || 0, pen), n: k, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: !!x.nascosto, nomeTv: x.nomeTv || '', malus: [],
+    rif: x.rif ? clona(x.rif) : null, pf: pf ? Array.from({ length: k }, () => clona(pf)) : null, faticaFinita: false }; };
   if (n === 1) out.push(riga(x.nome, 1));
   else if (x.modo === 'singolo') for (let i = 1; i <= n; i++) out.push(riga(`${x.nome} ${i}`, 1));
   else out.push(riga(x.nome, n));
@@ -538,7 +560,7 @@ function saltaFuori(comb) { // se tocca a una creatura fuori combattimento si pa
   const salta = r => r.stato === 'fuori' || r.salta === comb.round;
   while (comb.ordine.length && attuale(comb) && salta(attuale(comb)) && k++ < comb.ordine.length) comb.turno++;
 }
-function istantanea(c) { const x = clona(c); if (x.combattimento) x.combattimento.storia = []; return JSON.stringify(x); }
+function istantanea(c) { const x = { ...c, png: undefined, incontri: undefined }; x.combattimento = c.combattimento ? { ...c.combattimento, storia: [] } : null; return JSON.stringify(x); }
 // esegue un comando del combattimento salvando lo stato per «Indietro»
 function comando(camp, nome, args, meteo, rng, oraReale) {
   if (!camp.combattimento) throw new Error('nessun combattimento in corso');
@@ -553,6 +575,7 @@ function indietro(camp) {
   if (!st || !st.length) throw new Error('niente da annullare');
   const c = JSON.parse(st[st.length - 1]);
   c.combattimento.storia = st.slice(0, -1);
+  c.png = clona(camp.png || []); c.incontri = clona(camp.incontri || []); // PNG e incontri non tornano indietro
   return c;
 }
 const COMANDI = {
@@ -567,6 +590,7 @@ const COMANDI = {
       cb.turno = 0; cb.round++;
       c = avanza(c, 1, meteo, rng, undefined, { daTurno: true });
       saltaFuori(c.combattimento);
+      for (const t of promemoriaRound(c)) log(c, `Round ${c.combattimento.round}: ${t}`);
     }
     const nuovo = attuale(c.combattimento);
     c.combattimento.avvisi = nuovo ? inizioTurno(c, nuovo.id, rng) : [];
@@ -610,12 +634,7 @@ const COMANDI = {
   },
   separa(c, a, meteo, rng) { // stacca una creatura dal gruppo, con la stessa iniziativa, subito dopo il gruppo
     const cb = c.combattimento, r = cb.righe[a.id]; if (!(r.n > 1)) throw new Error('non è un gruppo');
-    r.n--; const nuova = { ...clona(r), id: prossimoId(c, 'r'), n: 1, nome: a.nome || `${r.nome} (separato)`, prepara: null };
-    nuova.malus = (nuova.malus || []).map(m => ({ ...m, id: prossimoId(c, 'm') }));
-    cb.righe[nuova.id] = nuova;
-    const i = cb.ordine.indexOf(r.id);
-    if (i >= 0) cb.ordine.splice(i + 1, 0, nuova.id); else cb.attesa.push(nuova.id);
-    log(c, `${nuova.nome} si separa da ${r.nome}`); return c;
+    separaMembro(c, r, Number.isInteger(a.k) ? a.k : r.n - 1, a.nome || `${r.nome} (separato)`); return c;
   },
   rinforzi(c, a, meteo, rng) {
     const cb = c.combattimento, nuove = [];
@@ -643,12 +662,23 @@ const COMANDI = {
     log(c, `${etichetta(r)}: iniziativa corretta a ${a.totale}`); return c;
   },
   pausa(c, a, m, r, ora) { timerPausa(c.combattimento, ora); return c; },
+  faticaFinita(c, a) { const r = c.combattimento.righe[a.id]; r.faticaFinita = !r.faticaFinita; log(c, `${etichetta(r)}: ${r.faticaFinita ? 'Fatica finita' : 'Fatica di nuovo disponibile (correzione)'}`); return c; },
 };
-function fineCombattimento(camp, oraReale) {
+function fineCombattimento(camp, oraReale, schedaDi) {
   const c = clona(camp), cb = c.combattimento; if (!cb) throw new Error('nessun combattimento in corso');
   if (cb.timer) timerFineTurno(cb, attuale(cb), oraReale);
   const rie = riepilogo(c, cb, oraReale);
   log(c, rie.testo);
+  if (cb.incontro) { const inc = (c.incontri || []).find(x => x.id === cb.incontro);
+    if (inc) { inc.stato = 'giocato'; inc.giocato_R = c.tempo.R; log(c, `Incontro «${inc.titolo}» giocato`); rie.incontro = inc.titolo; } }
+  if (c.impostazioni.xp && schedaDi) { // J10: XP dei nemici sconfitti (fuori combattimento), divisi per i PG
+    let sconfitti = 0, tutti = 0;
+    for (const r of Object.values(cb.righe)) { if (r.tipo === 'pg' || !r.rif) continue; const s = schedaDi(r.rif), x = s ? xpDi(s) : null; if (!x) continue;
+      tutti += x * r.n; if (r.stato === 'fuori') sconfitti += x * r.n; }
+    const pg = Math.max(1, c.pg.length), conAcc = Math.max(1, c.pg.length + c.scorte.accompagnatori);
+    rie.xp = { sconfitti, tutti, perPG: Math.floor(sconfitti / pg), perPGconAcc: Math.floor(sconfitti / conAcc) };
+    log(c, `XP dei nemici sconfitti: ${migliaia(sconfitti)} (${migliaia(rie.xp.perPG)} a PG; ${migliaia(rie.xp.perPGconAcc)} contando gli accompagnatori)`);
+  }
   c.combattimento = null;
   for (const p of c.pg) { const via = p.stato.malus.filter(m => m.durata.tipo === 'incontro');
     for (const m of via) togliDaElenco(c, p.stato.malus, m, `${p.scheda.nome}: finisce ${m.nome} (fine dell'incontro)`); }
@@ -823,7 +853,7 @@ function tempoMalus(c, prec, t, rng, daTurno) {
   for (const x of tutti(c)) {
     for (const m of x.elenco.slice()) {
       if (!x.elenco.includes(m)) continue;
-      const fermo = !!(x.p && x.p.stato.morte); // morte in sospeso: niente altri tiri né promemoria, le durate scadono
+      const fermo = !!(x.p ? x.p.stato.morte : x.r && x.r.morte); // morte in sospeso: niente altri tiri né promemoria, le durate scadono
       const turni = daTurno && inTurno(c, x.chi, m);
       if (!fermo && m.tipo === 'emorragia_lieve' && m.morte_R != null && m.morte_R <= t) { muore(c, x, 'emorragia lieve'); continue; }
       if (!fermo && (m.tipo === 'emorragia_grave' || m.tipo === 'panico') && !turni) {
@@ -842,7 +872,7 @@ function inizioTurno(c, rigaId, rng) {
   const avv = [];
   for (const x of tutti(c)) for (const m of x.elenco.slice()) {
     if (!x.elenco.includes(m) || ancora(c, x.chi, m) !== rigaId) continue;
-    const fermo = !!(x.p && x.p.stato.morte);
+    const fermo = !!(x.p ? x.p.stato.morte : x.r && x.r.morte);
     const proprio = x.chi.riga === rigaId || (x.p && rigaDiPG(c.combattimento, x.p.id) === rigaId);
     if (m.durata.tipo === 'round' && c.tempo.R >= m.durata.fine) { scadeMalus(c, x, m); avv.push(`${nomeEsteso(m)} scade ora` + (proprio ? '' : ` (${x.nome})`)); continue; }
     if (!fermo && m.per && m.per.unita === 'round' && !m.per.attesa && c.tempo.R >= m.per.prossimo) dovuto(c, x, m, rng);
@@ -853,7 +883,7 @@ function inizioTurno(c, rigaId, rng) {
 function fineTurno(c, rigaId, rng) {
   for (const x of tutti(c)) for (const m of x.elenco.slice()) {
     if (!['emorragia_grave', 'panico'].includes(m.tipo) || !x.elenco.includes(m) || ancora(c, x.chi, m) !== rigaId) continue;
-    if (x.p && x.p.stato.morte) continue;
+    if (x.p ? x.p.stato.morte : x.r && x.r.morte) continue;
     tiroCumulativo(c, x, m, rng);
   }
 }
@@ -868,6 +898,7 @@ function tiroCumulativo(c, x, m, rng) {
 // I3: la morte apre un avviso con il 20% del Morente; l'app non decide da sola
 function muore(c, x, causa) {
   if (x.p) { if (x.p.stato.morte) return; x.p.stato.morte = { R: c.tempo.R, causa }; }
+  else if (x.r) { if (x.r.morte) return; x.r.morte = { R: c.tempo.R, causa }; }
   log(c, `${x.nome} muore: ${causa}`);
   c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'morte', chi: x.chi, testo: `${x.nome} muore: ${causa}. Creatura vivente in combattimento: 20% di restare morente per 1 minuto (Vol. 1).` });
 }
@@ -882,7 +913,7 @@ function risolviMorte(camp, qid, scelta, rng) {
   else if (esito === 'morto') { nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Morto', durata: { tipo: 'permanente' } });
     const r = x.r || (c.combattimento && x.p && c.combattimento.righe[rigaDiPG(c.combattimento, x.p.id)]); // nell'iniziativa: fuori combattimento
     if (r) { r.stato = 'fuori'; saltaFuori(c.combattimento); } }
-  else if (scelta === 'ignora') { if (x.p) delete x.p.stato.morte; log(c, `${x.nome}: la morte è annullata dal GM`); }
+  else if (scelta === 'ignora') { if (x.p) delete x.p.stato.morte; if (x.r) delete x.r.morte; log(c, `${x.nome}: la morte è annullata dal GM`); }
   else throw new Error('scelta non valida');
   return { camp: c, esito, tiro };
 }
@@ -992,7 +1023,7 @@ function amputazioniAttive(p) {
     const lati = Object.values(g);
     const peggiore = lati.reduce((a, b) => b.amp.grado > a.amp.grado ? b : a);
     if (g.sinistro && g.destro && peggiore.amp.entrambi) out.push({ nome: `${peggiore.amp.nome_entrambi || peggiore.amp.nome}: entrambi`, ...peggiore.amp.entrambi });
-    else out.push({ nome: peggiore.amp.nome + (peggiore.lato ? ' ' + peggiore.lato : ''), ...peggiore.amp.singolo });
+    else out.push({ nome: peggiore.amp.nome + conLato(peggiore.amp.id, peggiore.lato), ...peggiore.amp.singolo });
   }
   return out;
 }
@@ -1082,6 +1113,8 @@ function tiraSottoTiro(st, rng) {
 }
 function sottoTiro(testo, rng) { const st = sottoTiri(testo)[0]; return st ? tiraSottoTiro(st, rng) : null; }
 const latoDi = s => /sinistr/.test(s) ? 'sinistro' : /destr/.test(s) ? 'destro' : '';
+// «mano sinistra», «gamba destra»: il lato si accorda con la parte (Build 2b)
+const conLato = (parte, lato) => !lato ? '' : ' ' + (/^(mano|gamba)$/i.test(parte) ? lato.replace(/o$/, 'a') : lato);
 function scomponiFerita(testo, rng) {
   const t = normalizza(testo), out = [], usate = new Set();
   if (!t) return out;
@@ -1164,8 +1197,8 @@ function descriviComponente(cp) {
     case 'panico': return `Attacco di panico: a fine turno ${cp.passo}% cumulabile di morire; finisce con ${cp.azioni === 2 ? 'due azioni di round completo consecutive' : 'un\'azione di round completo'}`;
     case 'penalita': return cp.nome + (cp.tiro ? ` (${cp.tiro})` : '');
     case 'organo': return 'Organo compromesso: Punti Fatica dal Rifiatare e dal riposo dimezzati (la seconda volta a un terzo)';
-    case 'amputazione': return `Amputazione: ${cp.parte || cp.loc}${cp.lato && !cp.parte ? ' ' + cp.lato : ''}` + (cp.tiro ? ` (${cp.tiro})` : '');
-    case 'dita': return `Dita perse: ${cp.n} (${cp.parte}${cp.lato ? ' ' + cp.lato : ''})` + (cp.tiro ? ` (${cp.tiro})` : '');
+    case 'amputazione': return `Amputazione: ${cp.parte || cp.loc}${!cp.parte ? conLato(cp.loc, cp.lato) : ''}` + (cp.tiro ? ` (${cp.tiro})` : '');
+    case 'dita': return `Dita perse: ${cp.n} (${cp.parte}${conLato(cp.parte, cp.lato)})` + (cp.tiro ? ` (${cp.tiro})` : '');
     case 'morte': return 'Morte (avviso con il 20% del Morente)';
     case 'ultimo': return 'Ultimo nell\'ordine di iniziativa (se ha già agito in questo round, non agisce di nuovo)';
     case 'oggetto': return `Oggetto ${cp.slot ? 'nello ' + cp.slot : 'indossato'}: ${cp.esito}` + (cp.tiro ? ` (${cp.tiro})` : '') + '; slot vuoto: l\'oggetto successivo della nota ¹';
@@ -1174,7 +1207,10 @@ function descriviComponente(cp) {
 }
 // attacca i componenti scelti al PG; FER = dati di ferite.json
 function attaccaFerita(camp, pgId, comps, rng, FER, meta) {
-  const c = clona(camp), chi = { pg: pgId }, p = trova(c, pgId), chiavi = {}, fonte = (meta && meta.titolo) || 'Ferita grave';
+  const chi = typeof pgId === 'object' ? pgId : { pg: pgId };
+  const c = clona(camp), chiavi = {}, fonte = (meta && meta.titolo) || 'Ferita grave';
+  if (chi.riga && !(c.combattimento && c.combattimento.righe[chi.riga])) throw new Error('creatura non trovata');
+  const p = { scheda: { nome: nomeDi(c, chi) } };
   log(c, `${p.scheda.nome}: ${fonte}` + (meta && meta.testo ? ` — ${normalizza(meta.testo)}` : ''));
   const base = { fonte };
   const ampDa = (loc, lato) => {
@@ -1197,21 +1233,21 @@ function attaccaFerita(camp, pgId, comps, rng, FER, meta) {
       case 'panico': nuovoMalus(c, chi, { ...base, tipo: 'panico', nome: 'Attacco di panico', passo: cp.passo, azioni: cp.azioni, durata: { tipo: 'libera' } }, rng); break;
       case 'penalita': nuovoMalus(c, chi, { ...base, tipo: 'penalita', nome: cp.nome, mods: cp.mods, durata: { tipo: 'permanente' } }, rng); break;
       case 'organo': nuovoMalus(c, chi, { ...base, tipo: 'organo', nome: 'Organo compromesso', durata: { tipo: 'permanente' } }, rng); break;
-      case 'amputazione': { const a = ampDa(cp.loc, cp.lato); nuovoMalus(c, chi, { ...base, tipo: 'amputazione', nome: `Amputazione: ${(cp.parte || a.nome).replace(/^./, x => x.toUpperCase())}${cp.lato && !cp.parte ? ' ' + cp.lato : ''}`, amp: a, durata: { tipo: 'permanente' } }, rng); break; }
-      case 'dita': nuovoMalus(c, chi, { ...base, tipo: 'dita', nome: `Dita perse: ${cp.n} (${cp.parte}${cp.lato ? ' ' + cp.lato : ''})`, dita: { parte: cp.parte, n: cp.n, lato: cp.lato || '' }, amp: ampDa(cp.parte, cp.lato), durata: { tipo: 'permanente' } }, rng); break;
+      case 'amputazione': { const a = ampDa(cp.loc, cp.lato); nuovoMalus(c, chi, { ...base, tipo: 'amputazione', nome: `Amputazione: ${(cp.parte || a.nome).replace(/^./, x => x.toUpperCase())}${!cp.parte ? conLato(a.id, cp.lato) : ''}`, amp: a, durata: { tipo: 'permanente' } }, rng); break; }
+      case 'dita': nuovoMalus(c, chi, { ...base, tipo: 'dita', nome: `Dita perse: ${cp.n} (${cp.parte}${conLato(cp.parte, cp.lato)})`, dita: { parte: cp.parte, n: cp.n, lato: cp.lato || '' }, amp: ampDa(cp.parte, cp.lato), durata: { tipo: 'permanente' } }, rng); break;
       case 'morte': muore(c, creaturaDi(c, chi), fonte + ': «Sei morto»'); break;
       case 'nota': log(c, `${p.scheda.nome}: ${cp.testo}`); break;
       case 'oggetto': log(c, `${p.scheda.nome}: ${descriviComponente(cp)}`); break;
-      case 'ultimo': mettiUltimo(c, pgId); break;
+      case 'ultimo': mettiUltimo(c, chi.pg || { riga: chi.riga }); break;
     }
   }
   return c;
 }
 // «ti posizioni ultimo nell'ordine di Iniziativa (non agisci nuovamente se hai già agito durante questo turno)»
 function mettiUltimo(c, pgId) {
-  const cb = c.combattimento, p = trova(c, pgId);
+  const cb = c.combattimento, chi = typeof pgId === 'object' ? pgId : { pg: pgId }, p = { scheda: { nome: nomeDi(c, chi) } };
   if (!cb) { log(c, `${p.scheda.nome}: ultimo nell'ordine di iniziativa (vale al prossimo combattimento solo se il GM lo decide)`); return; }
-  const id = rigaDiPG(cb, pgId), i = cb.ordine.indexOf(id); if (i < 0) return;
+  const id = chi.riga || rigaDiPG(cb, chi.pg), i = cb.ordine.indexOf(id); if (i < 0) return;
   const r = cb.righe[id], corrente = cb.ordine[cb.turno], giaAgito = i <= cb.turno;
   const altri = cb.ordine.filter(x => x !== id).map(x => cb.righe[x].totale);
   if (altri.length) r.totale = Math.min(r.totale, Math.min(...altri) - 1);
@@ -1303,15 +1339,637 @@ function descriviMalus(c, m) {
   return t + (extra.length ? ' · ' + extra.join(' · ') : '');
 }
 
+// ------------------------------------------------------------------ Build 2b: bestiario e PNG (M), incontri (N), tattiche (O)
+// Scheda di una creatura (Struttura_Scheda_PNG.md): i campi «in linea» sono quelli dello stat block (§10) e servono al gioco;
+// la «guida» contiene i dati inseriti della scheda guidata (M4): quando è attiva, i valori calcolati riempiono i campi in linea.
+const XP_GS = { '1/8': 50, '1/6': 65, '1/4': 100, '1/3': 135, '1/2': 200, 1: 400, 2: 600, 3: 800, 4: 1200, 5: 1600, 6: 2400, 7: 3200, 8: 4800, 9: 6400, 10: 9600,
+  11: 12800, 12: 19200, 13: 25600, 14: 38400, 15: 51200, 16: 76800, 17: 102400, 18: 153600, 19: 204800, 20: 307200, 21: 409600, 22: 614400, 23: 819200, 24: 1228800, 25: 1638400 };
+const MEDIE_DV = { 4: 3, 6: 4, 8: 5.5, 10: 6.5, 12: 8 };             // ritiro della Collana (d4 come d6 − 1, non usato dalle classi)
+const TAGLIE_PNG = { piccola: { nome: 'Piccola', ca: 1, tc: 1, bmc: -2, dmc: -2, furt: 2 }, media: { nome: 'Media', ca: 0, tc: 0, bmc: 0, dmc: 0, furt: 0 },
+  grande_speciale: { nome: 'Grande speciale', ca: -1, tc: -1, bmc: 2, dmc: 2, furt: -2 } };
+const CLASSI = ['Alchimista', 'Ammazzamostri', 'Arcanista', 'Barbaro', 'Bardo', 'Berserker', 'Cavaliere', 'Convocatore', 'Custode grigio', 'Dominatore', 'Druido',
+  'Erudito', 'Fattucchiere', 'Guardia nera', 'Guerriero', 'Inquisitore', 'Intrepido', 'Inventore', 'Ladro', 'Magus', 'Malefactor', 'Marzialista', 'Morfico',
+  'Necrarca', 'Nobile', 'Oracolo', 'Paladino', 'Pistolero', 'Purificatore', 'Ranger', 'Ritualista', 'Sacerdote', 'Sigillatore', 'Stregone'];
+const CAR = ['For', 'Des', 'Cos', 'Int', 'Sag', 'Car'];
+const ABIL_CAR = { 'Acrobazia': 'Des', 'Artista della fuga': 'Des', 'Camuffare': 'Car', 'Cavalcare': 'Des', 'Conoscenze': 'Int', 'Diplomazia': 'Car',
+  'Disattivare congegni': 'Des', 'Furtività': 'Des', 'Intimidire': 'Car', 'Intrattenere': 'Car', 'Intuizione': 'Sag', 'Nuotare': 'For', 'Percezione': 'Sag',
+  'Professione': 'Sag', 'Raggirare': 'Car', 'Rapidità di mano': 'Des', 'Sapienza magica': 'Int', 'Scalare': 'For', 'Sopravvivenza': 'Sag',
+  'Utilizzare congegni magici': 'Car', 'Valutare': 'Int', 'Volare': 'Des' };
+const TATTICHE = [['prima', 'Prima del combattimento'], ['r1', 'Round 1'], ['r23', 'Round 2–3'], ['fatica', 'Finita la Fatica'], ['fuga', 'Fuga o resa'], ['tratto', 'Tratto razziale']];
+const CAMPI_TESTO = ['nome', 'epiteto', 'classi_testo', 'note_testata', 'fonte', 'razza_riga', 'allineamento', 'ini_nota', 'sensi', 'perc_nota', 'aura', 'ca_scomp', 'pf_dadi', 'pf_nota', 'ts_note', 'difese',
+  'velocita', 'bab', 'bmc', 'dmc', 'mischia', 'distanza', 'speciali', 'incantesimi', 'talenti', 'abilita', 'lingue', 'tratti', 'sintonia', 'equip', 'statistiche_altro', 'altro'];
+const CAMPI_NUM = ['livello', 'iniziativa', 'percezione', 'ca', 'ca_contatto', 'ca_sprovvista', 'pf', 'fatica', 'ferita', 'tempra', 'riflessi', 'volonta', 'xp'];
+const segnoN = n => (n >= 0 ? '+' : '−') + Math.abs(n);
+const migliaia = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const numero = s => { if (s === null || s === undefined || s === '') return null; const x = String(s).replace(/[−–]/g, '-').replace(/\s/g, '').match(/^[+-]?\d+/); return x ? parseInt(x[0], 10) : null; };
+const modCar = v => v === null || v === undefined ? 0 : Math.floor((v - 10) / 2);
+function guidaVuota(tipo) {
+  return { attiva: tipo !== 'mostro_pf1', classi: [{ classe: '', livello: 1, archetipo: '', dv: 8 }], razza: '', tratto_bonus: '', taglia: 'media',
+    armatura: { nome: '', base: 0, sintonia: 0, des_max: null }, scudo: { nome: '', base: 0, sintonia: 0 }, naturale: 0, deviazione: 0, schivare: 0, altri_ca: 0,
+    robustezza: false, pf_extra: 0, bab: 0, ts_base: { tempra: 0, riflessi: 0, volonta: 0 }, ts_extra: { tempra: 0, riflessi: 0, volonta: 0 }, ts_condizionali: '', iniziativa_extra: 0,
+    armi: [], attacco_poderoso: false, abilita: [], talenti: [], pf_bestiario: null, gs_bestiario: '' };
+}
+function schedaVuota(tipo = 'png') {
+  const s = { id: '', tipo_scheda: tipo === 'mostro_pf1' ? 'mostro_pf1' : 'png', alleato: false, capacita_trama: false, gs: '', n_suggerito: 1, solo_ferita: false,
+    car: { For: 10, Des: 10, Cos: 10, Int: 10, Sag: 10, Car: 10 }, tattiche: { prima: '', r1: '', r23: '', fatica: '', fuga: '', tratto: '', generale: '' },
+    tesoro: null, extra: [], etichette: [], preferito: false, guida: guidaVuota(tipo), creata: 0, modificata: 0 };
+  for (const k of CAMPI_TESTO) s[k] = '';
+  for (const k of CAMPI_NUM) s[k] = null;
+  return s;
+}
+// nomi in maiuscolo dei documenti → «Mortimer von Crist, «L'Imbalsamatore»»
+const MINUSCOLE = new Set(['di', 'del', 'della', 'dei', 'degli', 'delle', 'da', 'dal', 'dalla', 'de', 'von', 'van', 'e', 'o', 'in', 'a', 'al', 'alla', 'lo', 'la', 'le', 'gli']);
+function nomeProprio(t) {
+  const s = String(t).trim(); if (/[a-zà-ÿ]/.test(s.replace(/\([^)]*\)/g, ''))) return s;
+  let i = 0;
+  return s.toLowerCase().replace(/[\p{L}']+/gu, w => { const primo = i++ === 0; if (!primo && MINUSCOLE.has(w)) return w;
+    return w.replace(/^(l'|d'|dell'|all'|nell'|un')?(\p{L})/u, (m, art, l) => (art ? (primo ? art[0].toUpperCase() + art.slice(1) : art) : '') + l.toUpperCase()); });
+}
+function tettoSintonia(L) { return L >= 17 ? 5 : L >= 15 ? 4 : L >= 12 ? 3 : L >= 9 ? 2 : L >= 4 ? 1 : 0; }
+function gsDaLivello(L, cap) { return L <= 1 ? (cap ? '1' : '1/2') : String(cap ? L : L - 1); }
+function xpDi(s) { if (s.alleato) return null; const v = XP_GS[String(s.gs).trim()]; return v === undefined ? (s.xp || null) : v; }
+
+// ---------- «Incolla»: lettura degli stat block (M3)
+const RE_CLASSE = new RegExp('(' + CLASSI.map(x => x.replace(' ', '\\s+')).join('|') + ')(?:\\s*\\(([^)]*)\\))?\\s+(\\d{1,2})(?![\\d°])', 'gi');
+const RE_GS = /(?:^|\s)·\s*(?:vale\s+)?GS\s*(\d+(?:\/\d+)?)/;
+function eTestata(riga) {
+  const t = riga.trim(); if (!RE_GS.test(t)) return false;
+  const nome = t.split(/\s+(?:—|·)\s+/)[0].replace(/\([^)]*\)|«[^»]*»/g, '');
+  const lettere = nome.match(/\p{L}/gu) || [];
+  return lettere.length >= 2 && lettere.filter(l => l === l.toUpperCase()).length / lettere.length >= 0.8;
+}
+const TIPI_CREATURA = /\b(aberrazione|animale|bestia|costrutto|drago|esterno|folletto|gigante|melma|non morto|parassita|umanoide|vegetale|mutaforma|razza:)/i;
+const ALLINEAMENTO = /^(legale|neutrale|caotic[oa]|[LNC][BNM]\b|N\b)/i;
+const FINE_BLOCCO = /^(\d+(\.\d+)+\s*[—–·-]|PROFILO\b|NOTE SULLA SCHEDA|[📖📌🎲⚔🧭💬🗺💰①②③]|\d+\s*·\s*[IVX]+\.)/u;
+const CHIAVI_RIGA = /^(Razza|Base|Iniziativa|Aur[ae]|CA|PF|TS|RD|RE|RI|Immunit|Resistenz|Vulnerabilit|Debolezz|Velocit|Spazio|BaB|BMC|CMB|DMC|CMD|Mischia|Distanza|Attacchi speciali|Incantesimi|Capacità magiche|CAPACITÀ MAGICHE|For\b|FOR\b|Talenti|Abilit|Lingue|Linguaggi|Tratti razziali|Sintonia|Equipaggiamento|Tesoro|Gesta|Grinta|Qualità speciali|Prima del combattimento|Round|Finita la Fatica|Fuga o resa|Tratto razziale)/;
+function sezioneDi(titolo) {
+  const t = titolo.toUpperCase();
+  if (/^DIFES/.test(t)) return 'difesa'; if (/^OFFES/.test(t)) return 'offesa'; if (/^STATISTICH/.test(t)) return 'statistiche';
+  if (/^TATTIC/.test(t)) return 'tattiche'; if (/^(ATTACCHI SPECIALI|CAPACITÀ|SPECIAL)/.test(t)) return 'speciali';
+  if (/^SINTONIA/.test(t)) return 'sintonia'; if (/^(XP|GS)$/.test(t)) return 'ignora'; return 'extra';
+}
+// righe logiche: le righe che continuano la precedente (rientrate, in minuscolo, con «·», «(», «=» o dopo una virgola) si uniscono
+function righeLogiche(righe) {
+  const out = [];
+  for (const raw of righe) {
+    const t = raw.trim(); if (!t) continue;
+    const prec = out[out.length - 1];
+    const cont = prec && !/^[─━]{2,}/.test(t) && !/^[─━]{2,}/.test(prec.t) && !CHIAVI_RIGA.test(t) && !/^\[\s*10\b/.test(t) &&
+      (/^\s/.test(raw) || /^[a-zà-ù·(=+−–\-]/.test(t) || /[,;(—–\-/]$/.test(prec.t));
+    if (cont) prec.t += (/^\s/.test(raw) || /^[·(=]/.test(t) ? '\n  ' : ' ') + t; else out.push({ t });
+  }
+  return out.map(x => x.t);
+}
+const unisci = (a, b) => [a, b].filter(Boolean).join('\n');
+const sezioniTesto = { difesa: 'DIFESA', offesa: 'OFFESA', statistiche: 'STATISTICHE', tattiche: 'TATTICHE' };
+function leggiTestata(t, s) {
+  const q = t.match(/\((?:x|×)\s*(\d+)\)/i); if (q) { s.n_suggerito = +q[1]; t = t.replace(q[0], '').replace(/\s{2,}/g, ' '); }
+  const segs = t.split(/\s+·\s+/).map(x => x.trim()).filter(Boolean);
+  const [nomeRaw, ...dopo] = segs[0].split(/\s+—\s+/);
+  s.nome = nomeProprio(nomeRaw.trim());
+  const desc = [];
+  const resto = dopo.join(' — ');
+  const classi = [...resto.matchAll(RE_CLASSE)];
+  if (classi.length) s.classi_testo = resto.trim(); else if (resto) s.epiteto = resto.trim();
+  for (const seg of segs.slice(1)) {
+    let m;
+    if ((m = seg.match(/^(?:vale\s+)?GS\s*(\d+(?:\/\d+)?)/))) { s.gs = m[1]; continue; }
+    if ((m = seg.match(/^XP\s*([\d.]+)\s*(.*)$/))) {
+      s.xp = +m[1].replace(/\./g, '') || null; let r = m[2].replace(/^ciascun[oa]\s*/, '');
+      if (/alleato/i.test(r)) { s.alleato = true; r = r.replace(/\(alleato[^)]*\)/i, '').trim(); }
+      r = r.replace(/^[—–-]\s*/, '').trim(); if (r) s.fonte = r; continue;
+    }
+    if (/^XP\s*—/.test(seg) || /non si assegna/i.test(seg)) { s.alleato = true; continue; }
+    desc.push(seg);
+  }
+  if (/alleato/i.test(t) && /non si assegna/i.test(t)) s.alleato = true;
+  s.note_testata = desc.join(' · ');
+  return classi;
+}
+// «💰 TESORO — da generare · Livello di riferimento: 12 · Quantità: 1 primario · Dove/chi lo porta: … · Note: …»
+function leggiTesoro(r) {
+  const t = { livello: '', quantita: '', dove: '', note: '' }, segs = r.replace(/^💰\s*TESORO\s*[—–-]?\s*(da generare)?[\s·:]*/u, '').split(/\s+·\s+/), resto = [];
+  for (const x of segs) { let m;
+    if ((m = x.match(/^Livello[^:]*:\s*(.+)$/i))) t.livello = m[1].trim(); else if ((m = x.match(/^Quantit[àa]\s*:\s*(.+)$/i))) t.quantita = m[1].trim();
+    else if ((m = x.match(/^(?:Dove|Chi)[^:]*:\s*(.+)$/i))) t.dove = m[1].trim(); else if ((m = x.match(/^Note\s*:\s*(.+)$/i))) t.note = [t.note, m[1].trim()].filter(Boolean).join(' · ');
+    else if (x.trim()) resto.push(x.trim()); }
+  if (resto.length) t.note = [t.note, ...resto].filter(Boolean).join(' · ');
+  return t;
+}
+function livelloDaClassi(classi) { return classi.reduce((a, m) => a + +m[3], 0); }
+function leggiParti(riga) { return riga.split(/\s+\|\s+/).map(x => x.trim()).filter(Boolean); }
+function leggiBlocco(righe) {
+  const s = schedaVuota('png'); s.guida.attiva = false;
+  const nonRic = [], extra = [];
+  let classi = leggiTestata(righe[0], s);
+  let sez = 'testa', dopoSez = 'testa', titoloExtra = '', ultimaDif = null, codaCA = '';
+  const buf = { tattiche: [], statistiche: [], speciali: [] };
+  const logiche = righeLogiche(righe.slice(1));
+  for (const r of logiche) {
+    const h = r.match(/^[─━]{2,}\s*(.+?)\s*[─━]{2,}\s*$/);
+    if (h) { sez = sezioneDi(h[1]); if (sez === 'extra') { titoloExtra = h[1]; extra.push({ titolo: h[1], testo: '', dopo: dopoSez }); } else if (sez !== 'ignora' && sez !== 'sintonia') dopoSez = sez;
+      if (sez === 'tattiche' && /\(/.test(h[1])) buf.tattiche.push(h[1].replace(/^TATTICHE\s*/i, '')); continue; }
+    if (/^💰\s*TESORO/u.test(r)) { s.tesoro = leggiTesoro(r); continue; }
+    if (FINE_BLOCCO.test(r)) break;
+    if (sez === 'testa') {
+      if (/^Iniziativa\b/i.test(r)) {
+        const m = r.match(/Iniziativa\s*([+−–-]\s*\d+)\s*([^|\n]*)/i); if (m) { s.iniziativa = numero(m[1]); if (m[2].trim()) s.ini_nota = m[2].trim(); }
+        const se = r.match(/Sensi\s*:\s*([^|\n]+)/i); if (se) s.sensi = se[1].trim();
+        const pe = r.match(/Percezione\s*([+−–-]\s*\d+)\s*([^|\n]*)/i); if (pe) { s.percezione = numero(pe[1]); if (pe[2].trim()) s.perc_nota = pe[2].trim(); }
+        continue;
+      }
+      if (/^Aur[ae]\b/i.test(r)) { s.aura = unisci(s.aura, r.replace(/^Aur[ae]\s*:?\s*/i, '')); continue; }
+      if (!s.razza_riga && (TIPI_CREATURA.test(r) || / \| /.test(r)) && !/^Base\b/i.test(r) && !/GS\s*\d/.test(r)) {
+        s.razza_riga = r.replace(/^Razza\s*:\s*/i, '').trim();
+        const segm = r.split(/\s+[|·]\s+/); const al = segm.slice(1).reverse().find(x => ALLINEAMENTO.test(x.trim()));
+        if (al) s.allineamento = al.trim();
+        if (!classi.length) { classi = [...r.matchAll(RE_CLASSE)]; if (classi.length) s.classi_testo = classi.map(m => m[0].trim()).join(' / '); }
+        continue;
+      }
+      s.note_testata = unisci(s.note_testata, r); continue;
+    }
+    if (sez === 'difesa') {
+      for (const p of leggiParti(r)) {
+        let m;
+        if ((m = p.match(/^CA\s+(\d+)\s*\(\s*(?:contatto|tocco)\s+(\d+)\s*,\s*(?:colt[oa]\s+(?:alla\s+sprovvista|in\s+fallo)|sprovvista)\s+(\d+)\s*\)\s*(.*)$/is))) {
+          s.ca = +m[1]; s.ca_contatto = +m[2]; s.ca_sprovvista = +m[3]; ultimaDif = 'ca';
+          if (m[4].trim()) { const sc = m[4].match(/\[[^\]]*\]/); if (sc) s.ca_scomp = m[4].trim(); else codaCA = m[4].trim(); }
+          continue;
+        }
+        if ((m = p.match(/^CA\s*=\s*(10\s*\+[^]*)$/))) { s.ca_scomp = `[${m[1].trim()}]`; ultimaDif = 'ca'; continue; }
+        if (/^\[/.test(p)) { if (ultimaDif === 'ca' && !s.ca_scomp && /^\[\s*10\b/.test(p)) { s.ca_scomp = p + (codaCA ? ' ' + codaCA : ''); codaCA = ''; } else if (ultimaDif === 'pf') s.pf_nota = unisci(s.pf_nota, p); else if (/^\[\s*10\b/.test(p) && !s.ca_scomp) s.ca_scomp = p; else s.difese = unisci(s.difese, p); continue; }
+        if (ultimaDif === 'ca' && s.ca_scomp && /^\(/.test(p)) { s.ca_scomp += '\n' + p; continue; }
+        if ((m = p.match(/^PF\s+(\d+)\s*(?:\(((?:[^()]|\([^()]*\))*)\))?\s*([^]*)$/))) {
+          s.pf = +m[1]; if (m[2]) s.pf_dadi = m[2].trim(); ultimaDif = 'pf';
+          const ff = m[3].match(/Punti Fatica\s+(\d+)\s*\/\s*Punti Ferita\s+(\d+)/i);
+          if (ff) { s.fatica = +ff[1]; s.ferita = +ff[2]; } else if (/solo Punti Ferita/i.test(m[3])) { s.fatica = 0; s.ferita = s.pf; s.solo_ferita = true; }
+          const nota = m[3].replace(/[—–-]?\s*Punti Fatica\s+\d+\s*\/\s*Punti Ferita\s+\d+/i, '').replace(/^\s*[—–-]\s*/, '').trim();
+          if (nota) s.pf_nota = unisci(s.pf_nota, nota);
+          continue;
+        }
+        if (/^TS\b/.test(p)) {
+          for (const [k, re] of [['tempra', /Tempra\s*([+−–-]\s*\d+)/i], ['riflessi', /Riflessi\s*([+−–-]\s*\d+)/i], ['volonta', /Volont[àa]\s*([+−–-]\s*\d+)/i]]) { const x = p.match(re); if (x) s[k] = numero(x[1]); }
+          const coda = p.replace(/^[^]*?Volont[àa]\s*[+−–-]\s*\d+/i, '').trim(); if (coda) s.ts_note = coda; ultimaDif = 'ts'; continue;
+        }
+        if (ultimaDif === 'ts' && /^\(/.test(p)) { s.ts_note = unisci(s.ts_note, p); continue; }
+        s.difese = unisci(s.difese, p); ultimaDif = 'dif';
+      }
+      continue;
+    }
+    if (sez === 'offesa') {
+      const parti = leggiParti(r);
+      if (parti.some(p => /^(Velocit|BaB|BMC|CMB|DMC|CMD|Spazio)/i.test(p))) {
+        const vv = [];
+        for (const p of parti) {
+          let m;
+          if ((m = p.match(/^BaB\s*(.+)$/i))) s.bab = m[1].trim();
+          else if ((m = p.match(/^(?:BMC|CMB)\s*(.+)$/))) s.bmc = m[1].trim();
+          else if ((m = p.match(/^(?:DMC|CMD)\s*(.+)$/))) s.dmc = m[1].trim();
+          else vv.push(p.replace(/^Velocit[àa]\s*/i, ''));
+        }
+        if (vv.length) s.velocita = unisci(s.velocita, vv.join(' | ')).replace(/\n/g, ' | ');
+        continue;
+      }
+      let m;
+      if ((m = r.match(/^Mischia\s*:?\s*([^]*)$/))) { s.mischia = unisci(s.mischia, m[1].trim()); continue; }
+      if ((m = r.match(/^Distanza\s*:?\s*([^]*)$/))) { s.distanza = unisci(s.distanza, m[1].trim()); continue; }
+      if (/^(Incantesimi|Capacità magiche|CAPACITÀ MAGICHE)/i.test(r)) { s.incantesimi = unisci(s.incantesimi, r.replace(/^Incantesimi\s*:?\s*/i, '')); continue; }
+      if (/^[^:]{1,60}?\s[+−–-]\d+(\/[+−–-]\d+)*\s*(contatto\s*)?\(/.test(r) || /^Con Attacco poderoso/i.test(r)) {
+        if (/gittata|incremento|distanza/i.test(r) && !/^Con Attacco/i.test(r)) s.distanza = unisci(s.distanza, r); else s.mischia = unisci(s.mischia, r); continue; }
+      s.speciali = unisci(s.speciali, r); continue;
+    }
+    if (sez === 'speciali') { if (/^(Incantesimi|Capacità magiche|CAPACITÀ MAGICHE)/i.test(r)) s.incantesimi = unisci(s.incantesimi, r.replace(/^Incantesimi\s*:?\s*/i, '')); else s.speciali = unisci(s.speciali, r); continue; }
+    if (sez === 'statistiche') { buf.statistiche.push(r); continue; }
+    if (sez === 'sintonia') { s.sintonia = unisci(s.sintonia, r); continue; }
+    if (sez === 'tattiche') { buf.tattiche.push(r); continue; }
+    if (sez === 'extra') { const e = extra[extra.length - 1]; e.testo = unisci(e.testo, r); continue; }
+    if (sez === 'ignora') { if (!/^[\d.]+$/.test(r)) nonRic.push(r); continue; }
+  }
+  if (codaCA) s.ca_scomp = s.ca_scomp ? s.ca_scomp + ' ' + codaCA : codaCA;
+  // statistiche: caratteristiche e voci con la loro chiave
+  const st = buf.statistiche.join('\n');
+  const C_ = '\\s*(\\d+|—|-)\\s*[★❓*]?\\s*,?\\s*', mc = st.match(new RegExp(`\\bFor${C_}Des${C_}Cos${C_}Int${C_}Sag${C_}Car\\s*(\\d+|—|-)`, 'i'));
+  let restoSt = st;
+  if (mc) { CAR.forEach((k, i) => { s.car[k] = /\d/.test(mc[i + 1]) ? +mc[i + 1] : null; }); restoSt = st.replace(mc[0], '').replace(/^[ ,]*\(/, '('); }
+  else s.car = { For: null, Des: null, Cos: null, Int: null, Sag: null, Car: null };
+  const CHIAVI_ST = [['talenti', /Talenti/], ['abilita', /Abilit[àa]/], ['lingue', /Lingue|Linguaggi/], ['tratti', /Tratti razziali/], ['sintonia', /Sintonia/], ['equip', /Equipaggiamento|Equip\./], ['tesoro', /Tesoro/]];
+  const re = /(^|\n|\s\|\s)(Talenti|Abilit[àa]|Lingue|Linguaggi|Tratti razziali|Sintonia|Equipaggiamento|Equip\.|Tesoro|Gesta|Grinta|Qualità speciali|PN|Doti(?: e optional)?|Optional|Privilegi|Morale)\s*:/g;
+  const pos = []; let m;
+  while ((m = re.exec(restoSt))) pos.push({ i: m.index, fine: m.index + m[0].length, k: m[2] });
+  const prima = (pos.length ? restoSt.slice(0, pos[0].i) : restoSt).trim();
+  if (prima) s.statistiche_altro = unisci(s.statistiche_altro, prima);
+  pos.forEach((p, j) => {
+    const v = restoSt.slice(p.fine, j + 1 < pos.length ? pos[j + 1].i : undefined).trim().replace(/\s*\|\s*$/, '');
+    const k = (CHIAVI_ST.find(([, rx]) => rx.test(p.k)) || [null])[0];
+    if (k === 'tesoro') s.tesoro = { livello: '', quantita: '', dove: '', note: v };
+    else if (k) s[k] = unisci(s[k], v);
+    else s.statistiche_altro = unisci(s.statistiche_altro, `${p.k}: ${v}`);
+  });
+  // tattiche: le chiavi si cercano ovunque nel testo (anche a metà riga)
+  const tt = buf.tattiche.join('\n').replace(/\n(?=\S)/g, ' ').replace(/\n/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  const reT = /(^|[\s.;!?»)])(Prima(?: del combattimento)?|Round 1|Round 2\s*[–-]\s*3|Finita la Fatica(?:\s*\([^)]*\))?|Fuga o resa|Tratto razziale(?: usato)?)\s*:/g;
+  const pt = []; while ((m = reT.exec(tt))) pt.push({ i: m.index + m[1].length, fine: m.index + m[0].length, k: m[2] });
+  const gen = (pt.length ? tt.slice(0, pt[0].i) : tt).trim(); if (gen) s.tattiche.generale = gen;
+  pt.forEach((p, j) => {
+    const v = tt.slice(p.fine, j + 1 < pt.length ? pt[j + 1].i : undefined).trim();
+    const k = /^prima/i.test(p.k) ? 'prima' : /^round 1/i.test(p.k) ? 'r1' : /^round 2/i.test(p.k) ? 'r23' : /^finita/i.test(p.k) ? 'fatica' : /^fuga/i.test(p.k) ? 'fuga' : 'tratto';
+    const par = p.k.match(/\(([^)]*)\)\s*$/);
+    s.tattiche[k] = [s.tattiche[k], (par ? `(${par[1]}) ` : '') + v].filter(Boolean).join(' ');
+  });
+  s.extra = extra;
+  s.altro = nonRic.join('\n');
+  if (classi.length) { s.livello = livelloDaClassi(classi); s.tipo_scheda = 'png'; } else s.tipo_scheda = 'mostro_pf1';
+  s.guida = guidaVuota(s.tipo_scheda); s.guida.attiva = false;
+  if (classi.length) s.guida.classi = classi.map(m => ({ classe: CLASSI.find(c => c.toLowerCase() === m[1].replace(/\s+/g, ' ').toLowerCase()) || m[1], livello: +m[3], archetipo: (m[2] || '').replace(/\s*❓\s*/, '').trim(), dv: 8 }));
+  if (s.tipo_scheda === 'mostro_pf1') { s.guida.pf_bestiario = s.pf; s.guida.gs_bestiario = s.gs; }
+  const avvisi = [];
+  if (s.pf !== null && s.fatica === null) { s.fatica = Math.floor(s.pf / 2); s.ferita = s.pf - s.fatica; avvisi.push('PF senza Fatica/Ferita: divisi dall\'app a metà (dispari ai Ferita)'); }
+  if (s.iniziativa === null) avvisi.push('Iniziativa non trovata');
+  if (s.ca === null) avvisi.push('CA non trovata');
+  return { scheda: s, avvisi };
+}
+// divide il testo incollato nei blocchi «NOME — … · GS N» e li legge uno per uno
+function leggiStatBlock(testo) {
+  const righe = String(testo || '').replace(/\r\n?/g, '\n').replace(/ /g, ' ').split('\n');
+  const inizi = righe.map((r, i) => eTestata(r) ? i : -1).filter(i => i >= 0);
+  return inizi.map((i, j) => { const b = leggiBlocco(righe.slice(i, j + 1 < inizi.length ? inizi[j + 1] : undefined)); b.riga = i + 1; return b; });
+}
+
+// ---------- scheda guidata: i calcoli della struttura (M4)
+function calcolaGuida(s, RAZZE) {
+  const g = s.guida || guidaVuota(s.tipo_scheda), av = [], campi = {}, det = {};
+  const C = Object.fromEntries(CAR.map(k => [k, modCar(s.car && s.car[k])]));
+  if (s.tipo_scheda === 'mostro_pf1') { // M4: PF del bestiario divisi (dispari ai Ferita), GS/XP del bestiario
+    const pf = numero(g.pf_bestiario);
+    if (pf !== null) { campi.pf = pf; campi.fatica = Math.floor(pf / 2); campi.ferita = pf - campi.fatica; det.pf = `PF del bestiario ${pf}: Fatica ${campi.fatica} / Ferita ${campi.ferita}`; }
+    if (String(g.gs_bestiario || '').trim()) { campi.gs = String(g.gs_bestiario).trim(); const x = XP_GS[campi.gs]; campi.xp = s.alleato ? null : x === undefined ? null : x; if (x === undefined) av.push(`GS ${campi.gs}: non è nella tabella degli XP`); }
+    return { campi, det, avvisi: av };
+  }
+  const classi = (g.classi || []).filter(c => c.classe || c.livello);
+  const L = classi.reduce((a, c) => a + (+c.livello || 0), 0);
+  if (!L) { av.push('livello mancante'); return { campi, det, avvisi: av }; }
+  const tg = TAGLIE_PNG[g.taglia] || TAGLIE_PNG.media;
+  const eTS = [8, 12, 16, 20].filter(x => L >= x).length, eCA = Math.max(0, L - 9);
+  const bab = +g.bab || 0, arm = g.armatura || {}, scu = g.scudo || {};
+  const desMax = arm.des_max === null || arm.des_max === undefined || arm.des_max === '' ? null : +arm.des_max;
+  const desCA = desMax === null ? C.Des : Math.min(C.Des, desMax);
+  if (desMax !== null && C.Des > desMax) av.push(`Des alla CA limitata dall'armatura: ${segnoN(C.Des)} → ${segnoN(desCA)}`);
+  const va = (+arm.base || 0) + (+arm.sintonia || 0), vs = (+scu.base || 0) + (+scu.sintonia || 0);
+  const nat = +g.naturale || 0, dev = +g.deviazione || 0, sch = +g.schivare || 0, alt = +g.altri_ca || 0;
+  campi.ca = 10 + va + vs + desCA + tg.ca + nat + dev + sch + eCA + alt;
+  campi.ca_contatto = 10 + desCA + tg.ca + dev + sch + eCA;
+  campi.ca_sprovvista = 10 + va + vs + tg.ca + nat + dev + eCA;
+  const parti = ['10'];
+  const conNome = (v, nome, base, sint) => `${nome} ${v}` + (base !== undefined && (sint || base !== v) ? ` (${base}${sint ? ' + sintonia ' + sint : ''})` : '');
+  if (va) parti.push(conNome(va, 'armatura', (arm.nome ? arm.nome + ' ' : '') + (+arm.base || 0), +arm.sintonia || 0).replace(/\((\D[^\d]*?)(\d+)/, '($1$2'));
+  if (vs) parti.push(conNome(vs, 'scudo', (scu.nome ? scu.nome + ' ' : '') + (+scu.base || 0), +scu.sintonia || 0));
+  parti.push(`Des ${desCA}`);
+  for (const [n, v] of [['taglia', tg.ca], ['naturale', nat], ['deviazione', dev], ['schivare', sch]]) if (v) parti.push(`${n} ${v}`);
+  if (eCA) parti.push(`bonus eroico ${eCA}`);
+  if (alt) parti.push(`altri ${alt}`);
+  campi.ca_scomp = '[' + parti.join(' + ').replace(/\+ -(\d)/g, '− $1') + ']';
+  // PF: primo DV pieno, poi le medie col ritiro; + Cos × livello (+ Robustezza), per difetto
+  let tot = 0; const dadi = [];
+  classi.forEach((c, i) => { const n = +c.livello || 0, dv = +c.dv || 8; tot += i === 0 ? dv + (n - 1) * MEDIE_DV[dv] : n * MEDIE_DV[dv]; dadi.push(`${n}d${dv}`); });
+  const robust = g.robustezza ? L : 0, bonus = C.Cos * L + robust + (+g.pf_extra || 0);
+  campi.pf = Math.floor(tot + bonus); campi.fatica = Math.floor(campi.pf / 2); campi.ferita = campi.pf - campi.fatica;
+  campi.pf_dadi = dadi.join(' + ') + (bonus ? (bonus > 0 ? '+' : '−') + Math.abs(bonus) : '');
+  det.pf = `${classi.map((c, i) => `${i === 0 ? `${+c.dv || 8} + ${(+c.livello || 0) - 1} × ${String(MEDIE_DV[+c.dv || 8]).replace('.', ',')}` : `${c.livello} × ${String(MEDIE_DV[+c.dv || 8]).replace('.', ',')}`}`).join(' + ')} ${segnoN(C.Cos)} Cos × ${L}` + (robust ? ` + Robustezza ${robust}` : '') + (+g.pf_extra ? ` ${segnoN(+g.pf_extra)} altri` : '') + ` = ${campi.pf}, per difetto`;
+  // TS
+  const tsb = g.ts_base || {}, tsx = g.ts_extra || {};
+  for (const [k, c] of [['tempra', 'Cos'], ['riflessi', 'Des'], ['volonta', 'Sag']]) campi[k] = (+tsb[k] || 0) + C[c] + eTS + (+tsx[k] || 0);
+  det.ts = `base + mod + bonus eroico ${segnoN(eTS)}` + (Object.values(tsx).some(x => +x) ? ' + altri' : '');
+  campi.ts_note = [eTS ? `(bonus eroico ${segnoN(eTS)} compreso)` : '', String(g.ts_condizionali || '').trim()].filter(Boolean).join(' ');
+  // iniziativa, manovre, attacchi
+  const talenti = (g.talenti || []).filter(t => t.nome && t.nome.trim());
+  const migliorata = talenti.some(t => /^iniziativa migliorata$/i.test(t.nome.trim()));
+  campi.iniziativa = C.Des + (migliorata ? 4 : 0) + (+g.iniziativa_extra || 0);
+  const iter = [bab]; for (const x of [6, 11, 16]) if (bab >= x) iter.push(bab - (iter.length) * 5);
+  campi.bab = iter.map(segnoN).join('/');
+  campi.bmc = segnoN(bab + C.For + tg.bmc);
+  campi.dmc = String(10 + bab + C.For + C.Des + tg.dmc + eCA);
+  const mis = [], dis = [], tetto = tettoSintonia(L);
+  for (const a of (g.armi || []).filter(a => a.nome)) {
+    const dist = !!a.distanza, sint = +a.sintonia || 0;
+    const tc = bab + (dist ? C.Des : C.For) + tg.tc + sint + (+a.tc_extra || 0);
+    const fd = dist && !a.for_ai_danni ? 0 : a.due_mani && C.For > 0 ? Math.floor(C.For * 3 / 2) : C.For;
+    const dan = fd + sint + (+a.danni_extra || 0);
+    const it = iter.map((b, i) => segnoN(tc - 5 * i)).join('/');
+    const riga = `${a.nome}${sint ? ` +${sint} (sintonia)` : ''} ${it} (${a.danni || '1d6'}${dan ? segnoN(dan).replace('−', '-') : ''}${a.critico ? ', ' + a.critico : ''}${a.incremento ? ', incremento ' + a.incremento : ''})`;
+    (dist ? dis : mis).push(riga);
+    if (g.attacco_poderoso && (!dist || a.for_ai_danni)) {
+      const passi = 1 + Math.floor(bab / 4), piu = Math.floor(2 * passi * (a.due_mani ? 1.5 : 1));
+      (dist ? dis : mis).push(`  con Attacco poderoso: ${iter.map((b, i) => segnoN(tc - passi - 5 * i)).join('/')} (${a.danni || '1d6'}${segnoN(dan + piu).replace('−', '-')})`);
+    }
+    if (sint > tetto) av.push(`Sintonia di ${a.nome} +${sint} oltre il tetto +${tetto} al ${L}°`);
+  }
+  if (mis.length) campi.mischia = mis.join('\n');
+  if (dis.length) campi.distanza = dis.join('\n');
+  if ((+arm.sintonia || 0) > tetto) av.push(`Sintonia dell'armatura +${arm.sintonia} oltre il tetto +${tetto} al ${L}°`);
+  if ((+scu.sintonia || 0) > tetto) av.push(`Sintonia dello scudo +${scu.sintonia} oltre il tetto +${tetto} al ${L}°`);
+  det.sintonia = `tetto di Sintonia al ${L}°: +${tetto} su un oggetto`;
+  // abilità
+  const ab = (g.abilita || []).filter(a => a.nome && a.nome.trim()).map(a => {
+    const base = Object.keys(ABIL_CAR).find(k => a.nome.trim().toLowerCase().startsWith(k.toLowerCase()));
+    const c = a.car || (base ? ABIL_CAR[base] : null);
+    const v = (+a.gradi || 0) + (c ? C[c] : 0) + (a.di_classe && +a.gradi >= 1 ? 3 : 0) + (+a.razziale || 0) + (+a.vari || 0) + (base === 'Furtività' ? tg.furt : 0);
+    return { nome: a.nome.trim(), v, bg: !!a.background };
+  });
+  if (ab.length) campi.abilita = ab.map(a => `${a.nome} ${segnoN(a.v)}` + (a.bg ? ' (bg)' : '')).join(', ');
+  const perc = ab.find(a => /^percezione$/i.test(a.nome)); campi.percezione = perc ? perc.v : C.Sag;
+  if (talenti.length) {
+    campi.talenti = talenti.map(t => t.nome.trim() + (t.tipo === 'C' ? ' (C)' : t.tipo === 'R' ? ' (R)' : '')).join(', ');
+    const n = k => talenti.filter(t => (t.tipo || 'liv') === k).length;
+    det.talenti = `${n('liv')} di livello + ${n('C')} (C) + ${n('R')} (R)`;
+  }
+  // BAB: controllo con le progressioni (classe singola)
+  if (classi.length === 1) { const p = { veloce: L, media: Math.floor(3 * L / 4), lenta: Math.floor(L / 2) };
+    det.bab = `controllo: veloce ${p.veloce} · media ${p.media} · lenta ${p.lenta}`; if (!Object.values(p).includes(bab)) av.push(`BAB +${bab} non corrisponde a nessuna progressione al ${L}° (${p.veloce}/${p.media}/${p.lenta}): controllare la tabella della classe`); }
+  // testata, razza, GS e XP
+  campi.livello = L;
+  campi.classi_testo = classi.map(c => `${c.classe || 'Classe'}${c.archetipo ? ` (${c.archetipo})` : ''} ${c.livello}`).join(' / ');
+  campi.gs = gsDaLivello(L, s.capacita_trama); campi.xp = s.alleato ? null : XP_GS[campi.gs];
+  campi.car_testo = CAR.map(k => `${k} ${s.car[k] === null || s.car[k] === undefined ? '—' : s.car[k]}`).join(', ');
+  const rz = g.razza && RAZZE ? RAZZE.razze.find(r => r.nome === g.razza) : null;
+  if (rz) {
+    const tipo = rz.tipo_scheda.replace(/ (Piccolo|Medio|Grande)\b/, ' ' + { piccola: 'Piccolo', media: 'Medio', grande_speciale: 'Grande' }[g.taglia || rz.taglia]);
+    const chiaro = (rz.tipo_scheda.match(/\(([^)]*)\)/) || ['', ''])[1].split(', ').some(x => x.slice(0, 3) === rz.nome.toLowerCase().slice(0, 3));
+    campi.razza_riga = tipo + (chiaro ? '' : ` — ${rz.nome}`) + (g.tratto_bonus ? ` · tratto bonus: ${g.tratto_bonus}` : '') + (s.allineamento ? ` · ${s.allineamento}` : '');
+    if (g.taglia !== rz.taglia) av.push(`taglia ${TAGLIE_PNG[g.taglia].nome} diversa da quella della razza (${TAGLIE_PNG[rz.taglia].nome})`);
+  }
+  det.gs = s.capacita_trama ? 'GS = livello (capacità dall\'app o oggetto di trama)' : 'GS = livello − 1 (solo Sintonia)';
+  return { campi, det, avvisi: av };
+}
+// scrive i valori calcolati nei campi in linea (solo con la guida attiva)
+function applicaGuida(s, RAZZE) {
+  const x = clona(s); if (!x.guida || !x.guida.attiva) return x;
+  const r = calcolaGuida(x, RAZZE);
+  for (const [k, v] of Object.entries(r.campi)) if (k !== 'car_testo') x[k] = v;
+  if (x.tipo_scheda === 'png') x.solo_ferita = false;
+  const rz = x.guida.razza && RAZZE ? RAZZE.razze.find(z => z.nome === x.guida.razza) : null;
+  if (rz) { if (!x.sensi && rz.sensi.length) x.sensi = rz.sensi.join(', '); if (!x.velocita) x.velocita = rz.movimento; }
+  return x;
+}
+
+// ---------- segnalazioni (M6, §9 della struttura) e controllo dei conti
+function testoScheda(s) {
+  return [...CAMPI_TESTO.map(k => s[k]), ...Object.values(s.tattiche || {}), ...(s.extra || []).map(e => e.titolo + ' ' + e.testo), s.tesoro ? s.tesoro.note : '',
+    ...((s.guida && s.guida.talenti) || []).map(t => t.nome), ...((s.guida && s.guida.abilita) || []).map(a => a.nome)].filter(Boolean).join('\n');
+}
+function sommaScomposizione(t) {
+  const s = String(t).replace(/^\[|\]$/g, '').replace(/\([^()]*\)/g, '').replace(/\n.*$/s, '');
+  if (!/^\s*10\b/.test(s)) return null;
+  let tot = 0; const re = /([+−–-])\s*[^\d+−–-]*?(\d+)/g; let m; const x = '+' + s;
+  while ((m = re.exec(x))) tot += (m[1] === '+' ? 1 : -1) * +m[2];
+  return tot;
+}
+// la frase (fra due punti, punti e virgola, a capo o parentesi) in cui cade una parola trovata
+// la voce (fra virgole, punti, «·», a capo o parentesi) in cui cade la parola, con la parentesi che la segue
+function fraseAttorno(t, i, n) {
+  let a = i; while (a > 0 && !/[,.;!?\n·(]/.test(t[a - 1])) a--;
+  let b = i + n; while (b < t.length && !/[,.;!?\n·()]/.test(t[b])) b++;
+  if (t[b] === '(') { const k = t.indexOf(')', b); b = k < 0 ? t.length : k + 1; }
+  return t.slice(a, b);
+}
+function segnalazioni(s, DIV) {
+  const out = [], add = (livello, testo) => { if (!out.some(x => x.testo === testo)) out.push({ livello, testo }); };
+  const tutto = testoScheda(s);
+  const talenti = [s.talenti, ...((s.guida && s.guida.talenti) || []).map(t => t.nome)].filter(Boolean).join('\n');
+  const abilita = [s.abilita, ...((s.guida && s.guida.abilita) || []).map(a => a.nome)].filter(Boolean).join('\n');
+  for (const d of (DIV && DIV.divieti) || []) {
+    const testo = d.campi === 'talenti' ? talenti : d.campi === 'abilita' ? abilita : tutto;
+    const r = new RegExp(d.re, d.flag.includes('g') ? d.flag : d.flag + 'g'); let m; const viste = new Set();
+    const salvo = new RegExp([DIV.salvo_comune, d.salvo].filter(Boolean).join('|'), 'i');
+    while ((m = r.exec(testo))) { let e = m.index + m[0].length; while (e < testo.length && /\p{L}/u.test(testo[e])) e++; const v = testo.slice(m.index, e); if (viste.has(v.toLowerCase())) continue;
+      const fr = fraseAttorno(testo, m.index, v.length); if (salvo.source !== '(?:)' && salvo.test(fr)) continue; viste.add(v.toLowerCase());
+      add(d.verifica ? 'verifica' : 'errore', `${d.gruppo}: «${v}»` + (d.sostituto ? ` → ${d.sostituto}` : '') + (d.verifica ? ' (niente teletrasporto a lunga distanza)' : '')); }
+  }
+  const L = s.tipo_scheda === 'png' ? +s.livello || 0 : 0;
+  // conti
+  if (s.ca !== null && s.ca_scomp) { const t = sommaScomposizione(s.ca_scomp); if (t !== null && t !== s.ca) add('errore', `CA ${s.ca}, ma la scomposizione fa ${t}`); }
+  if (s.pf !== null && s.fatica !== null && s.ferita !== null) {
+    if (s.fatica + s.ferita !== s.pf) add('errore', `Fatica ${s.fatica} + Ferita ${s.ferita} = ${s.fatica + s.ferita}, non ${s.pf}`);
+    else if (!s.solo_ferita && ![0, 1].includes(s.ferita - s.fatica)) add('errore', `divisione dei PF ${s.fatica}/${s.ferita}: metà e metà, il dispari ai Ferita (${Math.floor(s.pf / 2)}/${Math.ceil(s.pf / 2)})`);
+  }
+  if (s.gs !== '' && s.gs !== null && !s.alleato && s.xp) { const x = XP_GS[String(s.gs)]; if (x !== undefined && x !== s.xp) add('errore', `XP ${migliaia(s.xp)}: per GS ${s.gs} sono ${migliaia(x)}`); }
+  const modello = /★|\bmodell[oi]\b|Risvegliat|\btrupp[ae]\b|\bLich\b/i.test(tutto);
+  if (L && s.gs !== '') { const ok = [gsDaLivello(L, false), gsDaLivello(L, true)]; if (!ok.includes(String(s.gs)))
+    add(modello ? 'verifica' : 'errore', `GS ${s.gs} con livello ${L}: atteso ${ok[0]} (solo Sintonia) o ${ok[1]} (capacità o oggetto di trama)` + (modello ? ' — c\'è un modello ★' : '')); }
+  if (L >= 10 && s.ca_scomp && !/eroic/i.test(s.ca_scomp)) add('verifica', `CA: bonus eroico +${L - 9} al ${L}° non indicato nella scomposizione`);
+  // Sintonia oltre il tetto
+  if (L) { const tetto = tettoSintonia(L), re = /\+(\d)\s*\(sintonia\)|sintonia\s*\+?\s*(\d)\b/gi; let m; const valori = [];
+    while ((m = re.exec(tutto))) valori.push(+(m[1] || m[2]));
+    for (const x of String(s.sintonia || '').matchAll(/\+(\d)\b/g)) valori.push(+x[1]); // il campo «Sintonia: spada +2 · armatura +1»
+    const v = Math.max(0, ...valori); if (v > tetto) add('errore', `Sintonia +${v} oltre il tetto +${tetto} al ${L}°`); }
+  // volo dei PNG (1 m fino al 17° salvo motivo dichiarato)
+  if (s.tipo_scheda === 'png' && L < 17) { const v = s.velocita || '', m = v.match(/vol(?:o|are)\s*(\d+(?:[.,]\d+)?)\s*m/i);
+    if ((m && parseFloat(m[1].replace(',', '.')) > 1 || /\bvol(o|are)\b/i.test(v) && !m) && !/eccezione|motivo/i.test(v)) add('errore', 'volo oltre 1 m per un PNG senza motivo dichiarato (fino al 17° si vola a 1 m da terra)'); }
+  // tattiche (obbligatorie)
+  const T = s.tattiche || {}, tt = Object.values(T).join(' ');
+  if (!tt.trim()) add('errore', 'mancano le tattiche (obbligatorie)');
+  else {
+    if (!T.fuga && !/fug|resa|arrend|ritir|scappa/i.test(tt)) add('verifica', 'tattiche senza fuga o resa');
+    if (s.tipo_scheda === 'png' && !T.tratto && !/tratto razziale/i.test(tt)) add('verifica', 'tattiche senza tratto razziale');
+  }
+  if (s.guida && s.guida.attiva) for (const a of calcolaGuida(s, null).avvisi) add(/Sintonia/.test(a) ? 'errore' : 'verifica', a);
+  return out;
+}
+
+// ---------- «Copia come testo»: lo stat block nell'ordine del §10
+function testoStatBlock(s, opz = {}) {
+  const L = [], seg = (n, piu) => n === null || n === undefined || n === '' ? '' : (typeof n === 'number' ? segnoN(n) : n);
+  const xv = XP_GS[String(s.gs).trim()] || s.xp; // anche per gli alleati, come nei documenti: «XP 2.400 (alleato: non si assegna)»
+  const xp = (opz.xp !== false && xv ? ` · XP ${migliaia(xv)}` : '') + (s.alleato ? ' (alleato: non si assegna)' : '');
+  const desc = s.note_testata && !/\n/.test(s.note_testata) ? s.note_testata : '';
+  L.push(`${s.nome.toUpperCase()}${s.classi_testo ? ' — ' + s.classi_testo : s.epiteto ? ' — ' + s.epiteto : ''}${s.classi_testo && s.epiteto ? ' · ' + s.epiteto : ''}${desc ? ' · ' + desc : ''}` +
+    `${s.gs !== '' ? ' · GS ' + s.gs : ''}${xp}${s.fonte ? ' — ' + s.fonte : ''}`);
+  if (s.note_testata && /\n/.test(s.note_testata)) L.push(...s.note_testata.split('\n'));
+  if (s.razza_riga) L.push((s.tipo_scheda === 'png' && !/^Razza/i.test(s.razza_riga) ? 'Razza: ' : '') + s.razza_riga);
+  L.push([s.iniziativa !== null ? `Iniziativa ${segnoN(s.iniziativa)}${s.ini_nota ? ' ' + s.ini_nota : ''}` : '', s.sensi ? `Sensi: ${s.sensi}` : '', s.percezione !== null ? `Percezione ${segnoN(s.percezione)}${s.perc_nota ? ' ' + s.perc_nota : ''}` : ''].filter(Boolean).join(' | '));
+  if (s.aura) L.push('Aura: ' + s.aura);
+  const extra = dopo => (s.extra || []).filter(e => e.dopo === dopo).forEach(e => { L.push(`── ${e.titolo} ──`); if (e.testo) L.push(e.testo); });
+  extra('testa');
+  L.push('── DIFESA ──');
+  if (s.ca !== null) L.push(`CA ${s.ca} (contatto ${s.ca_contatto}, colto alla sprovvista ${s.ca_sprovvista})`);
+  if (s.ca_scomp) L.push(s.ca_scomp);
+  if (s.pf !== null) L.push(`PF ${s.pf}${s.pf_dadi ? ` (${s.pf_dadi})` : ''} — ${s.solo_ferita ? 'solo Punti Ferita' : `Punti Fatica ${s.fatica} / Punti Ferita ${s.ferita}`}`);
+  if (s.pf_nota) L.push(s.pf_nota);
+  if (s.tempra !== null || s.riflessi !== null || s.volonta !== null) L.push(`TS Tempra ${seg(s.tempra)}, Riflessi ${seg(s.riflessi)}, Volontà ${seg(s.volonta)}${s.ts_note ? ' ' + s.ts_note : ''}`);
+  if (s.difese) L.push(s.difese);
+  extra('difesa');
+  L.push('── OFFESA ──');
+  const vel = [s.velocita ? `Velocità ${s.velocita}` : '', s.bab ? `BaB ${s.bab}` : '', s.bmc ? `BMC ${s.bmc}` : '', s.dmc ? `DMC ${s.dmc}` : ''].filter(Boolean).join(' | ');
+  if (vel) L.push(vel);
+  const pref = (et, t) => t.split('\n').map((r, i) => i === 0 ? `${et}: ${r}` : (/^\s/.test(r) ? r : '  ' + r));
+  if (s.mischia) L.push(...pref('Mischia', s.mischia));
+  if (s.distanza) L.push(...pref('Distanza', s.distanza));
+  if (s.speciali) L.push(s.speciali);
+  if (s.incantesimi) L.push(/^[A-ZÀ-Ú][^:]{0,40}(:|—)/.test(s.incantesimi) ? s.incantesimi : 'Incantesimi: ' + s.incantesimi);
+  extra('offesa');
+  L.push('── STATISTICHE ──');
+  if (s.car && CAR.some(k => s.car[k] !== undefined)) L.push(CAR.map(k => `${k} ${s.car[k] === null ? '—' : s.car[k]}`).join(', '));
+  if (s.talenti) L.push('Talenti: ' + s.talenti);
+  if (s.abilita) L.push('Abilità: ' + s.abilita);
+  const lt = [s.lingue ? 'Lingue: ' + s.lingue : '', s.tratti ? 'Tratti razziali: ' + s.tratti : ''].filter(Boolean).join(' | '); if (lt) L.push(lt);
+  const se = [s.sintonia ? 'Sintonia: ' + s.sintonia : '', s.equip ? 'Equipaggiamento: ' + s.equip : ''].filter(Boolean).join(' | '); if (se) L.push(se);
+  if (s.statistiche_altro) L.push(s.statistiche_altro);
+  extra('statistiche');
+  const T = s.tattiche || {};
+  if (Object.values(T).some(Boolean)) {
+    L.push('── TATTICHE ──');
+    if (T.generale) L.push(T.generale);
+    for (const [k, et] of TATTICHE) if (T[k]) L.push(`${et}: ${T[k]}`);
+  }
+  extra('tattiche');
+  if (s.tesoro) { const t = s.tesoro; L.push(['💰 TESORO — da generare', t.livello ? `Livello di riferimento: ${t.livello}` : '', t.quantita ? `Quantità: ${t.quantita}` : '', t.dove ? `Dove/chi lo porta: ${t.dove}` : '', t.note ? `Note: ${t.note}` : ''].filter(Boolean).join(' · ')); }
+  if (s.altro) { L.push('── NOTE ──'); L.push(s.altro); }
+  return L.filter(x => x !== '').join('\n');
+}
+
+// ---------- elenchi di schede (bestiario condiviso e PNG della campagna)
+function nuovaScheda(dati, rng, ora, pref) { const s = { ...schedaVuota(dati && dati.tipo_scheda), ...clona(dati || {}) }; s.id = (pref || 's') + (ora || 0).toString(36) + nuovoId(rng); s.creata = s.modificata = ora || 0; return s; }
+function salvaScheda(lista, s, ora) {
+  if (!String(s.nome || '').trim()) throw new Error('la scheda non ha un nome');
+  const x = clona(s); x.modificata = ora || 0; const out = lista.filter(y => y.id !== x.id); const i = lista.findIndex(y => y.id === x.id);
+  if (i < 0) out.push(x); else out.splice(i, 0, x); return out;
+}
+function cercaSchede(lista, f = {}) {
+  const q = String(f.testo || '').trim().toLowerCase(), tipo = String(f.tipo || '').trim().toLowerCase(), et = String(f.etichetta || '').trim().toLowerCase();
+  const gsv = s => { const g = String(s.gs || ''); return /\//.test(g) ? 1 / +g.split('/')[1] : g === '' ? null : +g; };
+  return lista.filter(s => (!q || [s.nome, s.epiteto, s.classi_testo].join(' ').toLowerCase().includes(q))
+    && (!tipo || [s.razza_riga, s.epiteto, s.classi_testo].join(' ').toLowerCase().includes(tipo))
+    && (!et || (s.etichette || []).some(e => e.toLowerCase().includes(et)))
+    && (!f.preferiti || s.preferito)
+    && (f.gs_min === undefined || f.gs_min === null || f.gs_min === '' || (gsv(s) !== null && gsv(s) >= +f.gs_min))
+    && (f.gs_max === undefined || f.gs_max === null || f.gs_max === '' || (gsv(s) !== null && gsv(s) <= +f.gs_max)))
+    .sort((a, b) => (b.preferito ? 1 : 0) - (a.preferito ? 1 : 0) || a.nome.localeCompare(b.nome, 'it'));
+}
+function salvaPNG(camp, s, ora) { const c = clona(camp); c.png = salvaScheda(c.png || [], s, ora); return c; }
+function eliminaPNG(camp, id) { const c = clona(camp); c.png = (c.png || []).filter(s => s.id !== id); return c; }
+// mostri condivisi importati: si aggiungono quelli che mancano; con lo stesso id e contenuto diverso entrano come copia
+function unisciMostri(lista, nuovi, rng, ora, soloMancanti) {
+  const out = clona(lista); let aggiunti = 0, copie = 0;
+  for (const m of nuovi || []) {
+    const es = out.find(x => x.id === m.id);
+    if (!es) { out.push(clona(m)); aggiunti++; continue; }
+    if (soloMancanti) continue;
+    const a = { ...es, modificata: 0 }, b = { ...m, modificata: 0 };
+    if (JSON.stringify(a) === JSON.stringify(b)) continue;
+    out.push(nuovaScheda({ ...m, nome: m.nome + ' (importato)' }, rng, ora, 'm')); copie++;
+  }
+  return { lista: out, aggiunti, copie };
+}
+
+// ---------- incontri (N)
+function incontroVuoto() { return { id: '', titolo: '', atto: '', capitolo: '', luogo: '', stato: 'da giocare', giocato_R: null, note: '', tesoro: '', partecipanti: [], promemoria: [] }; }
+function salvaIncontro(camp, inc, rng) {
+  if (!String(inc.titolo || '').trim()) throw new Error('l\'incontro non ha un titolo');
+  const c = clona(camp), x = { ...incontroVuoto(), ...clona(inc) };
+  for (const p of x.partecipanti) { if (!(Number.isInteger(p.n) && p.n >= 1)) throw new Error(`${p.nome || 'partecipante'}: quantità non valida`); if (!String(p.nome || '').trim()) throw new Error('partecipante senza nome'); }
+  for (const p of x.promemoria) if (!(Number.isInteger(p.round) && p.round >= 1) || !String(p.testo || '').trim()) throw new Error('promemoria: round o testo non validi');
+  x.promemoria.sort((a, b) => a.round - b.round);
+  if (!x.id) x.id = prossimoId(c, 'i');
+  const i = c.incontri.findIndex(y => y.id === x.id); if (i < 0) c.incontri.push(x); else c.incontri[i] = x;
+  return c;
+}
+function duplicaIncontro(camp, id) {
+  const c = clona(camp), o = c.incontri.find(x => x.id === id); if (!o) throw new Error('incontro non trovato');
+  const x = { ...clona(o), id: prossimoId(c, 'i'), titolo: o.titolo + ' (copia)', stato: 'da giocare', giocato_R: null };
+  c.incontri.splice(c.incontri.indexOf(o) + 1, 0, x); return { camp: c, id: x.id };
+}
+function eliminaIncontro(camp, id) { const c = clona(camp); c.incontri = c.incontri.filter(x => x.id !== id); return c; }
+const ordineNat = (a, b) => String(a).localeCompare(String(b), 'it', { numeric: true, sensitivity: 'base' });
+function cartelle(camp) {
+  const atti = [];
+  for (const inc of camp.incontri || []) {
+    const an = inc.atto || '(senza atto)', cn = inc.capitolo || '';
+    let a = atti.find(x => x.atto === an); if (!a) atti.push(a = { atto: an, capitoli: [] });
+    let k = a.capitoli.find(x => x.capitolo === cn); if (!k) a.capitoli.push(k = { capitolo: cn, incontri: [] });
+    k.incontri.push(inc);
+  }
+  atti.sort((a, b) => ordineNat(a.atto, b.atto)); for (const a of atti) a.capitoli.sort((x, y) => ordineNat(x.capitolo, y.capitolo));
+  return atti;
+}
+// XP dell'incontro: somma degli XP dei partecipanti (gli alleati non contano)
+function xpIncontro(inc, schedaDi) {
+  let tot = 0; const righe = [], mancanti = [];
+  for (const p of inc.partecipanti) {
+    const s = p.rif ? schedaDi(p.rif) : null; if (!s) { mancanti.push(p.nome); continue; }
+    const x = xpDi(s); if (x === null) { righe.push({ nome: p.nome, n: p.n, xp: 0, alleato: !!s.alleato }); continue; }
+    tot += x * p.n; righe.push({ nome: p.nome, n: p.n, xp: x * p.n });
+  }
+  return { totale: tot, righe, mancanti };
+}
+// partecipante dell'incontro → riga dell'avvio del combattimento
+function nemicoDaPartecipante(p, schedaDi) {
+  const s = p.rif ? schedaDi(p.rif) : null;
+  return { nome: p.nome || (s ? s.nome : ''), bonus: s && s.iniziativa !== null ? s.iniziativa : (+p.bonus || 0), n: p.n || 1, modo: p.modo || 'tipo', imp: !!p.imp,
+    nascosto: !!p.nascosto, nomeTv: p.nomeTv || '', rif: p.rif || null };
+}
+function pfDaScheda(s) { if (!s || s.fatica === null || s.ferita === null) return null; return { fatica: s.fatica, ferita: s.ferita, fatica_max: s.fatica, ferita_max: s.ferita }; }
+
+// ---------- PF dei nemici (J9), ferite gravi sulle righe, tattiche nella barra del turno (O)
+function separaMembro(c, r, k, nome) {
+  const cb = c.combattimento;
+  r.n--; const nuova = { ...clona(r), id: prossimoId(c, 'r'), n: 1, nome: nome || `${r.nome} ${k + 1}`, prepara: null };
+  nuova.malus = (nuova.malus || []).map(m => ({ ...m, id: prossimoId(c, 'm') }));
+  if (r.pf) { nuova.pf = [r.pf[k]]; r.pf.splice(k, 1); }
+  cb.righe[nuova.id] = nuova;
+  const i = cb.ordine.indexOf(r.id); if (i >= 0) cb.ordine.splice(i + 1, 0, nuova.id); else cb.attesa.push(nuova.id);
+  log(c, `${nuova.nome} si separa da ${r.nome}`); return nuova;
+}
+function dannoRiga(camp, rigaId, k, n) {
+  if (!(Number.isInteger(n) && n > 0)) throw new Error('danno non valido');
+  const c = clona(camp), cb = c.combattimento, r = cb && cb.righe[rigaId]; if (!r || !r.pf) throw new Error('questa riga non ha PF');
+  const p = r.pf[k || 0]; if (!p) throw new Error('creatura non trovata');
+  let resto = n; const f = Math.min(Math.max(p.fatica, 0), resto); p.fatica -= f; resto -= f; const prima = p.ferita; p.ferita -= resto;
+  const nome = r.n > 1 ? `${r.nome} ${(k || 0) + 1}` : r.nome;
+  let fg = null, id = r.id;
+  if (resto > 0 && p.ferita < 0) { if (r.n > 1) id = separaMembro(c, r, k || 0).id; fg = { riga: Math.max(-15, p.ferita), id }; }
+  log(c, `${nome}: ${n} danni` + (fg ? ` — Ferite ${prima} → ${p.ferita}, ferita grave riga ${fg.riga}` : ''));
+  if (p.fatica <= 0 && f > 0) log(c, `${nome}: Fatica finita`);
+  return { camp: c, feritaGrave: fg };
+}
+function curaRiga(camp, rigaId, k, n) {
+  if (!(Number.isInteger(n) && n > 0)) throw new Error('cura non valida');
+  const c = clona(camp), r = c.combattimento && c.combattimento.righe[rigaId]; if (!r || !r.pf) throw new Error('questa riga non ha PF');
+  const p = r.pf[k || 0]; let x = n;
+  const fe = Math.min(x, Math.max(0, p.ferita_max - p.ferita)); p.ferita += fe; x -= fe; p.fatica = Math.min(p.fatica_max, p.fatica + x);
+  log(c, `${r.n > 1 ? r.nome + ' ' + ((k || 0) + 1) : r.nome}: curati ${n} PF`); return c;
+}
+// ferita grave sul nemico di una riga di gruppo: prima si separa una creatura
+function separaPerFerita(camp, rigaId, k) {
+  const c = clona(camp), r = c.combattimento.righe[rigaId]; if (!r) throw new Error('riga non trovata');
+  if (!(r.n > 1)) return { camp: c, id: r.id };
+  const nuova = separaMembro(c, r, k || 0, `${r.nome} ${(k || 0) + 1}`); return { camp: c, id: nuova.id };
+}
+function faticaFinita(r) { return !!(r.faticaFinita || (r.pf && r.pf.some(p => p.fatica <= 0))); }
+// O2: le tattiche della scheda nella barra del turno, secondo il round
+function tatticheTurno(c, schedaDi, rigaId) {
+  const cb = c.combattimento; if (!cb) return null;
+  const r = rigaId ? cb.righe[rigaId] : attuale(cb); if (!r || !r.rif) return null;
+  const s = schedaDi(r.rif); if (!s) return { voci: [], fuga: '', mancante: true };
+  const T = s.tattiche || {}, voci = [], rd = cb.round;
+  if (rd === 1) { if (T.prima) voci.push(['prima', 'Prima del combattimento', T.prima]); if (T.r1) voci.push(['r1', 'Round 1', T.r1]); if (T.tratto) voci.push(['tratto', 'Tratto razziale', T.tratto]);
+    if (!T.r1 && T.generale) voci.push(['generale', 'Tattiche', T.generale]); }
+  if (rd === 2 || rd === 3) { if (T.r23) voci.push(['r23', 'Round 2–3', T.r23]); else if (T.generale && !T.r1) voci.push(['generale', 'Tattiche', T.generale]); }
+  if (faticaFinita(r) && T.fatica) voci.push(['fatica', 'Finita la Fatica', T.fatica]);
+  return { voci: voci.map(([k, titolo, testo]) => ({ k, titolo, testo })), fuga: T.fuga || '', nome: s.nome };
+}
+function promemoriaRound(c) { const cb = c.combattimento; return cb && cb.promemoria ? cb.promemoria.filter(p => p.round === cb.round).map(p => p.testo) : []; }
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
-  meteoCorrente, nomeZona, nomeStagione, creaCampagna, duplicaCampagna, esporta, importa, migra,
+  meteoCorrente, nomeZona, nomeStagione, creaCampagna, duplicaCampagna, esporta, importa, migra, mostriUsati,
   aggiungiPG, modificaPG, rimuoviPG, controllaScheda, danno, dannoNonLetale, statoNonLetali, cura, pfTemporanei, rifiatare, puntoEroe, valoriPG,
   avanza, vaiA, riposo, consumoGiornaliero, bastanoPer, modificaScorta, impostaAccompagnatori, togliDallaCoda,
   risolviRazionamento, razionamentoAperto, puoRiposare,
   tiroIniziativa, avviaCombattimento, comando, indietro, fineCombattimento, attuale, etichetta, attivaTimer, timerLetture, mmss,
   UNITA_ROUND, EFFETTI_COND, aggiungiMalus, togliMalus, descriviMalus, descriviDurata, nomeEsteso, esitoPromemoria, doseAggiuntiva, togliDallaCodaId, risolviMorte,
-  scomponiFerita, descriviComponente, attaccaFerita, feritaDaTabella, mettiUltimo, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza };
+  scomponiFerita, descriviComponente, attaccaFerita, feritaDaTabella, mettiUltimo, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza,
+  XP_GS, migliaia, MEDIE_DV, TAGLIE_PNG, CLASSI, ABIL_CAR, TATTICHE, schedaVuota, guidaVuota, nomeProprio, tettoSintonia, gsDaLivello, xpDi, leggiStatBlock, calcolaGuida, applicaGuida,
+  segnalazioni, sommaScomposizione, testoStatBlock, nuovaScheda, salvaScheda, cercaSchede, salvaPNG, eliminaPNG, unisciMostri, incontroVuoto, salvaIncontro, duplicaIncontro,
+  eliminaIncontro, cartelle, xpIncontro, nemicoDaPartecipante, pfDaScheda, dannoRiga, curaRiga, separaPerFerita, faticaFinita, tatticheTurno, promemoriaRound };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

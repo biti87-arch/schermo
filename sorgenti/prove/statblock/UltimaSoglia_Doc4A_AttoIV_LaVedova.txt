@@ -1,0 +1,42 @@
+AMETISTA (MÍRIEL) — Banshee del Rimorso ★ · GS 15 · XP 51.200
+Non morta Media (incorporea) · in vita: elfa | Neutrale Buona (pentita)
+Base: Banshee (PF1e Bestiario 2, GS 13) + modello avanzato (+1) + variante ★ del Rimorso (+1)
+Iniziativa +17 | Sensi: scurovisione 18 m, sentire il battito 18 m | Percezione +33
+Aura: il pianto (vedi IV.1 e sotto)
+── DIFESA ──
+CA 30 (contatto 30, colta alla sprovvista 16)
+  [10 + deviazione 6 (Car) + Des 13 + schivare 1]
+PF 199 (19d8+114) — Punti Fatica 99 / Punti Ferita 100
+  [19 × 4,5 + Car 6 × 19; mostro PF1: totale diviso a metà, il dispari ai Ferita]
+TS Tempra +12, Riflessi +21, Volontà +20 (non morta: Car alla Tempra)
+Capacità difensive: incorporea (⚠️ la Collana non lo regola: PF1e, come la firma di
+  Inuviel nel Doc 3A) · immunità dei non morti
+Debolezze: impotenza alla luce del sole
+── OFFESA ──
+Velocità volare 18 m (perfetta) — mostro, volo standard (Registro A.8)
+Mischia: tocco incorporeo +28 (14d6 energia negativa + terrore) — non lo usa
+Attacchi speciali: il pianto alto ★ — non lo usa mai sui PG
+BaB +14 | BMC +27 | DMC 44
+── STATISTICHE ──
+For —, Des 36, Cos —, Int 18 ★, Sag 24, Car 23
+  [Bestiario 2 +4 dal modello avanzato; Int 5 → 14 per la variante ★, +4]
+Talenti: Allerta, Iniziativa migliorata, Mobilità, Riflessi fulminei, Riflessi in
+  combattimento, Schivare, Volontà di ferro, Arma focalizzata (tocco), Step Up e
+  Wind Stance (non tradotti, ❓ nomi di golarion.altervista da verificare)
+Abilità: Percezione +33, Volare +21, Intuizione +9, Conoscenze (arcane) +18 ★,
+  Conoscenze (nobiltà) +12 ★
+Lingue: Comune, Elfico
+── CAPACITÀ ──
+Il pianto (Sop) ★: continuo. Nella prateria Volontà CD 16, nella torre 18–22
+  (IV.1), emozione. Chi ha ragione di piangere con lei: +4 (Lore §XV).
+Il pianto alto (Sop) ★: 1/minuto, round completo, 12 m. Volontà CD 25 (emozione).
+  Fallimento: 140 danni (Fatica, poi Ferita). Successo: inferma 1d6 round.
+  [PF1e: Tempra, effetto di morte sonoro; la variante ★ lo fa pianto]
+Terrore (Sop): chi è ferito dal tocco, Volontà CD 25 o rannicchiato 1d3 round.
+Sentire il battito (Str): percepisce i cuori vivi entro 18 m, come vista cieca.
+Respinta dalla Soglia: entro 3 m dalla Chiave della Necromanzia prova la stessa
+  repulsione di Brook (Lore §XVII). Per questo non può eseguire il rito.
+── TATTICHE ──
+Non combatte. Al primo colpo se ne va attraverso i muri (IV.7). Non insegue,
+non si vendica. Nessun effetto comune la trattiene (è incorporea); se qualcuno
+ci riesce, piange più forte e aspetta che la lascino.

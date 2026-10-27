@@ -1,0 +1,206 @@
+MERKH — Pistolero 7 · GS 6 · XP 2.400 (alleato: non si assegna)
+Razza: Umanoide Medio (felino) — aslan, tigre · tratto bonus: Ruggente · Neutrale
+Iniziativa +7 | Sensi: visione crepuscolare | Percezione +13
+── DIFESA ──
+CA 18 (contatto 15, colto alla sprovvista 13)
+[10 + 3 armatura (corpetto di cuoio 2 + sintonia 1) + 3 Des + 2 leggiadria]
+ (bonus eroico: — al 7° livello)
+PF 63 (DV d10 ×7: 10 + 6 × 6,5 + Cos 14) — Punti Fatica 31 / Punti Ferita 32
+TS Tempra +7, Riflessi +8, Volontà +5
+── OFFESA ──
+Velocità 9 m (+3 m in carica, corsa e ritirata) | BaB +7/+2 | BMC +9 | DMC 22
+Distanza: fucile +1 (sintonia) +12/+7 (1d10+4, ×3, incremento 12 m, 6 colpi)
+ · entro 12 m colpisce la CA di contatto · entro 9 m +13/+8 (1d10+5)
+ · Mira paziente: +14 a un solo colpo se non si muove e non fa attacco completo
+ · ricarica: azione gratuita (Ricarica rapida) · inceppamento: 1 naturale
+Mischia: morso +4 (1d6+1, attacco di supporto)
+Bocca da fuoco di prua: +10 (6d6, ×4, incremento 30 m; regole A.14 —
+ mirare 1 round completo con un aiutante, 2 da solo; ricaricare 3 round)
+Grinta: 1 punto al giorno (Saggezza +1)
+Gesta: Mira paziente, Mano ferma (Tiro preciso con le armi da fuoco),
+ Schivata (1 grinta: +2 CA contro un attacco a distanza), Colpo di utilità
+ (Cauterizzare: ferma un'emorragia lieve con la canna rovente), Vera stoffa
+ (Tempra superato contro mezzi danni = nessun danno), Bersagliare (round
+ completo, 1 grinta: gambe → prono · braccia → infermo 2d6 round · testa →
+ confuso 1 round · torso → minaccia di critico +1)
+Ardimento: Vigilanza — senza grinta, +2 di schivare alla CA
+── STATISTICHE ──
+For 14, Des 16, Cos 15, Int 10, Sag 12, Car 8
+Talenti: Arma focalizzata (fucile), Iniziativa migliorata, Tiro ravvicinato,
+ Volontà di ferro (4 di livello) · Ricarica rapida (C) · ardimento (C)
+Abilità: Acrobazia +13, Intimidire +11, Nuotare +12, Percezione +13,
+ Professione (ingegnere bellico) +11 (bg), Conoscenze (ingegneria) +10 (bg)
+Lingue: comune, felino | Tratti razziali: Sensi acuti, Minacciosi, Scattanti,
+ Ruggente (demoralizza chiunque lo senta entro 9 m; 1/giorno vantaggio)
+Sintonia: fucile +1 · corpetto +1 | Equipaggiamento: fucile (arma d'ordinanza,
+ malconcia), 30 proiettili, corpetto di cuoio, coltello, kit dell'artigliere
+── TATTICHE ──
+Prima del combattimento: va alla bocca da fuoco. Se il bersaglio è troppo
+ vicino o troppo piccolo, prende il fucile.
+Round 1: ruggisce (Intimidire a 9 m) sul nemico più grosso: lo vuole scosso
+ prima di mirare. Poi mira.
+Round 2–3: colpo di bocca da fuoco, oppure Mira paziente col fucile da fermo.
+ Spende la grinta solo per Bersagliare le gambe di chi sale a bordo.
+Finita la Fatica: smette di sparare di prua e si mette davanti a chi è ferito.
+Fuga o resa: mai dal battello. Si butta in acqua solo per riprendere qualcuno.
+
+KAITO — Barbaro 7 · GS 6 · XP 2.400 (alleato: non si assegna)
+Razza: Umanoide Medio (rettile) — draconico, aspetto da tortle ·
+ tratto bonus: Nuotatore possente · Caotico Buono
+Iniziativa +1 | Sensi: visione crepuscolare | Percezione +10
+── DIFESA ──
+CA 17 (contatto 11, colto alla sprovvista 16) · in ira 15 (9, 14)
+[10 + 5 armatura (giaco di maglia 4 + sintonia 1) + 1 Des + 1 naturale]
+ (bonus eroico: — al 7° livello)
+PF 88 (DV d12 ×7: 12 + 6 × 8 + Cos 21 + Robustezza 7) —
+ Punti Fatica 44 / Punti Ferita 44 · in ira +14 PF temporanei
+TS Tempra +8, Riflessi +5, Volontà +4 (+6 in ira; +2 contro la paura)
+RD 1/– | RE fuoco 5 (8 in ira) | Schivare prodigioso, Schivare prodigioso
+ migliorato (non è mai impreparato, non si può fiancheggiare)
+── OFFESA ──
+Velocità 12 m (movimento veloce) | BaB +7/+2 | BMC +11 (+13 Spingere) | DMC 22
+Mischia: ascia bipenne +1 (sintonia) +12/+7 (2d6+7, ×3)
+ · con Attacco poderoso (−2/+6): +10/+5 (2d6+13)
+ · in ira: +14/+9 (2d6+9) · in ira con Attacco poderoso: +12/+7 (2d6+15)
+ morso +6 (1d6+2, attacco di supporto; in ira +8, 1d6+4)
+Soffio di fuoco (1/giorno): cono di 4,5 m, 4d6 fuoco, Riflessi CD 16 dimezza
+Ira: 19 round al giorno (+2 colpire e danni in mischia, +2 Volontà, −2 CA;
+ affaticato per 1 minuto alla fine)
+Poteri d'ira: Resistenza all'energia (fuoco) +3 · Vigore rinnovato (1/giorno,
+ azione standard, si cura 1d8+3) · Respingere gli avversari (al posto di un
+ attacco: Spingere senza attacchi di opportunità, +4 danni contundenti)
+── STATISTICHE ──
+For 18, Des 13, Cos 16, Int 10, Sag 10, Car 8
+Talenti: Attacco poderoso (della casa), Spingere migliorato, Robustezza,
+ Volontà di ferro (4 di livello)
+Abilità: Intimidire +11, Nuotare +14, Percezione +10, Scalare +12,
+ Professione (fuochista) +10 (bg), Conoscenze (ingegneria) +7 (bg)
+Lingue: comune, draconico | Tratti razziali: Stirpe draconica (conta come
+ drago, anche per ciò che colpisce i draghi), Impavidi, Minacciosi,
+ Nuotatore possente (trattiene il fiato 64 round)
+Sintonia: ascia +1 · giaco +1 | Equipaggiamento: ascia bipenne, giaco di
+ maglia, pala da fuochista, guanti di cuoio bagnati, fischietto di latta
+── TATTICHE ──
+Prima del combattimento: chiude il portello della caldaia e resta lì. Lascia
+ la caldaia solo se qualcuno sale a bordo o cade in acqua.
+Round 1: se c'è un nemico sul ponte, entra in ira e lo carica.
+Round 2–3: Respingere gli avversari: spinge fuori bordo ciò che è salito.
+ Contro uno sciame o una nebbia, soffio di fuoco.
+Finita la Fatica: Vigore rinnovato, poi torna alla caldaia. Se qualcuno è in
+ acqua, si tuffa: tiene il fiato più di chiunque a bordo.
+Fuga o resa: mai. Se la caldaia si spegne, la riaccende anche ferito.
+
+LABOON — Criptoreo, Evoluzione 2 · GS 12 · XP 19.200
+Aberrazione Mastodontica (criptoreo, acquatica) | Neutrale
+Iniziativa +2 | Sensi: scurovisione 36 m, udire la musica 3 km | Percezione +26
+── DIFESA ──
+CA 16 (contatto 4, colto alla sprovvista 16) [10 + 12 naturale − 4 taglia − 2 Des]
+PF 184 (16d8+112) — Punti Fatica 92 / Punti Ferita 92
+TS Tempra +19, Riflessi +5, Volontà +14
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Musica entro 9 m in questo round ×1,0 ·
+La canzone dei Pirati Rumba ×1,5
+── OFFESA ──
+Velocità nuotare 18 m | Spazio 6 m, portata 6 m
+BaB +12 | BMC +28 | DMC 36
+Attacchi: nessuno. Laboon non attacca.
+── ATTACCHI SPECIALI ──
+TRAVOLGERE (Str) — Ciò che sta sulla sua strada mentre nuota subisce 4d8+18
+ contundenti (Riflessi CD 25 dimezza). Il battello, se urtato: 4d8+18 meno
+ la Durezza. Non lo fa apposta: va sempre dritto.
+CAPACITÀ MAGICHE (Mag) — LI 12
+ A volontà: Suono fantasma (CD 11) — solo l'ultima musica che ha mangiato:
+  la fisarmonica e le voci dei Rumba, cinquant'anni fa
+ 1/giorno: Silenzio (CD 13) — attorno a sé, quando è ferito senza musica
+── STATISTICHE ──
+For 34, Des 6, Cos 24, Int 3, Sag 14, Car 12
+Talenti: Abilità focalizzata (Percezione), Allerta, Iniziativa migliorata,
+ Resistenza fisica, Riflessi fulminei, Tempra possente, Volontà di ferro,
+ Duro a morire
+Abilità: Percezione +26, Nuotare +20 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (maestoso). | PN: 3 / 50
+── TATTICHE ──
+Non combatte. Mentre la musica suona resta immobile e si lascia colpire.
+Se la musica smette e qualcuno lo ferisce: Silenzio, poi si immerge e va via
+ a 18 m al round. Non torna quella sera.
+MORALE: non ha morale. Ha un'attesa.
+
+IL GRANDE PERDIROTTA — Criptoreo, Evoluzione 3 (Megararo) · GS 14 · XP 38.400
+Aberrazione Mastodontica (criptoreo, acquatica) | Neutrale
+Iniziativa +5 | Sensi: scurovisione 36 m, senso della rotta 1,5 km | Percezione +29
+Aura: bussola impazzita (zona di deriva intera) · fame di meta (30 m)
+── DIFESA ──
+CA 27 (contatto 7, colto alla sprovvista 26) [10 + 20 naturale − 4 taglia + 1 Des]
+PF 207 (18d8+126) — Punti Fatica 103 / Punti Ferita 104
+TS Tempra +15, Riflessi +9, Volontà +16
+Immunità: illusioni, effetti di disorientamento, critici (corpo informe)
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Battello entro 18 m e rotta tenuta in questo round ×1,0 ·
+Prua girata verso casa (vera) e lui legato ×1,5
+── OFFESA ──
+Velocità nuotare 18 m | Spazio 6 m, portata 6 m
+BaB +13 | BMC +27 | DMC 38
+Mischia: colpo di coda +20 (4d6+15) · 2 pinne +14 (2d8+5)
+── ATTACCHI SPECIALI ──
+COLPO DI CODA (Str) — Contro lo scafo: 4d6+15 meno la Durezza. Contro il ponte:
+ tutti in una linea di 9 m, Riflessi CD 24 o 4d6+15 e prono; chi fallisce
+ di 5+ ed è vicino alla ringhiera finisce in acqua.
+MANGIARE LA ROTTA (Sop) — Azione standard, il timoniere entro 30 m: Volontà
+ CD 22 o confuso per 1 round, e la prova di rotta di oggi ha −5. Effetto
+ di influenza mentale (+3 con l'Ammaliamento del Reliquiario).
+FAME DI META (Sop) — Chi entro 30 m tiene la rotta o dichiara una destinazione
+ diventa il suo bersaglio preferito. Trova sempre chi è al timone.
+CAPACITÀ MAGICHE (Mag) — LI 13
+ A volontà: Immagine minore (CD 16) — una luce, un faro, un grido
+ 3/giorno: Immagine maggiore (CD 17), Confusione (CD 18)
+ 1/giorno: Terreno illusorio (CD 18) — una costa intera, con le case
+── STATISTICHE ──
+For 30, Des 12, Cos 24, Int 3, Sag 16, Car 18
+Talenti: Allerta, Arma focalizzata (coda), Attacco poderoso (della casa),
+ Iniziativa migliorata, Riflessi fulminei, Riflessi in combattimento,
+ Tempra possente, Volontà di ferro, Abilità focalizzata (Percezione)
+Abilità: Percezione +29, Nuotare +18 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (megararo). | PN: 52 (stadio massimo)
+── TATTICHE ──
+Fase 1: fugge e mangia. Immagine minore e maggiore per far virare il battello.
+Fase 2: Mangiare la rotta sul timoniere ogni volta che può; Colpo di coda allo
+ scafo quando è legato, per spezzare la cima tirando. Confusione su chi spara.
+MORALE: libero e sotto 50 PF → si inabissa. Legato e sotto 50 PF → si spezza.
+
+SMANIA — Criptoreo, Evoluzione 1 (×3) · GS 9 · XP 6.400 ciascuna
+Aberrazione Grande (criptoreo, nebbia) | Neutrale
+Iniziativa +9 | Sensi: scurovisione 18 m, sentire la quiete 30 m | Percezione +5
+── DIFESA ──
+CA 21 (contatto 14, colto alla sprovvista 16) [10 + 5 Des + 7 naturale − 1 taglia]
+PF 110 (13d8+52) — Punti Fatica 55 / Punti Ferita 55
+TS Tempra +8, Riflessi +9, Volontà +13
+FORMA DI NEBBIA (Sop) — Occultamento 20% (50% dentro la barriera, ovunque sul
+ ponte). Immune a critici, danni di precisione, lotta e sbilanciare. Può
+ occupare le caselle di altre creature. Un vento forte (una tecnica d'Aria di
+ Toky, Raffica di vento) la disperde per 1 round: non agisce e non ha
+ occultamento.
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Di norma ×0,20 · Una creatura calma entro 9 m ×1,0 ·
+Musica lenta entro 9 m ×1,5
+── OFFESA ──
+Velocità volare 9 m (perfetta) | Spazio 3 m, portata 3 m
+BaB +9 | BMC +11 | DMC 26
+Mischia: 2 tocchi +13 (1d8 più strappare la quiete)
+── ATTACCHI SPECIALI ──
+STRAPPARE LA QUIETE (Sop) — Chi è toccato supera Volontà CD 18 o è scosso
+ per 1 round e smette di essere calmo. Ogni tocco riuscito: +1 PN.
+SENTIRE LA QUIETE (Sop) — Sa dov'è ogni creatura calma entro 30 m, e ci va.
+CAPACITÀ MAGICHE (Mag) — LI 9
+ A volontà: Nube di nebbia
+ 3/giorno: Confusione inferiore (CD 13)
+ 1/giorno: Paura (CD 16)
+── STATISTICHE ──
+For 10, Des 20, Cos 18, Int 3, Sag 16, Car 14
+Talenti: Abilità focalizzata (Furtività), Allerta, Arma accurata, Iniziativa
+ migliorata, Mobilità, Riflessi in combattimento, Volontà di ferro
+Abilità: Furtività +22 | Linguaggi: nessuno
+Tesoro: nessuno. Un cristallo (raro) ciascuna. | PN: 12 / 25
+── TATTICHE ──
+Vanno su chi è calmo (Toky seduto per primo): vogliono mangiarlo. Paura sul
+ gruppo più fitto al primo round. Confusione inferiore su chi suona.
+MORALE: sotto 25 Punti Ferita tornano nella colonia e non risalgono.

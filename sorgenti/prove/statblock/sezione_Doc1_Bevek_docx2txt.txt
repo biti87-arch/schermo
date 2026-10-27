@@ -1,0 +1,136 @@
+② Diplomazia CD 22: li si convince ad andarsene lasciando la refurtiva. 🎭 Bevek chiede di potersi tenere il cibo, e se glielo si concede, lo scrive nella memoria.
+
+③ Se il gruppo attacca senza parlare, combattono. Al primo sciacallo che cade, gli altri tre tirano Volontà CD 15 o fuggono. Bevek non fugge mai.
+
+Tattiche: Bevek avanza e si mette davanti alla carriola, non davanti ai suoi. Gli sciacalli usano la strettoia per costringere i PG a impegnarsi due alla volta. Nessuno ha proiettili né incantesimi: 📌 è un incontro che premia il movimento e punisce chi resta nel corridoio.
+
+BEVEK — sergente disertore · GS 7 · XP 3.200
+
+Umano Guerriero 8 | Medio, umanoide | Neutrale
+
+Iniziativa +1 | Sensi: normali | Percezione +9
+
+─── DIFESE ───
+
+PF 68 (8d10+24) | CA 23 (tocco 10, colto in fallo 23)
+
+  CA = 10 + 9 armatura completa + 2 scudo pesante + 1 sintonia armatura + 1 sintonia scudo
+
+TS Tempra +9, Riflessi +2, Volontà +3 (+5 contro paura, Coraggio)
+
+─── OFFESA ───
+
+Velocità 6 m (armatura pesante) | BaB +8/+3 | CMB +12 | CMD 23
+
+Spada bastarda a due mani +14/+9 (1d10+9/19-20)
+
+  = BaB +8, For +4, Arma Focalizzata +1, sintonia +1
+
+  danni = 1d10 + 6 (For a due mani) + 2 (Specializzazione) + 1 (sintonia)
+
+Con Attacco Poderoso: +11/+6 (1d10+15)
+
+─── SINTONIA (📖 Armi, Armature e Scudi, Cap. 1) ───
+
+Livello 8 -> +1 a due oggetti. Bevek ha scelto ARMATURA +1 e SCUDO +1,
+
+e ha un secondo slot arma non usato. L'arma ha +1 di sintonia residua.
+
+Nessuna capacita speciale applicata: non ha mai potuto pagarla.
+
+─── STATISTICHE ───
+
+FOR 18  DES 12  COS 16  INT 10  SAG 12  CAR 9
+
+Talenti: Attacco Poderoso, Arma Focalizzata (spada bastarda),
+
+  Specializzazione in Arma (spada bastarda), Robustezza,
+
+  Competenza nelle Armi Esotiche (spada bastarda), Attacco in Movimento,
+
+  Volonta di Ferro
+
+Abilita: Percezione +9, Intimidire +10, Sopravvivenza +9, Cavalcare +6
+
+Lingue: comune
+
+─── TATTICHE ───
+
+Round 1: si mette davanti alla carriola. Non carica. Aspetta.
+
+Round 2-3: Attacco Poderoso sul bersaglio piu corazzato, mai sui deboli.
+
+Sotto 20 PF: continua. Non fugge e non si arrende finche resta in piedi
+
+  uno dei suoi. Se restano solo lui e i PG, molla la spada e dice:
+
+  «Va bene. Sono io quello che serve a voi.»
+
+─── XP ───
+
+3.200
+
+SCIACALLO (x4) · GS 3 ciascuno · XP 800 ciascuno
+
+Umano Guerriero 4 | Medio, umanoide | Neutrale
+
+Iniziativa +1 | Sensi: normali | Percezione +5
+
+─── DIFESE ───
+
+PF 34 (4d10+8) | CA 18 (tocco 11, colto in fallo 17)
+
+  CA = 10 + 6 corazza di maglia + 1 scudo leggero + 1 Des
+
+TS Tempra +6, Riflessi +2, Volonta +2
+
+─── OFFESA ───
+
+Velocita 6 m | BaB +4 | CMB +7 | CMD 18
+
+Spada lunga +9 (1d8+4/19-20)
+
+  colpire = BaB +4, For +3, Arma Focalizzata +1, sintonia +1 (livello 4)
+
+  danni   = 1d8 + 3 (For) + 1 (sintonia)
+
+  📌 Gli sciacalli NON hanno Specializzazione in Arma: solo Bevek ce l'ha.
+
+Giavellotto +5 (1d6+3), gittata 9 m — ne hanno uno a testa
+
+─── SINTONIA ───
+
+Livello 4 -> +1 a un'arma. Tutti e quattro l'hanno messa sulla spada.
+
+Nessuna capacita speciale.
+
+─── STATISTICHE ───
+
+FOR 16  DES 12  COS 14  INT 9  SAG 10  CAR 8
+
+Talenti: Attacco Poderoso, Arma Focalizzata (spada lunga),
+
+  Robustezza, Riflessi in Combattimento, Schivare
+
+Abilita: Percezione +5, Intimidire +5, Furtivita +3
+
+Lingue: comune
+
+─── TATTICHE ───
+
+Round 1: due bloccano la strettoia, due tirano giavellotti da dietro.
+
+Round 2-3: attacchi in mischia, mai fiancheggiamento — non sono una squadra.
+
+Al primo caduto: TS Volonta CD 15 o fuggono lasciando tutto.
+
+─── XP ───
+
+800 ciascuno · 3.200 in totale
+
+💰 RICOMPENSE — con i tiri mostrati
+
+XP: 3.200 (Bevek) + 3.200 (quattro sciacalli) = 6.400 XP totali, corrispondenti a un incontro GS 9.
+
+① TESORO CASUALE — dal Manuale dei Tesori, Cap. 2. Tiri mostrati:
+

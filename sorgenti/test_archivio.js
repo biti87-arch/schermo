@@ -18,5 +18,11 @@ t('file illeggibile segnalato', A.lista().some(x => x.errore));
 t('elimina = rinomina', A.elimina(c.id) && A.leggi(c.id) === null && fs.existsSync(path.join(dir, 'campagne', c.id + '.json.eliminato')));
 let err = ''; try { A.leggi('../x'); } catch (e) { err = e.message; } t('identificativo con percorso rifiutato', /non valido/.test(err));
 err = ''; try { A.scrivi({ id: 'x', formato: 'altro' }); } catch (e) { err = e.message; } t('formato sbagliato rifiutato', /non valida/.test(err));
+// Build 2b: bestiario condiviso
+t('bestiario assente all\'inizio', A.leggiBestiario() === null);
+const B = { formato: 'schermo-v1', tipo: 'bestiario', mostri: [{ id: 'm1', nome: 'Lupo' }] };
+t('bestiario scritto e riletto', A.scriviBestiario(B, new Date(2026, 11, 1)) && A.leggiBestiario().mostri[0].nome === 'Lupo');
+A.scriviBestiario(B, new Date(2026, 11, 2)); t('bestiario nel backup del giorno dopo (com\'era a inizio giornata)', fs.existsSync(path.join(dir, 'backup', '2026-12-02', 'bestiario.json')));
+err = ''; try { A.scriviBestiario({ formato: 'schermo-v1', tipo: 'campagna' }); } catch (e) { err = e.message; } t('bestiario non valido rifiutato', /non valido/.test(err));
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(`test archivio: ${ok} superati, ${ko} falliti`); process.exit(ko ? 1 : 0);

@@ -1,0 +1,666 @@
+{
+ "formato": "schermo-v1",
+ "tipo": "campagna",
+ "dati": {
+  "formato": "schermo-v1",
+  "id": "modzgfswge7i23lg",
+  "nome": "Campagna della Build 2a",
+  "creata": 1777100000000,
+  "modificata": 1777100010000,
+  "calendario": {
+   "tipo": "reale",
+   "mesi": [
+    {
+     "nome": "gennaio",
+     "giorni": 31
+    },
+    {
+     "nome": "febbraio",
+     "giorni": 28
+    },
+    {
+     "nome": "marzo",
+     "giorni": 31
+    },
+    {
+     "nome": "aprile",
+     "giorni": 30
+    },
+    {
+     "nome": "maggio",
+     "giorni": 31
+    },
+    {
+     "nome": "giugno",
+     "giorni": 30
+    },
+    {
+     "nome": "luglio",
+     "giorni": 31
+    },
+    {
+     "nome": "agosto",
+     "giorni": 31
+    },
+    {
+     "nome": "settembre",
+     "giorni": 30
+    },
+    {
+     "nome": "ottobre",
+     "giorni": 31
+    },
+    {
+     "nome": "novembre",
+     "giorni": 30
+    },
+    {
+     "nome": "dicembre",
+     "giorni": 31
+    }
+   ],
+   "settimana": [
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
+   ],
+   "settimana0": 3
+  },
+  "anno": {
+   "base": 1462,
+   "etichetta": "dopo la Caduta"
+  },
+  "tempo": {
+   "R": 4301700
+  },
+  "zona": "temperata",
+  "meteo": {
+   "giorno": 298,
+   "zona": "temperata",
+   "stagione": "autunno",
+   "tiro": 31,
+   "testo": "Clima fresco",
+   "opzioni": [
+    [
+     "Clima fresco"
+    ]
+   ],
+   "scelta": 0,
+   "manuale": false
+  },
+  "scorte": {
+   "cibo": 10,
+   "acqua": 10,
+   "accompagnatori": 1
+  },
+  "razionamenti": [],
+  "pg": [
+   {
+    "id": "p1",
+    "scheda": {
+     "nome": "Aria",
+     "giocatore": "",
+     "razza": "Elfa",
+     "classe": "Ladro 7",
+     "livello": 7,
+     "fatica_max": 42,
+     "ferita_max": 40,
+     "rif_dadi": 7,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 19,
+     "ca_contatto": 14,
+     "ca_sprovvista": 15,
+     "dmc": 21,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 5,
+     "riflessi": 9,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 12,
+     "intuizione": 8,
+     "furtivita": 14,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 6,
+     "imp_pen": 3,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 0,
+     "ferita": -7,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m5",
+       "tipo": "condizione",
+       "nome": "Affaticato",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "durata": {
+        "tipo": "libera"
+       }
+      },
+      {
+       "id": "m6",
+       "tipo": "bonus",
+       "nome": "Benedizione",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {
+        "ts": 1
+       },
+       "etichetta": "",
+       "fonte": "",
+       "durata": {
+        "tipo": "tempo",
+        "fine": 4301730,
+        "n": 3,
+        "unita": "minuti"
+       }
+      },
+      {
+       "id": "m12",
+       "tipo": "condizione",
+       "nome": "Scosso",
+       "R": 4301700,
+       "scadenza": "causa",
+       "causa": "r9",
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "durata": {
+        "tipo": "round",
+        "fine": 4301703,
+        "n": 3
+       }
+      },
+      {
+       "id": "m13",
+       "tipo": "ferita",
+       "nome": "Ferita gravità 1",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro",
+       "durata": {
+        "tipo": "libera"
+       },
+       "pf": 10,
+       "gravita": 1,
+       "cure": 0,
+       "cer": {
+        "tentativi": 0,
+        "cd": null,
+        "prossimo": null,
+        "guarisce": null
+       }
+      },
+      {
+       "id": "m14",
+       "tipo": "condizione",
+       "nome": "Infermo",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro",
+       "durata": {
+        "tipo": "curata",
+        "legata": "m13"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "p2",
+    "scheda": {
+     "nome": "Bruno",
+     "giocatore": "",
+     "razza": "Orco",
+     "classe": "Barbaro 7",
+     "livello": 7,
+     "fatica_max": 48,
+     "ferita_max": 49,
+     "rif_dadi": 7,
+     "rif_tipo": 12,
+     "rif_ripete": false,
+     "ca": 17,
+     "ca_contatto": 11,
+     "ca_sprovvista": 15,
+     "dmc": 24,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 9,
+     "riflessi": 4,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 9,
+     "intuizione": 2,
+     "furtivita": 1,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 2,
+     "imp_pen": 6,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 0,
+     "ferita": -11,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m3",
+       "tipo": "veleno",
+       "nome": "Veleno di vespa gigante",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "durata": {
+        "tipo": "libera"
+       },
+       "per": {
+        "kind": "veleno",
+        "ts": "Tempra",
+        "cd": 18,
+        "unita": "round",
+        "ogni": 1,
+        "finisce": true,
+        "attesa": false,
+        "prossimo": 4301701,
+        "ultimo": 4301700
+       },
+       "vel": {
+        "forma": "ferimento",
+        "effetto": "1d2 Des",
+        "volte": 6,
+        "restanti": 6,
+        "cura": 1,
+        "successi": 0,
+        "totale": 2,
+        "primo": false,
+        "insorgenza": null
+       }
+      },
+      {
+       "id": "m15",
+       "tipo": "ferita",
+       "nome": "Ferita gravità 3",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire",
+       "durata": {
+        "tipo": "libera"
+       },
+       "pf": 30,
+       "gravita": 3,
+       "cure": 0,
+       "cer": {
+        "tentativi": 0,
+        "cd": null,
+        "prossimo": null,
+        "guarisce": null
+       }
+      },
+      {
+       "id": "m16",
+       "tipo": "emorragia_lieve",
+       "nome": "Emorragia lieve",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire",
+       "durata": {
+        "tipo": "libera"
+       },
+       "pf": 8,
+       "cure": 0,
+       "cer": {
+        "tentativi": 0,
+        "cd": null,
+        "prossimo": null,
+        "guarisce": null
+       },
+       "morte_R": 4301720
+      },
+      {
+       "id": "m17",
+       "tipo": "altro",
+       "nome": "Braccio inutilizzabile",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire",
+       "durata": {
+        "tipo": "curata",
+        "legata": "m15"
+       }
+      },
+      {
+       "id": "m18",
+       "tipo": "dita",
+       "nome": "Dita perse: 2 (mano sinistro)",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire",
+       "durata": {
+        "tipo": "permanente"
+       },
+       "amp": {
+        "id": "mano",
+        "nome": "Mano",
+        "gruppo": "superiori",
+        "grado": 1,
+        "lato": "sinistro",
+        "singolo": {
+         "testo": "Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano-5 DMC contro le manovre di Lottare.20% di fallire incantesimi con componente somatica.",
+         "mods": {
+          "abilita_nome": {
+           "Scalare": -5,
+           "Professione": -5,
+           "Disattivare congegni": -5,
+           "Rapidità di mano": -5
+          }
+         }
+        },
+        "entrambi": {
+         "testo": "Questa condizione si applica a qualsiasi combinazione di arti: mano-mano o mano-braccio, indifferentemente. Nessun oggetto impugnabile con gli arti mancante. Fallimento delle prove di Scalare, Professione, Disattivare congegni e Rapidità di mano.-20 DMC contro le manovre di Lottare. Fallimento degli incantesimi con componente somatica.",
+         "mods": {}
+        },
+        "nome_entrambi": "Arti superiori",
+        "dita_perse": 3
+       },
+       "dita": {
+        "parte": "mano",
+        "n": 2,
+        "lato": "sinistro"
+       }
+      }
+     ]
+    }
+   }
+  ],
+  "combattimento": {
+   "round": 1,
+   "ordine": [
+    "r10",
+    "r7",
+    "r8",
+    "r9"
+   ],
+   "righe": {
+    "r10": {
+     "id": "r10",
+     "tipo": "nemico",
+     "nome": "Capobranco",
+     "bonus": 4,
+     "nat": 17,
+     "totale": 21,
+     "n": 1,
+     "spareggio": 6,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r7": {
+     "id": "r7",
+     "tipo": "pg",
+     "pgId": "p1",
+     "nome": "Aria",
+     "bonus": 6,
+     "nat": null,
+     "totale": 18,
+     "n": 1,
+     "spareggio": 13,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r8": {
+     "id": "r8",
+     "tipo": "pg",
+     "pgId": "p2",
+     "nome": "Bruno",
+     "bonus": 2,
+     "nat": null,
+     "totale": 9,
+     "n": 1,
+     "spareggio": 4,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r9": {
+     "id": "r9",
+     "tipo": "nemico",
+     "nome": "Lupo",
+     "bonus": 2,
+     "nat": 5,
+     "totale": 7,
+     "n": 3,
+     "spareggio": 14,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": [
+      {
+       "id": "m11",
+       "tipo": "condizione",
+       "nome": "Prono",
+       "R": 4301700,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "Lupo 2",
+       "fonte": "",
+       "durata": {
+        "tipo": "libera"
+       }
+      }
+     ]
+    }
+   },
+   "turno": 2,
+   "attesa": [],
+   "avvisi": [],
+   "inizioR": 4301700,
+   "storia": [
+    "{\"formato\":\"schermo-v1\",\"id\":\"modzgfswge7i23lg\",\"nome\":\"Campagna della Build 2a\",\"creata\":1777100000000,\"modificata\":1777100000000,\"calendario\":{\"tipo\":\"reale\",\"mesi\":[{\"nome\":\"gennaio\",\"giorni\":31},{\"nome\":\"febbraio\",\"giorni\":28},{\"nome\":\"marzo\",\"giorni\":31},{\"nome\":\"aprile\",\"giorni\":30},{\"nome\":\"maggio\",\"giorni\":31},{\"nome\":\"giugno\",\"giorni\":30},{\"nome\":\"luglio\",\"giorni\":31},{\"nome\":\"agosto\",\"giorni\":31},{\"nome\":\"settembre\",\"giorni\":30},{\"nome\":\"ottobre\",\"giorni\":31},{\"nome\":\"novembre\",\"giorni\":30},{\"nome\":\"dicembre\",\"giorni\":31}],\"settimana\":[\"lunedì\",\"martedì\",\"mercoledì\",\"giovedì\",\"venerdì\",\"sabato\",\"domenica\"],\"settimana0\":3},\"anno\":{\"base\":1462,\"etichetta\":\"dopo la Caduta\"},\"tempo\":{\"R\":4301700},\"zona\":\"temperata\",\"meteo\":{\"giorno\":298,\"zona\":\"temperata\",\"stagione\":\"autunno\",\"tiro\":31,\"testo\":\"Clima fresco\",\"opzioni\":[[\"Clima fresco\"]],\"scelta\":0,\"manuale\":false},\"scorte\":{\"cibo\":10,\"acqua\":10,\"accompagnatori\":1},\"razionamenti\":[],\"pg\":[{\"id\":\"p1\",\"scheda\":{\"nome\":\"Aria\",\"giocatore\":\"\",\"razza\":\"Elfa\",\"classe\":\"Ladro 7\",\"livello\":7,\"fatica_max\":42,\"ferita_max\":40,\"rif_dadi\":7,\"rif_tipo\":8,\"rif_ripete\":false,\"ca\":19,\"ca_contatto\":14,\"ca_sprovvista\":15,\"dmc\":21,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":5,\"riflessi\":9,\"volonta\":3,\"ts_note\":\"\",\"percezione\":12,\"intuizione\":8,\"furtivita\":14,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":6,\"imp_pen\":3,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":0,\"ferita\":-7,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m5\",\"tipo\":\"condizione\",\"nome\":\"Affaticato\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"libera\"}},{\"id\":\"m6\",\"tipo\":\"bonus\",\"nome\":\"Benedizione\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{\"ts\":1},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"tempo\",\"fine\":4301730,\"n\":3,\"unita\":\"minuti\"}},{\"id\":\"m12\",\"tipo\":\"condizione\",\"nome\":\"Scosso\",\"R\":4301700,\"scadenza\":\"causa\",\"causa\":\"r9\",\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"round\",\"fine\":4301703,\"n\":3}},{\"id\":\"m13\",\"tipo\":\"ferita\",\"nome\":\"Ferita gravità 1\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro\",\"durata\":{\"tipo\":\"libera\"},\"pf\":10,\"gravita\":1,\"cure\":0,\"cer\":{\"tentativi\":0,\"cd\":null,\"prossimo\":null,\"guarisce\":null}},{\"id\":\"m14\",\"tipo\":\"condizione\",\"nome\":\"Infermo\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro\",\"durata\":{\"tipo\":\"curata\",\"legata\":\"m13\"}}]}},{\"id\":\"p2\",\"scheda\":{\"nome\":\"Bruno\",\"giocatore\":\"\",\"razza\":\"Orco\",\"classe\":\"Barbaro 7\",\"livello\":7,\"fatica_max\":48,\"ferita_max\":49,\"rif_dadi\":7,\"rif_tipo\":12,\"rif_ripete\":false,\"ca\":17,\"ca_contatto\":11,\"ca_sprovvista\":15,\"dmc\":24,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":9,\"riflessi\":4,\"volonta\":3,\"ts_note\":\"\",\"percezione\":9,\"intuizione\":2,\"furtivita\":1,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":2,\"imp_pen\":6,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":0,\"ferita\":-11,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m3\",\"tipo\":\"veleno\",\"nome\":\"Veleno di vespa gigante\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"libera\"},\"per\":{\"kind\":\"veleno\",\"ts\":\"Tempra\",\"cd\":18,\"unita\":\"round\",\"ogni\":1,\"finisce\":true,\"attesa\":false,\"prossimo\":4301701,\"ultimo\":4301700},\"vel\":{\"forma\":\"ferimento\",\"effetto\":\"1d2 Des\",\"volte\":6,\"restanti\":6,\"cura\":1,\"successi\":0,\"totale\":2,\"primo\":false,\"insorgenza\":null}},{\"id\":\"m15\",\"tipo\":\"ferita\",\"nome\":\"Ferita gravità 3\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"libera\"},\"pf\":30,\"gravita\":3,\"cure\":0,\"cer\":{\"tentativi\":0,\"cd\":null,\"prossimo\":null,\"guarisce\":null}},{\"id\":\"m16\",\"tipo\":\"emorragia_lieve\",\"nome\":\"Emorragia lieve\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"libera\"},\"pf\":8,\"cure\":0,\"cer\":{\"tentativi\":0,\"cd\":null,\"prossimo\":null,\"guarisce\":null},\"morte_R\":4301720},{\"id\":\"m17\",\"tipo\":\"altro\",\"nome\":\"Braccio inutilizzabile\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"curata\",\"legata\":\"m15\"}},{\"id\":\"m18\",\"tipo\":\"dita\",\"nome\":\"Dita perse: 2 (mano sinistro)\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"permanente\"},\"amp\":{\"id\":\"mano\",\"nome\":\"Mano\",\"gruppo\":\"superiori\",\"grado\":1,\"lato\":\"sinistro\",\"singolo\":{\"testo\":\"Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano-5 DMC contro le manovre di Lottare.20% di fallire incantesimi con componente somatica.\",\"mods\":{\"abilita_nome\":{\"Scalare\":-5,\"Professione\":-5,\"Disattivare congegni\":-5,\"Rapidità di mano\":-5}}},\"entrambi\":{\"testo\":\"Questa condizione si applica a qualsiasi combinazione di arti: mano-mano o mano-braccio, indifferentemente. Nessun oggetto impugnabile con gli arti mancante. Fallimento delle prove di Scalare, Professione, Disattivare congegni e Rapidità di mano.-20 DMC contro le manovre di Lottare. Fallimento degli incantesimi con componente somatica.\",\"mods\":{}},\"nome_entrambi\":\"Arti superiori\",\"dita_perse\":3},\"dita\":{\"parte\":\"mano\",\"n\":2,\"lato\":\"sinistro\"}}]}}],\"combattimento\":{\"round\":1,\"ordine\":[\"r10\",\"r7\",\"r8\",\"r9\"],\"righe\":{\"r10\":{\"id\":\"r10\",\"tipo\":\"nemico\",\"nome\":\"Capobranco\",\"bonus\":4,\"nat\":17,\"totale\":21,\"n\":1,\"spareggio\":6,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r7\":{\"id\":\"r7\",\"tipo\":\"pg\",\"pgId\":\"p1\",\"nome\":\"Aria\",\"bonus\":6,\"nat\":null,\"totale\":18,\"n\":1,\"spareggio\":13,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r8\":{\"id\":\"r8\",\"tipo\":\"pg\",\"pgId\":\"p2\",\"nome\":\"Bruno\",\"bonus\":2,\"nat\":null,\"totale\":9,\"n\":1,\"spareggio\":4,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r9\":{\"id\":\"r9\",\"tipo\":\"nemico\",\"nome\":\"Lupo\",\"bonus\":2,\"nat\":5,\"totale\":7,\"n\":3,\"spareggio\":14,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[{\"id\":\"m11\",\"tipo\":\"condizione\",\"nome\":\"Prono\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"Lupo 2\",\"fonte\":\"\",\"durata\":{\"tipo\":\"libera\"}}]}},\"turno\":0,\"attesa\":[],\"avvisi\":[],\"inizioR\":4301700,\"storia\":[],\"timer\":null},\"coda\":[{\"id\":\"q4\",\"R\":4301700,\"tipo\":\"avviso\",\"chi\":{\"pg\":\"p2\"},\"malus\":\"m3\",\"testo\":\"Bruno: Veleno di vespa gigante, primo effetto 2 Des.\"}],\"log\":[{\"R\":4301700,\"testo\":\"PG aggiunto: Aria\"},{\"R\":4301700,\"testo\":\"PG aggiunto: Bruno\"},{\"R\":4301700,\"testo\":\"Campagna creata: Campagna della Build 2a, lunedì 26 ottobre 1462 dopo la Caduta, 17:30\"},{\"R\":4301700,\"testo\":\"Meteo: Clima fresco (d% 31, Temperata, Autunno)\"},{\"R\":4301700,\"testo\":\"Bruno: malus Veleno di vespa gigante\"},{\"R\":4301700,\"testo\":\"Bruno: Veleno di vespa gigante, effetto 2 Des\"},{\"R\":4301700,\"testo\":\"Aria: malus Affaticato\"},{\"R\":4301700,\"testo\":\"Aria: bonus Benedizione (3 min)\"},{\"R\":4301700,\"testo\":\"Inizio del combattimento: Capobranco 21, Aria 18, Bruno 9, Lupo ×3 7\"},{\"R\":4301700,\"testo\":\"Lupo ×3: malus Prono [Lupo 2]\"},{\"R\":4301700,\"testo\":\"Aria: malus Scosso (3 r)\"},{\"R\":4301700,\"testo\":\"Aria: 89 danni — Ferite 40 → -7, ferita grave riga -7\"},{\"R\":4301700,\"testo\":\"Aria: Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro — Sei ferito alla mano e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata.\"},{\"R\":4301700,\"testo\":\"Aria: malus Ferita gravità 1\"},{\"R\":4301700,\"testo\":\"Aria: malus Infermo (finché curata)\"},{\"R\":4301700,\"testo\":\"Bruno: 108 danni — Ferite 49 → -11, ferita grave riga -11\"},{\"R\":4301700,\"testo\":\"Bruno: Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire — Nel disperato tentativo di schermarti o parare il colpo con le mani, 2 dita della mano (1d4 = 1-2: sinistra, 3-4: destra) vengono mozzate, sciolte o spappolate. Inoltre, il dolore rende il braccio inutilizzabile finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti.\"},{\"R\":4301700,\"testo\":\"Bruno: malus Ferita gravità 3\"},{\"R\":4301700,\"testo\":\"Bruno: malus Emorragia lieve\"},{\"R\":4301700,\"testo\":\"Bruno: malus Braccio inutilizzabile (finché curata)\"},{\"R\":4301700,\"testo\":\"Bruno: malus Dita perse: 2 (mano sinistro) (permanente)\"}],\"impostazioni\":{\"xp\":false,\"pf_nemici\":false,\"timer\":false,\"timer_tv\":false,\"soglia_timer\":0,\"incontri_casuali\":false,\"tv_xn\":true,\"tv_fuori\":\"barrate\",\"tv_ora\":false,\"tv_meteo\":false,\"tv_solo_combattimento\":true,\"f10\":false,\"tema\":\"scuro\"},\"contatore\":18}",
+    "{\"formato\":\"schermo-v1\",\"id\":\"modzgfswge7i23lg\",\"nome\":\"Campagna della Build 2a\",\"creata\":1777100000000,\"modificata\":1777100000000,\"calendario\":{\"tipo\":\"reale\",\"mesi\":[{\"nome\":\"gennaio\",\"giorni\":31},{\"nome\":\"febbraio\",\"giorni\":28},{\"nome\":\"marzo\",\"giorni\":31},{\"nome\":\"aprile\",\"giorni\":30},{\"nome\":\"maggio\",\"giorni\":31},{\"nome\":\"giugno\",\"giorni\":30},{\"nome\":\"luglio\",\"giorni\":31},{\"nome\":\"agosto\",\"giorni\":31},{\"nome\":\"settembre\",\"giorni\":30},{\"nome\":\"ottobre\",\"giorni\":31},{\"nome\":\"novembre\",\"giorni\":30},{\"nome\":\"dicembre\",\"giorni\":31}],\"settimana\":[\"lunedì\",\"martedì\",\"mercoledì\",\"giovedì\",\"venerdì\",\"sabato\",\"domenica\"],\"settimana0\":3},\"anno\":{\"base\":1462,\"etichetta\":\"dopo la Caduta\"},\"tempo\":{\"R\":4301700},\"zona\":\"temperata\",\"meteo\":{\"giorno\":298,\"zona\":\"temperata\",\"stagione\":\"autunno\",\"tiro\":31,\"testo\":\"Clima fresco\",\"opzioni\":[[\"Clima fresco\"]],\"scelta\":0,\"manuale\":false},\"scorte\":{\"cibo\":10,\"acqua\":10,\"accompagnatori\":1},\"razionamenti\":[],\"pg\":[{\"id\":\"p1\",\"scheda\":{\"nome\":\"Aria\",\"giocatore\":\"\",\"razza\":\"Elfa\",\"classe\":\"Ladro 7\",\"livello\":7,\"fatica_max\":42,\"ferita_max\":40,\"rif_dadi\":7,\"rif_tipo\":8,\"rif_ripete\":false,\"ca\":19,\"ca_contatto\":14,\"ca_sprovvista\":15,\"dmc\":21,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":5,\"riflessi\":9,\"volonta\":3,\"ts_note\":\"\",\"percezione\":12,\"intuizione\":8,\"furtivita\":14,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":6,\"imp_pen\":3,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":0,\"ferita\":-7,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m5\",\"tipo\":\"condizione\",\"nome\":\"Affaticato\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"libera\"}},{\"id\":\"m6\",\"tipo\":\"bonus\",\"nome\":\"Benedizione\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{\"ts\":1},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"tempo\",\"fine\":4301730,\"n\":3,\"unita\":\"minuti\"}},{\"id\":\"m12\",\"tipo\":\"condizione\",\"nome\":\"Scosso\",\"R\":4301700,\"scadenza\":\"causa\",\"causa\":\"r9\",\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"round\",\"fine\":4301703,\"n\":3}},{\"id\":\"m13\",\"tipo\":\"ferita\",\"nome\":\"Ferita gravità 1\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro\",\"durata\":{\"tipo\":\"libera\"},\"pf\":10,\"gravita\":1,\"cure\":0,\"cer\":{\"tentativi\":0,\"cd\":null,\"prossimo\":null,\"guarisce\":null}},{\"id\":\"m14\",\"tipo\":\"condizione\",\"nome\":\"Infermo\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro\",\"durata\":{\"tipo\":\"curata\",\"legata\":\"m13\"}}]}},{\"id\":\"p2\",\"scheda\":{\"nome\":\"Bruno\",\"giocatore\":\"\",\"razza\":\"Orco\",\"classe\":\"Barbaro 7\",\"livello\":7,\"fatica_max\":48,\"ferita_max\":49,\"rif_dadi\":7,\"rif_tipo\":12,\"rif_ripete\":false,\"ca\":17,\"ca_contatto\":11,\"ca_sprovvista\":15,\"dmc\":24,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":9,\"riflessi\":4,\"volonta\":3,\"ts_note\":\"\",\"percezione\":9,\"intuizione\":2,\"furtivita\":1,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":2,\"imp_pen\":6,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":0,\"ferita\":-11,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m3\",\"tipo\":\"veleno\",\"nome\":\"Veleno di vespa gigante\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"libera\"},\"per\":{\"kind\":\"veleno\",\"ts\":\"Tempra\",\"cd\":18,\"unita\":\"round\",\"ogni\":1,\"finisce\":true,\"attesa\":false,\"prossimo\":4301701,\"ultimo\":4301700},\"vel\":{\"forma\":\"ferimento\",\"effetto\":\"1d2 Des\",\"volte\":6,\"restanti\":6,\"cura\":1,\"successi\":0,\"totale\":2,\"primo\":false,\"insorgenza\":null}},{\"id\":\"m15\",\"tipo\":\"ferita\",\"nome\":\"Ferita gravità 3\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"libera\"},\"pf\":30,\"gravita\":3,\"cure\":0,\"cer\":{\"tentativi\":0,\"cd\":null,\"prossimo\":null,\"guarisce\":null}},{\"id\":\"m16\",\"tipo\":\"emorragia_lieve\",\"nome\":\"Emorragia lieve\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"libera\"},\"pf\":8,\"cure\":0,\"cer\":{\"tentativi\":0,\"cd\":null,\"prossimo\":null,\"guarisce\":null},\"morte_R\":4301720},{\"id\":\"m17\",\"tipo\":\"altro\",\"nome\":\"Braccio inutilizzabile\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"curata\",\"legata\":\"m15\"}},{\"id\":\"m18\",\"tipo\":\"dita\",\"nome\":\"Dita perse: 2 (mano sinistro)\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire\",\"durata\":{\"tipo\":\"permanente\"},\"amp\":{\"id\":\"mano\",\"nome\":\"Mano\",\"gruppo\":\"superiori\",\"grado\":1,\"lato\":\"sinistro\",\"singolo\":{\"testo\":\"Nessun oggetto impugnabile con l’arto mancante.-5 Scalare, -5 Professione, -5 Disattivare congegni, -5 Rapidità di mano-5 DMC contro le manovre di Lottare.20% di fallire incantesimi con componente somatica.\",\"mods\":{\"abilita_nome\":{\"Scalare\":-5,\"Professione\":-5,\"Disattivare congegni\":-5,\"Rapidità di mano\":-5}}},\"entrambi\":{\"testo\":\"Questa condizione si applica a qualsiasi combinazione di arti: mano-mano o mano-braccio, indifferentemente. Nessun oggetto impugnabile con gli arti mancante. Fallimento delle prove di Scalare, Professione, Disattivare congegni e Rapidità di mano.-20 DMC contro le manovre di Lottare. Fallimento degli incantesimi con componente somatica.\",\"mods\":{}},\"nome_entrambi\":\"Arti superiori\",\"dita_perse\":3},\"dita\":{\"parte\":\"mano\",\"n\":2,\"lato\":\"sinistro\"}}]}}],\"combattimento\":{\"round\":1,\"ordine\":[\"r10\",\"r7\",\"r8\",\"r9\"],\"righe\":{\"r10\":{\"id\":\"r10\",\"tipo\":\"nemico\",\"nome\":\"Capobranco\",\"bonus\":4,\"nat\":17,\"totale\":21,\"n\":1,\"spareggio\":6,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r7\":{\"id\":\"r7\",\"tipo\":\"pg\",\"pgId\":\"p1\",\"nome\":\"Aria\",\"bonus\":6,\"nat\":null,\"totale\":18,\"n\":1,\"spareggio\":13,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r8\":{\"id\":\"r8\",\"tipo\":\"pg\",\"pgId\":\"p2\",\"nome\":\"Bruno\",\"bonus\":2,\"nat\":null,\"totale\":9,\"n\":1,\"spareggio\":4,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r9\":{\"id\":\"r9\",\"tipo\":\"nemico\",\"nome\":\"Lupo\",\"bonus\":2,\"nat\":5,\"totale\":7,\"n\":3,\"spareggio\":14,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[{\"id\":\"m11\",\"tipo\":\"condizione\",\"nome\":\"Prono\",\"R\":4301700,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"Lupo 2\",\"fonte\":\"\",\"durata\":{\"tipo\":\"libera\"}}]}},\"turno\":1,\"attesa\":[],\"avvisi\":[],\"inizioR\":4301700,\"storia\":[],\"timer\":null},\"coda\":[{\"id\":\"q4\",\"R\":4301700,\"tipo\":\"avviso\",\"chi\":{\"pg\":\"p2\"},\"malus\":\"m3\",\"testo\":\"Bruno: Veleno di vespa gigante, primo effetto 2 Des.\"}],\"log\":[{\"R\":4301700,\"testo\":\"PG aggiunto: Aria\"},{\"R\":4301700,\"testo\":\"PG aggiunto: Bruno\"},{\"R\":4301700,\"testo\":\"Campagna creata: Campagna della Build 2a, lunedì 26 ottobre 1462 dopo la Caduta, 17:30\"},{\"R\":4301700,\"testo\":\"Meteo: Clima fresco (d% 31, Temperata, Autunno)\"},{\"R\":4301700,\"testo\":\"Bruno: malus Veleno di vespa gigante\"},{\"R\":4301700,\"testo\":\"Bruno: Veleno di vespa gigante, effetto 2 Des\"},{\"R\":4301700,\"testo\":\"Aria: malus Affaticato\"},{\"R\":4301700,\"testo\":\"Aria: bonus Benedizione (3 min)\"},{\"R\":4301700,\"testo\":\"Inizio del combattimento: Capobranco 21, Aria 18, Bruno 9, Lupo ×3 7\"},{\"R\":4301700,\"testo\":\"Lupo ×3: malus Prono [Lupo 2]\"},{\"R\":4301700,\"testo\":\"Aria: malus Scosso (3 r)\"},{\"R\":4301700,\"testo\":\"Aria: 89 danni — Ferite 40 → -7, ferita grave riga -7\"},{\"R\":4301700,\"testo\":\"Aria: Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro — Sei ferito alla mano e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata.\"},{\"R\":4301700,\"testo\":\"Aria: malus Ferita gravità 1\"},{\"R\":4301700,\"testo\":\"Aria: malus Infermo (finché curata)\"},{\"R\":4301700,\"testo\":\"Bruno: 108 danni — Ferite 49 → -11, ferita grave riga -11\"},{\"R\":4301700,\"testo\":\"Bruno: Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire — Nel disperato tentativo di schermarti o parare il colpo con le mani, 2 dita della mano (1d4 = 1-2: sinistra, 3-4: destra) vengono mozzate, sciolte o spappolate. Inoltre, il dolore rende il braccio inutilizzabile finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti.\"},{\"R\":4301700,\"testo\":\"Bruno: malus Ferita gravità 3\"},{\"R\":4301700,\"testo\":\"Bruno: malus Emorragia lieve\"},{\"R\":4301700,\"testo\":\"Bruno: malus Braccio inutilizzabile (finché curata)\"},{\"R\":4301700,\"testo\":\"Bruno: malus Dita perse: 2 (mano sinistro) (permanente)\"}],\"impostazioni\":{\"xp\":false,\"pf_nemici\":false,\"timer\":false,\"timer_tv\":false,\"soglia_timer\":0,\"incontri_casuali\":false,\"tv_xn\":true,\"tv_fuori\":\"barrate\",\"tv_ora\":false,\"tv_meteo\":false,\"tv_solo_combattimento\":true,\"f10\":false,\"tema\":\"scuro\"},\"contatore\":18}"
+   ],
+   "timer": null
+  },
+  "coda": [
+   {
+    "id": "q4",
+    "R": 4301700,
+    "tipo": "avviso",
+    "chi": {
+     "pg": "p2"
+    },
+    "malus": "m3",
+    "testo": "Bruno: Veleno di vespa gigante, primo effetto 2 Des."
+   }
+  ],
+  "log": [
+   {
+    "R": 4301700,
+    "testo": "PG aggiunto: Aria"
+   },
+   {
+    "R": 4301700,
+    "testo": "PG aggiunto: Bruno"
+   },
+   {
+    "R": 4301700,
+    "testo": "Campagna creata: Campagna della Build 2a, lunedì 26 ottobre 1462 dopo la Caduta, 17:30"
+   },
+   {
+    "R": 4301700,
+    "testo": "Meteo: Clima fresco (d% 31, Temperata, Autunno)"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: malus Veleno di vespa gigante"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: Veleno di vespa gigante, effetto 2 Des"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: malus Affaticato"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: bonus Benedizione (3 min)"
+   },
+   {
+    "R": 4301700,
+    "testo": "Inizio del combattimento: Capobranco 21, Aria 18, Bruno 9, Lupo ×3 7"
+   },
+   {
+    "R": 4301700,
+    "testo": "Lupo ×3: malus Prono [Lupo 2]"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: malus Scosso (3 r)"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: 89 danni — Ferite 40 → -7, ferita grave riga -7"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: Ferita grave -7 · Armi e incantesimi con tiro per colpire · Braccio sinistro — Sei ferito alla mano e il dolore ti rende infermo finché la ferita di gravità 1 (10 PF) non viene curata."
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: malus Ferita gravità 1"
+   },
+   {
+    "R": 4301700,
+    "testo": "Aria: malus Infermo (finché curata)"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: 108 danni — Ferite 49 → -11, ferita grave riga -11"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: Ferita grave -11 · Attacchi con area di effetto o effetti senza tiro per colpire — Nel disperato tentativo di schermarti o parare il colpo con le mani, 2 dita della mano (1d4 = 1-2: sinistra, 3-4: destra) vengono mozzate, sciolte o spappolate. Inoltre, il dolore rende il braccio inutilizzabile finché la ferita di gravità 3 (30 PF) non viene curata. Morirai per emorragia lieve (8 PF) entro 1d3+1 minuti."
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: malus Ferita gravità 3"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: malus Emorragia lieve"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: malus Braccio inutilizzabile (finché curata)"
+   },
+   {
+    "R": 4301700,
+    "testo": "Bruno: malus Dita perse: 2 (mano sinistro) (permanente)"
+   }
+  ],
+  "impostazioni": {
+   "xp": false,
+   "pf_nemici": false,
+   "timer": false,
+   "timer_tv": false,
+   "soglia_timer": 0,
+   "incontri_casuali": false,
+   "tv_xn": true,
+   "tv_fuori": "barrate",
+   "tv_ora": false,
+   "tv_meteo": false,
+   "tv_solo_combattimento": true,
+   "f10": false,
+   "tema": "scuro"
+  },
+  "contatore": 18
+ }
+}

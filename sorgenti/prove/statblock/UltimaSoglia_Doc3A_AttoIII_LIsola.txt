@@ -1,0 +1,516 @@
+CAVALIERE SENZA TESTA · GS 8 · XP 4.800 — Libro dei Morti v2.4 (13°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Medio (Scheletro); in sella spazio 3 m, portata 3 m | Neutrale
+Iniziativa +2 | Sensi: vista cieca 18 m | Percezione +16
+Aura: presenza terrificante (9 m, Volontà CD 20 o scosso 1 minuto)
+── DIFESA ──
+CA 24 (contatto 12, colto alla sprovvista 21) | PF 85 (13 DV) — solo Punti Ferita
+TS Tempra +7, Riflessi +5, Volontà +12 | RI 18 | Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 6 m (15 m in sella) | BMC +12 | DMC 28
+Spada lunga +1 affilata gelida +14/+9 (1d8+6, 17–20, +1d6 freddo)
+  è la sua dotazione (Libro dei Morti, «Equipaggiamento»): sparisce con lui
+SENTENZA DI MORTE (Sop) — 1/giorno, 18 m: Tempra CD 22 (24 se conosce il nome
+  completo del bersaglio) o barcollante 1d3+1 round; per 24 ore i critici contro
+  quel bersaglio sono confermati in automatico
+CAVALCATURA FANTOMATICA (Sop) — azione veloce: appare o sparisce; ha i suoi PF
+── STATISTICHE ──
+For 20 Des 14 Cos — Int 7 Sag 16 Car 18
+Talenti: Attacco in sella, Combattere in sella, Critico focalizzato, Maestria
+intimorente, Spezzare le difese, Travolgere | Cavalcare +18, Percezione +16
+── TATTICHE ──
+Round 1: compare in sella dal portone; Sentenza di morte su chi ha toccato la porta.
+Round 2–3: carica e travolge; spada sul barcollante. Non fugge: cade dove sta.
+
+ARMATURA FANTASMA · GS 2 · XP 600 — Libro dei Morti v2.4 (4°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Medio (Spirito) | Neutrale
+Iniziativa +0 | Sensi: scurovisione 18 m | Percezione +0
+── DIFESA ──
+CA 19 (contatto 10, colto alla sprovvista 19) | PF 22 (4 DV) — solo Punti Ferita
+TS Tempra +1, Riflessi +2, Volontà +3 | +4 contro scacciare ed energia positiva
+Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 9 m | BMC +4 | DMC 16 | 2 schianti +5 (1d6+3)
+IMMOBILITÀ (Sfo): ferma per un round, sembra un'armatura abbandonata (Furtività 20).
+── STATISTICHE ──
+For 17 Des 11 Cos — Int 6 Sag 11 Car 10 | Talenti: Attacco poderoso | Furtività +12
+── TATTICHE ──
+Ferme in fila finché qualcuno tocca la porta dell'armeria. Poi circondano.
+Non fuggono. Senza il cavaliere, tornano al loro posto e si fermano.
+
+BAYKOK · GS 9 · XP 6.400 — Libro dei Morti v2.4 (15°) · GS 9 come nel PF1e
+Non morto Medio (Ghoul) | Neutrale
+Iniziativa +6 | Sensi: scurovisione 18 m | Percezione +18
+── DIFESA ──
+CA 22 (contatto 19, colto alla sprovvista 19) | PF 113 (15 DV) — solo Punti Ferita
+TS Tempra +7, Riflessi +11, Volontà +9 | Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 9 m | BMC +14 | DMC 31
+Mischia: 2 martelli +14 (1d6+3)
+Distanza: arco d'osso +20/+15/+10 (1d8+4, 19–20/×3, +1d6 energia negativa)
+  frecce infinite, contano +1; la prima che colpisce nel round: Tempra CD 19 o
+  barcollante 1 round; l'arco si ricompone in 1 minuto
+ULULATO TERRIFICANTE (Sop) — 1/giorno: 9 m, Volontà CD 19 o stordito 1 round
+  (con successo: scosso 1 round)
+DIVORARE ANIMA (Sop) — 1/giorno. ⚠️ Il Libro dei Morti dice «morente», che nella
+  campagna non esiste: vale per una creatura entro 9 m a 0 PF con un'emorragia in
+  corso. Muore; il baykok recupera 5d6+10 PF e ha Velocità per 4 round.
+── STATISTICHE ──
+For 17 Des 22 Cos — Int 7 Sag 10 Car 15
+Talenti: Critico migliorato (arco lungo composito), Tirare in movimento, Tiro
+preciso, Tiro rapido, Tiro ravvicinato | Furtività +24, Percezione +18
+── TATTICHE ──
+Da un posto alto e coperto (+4 copertura). Round 1: ululato. Poi frecce sul più
+vicino al bordo. Se lo raggiungono, scende e cambia posto. Non fugge dal suo albero.
+
+GHAUST · GS 7 · XP 3.200 — Libro dei Morti v2.4 (12°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Medio (Ghoul) | Neutrale
+Iniziativa +4 | Sensi: scurovisione 18 m | Percezione +23
+── DIFESA ──
+CA 23 (contatto 16, colto alla sprovvista 19) | PF 78 (12 DV) — solo Punti Ferita
+TS Tempra +6, Riflessi +10, Volontà +9 | Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 9 m | BMC +15 (+21 lottare) | DMC 30
+2 artigli +15 (2d8+5 più presa letale) e morso +10 (1d4 più dolore lancinante)
+PRESA LETALE (Sfo) — se entrambi gli artigli colpiscono, un morso in più gratuito.
+DOLORE LANCINANTE (Sop) — morso: Tempra CD 20 o barcollante 1 round.
+── STATISTICHE ──
+For 21 Des 19 Cos — Int 7 Sag 10 Car 14
+Talenti: Attacco rapido, Critico focalizzato, Critico migliorato (artiglio), Lottare
+migliorato, Mobilità | Furtività +21, Percezione +23, Nuotare +19, Scalare +22
+── TATTICHE ──
+Sono i «cani» della battuta. Partono insieme sullo stesso bersaglio e lo tengono.
+
+GUECUBU · GS 8 · XP 4.800 — Libro dei Morti v2.4 (14°) · GS 8 come nel PF1e
+Non morto Medio (Scheletro, terra) | Neutrale
+Iniziativa +4 | Sensi: percezione tellurica 18 m, scurovisione 18 m | Percezione +18
+Aura: terreno impervio (3 m: terreno difficile per chi non vola)
+── DIFESA ──
+CA 23 (contatto 16, colto alla sprovvista 17) | PF 105 (14 DV) — solo Punti Ferita
+TS Tempra +8, Riflessi +7, Volontà +11 | Immunità: elettricità, tratti dei non morti
+RE freddo 10
+── OFFESA ──
+Velocità 9 m, scavare 3 m | BMC +14 | DMC 29
+Morso +14 (1d8+6 più sfortuna) e 2 schianti +14 (1d6+6 più sfortuna)
+SFORTUNA (Sop) — Volontà CD 20 o −2 a colpire, TS e prove per 1 minuto, e i
+  critici contro di lui sono confermati in automatico [maledizione]
+CAPACITÀ MAGICHE (LI 8) — 3/giorno: Ammorbidire terra e pietra · 1/giorno: Fango
+  rallentante (Riflessi CD 19), Trasmutare roccia in fango (CD 20), Trasmutare
+  fango in roccia (CD 20)
+── STATISTICHE ──
+For 22 Des 18 Cos — Int 7 Sag 18 Car 21
+Talenti: Attacco rapido, Attacco turbinante, Critico focalizzato (morso), Critico
+migliorato (morso), Mobilità, Riflessi in combattimento, Robustezza
+Percezione +18, Scalare +10
+── TATTICHE ──
+Sale dalla terra sotto il primo che passa. Round 1: Trasmutare roccia in fango
+sotto il gruppo. Poi morde chi è impantanato. Finiti metà dei PF, torna sotto terra.
+
+MANGIAMARCIO — Criptoreo, Evoluzione 2 · GS 11 · XP 12.800
+Aberrazione Enorme (criptoreo, acquatica) | Neutrale
+Iniziativa +5 | Sensi: scurovisione 36 m, fiutare il marcio 1,5 km | Percezione +20
+Aura del non-marcio (Sop, 18 m): niente marcisce; nessuno sanguina (Sanguinamento
+ sospeso per tutti, PG compresi); le emorragie si fermano da sole a fine round.
+── DIFESA ──
+CA 23 (contatto 9, colto alla sprovvista 22) [10 + 1 Des + 14 naturale − 2 taglia]
+PF 142 (15d8+75) — Punti Fatica 71 / Punti Ferita 71
+TS Tempra +12, Riflessi +8, Volontà +13
+── RIDUZIONE ONTOLOGICA (Sop) ──
+Colpo pulito ×0,20 · Sale o fumo di legna ✔ ×1,0 · Balsamo d'imbalsamazione ★ ×1,5
+── OFFESA ──
+Velocità 6 m, nuotare 12 m | Spazio 4,5 m, portata 3 m (bocche 4,5 m)
+BaB +11 | BMC +21 (+25 lottare) | DMC 32 (taglia Enorme della Collana: +3)
+Morso +17 (2d8+7 più afferrare) · 4 bocche +11 (1d6+3 più sorso)
+── ATTACCHI SPECIALI ──
+SORSO (Sop) — Chi è colpito da una bocca: se ha una Ferita grave aperta, la
+ bocca la «pulisce» (l'emorragia si ferma) e il Mangiamarcio recupera 5 PF.
+ Altrimenti Tempra CD 22 o nauseato 1 round: il sapore di quello che ha bevuto.
+RIGURGITO (Sop) — Una volta, quando finisce la Fatica o al primo colpo ★: cono
+ di 9 m di due anni di marcio. Tempra CD 22 o nauseato 1d4 round, poi infermo
+ 1 minuto. Il terreno nel cono è difficile. Da quel momento la Palude puzza.
+CAPACITÀ MAGICHE (Mag) — LI 11
+A volontà: Foschia occultante · 3/giorno: Nube maleodorante (CD 13)
+── STATISTICHE ──
+For 24 Des 12 Cos 20 Int 2 Sag 14 Car 10
+Talenti: Abilità focalizzata (Percezione), Allerta, Arma focalizzata (morso),
+Combattere alla cieca, Iniziativa migliorata, Riflessi fulminei,
+Tempra possente, Volontà di ferro
+Abilità: Percezione +20, Furtività +3 (+11 in acqua), Nuotare +15
+Linguaggi: nessuno | Tesoro: nessuno. Un cristallo maestoso. | PN: 40 / 60
+── TATTICHE ──
+Non attacca chi non lo attacca. Fa eccezione il fumo: un fuoco comune acceso nella
+Palude lo fa arrivare in 1d4 round, furioso, contro chi sta nel fumo. Resta in
+acqua; afferra e trascina sotto. Finita la Fatica: Rigurgito, poi si immerge e
+scappa lungo i canali. Non torna finché il gruppo è nella Palude.
+
+ALBERO DI CUOR D'OMBRA · GS 8 · XP 4.800 — Treant (PF1e Bestiario, segnalato), corrotto
+Vegetale Enorme | Neutrale Malvagio
+Iniziativa −1 | Sensi: visione crepuscolare | Percezione +12
+── DIFESA ──
+CA 21 (contatto 7, colto alla sprovvista 21) [10 − 1 Des + 14 naturale − 2 taglia]
+PF 114 (12d8+60) — Punti Fatica 57 / Punti Ferita 57
+TS Tempra +13, Riflessi +3, Volontà +7
+RD 10/tagliente | Immunità: tratti dei vegetali | Vulnerabilità: fuoco
+── OFFESA ──
+Velocità 9 m | Spazio 4,5 m, portata 4,5 m | BaB +9 | BMC +21 | DMC 30
+2 schianti +17 (2d6+9, 19–20)
+Travolgere (2d6+13, Riflessi CD 25 dimezza) · danni doppi agli oggetti
+Forma d'albero: fermo, è un albero (Percezione CD 30 per accorgersene)
+── STATISTICHE ──
+For 29 Des 8 Cos 21 Int 12 Sag 16 Car 12
+Talenti: Arma focalizzata (schianto), Attacco poderoso (della casa), Critico
+migliorato (schianto), Volontà di ferro (Spezzare migliorato tolto: proibito)
+Abilità: Furtività −9 (+7 nei boschi), Intimidire +16, Percezione +12
+── TATTICHE ──
+Aspettano fermi che il gruppo passi in mezzo. Travolgono, poi schiacciano chi è
+prono. Il fuoco li fa arretrare di 9 m per un round. Finita la Fatica tornano
+fermi, e sono di nuovo alberi.
+
+FANTASMA · GS 6 · XP 2.400 — Libro dei Morti v2.4 (11°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Piccolo (Spirito) | Neutrale
+Iniziativa +1 | Sensi: scurovisione 18 m | Percezione +18
+── DIFESA ──
+CA 21 (contatto 18, colto alla sprovvista 16) | PF 68 (9 DV) — solo Punti Ferita
+TS Tempra +7, Riflessi +5, Volontà +9 | Fumoso (50% di fallimento per gli attacchi
+fisici non magici) | +4 contro scacciare ed energia positiva
+── OFFESA ──
+Volare 9 m (perfetta), al massimo 1 m da terra | BMC +5 | DMC 22
+Tocco corruttore +6 contatto (6d6, Tempra CD 18 dimezza)
+LAMENTO TERRIFICANTE (Sop) — una volta ogni 1d4 round, azione gratuita: 9 m,
+  Volontà CD 18 o in preda al panico 1d3 round; chi resiste è immune per 24 ore
+── STATISTICHE ──
+For — Des 12 Cos — Int 7 Sag 11 Car 20
+Talenti: Attacco in volo, Mobilità, Robustezza, Volontà di ferro
+Conoscenze +10, Furtività +9, Intuizione +10, Percezione +18
+
+RICUCITO · GS 6 · XP 2.400 — Libro dei Morti v2.4 (9°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Grande (Zombie) | Neutrale
+Iniziativa −1 | Sensi: scurovisione 18 m | Percezione +13
+Aura: raccapricciante (18 m, chi lo vede: Tempra CD 17 o nauseato 1d4 round;
+chi resiste è immune per 24 ore)
+── DIFESA ──
+CA 21 (contatto 9, colto alla sprovvista 18) | PF 59 (9 DV) — solo Punti Ferita
+TS Tempra +5, Riflessi +3, Volontà +10 | Destinato a vivere: l'energia positiva
+lo cura di metà del danno, invece di ferirlo
+── OFFESA ──
+Velocità 9 m | Spazio 3 m, portata 3 m | BMC +10 | DMC 19
+Morso +10 (1d4+5) e 2 artigli +10 (1d4+5)
+RICOMPORSI (Sop) — 1/giorno, a 0 PF si rialza al round dopo con metà dei PF; entro
+  6 m Volontà CD 17 o stordito 1 round. Non vale se lo uccide il fuoco.
+── STATISTICHE ──
+For 21 Des 8 Cos — Int 4 Sag 17 Car 16
+Talenti: Attacco poderoso, Attacco rapido, Critico migliorato (artiglio), Volontà di
+ferro | Percezione +13, Scalare +15
+
+LUPO CRUDELE DEFORMATO · GS 4 · XP 1.200 — Lupo crudele (PF1e Bestiario, segnalato), modello avanzato
+Animale Grande | Neutrale
+Iniziativa +4 | Sensi: visione crepuscolare, fiuto | Percezione +12
+── DIFESA ──
+CA 18 (contatto 11, colto alla sprovvista 16) [10 + 2 Des + 7 naturale − 1 taglia]
+PF 47 (5d8+25) — Punti Fatica 23 / Punti Ferita 24
+TS Tempra +9, Riflessi +8, Volontà +4 · Non sanguinano (immuni al sanguinamento)
+── OFFESA ──
+Velocità 15 m | Spazio 3 m, portata 1,5 m | BaB +3 | BMC +11 | DMC 25 (29 sbilanciare)
+Morso +9 (1d8+8 più sbilanciare)
+── STATISTICHE ──
+For 19 Des 15 Cos 17 Int 2 Sag 12 Car 10
+Talenti: Abilità focalizzata (Percezione), Arma focalizzata (morso), Correre
+Abilità: Furtività +4, Percezione +12, Sopravvivenza +3 (+11 col fiuto)
+── TATTICHE ──
+Due per bersaglio: uno morde e sbilancia, l'altro morde chi è a terra. Puntano
+chi resta indietro. Con metà del branco a terra, i rimasti scappano nel bosco.
+
+BAYKOK · GS 9 · XP 6.400 — Libro dei Morti v2.4 (15°) · GS 9 come nel PF1e
+Non morto Medio (Ghoul) | Neutrale
+Iniziativa +6 | Sensi: scurovisione 18 m | Percezione +18
+── DIFESA ──
+CA 22 (contatto 19, colto alla sprovvista 19) | PF 113 (15 DV) — solo Punti Ferita
+TS Tempra +7, Riflessi +11, Volontà +9 | Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 9 m | BMC +14 | DMC 31
+Mischia: 2 martelli +14 (1d6+3)
+Distanza: arco d'osso +20/+15/+10 (1d8+4, 19–20/×3, +1d6 energia negativa)
+  frecce infinite, contano +1; la prima che colpisce nel round: Tempra CD 19 o
+  barcollante 1 round; l'arco si ricompone in 1 minuto
+ULULATO TERRIFICANTE (Sop) — 1/giorno: 9 m, Volontà CD 19 o stordito 1 round
+  (con successo: scosso 1 round)
+DIVORARE ANIMA (Sop) — 1/giorno. ⚠️ Il Libro dei Morti dice «morente», che nella
+  campagna non esiste: vale per una creatura entro 9 m a 0 PF con un'emorragia in
+  corso. Muore; il baykok recupera 5d6+10 PF e ha Velocità per 4 round.
+── STATISTICHE ──
+For 17 Des 22 Cos — Int 7 Sag 10 Car 15
+Talenti: Critico migliorato (arco lungo composito), Tirare in movimento, Tiro
+preciso, Tiro rapido, Tiro ravvicinato | Furtività +24, Percezione +18
+── TATTICHE ──
+Da un posto alto e coperto (+4 copertura). Round 1: ululato. Poi frecce sul più
+vicino al bordo. Se lo raggiungono, scende e cambia posto. Non fugge dal suo albero.
+
+FOLGORATO · GS 4 · XP 1.200 — Libro dei Morti v2.4 (7°, variante elettricità)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Medio (Scheletro) | Neutrale
+Iniziativa +1 | Sensi: scurovisione 18 m | Percezione +6
+Aure (3 m): puzza di morte (Tempra CD 15 o infermo 1 minuto) · visioni di morte
+(Volontà CD 14 o stordito 1 round)
+── DIFESA ──
+CA 20 (contatto 14, colto alla sprovvista 15) | PF 46 (7 DV) — solo Punti Ferita
+TS Tempra +2, Riflessi +4, Volontà +5 | Immunità: elettricità, tratti dei non morti
+Vulnerabilità: acido
+── OFFESA ──
+Velocità 9 m | BMC +6 | DMC 17
+Schianto +6 (1d6+3 più 1d6 elettricità più maledizione elementale)
+Distanza: deflagrazione +6 contatto (3d6 elettricità, 9 m, a volontà)
+MALEDIZIONE ELEMENTALE (Sop) — chi subisce l'elettricità dello schianto: Tempra
+  CD 16 o 2d6 elettricità all'inizio dei suoi turni per 1d4 round (ignora la RE)
+── STATISTICHE ──
+For 17 Des 13 Cos — Int 4 Sag 12 Car 13 | Percezione +6
+
+GUECUBU · GS 8 · XP 4.800 — Libro dei Morti v2.4 (14°) · GS 8 come nel PF1e
+Non morto Medio (Scheletro, terra) | Neutrale
+Iniziativa +4 | Sensi: percezione tellurica 18 m, scurovisione 18 m | Percezione +18
+Aura: terreno impervio (3 m: terreno difficile per chi non vola)
+── DIFESA ──
+CA 23 (contatto 16, colto alla sprovvista 17) | PF 105 (14 DV) — solo Punti Ferita
+TS Tempra +8, Riflessi +7, Volontà +11 | Immunità: elettricità, tratti dei non morti
+RE freddo 10
+── OFFESA ──
+Velocità 9 m, scavare 3 m | BMC +14 | DMC 29
+Morso +14 (1d8+6 più sfortuna) e 2 schianti +14 (1d6+6 più sfortuna)
+SFORTUNA (Sop) — Volontà CD 20 o −2 a colpire, TS e prove per 1 minuto, e i
+  critici contro di lui sono confermati in automatico [maledizione]
+CAPACITÀ MAGICHE (LI 8) — 3/giorno: Ammorbidire terra e pietra · 1/giorno: Fango
+  rallentante (Riflessi CD 19), Trasmutare roccia in fango (CD 20), Trasmutare
+  fango in roccia (CD 20)
+── STATISTICHE ──
+For 22 Des 18 Cos — Int 7 Sag 18 Car 21
+Talenti: Attacco rapido, Attacco turbinante, Critico focalizzato (morso), Critico
+migliorato (morso), Mobilità, Riflessi in combattimento, Robustezza
+Percezione +18, Scalare +10
+── TATTICHE ──
+Sale dalla terra sotto il primo che passa. Round 1: Trasmutare roccia in fango
+sotto il gruppo. Poi morde chi è impantanato. Finiti metà dei PF, torna sotto terra.
+
+SCUOIATO · GS 6 · XP 2.400 — Libro dei Morti v2.4 (9°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Grande (Disarticolato) | Neutrale
+Iniziativa +0 | Sensi: scurovisione 18 m | Percezione +16
+Aura: presenza terrificante (9 m, Volontà CD 16 o barcollante 1d3 round)
+── DIFESA ──
+CA 21 (contatto 10, colto alla sprovvista 20) | PF 68 (9 DV) — solo Punti Ferita
+TS Tempra +4, Riflessi +2, Volontà +10 | RD 5/— | Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 9 m | BMC +13 | DMC 23
+Schianto +14 (1d8+10 più tocco scuotipelle: Tempra CD 16 o infermo 1 minuto)
+── STATISTICHE ──
+For 24 Des 10 Cos — Int 5 Sag 15 Car 15
+Talenti: Attacco poderoso, Critico migliorato (schianto), Robustezza, Volontà di
+ferro | Furtività +11, Percezione +16
+
+SUSSURRANTE · GS 7 · XP 3.200 — Libro dei Morti v2.4 (11°)
+❓ GS stimato: la Collana non lo fissa; circa ⅔ dei DV, come il Mohrg (13 DV, GS 8 nel PF1e)
+Non morto Piccolo (Scheletro) | Neutrale
+Iniziativa +4 | Sensi: scurovisione 18 m | Percezione +12
+Aura: snervante (3 m: niente capacità uditive; −1 a colpire, danni e Volontà)
+── DIFESA ──
+CA 22 (contatto 17, colto alla sprovvista 15) | PF 72 (11 DV) — solo Punti Ferita
+TS Tempra +5, Riflessi +6, Volontà +10 | Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 6 m | BMC +2 | DMC 17
+Morso +9 (1d4−1 più rubare respiro) · tocco +4 contatto (rubare voce)
+RUBARE RESPIRO (Sop) — Volontà CD 18 o affaticato 1 ora; se già affaticato,
+  esausto; se già esausto per lui, sonno magico per 24 ore
+RUBARE VOCE (Sop) — Volontà CD 18 o niente voce né componenti verbali per 1 ora;
+  intanto lui parla con quella voce
+── STATISTICHE ──
+For 9 Des 19 Cos — Int 7 Sag 16 Car 18
+Talenti: Arma accurata, Mobilità, Riflessi in combattimento, Stoccata, Volontà di
+ferro | Conoscenze +8, Furtività +17, Percezione +12, Raggirare +9, Scalare +8
+── TATTICHE ──
+Non combatte se può parlare. Attaccato: ruba la voce a chi lancia incantesimi,
+poi scappa fra le pietre e grida aiuto con quella voce (allarme, orologio +1).
+
+IMBALSAMATO · GS 5 · XP 1.600 — Mummia (PF1e Bestiario, segnalato), adattata (Doc 2A)
+Non morto Medio | Legale Malvagio
+Iniziativa +0 | Sensi: scurovisione 18 m | Percezione +16
+Aura: disperazione (9 m, Volontà CD 16 o paralizzato per 1d4 round; una volta
+ogni 24 ore per creatura)
+── DIFESA ──
+CA 20 (contatto 10, colto alla sprovvista 20) [10 + 10 naturale]
+PF 60 (8d8+24) — Punti Fatica 30 / Punti Ferita 30 (totale PF1e diviso a metà)
+TS Tempra +4, Riflessi +2, Volontà +8
+RD 5/— | Immunità: tratti dei non morti | Vulnerabilità: fuoco
+── OFFESA ──
+Velocità 6 m (non nuotano: in acqua camminano sul fondo)
+BaB +6 | BMC +13 (+17 lottare per trasportare) | DMC 23
+Schianto +14 (1d8+10 più putrefazione della mummia)
+── ATTACCHI SPECIALI ──
+PUTREFAZIONE DELLA MUMMIA (Sop) — maledizione e malattia, schianto, Tempra CD 16,
+ogni minuto 1d6 Cos e 1d6 Car. Si toglie prima la maledizione, poi la malattia.
+⚠️ Sull'Isola niente marcisce: finché vive il Mangiamarcio la putrefazione
+avanza di un giorno alla volta, non di un minuto (❓ proposta).
+PORTARE VIA (Str) ★ — Due Imbalsamati che lottano con lo stesso bersaglio
+possono muoversi insieme alla velocità piena portandolo con sé.
+── STATISTICHE ──
+For 24 Des 10 Cos — Int 6 Sag 15 Car 15
+Talenti: Abilità focalizzata (Percezione), Arma focalizzata (schianto),
+Attacco poderoso (della casa), Robustezza
+Abilità: Furtività +11, Percezione +16 | Linguaggi: Comune (non parlano)
+Bende intrise di balsamo d'imbalsamazione (★ contro il Mangiamarcio).
+── TATTICHE ──
+Eseguono l'ultimo ordine. Non fuggono e non trattano. Con Brook in vista, due
+lottano per portarlo via; gli altri fanno muro. Senza un capo che li guida
+(un Mohrg, un servitore che parla) e senza ordini, si fermano e tornano al posto.
+
+MOHRG · GS 8 · XP 4.800 — non morto del Necrarca (📖 Libro dei Morti v2.4, 13°) · ❓ GS dal PF1e
+Non morto Medio (Ghoul) | Neutrale (non morto della Collana)
+Iniziativa +4 | Sensi: scurovisione 18 m | Percezione +13
+── DIFESA ──
+CA 23 (contatto 16, colto alla sprovvista 19)
+PF 98 (13 DV) — solo Punti Ferita (non morto della Collana)
+TS Tempra +6, Riflessi +10, Volontà +9
+Immunità: tratti dei non morti
+── OFFESA ──
+Velocità 9 m | BMC +15 (+21 lottare) | DMC 30
+2 schianti +15 (2d8+5 più afferrare) e lingua +10 contatto (frastornamento)
+── ATTACCHI SPECIALI ──
+FRASTORNAMENTO (Sop) — chi è toccato dalla lingua: Tempra CD 20 o frastornato
+1 round. CD = 10 + 6 (½ × 13) + 2 (Car) + 2 (Capacità focalizzata).
+── STATISTICHE ──
+For 21 Des 19 Cos — Int 7 Sag 10 Car 14
+Talenti: Attacco rapido, Capacità focalizzata (frastornamento), Critico migliorato
+(schianto), Lottare migliorato, Mobilità, Robustezza
+Abilità: Furtività +21, Percezione +13
+── TATTICHE ──
+È il capo della squadra: gli Imbalsamati seguono i suoi ordini. Lingua sul più
+armato, poi afferra e stritola. Se cade il Mohrg, gli Imbalsamati senza ordini
+finiscono il round e tornano ai loro posti (§4.5).
+
+INUVIEL — Magus (Cartomante) 12 · Risvegliata di Mortimer ★ · GS 12 · XP 19.200
+Non morto Medio, incorporeo (in vita: umana varisiana) · tratto bonus: Lingua d'argento
+Caotico Neutrale
+Iniziativa +6 | Sensi: scurovisione 18 m | Percezione +13
+── DIFESA ──
+CA 25 (contatto 25, colto alla sprovvista 22)
+[10 + 2 Des + 8 istinto (Preveggenza difensiva: Int 5 + 3) + 1 deviazione (Car,
+ incorporea) + 1 schivare + 3 bonus eroico] · nessuna armatura
+PF 92 (12d8 + 12 Car + 12 Robustezza) — Punti Fatica 46 / Punti Ferita 46
+TS Tempra +11, Riflessi +8, Volontà +11 (bonus eroico +2 compreso; Tempra col Car)
+Difese: incorporea (½ danni da armi e incantesimi magici; immune ai non magici)
+Immunità: tratti dei non morti | Debolezza: luce intensa
+── OFFESA ──
+Velocità 9 m, volare 12 m (perfetta: eccezione dichiarata) | BaB +9 | DMC 26
+Distanza: tarocchi arcani +15/+10 (1d6+6, 19–20/×3, gittata 18 m)
+  entro 9 m: +16/+11 (1d6+7) · le carte spariscono dopo il colpo
+  Incantesimi in combattimento a distanza (round completo): +13/+8 e un
+  incantesimo da magus · Colpo incantato a distanza: incantesimi di contatto a
+  distanza sulla carta, +18 (BaB = livello)
+Mischia: tocco d'ombra +11 contatto (1d6 negativa, affaticato → esausto, Tempra CD 17)
+Potere arcano: 13 punti (½ liv 6 + Int 5 + 2 extra)
+  Arma da lancio arcana (veloce, 1 min, fino a +3): Esplosione di ghiaccio (+2) e
+  Distanza (+1) → +1d6 freddo, critico +2d10 freddo · Lancio arcano 3/giorno
+  (costo dimezzato) · Astuzia arcana (1 pt, +5 al colpire per un turno) ·
+  Barriera protettiva (1 pt, immediata: +5 scudo alla CA e +2 Riflessi contro
+  un nemico) · Metamagia improvvisa: Incantesimi massimizzati 1/giorno
+Incantesimi (Magus 12, LI 12, CD 15 + livello; Concentrazione +17;
+ per giorno 5/7/6/5/4 con i bonus di Int; metà dei conosciuti a disposizione):
+  4° — Allucinazione mortale (CD 19), Lentezza (CD 19), Tentacoli neri, Velocità
+       · bonus: Divinazione
+  3° — Raggio di esaurimento (CD 19), Distorsione, Blocca persone (CD 18),
+       Dissolvi magie, Immagine maggiore · bonus: Biografia del sangue
+  2° — Immagine speculare, Sfocatura, Oscurità, Nube di nebbia, Frantumare
+       · bonus: Presagio
+  1° — Raggio di indebolimento, Scudo, Colpo accurato, Foschia occultante,
+       Dardo incantato · bonus: Rivela parente
+  0  — Frastornare (CD 15), Tocco di affaticamento (CD 16), Mano magica,
+       Prestidigitazione, Suono fantasma
+── STATISTICHE ──
+For — Des 15 Cos — Int 20 Sag 12 Car 13
+Talenti: Arma focalizzata (tarocchi), Critico migliorato (tarocchi), Iniziativa
+migliorata, Incantesimi focalizzati (necromanzia), Mobilità, Schivare (6 di
+livello) · Tiro preciso (della casa), Arma specializzata (tarocchi) (2 (C)) ·
+Robustezza (1 (R)) · Tiro ravvicinato (classe, solo coi tarocchi)
+Segreti del magus: Astuzia arcana, Barriera protettiva, Potere arcano extra,
+Metamagia improvvisa (Incantesimi massimizzati)
+Abilità: Volare +25, Conoscenze (arcane) +20, Conoscenze (proibite) +20,
+Sapienza magica +20, Conoscenze (generali) +17 (bg), Rapidità di mano +17 (bg),
+Professione (cartomante) +16 (bg), Raggirare +16, Furtività +14 (+22 vera ombra),
+Intuizione +13, Percezione +13
+Lingue: Comune, varisiano e quattro a scelta del GM
+Sintonia: ❓ il mazzo come arma da lancio, +3 (le carte sono «perfette»: il +1 non
+si somma) | Equipaggiamento: il mazzo 🗝️ (D.4). Nient'altro: è un'Ombra.
+── TATTICHE ──
+Prima: non combatte. Se la attaccano, prova una volta a parlare (Lingua d'argento:
+vantaggio a Raggirare, «Lo dico a Mortimer», anche se non è vero).
+Round 1: si alza oltre la portata; Immagine speculare.
+Round 2: Raggio di esaurimento su una carta (colpo incantato) sul più forte.
+Round 3+: tarocchi con Esplosione di ghiaccio; Oscurità per coprirsi.
+Finita la Fatica: Tentacoli neri fra lei e loro, ed entra nella roccia.
+Fuga o resa: fugge sempre, verso Franchie. Se fanno del male a Franchie,
+combatte fino in fondo, e non fugge più.
+
+FRANCHIE — Purificatore (Witcher) 12 · Risvegliato di Mortimer ★ · GS 12 · XP 19.200
+Non morto Medio (in vita: strigoi; sembra umano) · retaggio: Sangue delle megere
+cieche (Combattere alla cieca) | Neutrale
+Iniziativa +5 (Sempre pronto) | Sensi: scurovisione 18 m; Herd | Percezione +15
+── DIFESA ──
+CA 22 (contatto 14, colto alla sprovvista 21)
+[10 + 7 armatura (giaco di maglia 4 + sintonia 3) + 1 Des + 1 naturale (Pelle
+ spessa) + 3 bonus eroico] · Sacra vigilanza +0 (½ Car: privilegio base, non Int)
+ Quen: +2 deviazione contro un attacco (immediata; ricarica 1 round)
+PF 80 (12d8 + 12 Robustezza; Car 10) — Punti Fatica 40 / Punti Ferita 40
+TS Tempra +6, Riflessi +11, Volontà +12 (bonus eroico +2 compreso; Tempra col Car)
+Immunità: tratti dei non morti | Debolezza: energia positiva (i suoi mutageni
+curativi lo feriscono: non li usa) | Anima rancorosa: +4 contro la possessione;
+chi prova a risucchiarlo, Tempra CD 22 (10 + 12 + Car 0) o fallisce ed è nauseato
+── OFFESA ──
+Velocità 9 m | BaB +12/+7/+2 | BMC +15 | DMC 29
+Mischia: spada lunga +3 (sintonia) +19/+14/+9 (1d8+8, 17–20)
+  con Attacco poderoso: +15/+10/+5 (1d8+16) · conta come argento, ferro freddo
+  e magica (Armi alchemiche)
+Attacco combinato (con l'attacco completo): 2 pugnali d'argento lanciati +13
+  (1d4+3, 19–20, incremento 9 m)
+Segni (Mag), CD 19 (10 + 6 + Int 3):
+  Aard — 9 m, Tempra o prono · ricarica 1 round
+  Axii — 9 m, Volontà o Comando omicida (al suo turno attacca l'alleato più
+         vicino) · ricarica 1 round
+  Yrden — 9 m, Tempra o 3d8 freddo e barcollante 1 round · ricarica 2 round
+  Igni — 18 m, Volontà nega; 1 minuto: il bersaglio, quando infligge danni in
+         mischia, ne subisce metà come fuoco, oltre RE e immunità · 1/giorno a testa
+  Quen · Rork · Herd (vede attraverso nebbia e Nube)
+Gesta del witcher (veloce, 9 minuti al giorno, uno alla volta): della forza (+4
+  For: +2 colpire e danni) · dell'accortezza (schivare prodigioso migliorato) ·
+  della speditezza (+3 m, ignora il terreno difficile) · della vita (9 PF
+  temporanei a round; poi 1 ora di attesa) · isolante (RE 34 a un'energia)
+Mutageni (pozioni; 9 reagenti al giorno; berne uno è un'azione standard):
+  Dermo-indurente 2.0 (RD 10/adamantio fino a 120 danni, 2 ore, giornaliero) ·
+  Barbarico (+2 colpire e danni in mischia, 24 PF temporanei, +2 Volontà, −2 CA,
+  12 round) · Analitico (studia un nemico: vantaggio, ignora 5 RD, 12 round) ·
+  Dei colpi guidati (+10 a due colpi in mischia)
+── STATISTICHE ──
+For 17 Des 13 Cos — Int 17 Sag 10 Car 10
+Talenti: Attacco poderoso (della casa), Critico migliorato (spada lunga), Incalzare,
+Iniziativa migliorata, Robustezza, Volontà di ferro (6 di livello) · Arma
+focalizzata e Arma specializzata (spada lunga), Riflessi in combattimento (dalle
+doti) · Combattere alla cieca (retaggio)
+Doti: Arma preferita, Addestramento marziale, Studioso dell'occulto, Sempre pronto,
+Anima rancorosa
+Abilità: Conoscenze (proibite) +20, Conoscenze (storia e leggende) +20 (bg),
+Conoscenze (arcane) +18, Intimidire +15, Intuizione +15, Percezione +15,
+Professione (alchimista) +15 (bg), Sopravvivenza +15, Furtività +14
+Lingue: Comune e tre a scelta del GM
+Sintonia: spada lunga +3 · giaco di maglia +3 | Equipaggiamento: spada lunga,
+giaco di maglia, 6 pugnali d'argento, borsa dell'alchimista, mutageni del giorno
+── TATTICHE ──
+Prima: quando sente arrivare qualcuno beve Dermo-indurente 2.0. Avverte due volte.
+Round 1: Aard sul primo che varca la soglia; Gesta della forza.
+Round 2–3: attacco completo con i pugnali; Axii su chi colpisce più forte;
+  Yrden su chi prova a passargli accanto.
+Finita la Fatica: Barbarico e Gesta della vita. Non lascia la soglia (firma).
+Fuga o resa: mai. Se il combattimento mette in pericolo Inuviel, TS di
+disobbedienza (CD 22) ogni round per fermarsi. Combattere alla cieca: se
+qualcuno porta l'Oscurità nella galleria, lui non ci fa caso.
+
+💰 TESORO — da generare · Livello di riferimento: 12 · Quantità: 1 primario (secondario no) · Dove/chi lo porta: addosso a Franchie · Note: spada lunga, giaco di maglia; se escono capacità compatibili le usa (GS 13). ⚠️ Se è distrutto torna dai pozzi senza l'equipaggiamento, che resta qui.
