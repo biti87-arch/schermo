@@ -1483,7 +1483,7 @@ function nuovoMalus(c, chi, d, rng) {
     }
   }
   // la stessa condizione non si somma: resta la durata più lunga
-  if (tipo === 'condizione' && m.durata.tipo !== 'curata') {
+  if (tipo === 'condizione' && m.durata.tipo !== 'curata' && nome !== 'Livelli negativi') { // i livelli negativi invece si sommano (Massy, 01/11)
     const es = el.find(x => x.tipo === 'condizione' && x.nome === nome && x.durata.tipo !== 'curata' && (x.perc || 0) === (m.perc || 0) && (x.n || 0) === (m.n || 0));
     if (es) {
       if (PESO_DURATA(m.durata) > PESO_DURATA(es.durata)) { es.durata = m.durata; es.scadenza = m.scadenza; es.causa = m.causa; log(c, `${chiNome}: ${nome} rinnovato (${descriviDurata(c, es)})`); }
@@ -2831,39 +2831,55 @@ function ripetiTiro(camp, id, rng, opz) {
 
 // ---- AB4-2 fonti di luce: consumo con l'orologio, Fiamme dal meteo in vigore, al riparo
 function infoLuce(STR, tipo) { const f = STR.luce.find(x => x.id === tipo); if (!f) throw new Error('fonte di luce sconosciuta'); return f; }
+// dati di una fonte della campagna: dalla Guida o personalizzata (incantesimi e altre fonti: nome, raggio, durata o permanente, Fiamme)
+const FIAMME_PERS = ['nessuna', 'candela', 'torcia', 'lanterna', 'impermeabile'];
+function infoDi(STR, x) {
+  if (x.tipo === 'personalizzata') return { id: 'personalizzata', nome: x.nome, raggio: x.raggio, fiamme: x.fiamme, olio: false, personalizzata: true, durata: x.durata };
+  const f = infoLuce(STR, x.tipo); return { ...f, durata: f.ore * ROUND_ORA };
+}
 function nomeChiLuce(c, chi) {
   if (chi === 'gruppo') return 'gruppo';
   if (chi.startsWith('pg:')) { const p = c.pg.find(x => 'pg:' + x.id === chi); return p ? p.scheda.nome : '?'; }
   const a = compagnia(c).persone.find(x => 'acc:' + x.id === chi); return a ? a.nome : '?';
 }
 function aggiungiLuce(camp, STR, d) {
-  const f = infoLuce(STR, d.tipo), c = clona(camp), chi = d.chi || 'gruppo';
+  const c = clona(camp), chi = d.chi || 'gruppo';
   if (chi !== 'gruppo' && nomeChiLuce(c, chi) === '?') throw new Error('a chi va la luce?');
-  const x = { id: prossimoId(c, 'l'), tipo: f.id, chi, accesa: false, resta: f.ore * ROUND_ORA, riparo: !!d.riparo, avvisata: false };
-  c.luci.push(x); log(c, `Luce: ${f.nome} (${nomeChiLuce(c, chi)})`); return c;
+  let x;
+  if (d.tipo === 'personalizzata') {
+    const nome = String(d.nome || '').trim(); if (!nome) throw new Error('la luce non ha un nome');
+    if (!(Number.isInteger(d.raggio) && d.raggio > 0)) throw new Error('raggio non valido');
+    const fi = d.fiamme || 'nessuna'; if (!FIAMME_PERS.includes(fi)) throw new Error('scegli come la spegne il meteo');
+    let dur = null;
+    if (!(d.durata && d.durata.tipo === 'permanente')) { const k = d.durata && UNITA_ROUND[d.durata.unita]; if (!k || !(Number.isInteger(d.durata.n) && d.durata.n > 0)) throw new Error('durata non valida'); dur = d.durata.n * k; }
+    x = { id: prossimoId(c, 'l'), tipo: 'personalizzata', nome, raggio: d.raggio, fiamme: fi, durata: dur, chi, accesa: false, resta: dur, riparo: !!d.riparo, avvisata: false };
+  } else { const f = infoLuce(STR, d.tipo); x = { id: prossimoId(c, 'l'), tipo: f.id, chi, accesa: false, resta: f.ore * ROUND_ORA, riparo: !!d.riparo, avvisata: false }; }
+  c.luci.push(x); log(c, `Luce: ${infoDi(STR, x).nome} (${nomeChiLuce(c, chi)}${x.resta === null ? ', permanente' : ''})`); return c;
 }
 function luceDi(c, id) { const x = c.luci.find(l => l.id === id); if (!x) throw new Error('fonte di luce non trovata'); return x; }
 // che cosa la spegne adesso (null = niente): voci del meteo in vigore, Sotterraneo con le Correnti d'aria
 function motivoSpegne(c, meteo, STR, x, R) {
-  const F = STR.fiamme, f = infoLuce(STR, x.tipo), soglia = F.soglia[f.fiamme];
+  const F = STR.fiamme, f = infoDi(STR, x), soglia = F.soglia[f.fiamme];
+  if (f.fiamme === 'nessuna') return null; // luce magica o comunque non spegnibile dal tempo
   const sott = c.zona === meteo.sotterraneo.zona;
   if (x.riparo && !sott) return null;
   const voci = vociAllOra(c, meteo, R).filter(v => !sott || v === "Correnti d'aria");
   const v = voci.find(v => (F.livelli[v] || 0) >= soglia); return v || null;
 }
 function accendiLuce(camp, meteo, STR, id) {
-  const c = clona(camp), x = luceDi(c, id), f = infoLuce(STR, x.tipo);
-  if (x.resta <= 0) throw new Error(f.olio ? 'serve una fiaschetta d’olio' : 'è consumata: sostituiscila');
+  const c = clona(camp), x = luceDi(c, id), f = infoDi(STR, x);
+  if (x.resta !== null && x.resta <= 0) throw new Error(f.olio ? 'serve una fiaschetta d’olio' : f.personalizzata ? 'è finita: rinnovala' : 'è consumata: sostituiscila');
   const v = motivoSpegne(c, meteo, STR, x, c.tempo.R); if (v) throw new Error(`non resta accesa: ${v}`);
-  x.accesa = true; log(c, `${f.nome} (${nomeChiLuce(c, x.chi)}) accesa: ${formatoDurata(x.resta)}`); return c;
+  x.accesa = true; log(c, `${f.nome} (${nomeChiLuce(c, x.chi)}) accesa: ${x.resta === null ? 'permanente' : formatoDurata(x.resta)}`); return c;
 }
-function spegniLuce(camp, STR, id) { const c = clona(camp), x = luceDi(c, id); x.accesa = false; log(c, `${infoLuce(STR, x.tipo).nome} (${nomeChiLuce(c, x.chi)}) spenta: restano ${formatoDurata(x.resta)}`); return c; }
+function spegniLuce(camp, STR, id) { const c = clona(camp), x = luceDi(c, id); x.accesa = false; log(c, `${infoDi(STR, x).nome} (${nomeChiLuce(c, x.chi)}) spenta` + (x.resta === null ? '' : `: restano ${formatoDurata(x.resta)}`)); return c; }
 function ricaricaLuce(camp, STR, id) {
-  const c = clona(camp), x = luceDi(c, id), f = infoLuce(STR, x.tipo);
-  x.resta = f.ore * ROUND_ORA; x.avvisata = false; log(c, `${f.nome} (${nomeChiLuce(c, x.chi)}): ${f.olio ? 'nuova fiaschetta d’olio' : 'sostituita'}`); return c;
+  const c = clona(camp), x = luceDi(c, id), f = infoDi(STR, x);
+  if (f.durata === null) throw new Error('è una luce permanente');
+  x.resta = f.durata; x.avvisata = false; log(c, `${f.nome} (${nomeChiLuce(c, x.chi)}): ${f.olio ? 'nuova fiaschetta d’olio' : f.personalizzata ? 'rinnovata' : 'sostituita'}`); return c;
 }
 function riparoLuce(camp, id, si) { const c = clona(camp); luceDi(c, id).riparo = !!si; return c; }
-function togliLuce(camp, STR, id) { const c = clona(camp), x = luceDi(c, id); c.luci = c.luci.filter(l => l !== x); log(c, `Luce tolta: ${infoLuce(STR, x.tipo).nome} (${nomeChiLuce(c, x.chi)})`); return c; }
+function togliLuce(camp, STR, id) { const c = clona(camp), x = luceDi(c, id); c.luci = c.luci.filter(l => l !== x); log(c, `Luce tolta: ${infoDi(STR, x).nome} (${nomeChiLuce(c, x.chi)})`); return c; }
 // il tempo che passa per le luci accese: consumo (×2 con l'Aria viziata), avviso 10 minuti prima, Fiamme a ogni cambio del tempo
 function luciTempo(c, meteo, STR, da, a, rng) {
   if (!STR || !c.luci || !c.luci.some(l => l.accesa) || a <= da) return;
@@ -2873,19 +2889,20 @@ function luciTempo(c, meteo, STR, da, a, rng) {
   const punti = [...tagli].sort((x, y) => x - y), F = STR.fiamme, DIECI = 10 * ROUND_MIN;
   const sott = c.zona === meteo.sotterraneo.zona;
   for (const x of c.luci) {
-    const f = infoLuce(STR, x.tipo), chi = nomeChiLuce(c, x.chi);
+    const f = infoDi(STR, x), chi = nomeChiLuce(c, x.chi), perm = x.resta === null;
     for (let i = 0; i < punti.length - 1 && x.accesa; i++) {
       const s = punti[i], e = punti[i + 1];
       const v = motivoSpegne(c, meteo, STR, x, s);
       if (v) { x.accesa = false; avvisoLuce(c, s, `${f.nome} (${chi}) si spegne: ${v}`); break; }
       const voci = vociAllOra(c, meteo, s);
       const k = sott && voci.includes(F.aria_viziata.voce) ? F.aria_viziata.consumo : 1;
-      let fine = Math.min(e, s + Math.ceil(x.resta / k));
+      let fine = perm ? e : Math.min(e, s + Math.ceil(x.resta / k));
       // lanterna impermeabile o deluxe con il Vento molto forte: 50% ogni 10 minuti
       if (f.fiamme === 'impermeabile' && !x.riparo && !sott && voci.includes(F.vento_impermeabile.voce)) {
-        for (let t = s + DIECI; t <= fine; t += DIECI) if (d(100, rng) <= F.vento_impermeabile.perc) { x.resta -= (t - s) * k; x.accesa = false; avvisoLuce(c, t, `${f.nome} (${chi}) si spegne: ${F.vento_impermeabile.voce} (50% ogni 10 minuti)`); break; }
+        for (let t = s + DIECI; t <= fine; t += DIECI) if (d(100, rng) <= F.vento_impermeabile.perc) { if (!perm) x.resta -= (t - s) * k; x.accesa = false; avvisoLuce(c, t, `${f.nome} (${chi}) si spegne: ${F.vento_impermeabile.voce} (50% ogni 10 minuti)`); break; }
         if (!x.accesa) break;
       }
+      if (perm) continue; // luce permanente: niente consumo
       const prima = x.resta; x.resta = Math.max(0, x.resta - (fine - s) * k);
       if (!x.avvisata && prima > DIECI && x.resta <= DIECI && x.resta > 0) { x.avvisata = true; avvisoLuce(c, fine, `${f.nome} (${chi}): restano 10 minuti`); }
       if (x.resta <= 0) { x.accesa = false; avvisoLuce(c, fine, `${f.nome} (${chi}) si è consumata${f.olio ? ': serve una fiaschetta d’olio' : ''}`); }
@@ -2896,7 +2913,7 @@ function avvisoLuce(c, R, testo) { c.coda.push({ id: prossimoId(c, 'q'), R, tipo
 // dopo un cambio del meteo fatto dal GM (Ritira, Imposta, Inizio…): le luci accese che il tempo spegne adesso
 function controllaLuci(camp, meteo, STR) {
   const c = clona(camp);
-  for (const x of c.luci || []) if (x.accesa) { const v = motivoSpegne(c, meteo, STR, x, c.tempo.R); if (v) { x.accesa = false; avvisoLuce(c, c.tempo.R, `${infoLuce(STR, x.tipo).nome} (${nomeChiLuce(c, x.chi)}) si spegne: ${v}`); } }
+  for (const x of c.luci || []) if (x.accesa) { const v = motivoSpegne(c, meteo, STR, x, c.tempo.R); if (v) { x.accesa = false; avvisoLuce(c, c.tempo.R, `${infoDi(STR, x).nome} (${nomeChiLuce(c, x.chi)}) si spegne: ${v}`); } }
   return c;
 }
 
@@ -2969,7 +2986,7 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   eliminaIncontro, cartelle, xpIncontro, nemicoDaPartecipante, pfDaScheda, dannoRiga, curaRiga, separaPerFerita, faticaFinita, tatticheTurno, promemoriaRound,
   usaStrumenti, anteprimaCondizione, divisioneLivelli, tiroConfuso, CONFUSO, fallimentoCritico, descriviFallimento, applicaFallimento, DIREZIONI,
   bonusEffettivi, motivoNonConta, salvaModello, eliminaModello, tiraDadi, testoTiro, ripetiTiro,
-  aggiungiLuce, accendiLuce, spegniLuce, ricaricaLuce, riparoLuce, togliLuce, controllaLuci, motivoSpegne, nomeChiLuce, infoLuce,
+  aggiungiLuce, accendiLuce, spegniLuce, ricaricaLuce, riparoLuce, togliLuce, controllaLuci, motivoSpegne, nomeChiLuce, infoLuce, infoDi, FIAMME_PERS,
   aggiungiPromemoria, togliPromemoria, togliPromemoriaRound, salvaPromemoriaInIncontro, tipoLog, iniziaSessione, righeLog, testoLog };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
@@ -4706,26 +4723,37 @@ function finestraDadi() {
 }
 // ---------- AB4-2: Luce
 function disegnaLuce() {
-  const c = S.camp, voci = c.luci.map(x => { const f = M.infoLuce(STR, x.tipo), sp = x.accesa ? '' : M.motivoSpegne(c, MET, STR, x, c.tempo.R);
+  const c = S.camp, voci = c.luci.map(x => { const f = M.infoDi(STR, x), sp = x.accesa ? '' : M.motivoSpegne(c, MET, STR, x, c.tempo.R), perm = x.resta === null;
     return `<div class="membro"><div class="fila"><b>${esc(f.nome)}</b><span class="tenue piccolo">${esc(M.nomeChiLuce(c, x.chi))} · ${f.raggio} m</span>
-      <span class="chip ${x.accesa ? 'ok' : ''}">${x.accesa ? 'accesa' : 'spenta'}</span><span class="num piccolo">${x.resta > 0 ? M.formatoDurata(x.resta) : 'consumata'}</span>
+      <span class="chip ${x.accesa ? 'ok' : ''}">${x.accesa ? 'accesa' : 'spenta'}</span><span class="num piccolo">${perm ? 'permanente' : x.resta > 0 ? M.formatoDurata(x.resta) : f.personalizzata ? 'finita' : 'consumata'}</span>
       <label class="spunta piccolo"><input type="checkbox" data-az-cambio="riparoLuce" data-id="${x.id}" ${x.riparo ? 'checked' : ''}> al riparo</label><span class="spazio"></span>
-      ${x.accesa ? `<button class="btn min" data-az="spegniLuce" data-id="${x.id}">Spegni</button>` : `<button class="btn min oro" data-az="accendiLuce" data-id="${x.id}" ${x.resta <= 0 || sp ? `disabled title="${esc(sp ? 'il tempo la spegne: ' + sp : 'consumata')}"` : ''}>Accendi</button>`}
-      <button class="btn min" data-az="ricaricaLuce" data-id="${x.id}">${f.olio ? 'Fiaschetta' : 'Sostituisci'}</button><button class="btn min peric" data-az="togliLuce" data-id="${x.id}" aria-label="Togli">✕</button></div>
-      ${!x.accesa && sp && x.resta > 0 ? `<div class="tenue piccolo">Con il tempo di adesso non resta accesa: ${esc(sp)}.</div>` : ''}</div>`; }).join('');
+      ${x.accesa ? `<button class="btn min" data-az="spegniLuce" data-id="${x.id}">Spegni</button>` : `<button class="btn min oro" data-az="accendiLuce" data-id="${x.id}" ${(!perm && x.resta <= 0) || sp ? `disabled title="${esc(sp ? 'il tempo la spegne: ' + sp : 'consumata')}"` : ''}>Accendi</button>`}
+      ${perm ? '' : `<button class="btn min" data-az="ricaricaLuce" data-id="${x.id}">${f.olio ? 'Fiaschetta' : f.personalizzata ? 'Rinnova' : 'Sostituisci'}</button>`}<button class="btn min peric" data-az="togliLuce" data-id="${x.id}" aria-label="Togli">✕</button></div>
+      ${!x.accesa && sp && (perm || x.resta > 0) ? `<div class="tenue piccolo">Con il tempo di adesso non resta accesa: ${esc(sp)}.</div>` : ''}</div>`; }).join('');
   return `<div class="pannello" id="p-luce"><div class="fila"><h3>Luce</h3><span class="tenue piccolo">${c.luci.filter(x => x.accesa).length} accese</span><span class="spazio"></span><button class="btn min" data-az="nuovaLuce">+ Luce</button></div>
     ${voci || '<p class="tenue piccolo">Nessuna fonte di luce. Si consumano con l\'orologio e il meteo le spegne (tabella delle Fiamme).</p>'}</div>`;
 }
 function finestraLuce() {
   const c = S.camp, chi = [['gruppo', 'Il gruppo'], ...c.pg.map(p => ['pg:' + p.id, p.scheda.nome]), ...c.compagnia.persone.map(a => ['acc:' + a.id, a.nome])];
-  const el = apri({ titolo: 'Nuova fonte di luce', corpo: `<label class="campo"><span>Fonte</span><select name="t">${STR.luce.map(f => `<option value="${f.id}">${esc(f.nome)} (${f.raggio} m, ${f.ore} ${f.ore === 1 ? 'ora' : 'ore'}${f.olio ? ' per fiaschetta' : ''}) · ${esc(f.costo)}</option>`).join('')}</select></label>
+  const FI = { nessuna: 'non la spegne (luce magica)', candela: 'come una candela', torcia: 'come una torcia', lanterna: 'come una lanterna', impermeabile: 'come una lanterna impermeabile' };
+  const el = apri({ titolo: 'Nuova fonte di luce', corpo: `<label class="campo"><span>Fonte</span><select name="t">${STR.luce.map(f => `<option value="${f.id}">${esc(f.nome)} (${f.raggio} m, ${f.ore} ${f.ore === 1 ? 'ora' : 'ore'}${f.olio ? ' per fiaschetta' : ''}) · ${esc(f.costo)}</option>`).join('')}
+        <option value="personalizzata">Personalizzata (incantesimo o altra fonte)…</option></select></label>
       <p class="tenue piccolo" id="l-desc"></p>
+      <div class="griglia" id="l-pers" hidden><label class="campo" style="grid-column:1/-1"><span>Nome</span><input type="text" name="pn" placeholder="es. Luce, Fiamma perenne, falò"></label>
+        <label class="campo"><span>Raggio (m)</span><input type="number" name="pr" min="1" value="6" data-etichetta="Raggio"></label>
+        <label class="campo"><span>Durata</span><input type="number" name="pd" min="1" value="10" data-etichetta="Durata"></label>
+        <label class="campo"><span>Unità</span><select name="pu"><option value="round">round</option><option value="minuti" selected>minuti</option><option value="ore">ore</option><option value="giorni">giorni</option><option value="permanente">permanente</option></select></label>
+        <label class="campo"><span>Il meteo</span><select name="pf">${M.FIAMME_PERS.map(k => `<option value="${k}">${FI[k]}</option>`).join('')}</select></label></div>
       <label class="campo"><span>A chi</span><select name="c">${chi.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select></label>
       <label class="spunta piccolo"><input type="checkbox" name="r"> Al riparo (al chiuso, in una grotta): il meteo non la spegne</label>
       <label class="spunta piccolo"><input type="checkbox" name="a" checked> Accendila subito</label>`,
-    azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { let x = M.aggiungiLuce(S.camp, STR, { tipo: val(f, 't').value, chi: val(f, 'c').value, riparo: spunta(f, 'r') });
+    azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { const tp = val(f, 't').value, du = val(f, 'pu').value;
+      const d = { tipo: tp, chi: val(f, 'c').value, riparo: spunta(f, 'r') };
+      if (tp === 'personalizzata') Object.assign(d, { nome: testo(f, 'pn'), raggio: intero(f, 'pr'), fiamme: val(f, 'pf').value, durata: du === 'permanente' ? { tipo: 'permanente' } : { n: intero(f, 'pd'), unita: du } });
+      let x = M.aggiungiLuce(S.camp, STR, d);
       if (spunta(f, 'a')) { try { x = M.accendiLuce(x, MET, STR, x.luci.at(-1).id); } catch (e) { avviso(e.message, true); } } applica(x); } }] });
-  const desc = () => { el.querySelector('#l-desc').textContent = M.infoLuce(STR, val(el, 't').value).testo; };
+  const desc = () => { const p = val(el, 't').value === 'personalizzata'; el.querySelector('#l-pers').hidden = !p; val(el, 'pd').disabled = val(el, 'pu').value === 'permanente';
+    el.querySelector('#l-desc').textContent = p ? 'Incantesimi (Luce, Fiamma perenne…) o altre fonti: nome, raggio, durata (o permanente) e se il meteo la spegne, con la tabella delle Fiamme.' : M.infoLuce(STR, val(el, 't').value).testo; };
   el.addEventListener('change', desc); desc();
 }
 // ---------- AB4-3: Promemoria

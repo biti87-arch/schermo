@@ -652,6 +652,13 @@ def prova3a(browser, larghezza):
     t(f'{W} AB4-2 la Pioggia battente non la lascia accendere', pg.locator('#p-luce [data-az="accendiLuce"][disabled]').count() == 1 and 'Pioggia battente' in pg.inner_text('#p-luce'))
     pg.locator('#p-luce [data-az-cambio="riparoLuce"]').check()
     pg.click('#p-luce [data-az="accendiLuce"]'); t(f'{W} AB4-2 al riparo si accende', pg.locator('#p-luce .chip.ok', has_text='accesa').count() == 1)
+    pg.click('[data-az="nuovaLuce"]'); f = fin(); f.locator('[name="t"]').select_option('personalizzata')
+    t(f'{W} AB4-2 personalizzata: campi visibili', f.locator('#l-pers').is_visible())
+    f.locator('[name="pn"]').fill('Fiamma perenne'); f.locator('[name="pr"]').fill('6'); f.locator('[name="pu"]').select_option('permanente'); premi('Aggiungi')
+    fp = pg.locator('#p-luce .membro', has_text='Fiamma perenne')
+    t(f'{W} AB4-2 luce permanente accesa, senza Rinnova', fp.count() == 1 and 'permanente' in fp.inner_text() and fp.locator('.chip.ok').count() == 1 and fp.locator('[data-az="ricaricaLuce"]').count() == 0)
+    pg.click('[data-az="tempo"][data-r="600"]'); coda_via()
+    t(f'{W} AB4-2 dopo 1 ora la permanente è ancora accesa', pg.locator('#p-luce .membro', has_text='Fiamma perenne').locator('.chip.ok').count() == 1)
     # --- AB4-3 promemoria
     pg.click('[data-az="nuovoPromemoria"]'); f = fin(); f.locator('[name="t"]').fill('Arriva la carovana'); f.locator('[name="n"]').fill('10'); premi('Aggiungi')
     t(f'{W} AB4-3 promemoria nel pannello', 'Arriva la carovana' in pg.inner_text('#p-promemoria'))

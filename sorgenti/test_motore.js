@@ -984,6 +984,8 @@ t('AB1-2 divisione: 1 → 2/3, 2 → 5/5, 3 → 7/8', JSON.stringify([1, 2, 3].m
   c = M.aggiungiMalus(c, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 2 }), rng);
   t('AB1-2 tre livelli in due malus: massimi −7/−8, correnti −5/−5 in più', vA(c).fatica_max.valore === 35 && vA(c).ferita_max.valore === 32 && stA(c).fatica === 35 && stA(c).ferita === 32, [stA(c).fatica, stA(c).ferita]);
   t('AB1-2 riga nel log', c.log.some(e => /livelli negativi, −5 Punti Fatica e −5 Punti Ferita/.test(e.testo)));
+  let d2 = M.aggiungiMalus(c, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 1 }), rng);
+  t('AB1-2 lo stesso numero si somma (4 livelli in tre malus)', malA(d2).filter(m => m.nome === 'Livelli negativi').length === 3 && vA(d2).riflessi.valore === 5 && vA(d2).fatica_max.valore === 32 && vA(d2).ferita_max.valore === 30, [vA(d2).fatica_max, vA(d2).ferita_max]);
   const id = malA(c).find(m => m.n === 2).id; c = M.togliMalus(c, PA, id);
   t('AB1-2 tolto: tornano i massimi, i correnti restano', vA(c).fatica_max.valore === 40 && vA(c).ferita_max.valore === 37 && stA(c).fatica === 35 && stA(c).ferita === 32);
   let z = M.clona(g0); z.pg[0].stato.ferita = 2; z = M.aggiungiMalus(z, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 2 }), rng);
@@ -1131,7 +1133,22 @@ t('AB1-3 tabella di Confuso uguale a condizioni.json', JSON.stringify(M.CONFUSO.
   let s = M.cambiaZona(c, meteo, '16'); s = M.impostaMeteo(s, meteo, 'Aria viziata', semi(3)); s = M.accendiLuce(s, meteo, STR, L);
   s = M.avanza(s, 10 * M.ROUND_MIN, meteo, rng); t('AB4-2 Aria viziata: 10 minuti consumano 20', s.luci[0].resta === M.ROUND_ORA - 20 * M.ROUND_MIN, s.luci[0]);
   s = M.impostaMeteo(s, meteo, "Correnti d'aria", semi(3)); s = M.controllaLuci(s, meteo, STR); t('AB4-2 Correnti d\'aria: torcia spenta', !s.luci[0].accesa);
-  s = M.togliLuce(s, STR, L); t('AB4-2 togli', s.luci.length === 0); }
+  s = M.togliLuce(s, STR, L); t('AB4-2 togli', s.luci.length === 0);
+  // luce personalizzata (incantesimi e altre fonti) e permanente (richiesta di Massy, 01/11)
+  let u = conMeteo(c, 'Vento molto forte');
+  u = M.aggiungiLuce(u, STR, { tipo: 'personalizzata', nome: 'Luce', raggio: 6, durata: { n: 10, unita: 'minuti' }, chi: 'pg:' + GB });
+  u = M.aggiungiLuce(u, STR, { tipo: 'personalizzata', nome: 'Fiamma perenne', raggio: 6, durata: { tipo: 'permanente' }, chi: 'gruppo' });
+  u = M.aggiungiLuce(u, STR, { tipo: 'personalizzata', nome: 'Falò', raggio: 12, durata: { n: 4, unita: 'ore' }, fiamme: 'torcia', chi: 'gruppo' });
+  const [P1, P2, P3] = u.luci.slice(-3).map(x => x.id);
+  t('AB4-2 personalizzata: nome, raggio, durata', M.infoDi(STR, u.luci.find(x => x.id === P1)).nome === 'Luce' && u.luci.find(x => x.id === P1).resta === 100 && u.luci.find(x => x.id === P2).resta === null);
+  u = M.accendiLuce(u, meteo, STR, P1); u = M.accendiLuce(u, meteo, STR, P2);
+  lancia('AB4-2 personalizzata come la torcia: il vento la spegne', () => M.accendiLuce(u, meteo, STR, P3), 'Vento molto forte');
+  u = M.avanza(u, 3 * M.ROUND_GIORNO, meteo, rng);
+  t('AB4-2 la Luce magica finisce, la Fiamma perenne resta accesa', !u.luci.find(x => x.id === P1).accesa && u.luci.find(x => x.id === P2).accesa && u.luci.find(x => x.id === P2).resta === null);
+  lancia('AB4-2 la permanente non si rinnova', () => M.ricaricaLuce(u, STR, P2), 'permanente');
+  u = M.ricaricaLuce(u, STR, P1); t('AB4-2 personalizzata rinnovata', u.luci.find(x => x.id === P1).resta === 100);
+  lancia('AB4-2 personalizzata senza nome', () => M.aggiungiLuce(u, STR, { tipo: 'personalizzata', nome: '', raggio: 3, durata: { tipo: 'permanente' } }), 'nome');
+  lancia('AB4-2 personalizzata senza raggio', () => M.aggiungiLuce(u, STR, { tipo: 'personalizzata', nome: 'X', raggio: 0, durata: { tipo: 'permanente' } }), 'raggio'); }
 // ---- AB4-3 promemoria
 { let c = M.aggiungiPromemoria(g0, { testo: 'Arriva la carovana', tra: { n: 30, unita: 'minuti' } });
   t('AB4-3 promemoria fra 30 minuti', c.promemoria.length === 1 && c.promemoria[0].R === g0.tempo.R + 300);
