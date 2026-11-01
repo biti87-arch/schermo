@@ -2729,18 +2729,19 @@ function disegna() {
 function disegnaElenco() {
   const carte = S.elenco.map(e => !e.c ? `<article class="camp"><h2>${esc(e.nome)}</h2><div class="banda">${esc(e.errore || 'file non leggibile')}</div></article>` : `<article class="camp">
       <h2>${esc(e.nome)}</h2>
-      <div class="tenue piccolo">${esc(M.formatoData(e.c))} · ${e.pg} PG</div>
+      <div class="tenue piccolo">${esc(M.formatoData(e.c))} · ${e.pg} PG · ${(e.c.png || []).length} PNG</div>
       <div class="tenue piccolo">Modificata ${e.modificata ? new Date(e.modificata).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' }) : '—'}</div>
       <div class="fila"><button class="btn prim" data-az="apri" data-id="${e.id}">Apri</button>
         <button class="btn" data-az="duplica" data-id="${e.id}">Duplica</button>
         <button class="btn" data-az="esportaCamp" data-id="${e.id}">Esporta</button>
+        <button class="btn" data-az="pgHome" data-id="${e.id}" title="Aggiungi un PG a questa campagna">+ PG</button><button class="btn" data-az="pngHome" data-id="${e.id}" title="Aggiungi un PNG a questa campagna">+ PNG</button>
         <span class="spazio"></span><button class="btn peric min" data-az="elimina" data-id="${e.id}">Elimina</button></div></article>`).join('');
   return `<div class="titolo-app"><h1><b>Schermo</b> del Narratore</h1><span class="spazio"></span>
       <button class="btn" data-az="temaElenco">${leggiPref('tema') === 'chiaro' ? 'Tema scuro' : 'Tema chiaro'}</button></div>
     <p class="tenue">Ogni campagna è uno schermo a sé: PG, calendario, orologio, meteo, scorte e iniziativa.</p>
     <div class="fila"><button class="btn prim grande" data-az="crea">Crea Schermo campagna</button>
       <button class="btn" data-az="importa">Importa</button><button class="btn" data-az="esportaTutto" ${S.elenco.length ? '' : 'disabled'}>Esporta tutto</button>
-      <button class="btn" data-az="esempio">Carica una campagna d'esempio</button></div>
+      <button class="btn" data-az="esempio">Carica una campagna d'esempio</button><button class="btn prim" data-az="schedaHome" title="PNG generici e mostri condivisi da tutte le campagne, o PNG di una campagna">+ Scheda</button></div>
     ${Archivio.problema ? `<div class="banda">${esc(Archivio.problema)}</div>` : ''}
     <div class="lista-camp">${carte || '<div class="vuoto">Nessuna campagna. Crea uno schermo nuovo o carica la campagna d\'esempio per provare l\'app.</div>'}</div>`;
 }
@@ -2973,6 +2974,22 @@ setInterval(aggiornaTimer, 1000);
 
 // ================================================================= azioni
 const AZ = {
+  async pgHome(el) { const id = el.dataset.id, c0 = await Archivio.leggi(id); if (!c0) return avviso('Campagna non trovata', true);
+    finestraPG(null, async sc => { const c = M.aggiungiPG(M.migra(c0), sc, rng); c.modificata = Date.now(); await Archivio.scrivi(c); await ricaricaElenco(); avviso(`${sc.nome} aggiunto a «${c.nome}»`); }); },
+  async pngHome(el) { await caricaHome(el.dataset.id); finestraScheda('png', null); },
+  schedaHome() {
+    const camp = S.elenco.filter(e => e.c);
+    const el = apri({ titolo: 'Aggiungi una scheda', corpo: `<fieldset><legend>Condivise da tutte le campagne</legend><div class="fila">${['generico', 'mostro'].map(k => `<button type="button" class="btn${k === 'generico' ? ' prim' : ''}" data-agg="${k}">${FONTI[k].una}</button>`).join('')}</div></fieldset>
+      <fieldset><legend>PNG di una campagna</legend>${camp.length ? `<label class="campo"><span>Campagna</span><select name="c">${camp.map(e => `<option value="${e.id}">${esc(e.nome)}</option>`).join('')}</select></label>
+        <button type="button" class="btn" data-agg="png">Nuovo PNG della campagna</button>` : '<p class="piccolo tenue">Nessuna campagna: creane una prima.</p>'}</fieldset>
+      <fieldset><legend>Da un documento d'avventura</legend><button type="button" class="btn oro" data-agg="incolla">Incolla stat block…</button>
+        <p class="piccolo tenue">Destinazione per ogni blocco: PNG generici, mostri condivisi${camp.length ? ' o PNG della campagna scelta sopra' : ''}.</p></fieldset>`, azioni: [{ testo: 'Annulla' }] });
+    el.addEventListener('click', ev => { const b = ev.target.closest('[data-agg]'); if (!b) return; const k = b.dataset.agg, cid = val(el, 'c') ? val(el, 'c').value : null;
+      el.querySelector('[data-fazione="0"]').click();
+      (async () => { if (k === 'generico' || k === 'mostro') { await caricaHome(null); finestraScheda(k, null); }
+        else if (k === 'png') { await caricaHome(cid); finestraScheda('png', null); }
+        else { await caricaHome(cid); finestraIncolla(cid ? 'png' : 'generico'); } })().catch(e => avviso(e.message, true)); });
+  },
   async apri(el) { const c = await Archivio.leggi(el.dataset.id); if (!c) return avviso('Campagna non trovata', true); S.camp = M.migra(c); S.schermata = 'campagna'; S.ui.sel = null; S.ui.avvio = null; disegna(); },
   async campagne() { salvaOra(); S.camp = null; S.schermata = 'campagne'; await ricaricaElenco(); },
   temaElenco() { scriviPref('tema', leggiPref('tema') === 'chiaro' ? 'scuro' : 'chiaro'); disegna(); },
@@ -3667,7 +3684,11 @@ const condivisa = f => f === 'mostro' || f === 'generico';
 const listaDi = f => f === 'mostro' ? Best.mostri : f === 'generico' ? Best.generici : ((S.camp && S.camp.png) || []);
 function aggiornaCondivise(f, lista) { if (f === 'generico') Best.generici = lista; else Best.mostri = lista; salvaBestiario(); disegna(); }
 // salva una scheda nella sua raccolta (e ridisegna)
-function salvaIn(f, s, ora) { if (condivisa(f)) aggiornaCondivise(f, M.salvaScheda(listaDi(f), s, ora)); else applica(M.salvaPNG(S.camp, s, ora)); }
+function salvaIn(f, s, ora) { if (condivisa(f)) aggiornaCondivise(f, M.salvaScheda(listaDi(f), s, ora)); else applica(M.salvaPNG(S.camp, s, ora)); if (S.schermata === 'campagne') fuoriHome(); }
+// schede e PG dalla schermata iniziale: la campagna scelta si carica, si salva subito e si richiude
+async function caricaHome(id) { salvaOra(); const c = id ? await Archivio.leggi(id) : null; if (id && !c) throw new Error('Campagna non trovata'); S.camp = c ? M.migra(c) : null; return S.camp; }
+function fuoriHome() { clearTimeout(salvaTimer); salvaTimer = null; const c = S.camp; S.camp = null; S.ui.vista = null; S.ui.scheda = 'viaggio';
+  (c ? Archivio.scrivi(c) : Promise.resolve()).then(ricaricaElenco).catch(e => avviso('Salvataggio non riuscito: ' + e.message, true)); }
 function salvaBestiario() { clearTimeout(Best.timer); Best.timer = setTimeout(() => { Best.timer = null; Archivio.scriviBestiario(docBest()).catch(e => avviso('Salvataggio del bestiario non riuscito: ' + e.message, true)); }, 1000); }
 function salvaBestiarioOra() { if (!Best.timer) return; clearTimeout(Best.timer); Best.timer = null; if (Archivio.bestiarioSubito) Archivio.bestiarioSubito(docBest()); else Archivio.scriviBestiario(docBest()); }
 window.addEventListener('beforeunload', salvaBestiarioOra);
@@ -3943,13 +3964,13 @@ const M_CAR = ['For', 'Des', 'Cos', 'Int', 'Sag', 'Car'];
 // ---------- «Incolla» (M3): uno o più stat block da un documento d'avventura
 // tab: la raccolta da cui si apre; i blocchi da PNG vanno nei PNG generici se si parte da lì, altrimenti nei PNG della campagna; gli altri nei mostri
 function finestraIncolla(tab) {
-  const doveDi = s => s.tipo_scheda === 'png' ? (tab === 'generico' ? 'generico' : 'png') : 'mostro';
+  const doveDi = s => s.tipo_scheda === 'png' ? (tab === 'generico' || !S.camp ? 'generico' : 'png') : 'mostro';
   const st = { blocchi: [] };
   const anteprima = el => {
     el.querySelector('#inc-ant').innerHTML = st.blocchi.length ? `<p class="piccolo"><b>${st.blocchi.length}</b> ${st.blocchi.length === 1 ? 'stat block trovato' : 'stat block trovati'}.</p>${st.blocchi.map((b, i) => { const s = b.scheda, sg = M.segnalazioni(s, DIV);
       return `<div class="voce-inc"><label class="spunta"><input type="checkbox" name="k${i}" checked> <b>${esc(s.nome)}</b></label>
         <span class="tenue piccolo">${esc([s.tipo_scheda === 'png' ? 'PNG' : 'mostro', s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs : '', s.n_suggerito > 1 ? '×' + s.n_suggerito : '', s.ca !== null ? 'CA ' + s.ca : '', s.pf !== null ? `PF ${s.pf} (${s.fatica}/${s.ferita})` : '', s.iniziativa !== null ? 'Iniz. ' + segno(s.iniziativa) : ''].filter(Boolean).join(' · '))}</span>
-        <select name="d${i}" aria-label="Dove">${['png', 'generico', 'mostro'].map(k => `<option value="${k}" ${doveDi(s) === k ? 'selected' : ''}>${FONTI[k].nome}</option>`).join('')}</select>
+        <select name="d${i}" aria-label="Dove">${(S.camp ? ['png', 'generico', 'mostro'] : ['generico', 'mostro']).map(k => `<option value="${k}" ${doveDi(s) === k ? 'selected' : ''}>${FONTI[k].nome}</option>`).join('')}</select>
         ${b.avvisi.length ? `<div class="piccolo tenue">${esc(b.avvisi.join(' · '))}</div>` : ''}${sg.length ? `<div class="piccolo">${badgeSegn(s)} ${esc(sg.slice(0, 3).map(x => x.testo).join(' · '))}${sg.length > 3 ? ' …' : ''}</div>` : ''}</div>`; }).join('')}`
       : '<p class="tenue piccolo">Nessuno stat block: la riga del titolo deve essere come «NOME — Classe N · GS N · XP N» (o «NOME · GS N · XP N»).</p>';
   };
@@ -3964,7 +3985,7 @@ function finestraIncolla(tab) {
         if (!n) throw new Error('Nessuno stat block scelto');
         if (conta.mostro || conta.generico) { Best.mostri = cond.mostro; Best.generici = cond.generico; salvaBestiario(); }
         S.ui.scheda = 'bestiario'; S.ui.best.fonte = conta.png ? 'png' : conta.generico ? 'generico' : 'mostro'; if (n === 1) { S.ui.vista = { rif: ultimo }; S.ui.scheda = 'vista'; }
-        applica(c); avviso(`Importate ${n} schede`);
+        if (c) applica(c); else disegna(); if (S.schermata === 'campagne') fuoriHome(); avviso(`Importate ${n} schede`);
       } }] });
   el.addEventListener('input', ev => { if (ev.target.name === 't') { st.blocchi = []; el.querySelector('#inc-ant').innerHTML = ''; } });
   return el;

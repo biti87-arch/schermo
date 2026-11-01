@@ -30,4 +30,4 @@ Le icone si rigenerano con `python3 sorgenti/icone.py` (Build 4).
 - Esporta/Importa JSON (una campagna con i mostri dei suoi incontri, tutte con il bestiario, solo il bestiario), log in .txt.
 
 ## Decisioni di design
-Vedi `Schermo_app_design_v12.md` (nel progetto della Collana; nel repo dal primo rilascio).
+Vedi `Schermo_app_design_v13.md` (nel progetto della Collana; nel repo dal primo rilascio).
