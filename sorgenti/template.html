@@ -360,7 +360,7 @@ function disegnaTesta() {
         <button class="btn min" data-az="tempo" data-r="1">+1 round</button><button class="btn min" data-az="tempo" data-r="10">+1 min</button>
         <button class="btn min" data-az="tempo" data-r="100">+10 min</button><button class="btn min" data-az="tempo" data-r="600">+1 ora</button>
         <button class="btn min oro" data-az="riposo">Riposo 8 ore</button><button class="btn min" data-az="salto">Salto…</button>
-        <button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
+        <button class="btn min prim" data-az="aggiungiScheda" title="Aggiungi una scheda al bestiario">+ Scheda</button><button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
     </div>${coda}</header>`;
 }
 
@@ -477,7 +477,7 @@ function disegnaAvvio() {
       ${pg || '<span class="tenue piccolo">Nessun PG nella campagna.</span>'}
       <h3>Nemici</h3><div class="tab-nemici">${nem}</div>
       <div class="fila"><button class="btn min" data-az="aggNemico">+ Nemico</button>
-        ${c.png.length || Best.mostri.length ? `<select data-az-cambio="aggScheda" aria-label="Aggiungi dal bestiario" style="width:auto;max-width:100%"><option value="">+ dal bestiario…</option>${opzSchede('').replace('<option value="">— senza scheda —</option>', '')}</select>` : ''}
+        ${c.png.length || Best.mostri.length || Best.generici.length ? `<select data-az-cambio="aggScheda" aria-label="Aggiungi dal bestiario" style="width:auto;max-width:100%"><option value="">+ dal bestiario…</option>${opzSchede('').replace('<option value="">— senza scheda —</option>', '')}</select>` : ''}
         <span class="spazio"></span><span class="tenue piccolo">Per tipo: una riga «Lupo ×5»; per singolo: Lupo 1, 2…</span></div>
       <div class="fila"><button class="btn prim grande" data-az="avvia">Tira e avvia</button></div></div>`;
 }
@@ -534,7 +534,7 @@ const AZ = {
     const e = S.elenco.find(x => x.id === el.dataset.id);
     conferma('Elimina campagna', `Eliminare <b>${esc(e.nome)}</b>? PG, calendario, scorte e log andranno persi. Se vuoi tenerla, prima usa Esporta.`, () => { Archivio.elimina(e.id).then(ricaricaElenco); avviso('Campagna eliminata'); }, 'Elimina', 'peric');
   },
-  async esportaCamp(el) { const c = await Archivio.leggi(el.dataset.id); finestraEsporta(`${c.nome}.json`, M.esporta(c, 'campagna', M.mostriUsati(M.migra(c), Best.mostri))); },
+  async esportaCamp(el) { const c = await Archivio.leggi(el.dataset.id); finestraEsporta(`${c.nome}.json`, M.esporta(c, 'campagna', M.condiviseUsate(M.migra(c), Best))); },
   async esportaTutto() { const tutte = await Promise.all(S.elenco.map(e => Archivio.leggi(e.id))); finestraEsporta('schermo-tutte-le-campagne.json', M.esporta({ campagne: tutte, bestiario: docBest() }, 'tutto')); },
   importa() { finestraImporta(); },
   async esempio() { await Archivio.scrivi(campagnaEsempio()); await ricaricaElenco(); avviso('Campagna d\'esempio caricata (con un PNG, un mostro condiviso e un incontro)'); },
@@ -685,7 +685,7 @@ const AZ = {
   togli(el) { const id = el.dataset.id; applica(M.comando(S.camp, 'togli', { id }, MET, rng, Date.now())); S.ui.sel = null; disegna(); },
   rinforzi(el, rif) {
     const s0 = rif && schedaDi(rif);
-    const f0 = apri({ titolo: 'Rinforzi', corpo: `${S.camp.png.length || Best.mostri.length ? `<label class="campo"><span>Scheda (facoltativa)</span><select name="s">${opzSchede(rifStr(rif))}</select></label>` : ''}
+    const f0 = apri({ titolo: 'Rinforzi', corpo: `${S.camp.png.length || Best.mostri.length || Best.generici.length ? `<label class="campo"><span>Scheda (facoltativa)</span><select name="s">${opzSchede(rifStr(rif))}</select></label>` : ''}
         <div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" placeholder="es. Goblin" value="${esc(s0 ? s0.nome : '')}"></label>
         <label class="campo"><span>Bonus</span><input type="number" name="b" value="${s0 && s0.iniziativa !== null ? s0.iniziativa : 0}"></label><label class="campo"><span>Quantità</span><input type="number" name="q" min="1" value="${s0 ? s0.n_suggerito || 1 : 1}"></label>
         <label class="campo"><span>Tiro</span><select name="m"><option value="tipo">per tipo</option><option value="singolo">per singolo</option></select></label></div>`,
@@ -939,7 +939,7 @@ function finestraEsporta(nome, contenuto, tipo = 'application/json') {
       ...(WEB ? [] : [{ testo: 'Scarica', classe: 'prim', fn: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([contenuto], { type: tipo + ';charset=utf-8' })); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); return false; } }])] });
 }
 function finestraImporta() {
-  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna, tutte o il bestiario). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già. I mostri condivisi che mancano entrano nel bestiario; con una campagna arrivano anche i mostri dei suoi incontri.</p>
+  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna, tutte o il bestiario). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già. I mostri condivisi e i PNG generici che mancano entrano nel bestiario; con una campagna arrivano anche quelli dei suoi incontri.</p>
       <input type="file" name="f" accept=".json,application/json"><label class="campo"><span>Oppure incolla il JSON</span><textarea name="t" rows="8"></textarea></label>`,
     azioni: [{ testo: 'Annulla' }, { testo: 'Importa', classe: 'prim', fn: f => {
       const file = val(f, 'f').files[0];
@@ -947,6 +947,8 @@ function finestraImporta() {
         for (let c of r.campagne) { if (esistenti.has(c.id)) { c = M.duplicaCampagna(c, rng, Date.now()); copie++; } await Archivio.scrivi(c); }
         let mo = ''; if (r.mostri.length) { const u = M.unisciMostri(Best.mostri, r.mostri, rng, Date.now(), r.tipo === 'campagna'); Best.mostri = u.lista; salvaBestiario();
           mo = ` · mostri condivisi: ${u.aggiunti} nuovi` + (u.copie ? `, ${u.copie} come copia` : ''); }
+        if (r.generici.length) { const u = M.unisciMostri(Best.generici, r.generici, rng, Date.now(), r.tipo === 'campagna', 'g'); Best.generici = u.lista; salvaBestiario();
+          mo += ` · PNG generici: ${u.aggiunti} nuovi` + (u.copie ? `, ${u.copie} come copia` : ''); }
         if (S.camp) disegna(); else await ricaricaElenco();
         avviso((r.tipo === 'bestiario' ? 'Bestiario importato' : `Importate ${r.campagne.length} campagne` + (copie ? ` (${copie} come copia)` : '')) + mo); };
       if (file) { file.text().then(fai).catch(e => avviso(e.message, true)); return; }
@@ -1093,15 +1095,24 @@ function finestraPGprocedura(fatto) {
 
 // ================================================================= Build 2b: bestiario e PNG (M), incontri (N), tattiche (O)
 const RAZZE = DATI.razze, DIV = DATI.divieti;
-// mostri condivisi fra le campagne (bestiario.json in Windows, IndexedDB nel browser e su Android)
-const Best = { mostri: [], timer: null };
-const docBest = () => ({ formato: M.FORMATO, tipo: 'bestiario', mostri: Best.mostri });
+// mostri e PNG generici condivisi fra le campagne (bestiario.json in Windows, IndexedDB nel browser e su Android)
+const Best = { mostri: [], generici: [], timer: null };
+const docBest = () => ({ formato: M.FORMATO, tipo: 'bestiario', mostri: Best.mostri, generici: Best.generici });
+// le tre raccolte di schede: PNG della campagna, PNG generici condivisi, mostri condivisi
+const FONTI = {
+  png: { nome: 'PNG della campagna', una: 'PNG della campagna', pref: 'p', nuovo: 'Nuovo PNG della campagna', vuoto: 'Nessun PNG in questa campagna.' },
+  generico: { nome: 'PNG generici', una: 'PNG generico condiviso', pref: 'g', nuovo: 'Nuovo PNG generico', vuoto: 'Nessun PNG generico: sono PNG senza nome, adatti a ogni campagna (guardia cittadina, bandito, accolito…).' },
+  mostro: { nome: 'Mostri condivisi', una: 'Mostro condiviso', pref: 'm', nuovo: 'Nuovo mostro condiviso', vuoto: 'Nessun mostro condiviso.' } };
+const condivisa = f => f === 'mostro' || f === 'generico';
+const listaDi = f => f === 'mostro' ? Best.mostri : f === 'generico' ? Best.generici : ((S.camp && S.camp.png) || []);
+function aggiornaCondivise(f, lista) { if (f === 'generico') Best.generici = lista; else Best.mostri = lista; salvaBestiario(); disegna(); }
+// salva una scheda nella sua raccolta (e ridisegna)
+function salvaIn(f, s, ora) { if (condivisa(f)) aggiornaCondivise(f, M.salvaScheda(listaDi(f), s, ora)); else applica(M.salvaPNG(S.camp, s, ora)); }
 function salvaBestiario() { clearTimeout(Best.timer); Best.timer = setTimeout(() => { Best.timer = null; Archivio.scriviBestiario(docBest()).catch(e => avviso('Salvataggio del bestiario non riuscito: ' + e.message, true)); }, 1000); }
 function salvaBestiarioOra() { if (!Best.timer) return; clearTimeout(Best.timer); Best.timer = null; if (Archivio.bestiarioSubito) Archivio.bestiarioSubito(docBest()); else Archivio.scriviBestiario(docBest()); }
 window.addEventListener('beforeunload', salvaBestiarioOra);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') salvaBestiarioOra(); });
-function aggiornaMostri(lista) { Best.mostri = lista; salvaBestiario(); disegna(); }
-const schedaDi = rif => !rif ? null : rif.fonte === 'mostro' ? Best.mostri.find(m => m.id === rif.id) || null : ((S.camp && S.camp.png) || []).find(p => p.id === rif.id) || null;
+const schedaDi = rif => !rif ? null : listaDi(rif.fonte).find(s => s.id === rif.id) || null;
 const usaXP = () => !!(S.camp && S.camp.impostazioni.xp);
 const rifStr = rif => rif ? rif.fonte + ':' + rif.id : '';
 const rifDa = v => { if (!v) return null; const [fonte, ...id] = v.split(':'); return { fonte, id: id.join(':') }; };
@@ -1148,8 +1159,7 @@ function elencoSegn(s) {
 function disegnaBestiario() {
   const c = S.camp, f = S.ui.best;
   return `<div class="pannello"><div class="fila"><div class="schede piccole" role="tablist">
-      <button role="tab" class="${f.fonte === 'png' ? 'on' : ''}" data-az="bestFonte" data-f="png">PNG della campagna (${c.png.length})</button>
-      <button role="tab" class="${f.fonte === 'mostro' ? 'on' : ''}" data-az="bestFonte" data-f="mostro">Mostri condivisi (${Best.mostri.length})</button></div></div>
+      ${['png', 'generico', 'mostro'].map(k => `<button role="tab" class="${f.fonte === k ? 'on' : ''}" data-az="bestFonte" data-f="${k}">${FONTI[k].nome} (${listaDi(k).length})</button>`).join('')}</div></div>
     <div class="griglia">
       <label class="campo" style="grid-column:span 2"><span>Cerca per nome</span><input type="text" data-best="testo" value="${esc(f.testo)}" placeholder="es. imbalsamato"></label>
       <label class="campo"><span>Tipo</span><input type="text" data-best="tipo" value="${esc(f.tipo)}" placeholder="es. non morto"></label>
@@ -1158,12 +1168,12 @@ function disegnaBestiario() {
       <label class="campo"><span>GS a</span><input type="number" data-best="gs_max" value="${esc(f.gs_max)}"></label></div>
     <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-best="preferiti" ${f.preferiti ? 'checked' : ''}> solo preferiti ★</label><span class="spazio"></span>
       <button class="btn min prim" data-az="nuovaScheda">+ Scheda</button><button class="btn min oro" data-az="incolla">Incolla</button>
-      ${f.fonte === 'mostro' ? '<button class="btn min" data-az="esportaBest">Esporta</button>' : ''}</div>
+      ${condivisa(f.fonte) ? '<button class="btn min" data-az="esportaBest" title="Esporta il bestiario condiviso (mostri e PNG generici)">Esporta</button>' : ''}</div>
     <div id="best-lista">${listaSchede()}</div></div>`;
 }
 function listaSchede() {
-  const f = S.ui.best, lista = f.fonte === 'mostro' ? Best.mostri : S.camp.png, res = M.cercaSchede(lista, f);
-  if (!lista.length) return `<div class="vuoto">${f.fonte === 'mostro' ? 'Nessun mostro condiviso.' : 'Nessun PNG in questa campagna.'} Crea una scheda con «+ Scheda» o incolla uno stat block da un documento d'avventura.</div>`;
+  const f = S.ui.best, lista = listaDi(f.fonte), res = M.cercaSchede(lista, f);
+  if (!lista.length) return `<div class="vuoto">${FONTI[f.fonte].vuoto} Crea una scheda con «+ Scheda» o incolla uno stat block da un documento d'avventura.</div>`;
   if (!res.length) return '<p class="tenue piccolo">Nessuna scheda con questi filtri.</p>';
   return `<ul class="voci">${res.map(s => { const xp = usaXP() && M.xpDi(s) ? ` · ${migl(M.xpDi(s))} XP` : '';
     return `<li class="voce${S.ui.vista && S.ui.vista.rif.id === s.id ? ' sel' : ''}"><button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${f.fonte}:${s.id}" title="Preferito" aria-label="Preferito">${s.preferito ? '★' : '☆'}</button>
@@ -1175,16 +1185,16 @@ function listaSchede() {
 // ---------- terza colonna: la scheda (stat block di lato, O1)
 function disegnaVista() {
   const v = S.ui.vista, s = v && schedaDi(v.rif), c = S.camp, cb = c.combattimento;
-  if (!s) return `<div class="pannello"><p class="tenue">Scheda non trovata${v && v.rif.fonte === 'mostro' ? ' nel bestiario condiviso' : ''}.</p></div>`;
+  if (!s) return `<div class="pannello"><p class="tenue">Scheda non trovata${v && condivisa(v.rif.fonte) ? ' nel bestiario condiviso' : ''}.</p></div>`;
   const r = v.riga && cb && cb.righe[v.riga];
-  const fonte = v.rif.fonte === 'mostro' ? 'Mostro condiviso' : 'PNG della campagna';
+  const fonte = FONTI[v.rif.fonte].una;
   return `<div class="pannello"><div class="fila"><button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${rifStr(v.rif)}">${s.preferito ? '★' : '☆'}</button><h3>${esc(s.nome)}</h3>
       <span class="tenue piccolo">${fonte}${r ? ` · riga «${esc(M.etichetta(r))}»` : ''}</span></div>
     <div class="fila">${badgeSegn(s)}<span class="spazio"></span><button class="btn min" data-az="segnScheda" data-rif="${rifStr(v.rif)}">Segnalazioni</button>
       <button class="btn min prim" data-az="modificaScheda" data-rif="${rifStr(v.rif)}">Modifica</button><button class="btn min oro" data-az="copiaTesto" data-rif="${rifStr(v.rif)}">Copia come testo</button></div>
     <div class="sb">${htmlStatBlock(s)}</div>
     <div class="fila"><button class="btn min" data-az="duplicaScheda" data-rif="${rifStr(v.rif)}">Duplica</button>
-      <button class="btn min" data-az="copiaAltrove" data-rif="${rifStr(v.rif)}">${v.rif.fonte === 'mostro' ? 'Copia nei PNG' : 'Copia nei Mostri'}</button>
+      <button class="btn min" data-az="copiaAltrove" data-rif="${rifStr(v.rif)}">Copia in…</button>
       ${v.rif.fonte === 'png' ? `<button class="btn min" data-az="copiaCampagna" data-rif="${rifStr(v.rif)}">Copia in un'altra campagna</button>` : ''}
       <button class="btn min" data-az="schedaInIncontro" data-rif="${rifStr(v.rif)}">In un incontro</button>
       ${cb ? `<button class="btn min oro" data-az="schedaRinforzi" data-rif="${rifStr(v.rif)}">+ Al combattimento</button>` : ''}
@@ -1258,7 +1268,7 @@ function campoS(W, k, et, t = 't', o = {}) {
   return `<label class="campo${cls}"${span}><span>${et}</span><input type="${t === 'n' || t === 'i' ? 'number' : 'text'}" data-k="${k}" data-t="${t}" value="${esc(val)}"${o.lista ? ` list="${o.lista}"` : ''}${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}${ro}></label>`;
 }
 function finestraScheda(fonte, id, iniziale) {
-  const lista = fonte === 'mostro' ? Best.mostri : S.camp.png, orig = id ? lista.find(s => s.id === id) : null;
+  const lista = listaDi(fonte), orig = id ? lista.find(s => s.id === id) : null;
   const W = M.clona(orig || iniziale || M.schedaVuota(fonte === 'mostro' ? 'mostro_pf1' : 'png'));
   if (!W.guida) W.guida = M.guidaVuota(W.tipo_scheda);
   let tab = iniziale && iniziale.__tab || (orig ? 'valori' : W.guida.attiva ? 'guida' : 'valori'); delete W.__tab;
@@ -1335,7 +1345,7 @@ function finestraScheda(fonte, id, iniziale) {
       ${riga('Sintonia', d.sintonia)}${riga('GS', c.gs !== undefined ? `${c.gs}${c.xp ? ` · ${migl(c.xp)} XP` : W.alleato ? ' · alleato, niente XP' : ''} (${d.gs || 'bestiario'})` : '')}${riga('BAB', d.bab)}
       ${r.avvisi.map(a => `<div class="mod">${esc(a)}</div>`).join('')}`;
   }
-  const titolo = () => orig ? `Scheda: ${esc(orig.nome)}` : fonte === 'mostro' ? 'Nuovo mostro condiviso' : 'Nuovo PNG';
+  const titolo = () => orig ? `Scheda: ${esc(orig.nome)}` : FONTI[fonte].nuovo;
   const tipi = [['png', 'PNG (classi della Collana)'], ['mostro_pf1', 'Mostro da PF1 o bestiario']];
   const corpo = () => `<div class="griglia">${campoS(W, 'nome', 'Nome', 't', { span: 2 })}${campoS(W, 'tipo_scheda', 'Tipo di scheda', 'sel', { opz: tipi })}</div><div class="schede" role="tablist">${[['valori', 'Valori'], ['guida', 'Calcolo guidato'], ['tattiche', 'Tattiche e tesoro']].map(([k, t]) => `<button role="tab" type="button" class="${tab === k ? 'on' : ''}" data-sk="tab" data-v="${k}">${t}</button>`).join('')}</div>
     <div id="sk-corpo">${tab === 'valori' ? corpoValori() : tab === 'guida' ? corpoGuida() : corpoTattiche()}</div>
@@ -1343,9 +1353,8 @@ function finestraScheda(fonte, id, iniziale) {
     <fieldset><legend>Segnalazioni</legend><div id="sk-segn">${elencoSegn(M.applicaGuida(W, RAZZE))}</div></fieldset>`;
   const el = apri({ titolo: titolo(), larga: true, corpo: corpo(), azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: () => {
     const fin = M.applicaGuida(W, RAZZE); if (!String(fin.nome).trim()) throw new Error('Scrivi il nome');
-    const ora = Date.now(), s = orig ? fin : M.nuovaScheda(fin, rng, ora, fonte === 'mostro' ? 'm' : 'p');
-    if (fonte === 'mostro') aggiornaMostri(M.salvaScheda(Best.mostri, s, ora)); else applica(M.salvaPNG(S.camp, s, ora));
-    S.ui.best.fonte = fonte; S.ui.vista = { rif: { fonte, id: s.id } }; S.ui.scheda = 'vista'; disegna(); avviso(orig ? 'Scheda salvata' : 'Scheda creata');
+    const ora = Date.now(), s = orig ? fin : M.nuovaScheda(fin, rng, ora, FONTI[fonte].pref);
+    S.ui.best.fonte = fonte; S.ui.vista = { rif: { fonte, id: s.id } }; S.ui.scheda = 'vista'; salvaIn(fonte, s, ora); avviso(orig ? 'Scheda salvata' : 'Scheda creata');
   } }] });
   const ridisegna = () => { const y = el.querySelector('.corpo').scrollTop; el.querySelector('.corpo').innerHTML = corpo(); el.querySelector('.corpo').scrollTop = y; };
   const aggiorna = () => { const x = M.applicaGuida(W, RAZZE); el.querySelector('#sk-calcolo').innerHTML = risultato(); el.querySelector('#sk-segn').innerHTML = elencoSegn(x);
@@ -1372,13 +1381,15 @@ function finestraScheda(fonte, id, iniziale) {
 }
 const M_CAR = ['For', 'Des', 'Cos', 'Int', 'Sag', 'Car'];
 // ---------- «Incolla» (M3): uno o più stat block da un documento d'avventura
-function finestraIncolla() {
+// tab: la raccolta da cui si apre; i blocchi da PNG vanno nei PNG generici se si parte da lì, altrimenti nei PNG della campagna; gli altri nei mostri
+function finestraIncolla(tab) {
+  const doveDi = s => s.tipo_scheda === 'png' ? (tab === 'generico' ? 'generico' : 'png') : 'mostro';
   const st = { blocchi: [] };
   const anteprima = el => {
     el.querySelector('#inc-ant').innerHTML = st.blocchi.length ? `<p class="piccolo"><b>${st.blocchi.length}</b> ${st.blocchi.length === 1 ? 'stat block trovato' : 'stat block trovati'}.</p>${st.blocchi.map((b, i) => { const s = b.scheda, sg = M.segnalazioni(s, DIV);
       return `<div class="voce-inc"><label class="spunta"><input type="checkbox" name="k${i}" checked> <b>${esc(s.nome)}</b></label>
         <span class="tenue piccolo">${esc([s.tipo_scheda === 'png' ? 'PNG' : 'mostro', s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs : '', s.n_suggerito > 1 ? '×' + s.n_suggerito : '', s.ca !== null ? 'CA ' + s.ca : '', s.pf !== null ? `PF ${s.pf} (${s.fatica}/${s.ferita})` : '', s.iniziativa !== null ? 'Iniz. ' + segno(s.iniziativa) : ''].filter(Boolean).join(' · '))}</span>
-        <select name="d${i}" aria-label="Dove"><option value="png" ${s.tipo_scheda === 'png' ? 'selected' : ''}>PNG della campagna</option><option value="mostro" ${s.tipo_scheda !== 'png' ? 'selected' : ''}>Mostri condivisi</option></select>
+        <select name="d${i}" aria-label="Dove">${['png', 'generico', 'mostro'].map(k => `<option value="${k}" ${doveDi(s) === k ? 'selected' : ''}>${FONTI[k].nome}</option>`).join('')}</select>
         ${b.avvisi.length ? `<div class="piccolo tenue">${esc(b.avvisi.join(' · '))}</div>` : ''}${sg.length ? `<div class="piccolo">${badgeSegn(s)} ${esc(sg.slice(0, 3).map(x => x.testo).join(' · '))}${sg.length > 3 ? ' …' : ''}</div>` : ''}</div>`; }).join('')}`
       : '<p class="tenue piccolo">Nessuno stat block: la riga del titolo deve essere come «NOME — Classe N · GS N · XP N» (o «NOME · GS N · XP N»).</p>';
   };
@@ -1387,11 +1398,12 @@ function finestraIncolla() {
     azioni: [{ testo: 'Annulla' }, { testo: 'Leggi', fn: f => { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); return false; } },
       { testo: 'Importa', classe: 'prim', fn: f => {
         if (!st.blocchi.length) { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); if (!st.blocchi.length) throw new Error('Nessuno stat block da importare'); return false; }
-        const ora = Date.now(); let c = S.camp, mostri = Best.mostri, n = 0, ultimo = null;
-        st.blocchi.forEach((b, i) => { if (!spunta(f, 'k' + i)) return; const dove = val(f, 'd' + i).value, s = M.nuovaScheda(b.scheda, rng, ora, dove === 'mostro' ? 'm' : 'p');
-          if (dove === 'mostro') mostri = M.salvaScheda(mostri, s, ora); else c = M.salvaPNG(c, s, ora); n++; ultimo = { fonte: dove, id: s.id }; });
+        const ora = Date.now(), cond = { mostro: Best.mostri, generico: Best.generici }, conta = {}; let c = S.camp, n = 0, ultimo = null;
+        st.blocchi.forEach((b, i) => { if (!spunta(f, 'k' + i)) return; const dove = val(f, 'd' + i).value, s = M.nuovaScheda(b.scheda, rng, ora, FONTI[dove].pref);
+          if (condivisa(dove)) cond[dove] = M.salvaScheda(cond[dove], s, ora); else c = M.salvaPNG(c, s, ora); n++; conta[dove] = (conta[dove] || 0) + 1; ultimo = { fonte: dove, id: s.id }; });
         if (!n) throw new Error('Nessuno stat block scelto');
-        Best.mostri = mostri; salvaBestiario(); S.ui.scheda = 'bestiario'; S.ui.best.fonte = c.png.length > S.camp.png.length ? 'png' : 'mostro'; if (n === 1) { S.ui.vista = { rif: ultimo }; S.ui.scheda = 'vista'; }
+        if (conta.mostro || conta.generico) { Best.mostri = cond.mostro; Best.generici = cond.generico; salvaBestiario(); }
+        S.ui.scheda = 'bestiario'; S.ui.best.fonte = conta.png ? 'png' : conta.generico ? 'generico' : 'mostro'; if (n === 1) { S.ui.vista = { rif: ultimo }; S.ui.scheda = 'vista'; }
         applica(c); avviso(`Importate ${n} schede`);
       } }] });
   el.addEventListener('input', ev => { if (ev.target.name === 't') { st.blocchi = []; el.querySelector('#inc-ant').innerHTML = ''; } });
@@ -1400,7 +1412,7 @@ function finestraIncolla() {
 // ---------- finestra dell'incontro (N1)
 function opzSchede(sel) {
   const g = (et, l, f) => l.length ? `<optgroup label="${et}">${M.cercaSchede(l, {}).map(s => `<option value="${f}:${s.id}" ${sel === f + ':' + s.id ? 'selected' : ''}>${esc(s.nome)}${s.gs !== '' ? ' · GS ' + s.gs : ''}</option>`).join('')}</optgroup>` : '';
-  return `<option value="">— senza scheda —</option>${g('PNG della campagna', S.camp.png, 'png')}${g('Mostri condivisi', Best.mostri, 'mostro')}`;
+  return `<option value="">— senza scheda —</option>${['png', 'generico', 'mostro'].map(k => g(FONTI[k].nome, listaDi(k), k)).join('')}`;
 }
 function finestraIncontro(id, iniziale) {
   const c = S.camp, orig = id ? c.incontri.find(x => x.id === id) : null;
@@ -1449,7 +1461,17 @@ function finestraStatBlock(rif) {
 Object.assign(AZ, {
   bestFonte(el) { S.ui.best.fonte = el.dataset.f; disegna(); },
   nuovaScheda() { const f = S.ui.best.fonte; finestraScheda(f, null); },
-  incolla() { finestraIncolla(); },
+  incolla() { finestraIncolla(S.ui.best.fonte); },
+  // «+ Scheda» nella testata: nuova scheda in una delle tre raccolte o «Incolla», senza passare dal Bestiario
+  aggiungiScheda() {
+    const el = apri({ titolo: 'Aggiungi una scheda', corpo: `<p class="piccolo tenue">La scheda si apre poi di lato, nella terza colonna.</p>
+      <fieldset><legend>Nuova scheda</legend><div class="fila">${['png', 'generico', 'mostro'].map(k => `<button type="button" class="btn${k === 'png' ? ' prim' : ''}" data-agg="${k}">${FONTI[k].una}</button>`).join('')}</div>
+        <p class="piccolo tenue">I PNG generici e i mostri sono condivisi da tutte le campagne; i PNG della campagna stanno solo in «${esc(S.camp.nome)}».</p></fieldset>
+      <fieldset><legend>Da un documento d'avventura</legend><button type="button" class="btn oro" data-agg="incolla">Incolla stat block…</button>
+        <p class="piccolo tenue">La destinazione si sceglie per ogni blocco (PNG della campagna, PNG generici o mostri condivisi).</p></fieldset>`, azioni: [{ testo: 'Annulla' }] });
+    el.addEventListener('click', ev => { const b = ev.target.closest('[data-agg]'); if (!b) return; el.querySelector('[data-fazione="0"]').click();
+      if (b.dataset.agg === 'incolla') finestraIncolla('png'); else finestraScheda(b.dataset.agg, null); });
+  },
   esportaBest() { finestraEsporta('schermo-bestiario.json', M.esporta(docBest(), 'bestiario')); },
   vediScheda(el) { S.ui.vista = { rif: rifDa(el.dataset.rif) }; S.ui.scheda = 'vista'; disegna(); const v = $('#col-terza'); if (v && window.innerWidth < 900) v.scrollIntoView({ block: 'start' }); },
   vediRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; if (!r || !r.rif) return; S.ui.vista = { rif: r.rif, riga: r.id }; S.ui.scheda = 'vista'; disegna(); },
@@ -1458,13 +1480,17 @@ Object.assign(AZ, {
   segnScheda(el) { const s = schedaDi(rifDa(el.dataset.rif)); apri({ titolo: `Segnalazioni: ${esc(s.nome)}`, corpo: elencoSegn(s) + '<p class="tenue piccolo">Struttura della scheda §9: talenti proibiti, abilità e incantesimi inesistenti, Morente, Disarmare e Spezzare, Sintonia oltre il tetto, volo dei PNG, tattiche; più i conti (CA, PF, GS e XP).</p>' }); },
   copiaTesto(el) { const s = schedaDi(rifDa(el.dataset.rif)); finestraEsporta(`${s.nome}.txt`, M.testoStatBlock(s, { xp: true }), 'text/plain'); },
   preferito(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r); if (!s) return; const x = { ...M.clona(s), preferito: !s.preferito }, ora = Date.now();
-    if (r.fonte === 'mostro') aggiornaMostri(M.salvaScheda(Best.mostri, x, ora)); else applica(M.salvaPNG(S.camp, x, ora)); },
-  duplicaScheda(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), ora = Date.now(), x = M.nuovaScheda({ ...s, nome: s.nome + ' (copia)' }, rng, ora, r.fonte === 'mostro' ? 'm' : 'p');
-    if (r.fonte === 'mostro') Best.mostri = M.salvaScheda(Best.mostri, x, ora), salvaBestiario(); else S.camp = M.salvaPNG(S.camp, x, ora);
-    S.ui.vista = { rif: { fonte: r.fonte, id: x.id } }; applica(S.camp); avviso('Scheda duplicata'); },
-  copiaAltrove(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), ora = Date.now(), dove = r.fonte === 'mostro' ? 'png' : 'mostro', x = M.nuovaScheda(s, rng, ora, dove === 'mostro' ? 'm' : 'p');
-    if (dove === 'mostro') { Best.mostri = M.salvaScheda(Best.mostri, x, ora); salvaBestiario(); disegna(); } else applica(M.salvaPNG(S.camp, x, ora));
-    avviso(dove === 'mostro' ? 'Copiata nei Mostri condivisi' : 'Copiata nei PNG della campagna'); },
+    salvaIn(r.fonte, x, ora); },
+  duplicaScheda(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), ora = Date.now(), x = M.nuovaScheda({ ...s, nome: s.nome + ' (copia)' }, rng, ora, FONTI[r.fonte].pref);
+    S.ui.vista = { rif: { fonte: r.fonte, id: x.id } }; salvaIn(r.fonte, x, ora); avviso('Scheda duplicata'); },
+  // copia indipendente in un'altra raccolta; da un PNG generico ai PNG della campagna gli si dà un nome
+  copiaAltrove(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), altre = ['png', 'generico', 'mostro'].filter(k => k !== r.fonte);
+    apri({ titolo: `Copia «${esc(s.nome)}»`, corpo: `<label class="campo"><span>In</span><select name="d">${altre.map(k => `<option value="${k}">${FONTI[k].nome}</option>`).join('')}</select></label>
+        <label class="campo"><span>Nome della copia</span><input type="text" name="n" value="${esc(s.nome)}"></label>
+        <p class="piccolo tenue">${r.fonte === 'generico' ? 'Copiando un PNG generico nei PNG della campagna puoi dargli un nome: il generico resta com\'è.' : 'La copia è indipendente: cambiarla non cambia l\'originale.'}</p>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Copia', classe: 'prim', fn: f => { const dove = val(f, 'd').value, nome = testo(f, 'n'); if (!nome) throw new Error('Scrivi il nome');
+        const ora = Date.now(), x = M.nuovaScheda({ ...M.clona(s), nome }, rng, ora, FONTI[dove].pref);
+        S.ui.best.fonte = dove; S.ui.vista = { rif: { fonte: dove, id: x.id } }; S.ui.scheda = 'vista'; salvaIn(dove, x, ora); avviso('Copiata in ' + FONTI[dove].nome); } }] }); },
   async copiaCampagna(el) {
     const s = schedaDi(rifDa(el.dataset.rif)), altre = (await Archivio.lista()).filter(e => e.c && e.id !== S.camp.id);
     if (!altre.length) return avviso('Non ci sono altre campagne', true);
@@ -1483,9 +1509,9 @@ Object.assign(AZ, {
   schedaRinforzi(el) { const r = rifDa(el.dataset.rif); AZ.rinforzi(null, r); },
   eliminaScheda(el) {
     const r = rifDa(el.dataset.rif), s = schedaDi(r), usi = incontriCon(r);
-    conferma('Elimina la scheda', `Eliminare <b>${esc(s.nome)}</b>${r.fonte === 'mostro' ? ' dal bestiario condiviso (vale per tutte le campagne)' : ''}?${usi.length ? ` Compare in ${usi.length} ${usi.length === 1 ? 'incontro' : 'incontri'} (${esc(usi.map(i => i.titolo).join(', '))}): lì resterà il nome, senza scheda.` : ''}`, () => {
+    conferma('Elimina la scheda', `Eliminare <b>${esc(s.nome)}</b>${r.fonte === 'mostro' ? ' dai mostri condivisi (vale per tutte le campagne)' : r.fonte === 'generico' ? ' dai PNG generici condivisi (vale per tutte le campagne)' : ''}?${usi.length ? ` Compare in ${usi.length} ${usi.length === 1 ? 'incontro' : 'incontri'} (${esc(usi.map(i => i.titolo).join(', '))}): lì resterà il nome, senza scheda.` : ''}`, () => {
       S.ui.vista = null; S.ui.scheda = 'bestiario';
-      if (r.fonte === 'mostro') aggiornaMostri(Best.mostri.filter(m => m.id !== r.id)); else applica(M.eliminaPNG(S.camp, r.id)); avviso('Scheda eliminata'); }, 'Elimina', 'peric');
+      if (condivisa(r.fonte)) aggiornaCondivise(r.fonte, listaDi(r.fonte).filter(m => m.id !== r.id)); else applica(M.eliminaPNG(S.camp, r.id)); avviso('Scheda eliminata'); }, 'Elimina', 'peric');
   },
   nuovoIncontro() { finestraIncontro(null); },
   selIncontro(el) { S.ui.incontro = el.dataset.id; disegna(); },
@@ -1600,5 +1626,5 @@ async function ricaricaElenco() {
   catch (e) { S.elenco = []; avviso('Archivio non leggibile: ' + e.message, true); }
   disegna();
 }
-(async () => { try { const b = await Archivio.leggiBestiario(); Best.mostri = (b && b.mostri) || []; } catch (e) { avviso('Bestiario non leggibile: ' + e.message, true); } ricaricaElenco(); })();
+(async () => { try { const b = await Archivio.leggiBestiario(); Best.mostri = (b && b.mostri) || []; Best.generici = (b && b.generici) || []; } catch (e) { avviso('Bestiario non leggibile: ' + e.message, true); } ricaricaElenco(); })();
 </script>

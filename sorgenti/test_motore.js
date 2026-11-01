@@ -745,6 +745,16 @@ t('Razze: 40 razze e 18 tratti generici, taglie della struttura', RAZZE.razze.le
   const tutto = M.importa(M.esporta({ campagne: [c], bestiario: { mostri: best } }, 'tutto'));
   const solo = M.importa(M.esporta({ mostri: best }, 'bestiario'));
   t('Esporta tutto e solo il bestiario', tutto.campagne.length === 1 && tutto.mostri.length === 1 && solo.campagne.length === 0 && solo.mostri[0].nome === best[0].nome);
+  // PNG generici condivisi (fonte 'generico'): esportati con la campagna che li usa
+  const gen = [M.nuovaScheda({ nome: 'Guardia cittadina', tipo_scheda: 'png', gs: '1' }, rng, 3, 'g'), M.nuovaScheda({ nome: 'Mendicante' }, rng, 3, 'g')];
+  const cg = M.salvaIncontro(c, { titolo: 'Ronda', partecipanti: [{ rif: { fonte: 'generico', id: gen[0].id }, nome: 'Guardia cittadina', n: 3 }] });
+  const u2 = M.condiviseUsate(cg, { mostri: best, generici: gen });
+  t('PNG generici: solo quelli usati dagli incontri', u2.generici.length === 1 && u2.generici[0].nome === 'Guardia cittadina' && u2.mostri.length === 1 && /^g/.test(gen[0].id));
+  const ig = M.importa(M.esporta(cg, 'campagna', u2));
+  t('PNG generici: esportati e importati con la campagna', ig.generici.length === 1 && ig.mostri.length === 1);
+  const tg = M.importa(M.esporta({ campagne: [cg], bestiario: { mostri: best, generici: gen } }, 'tutto'));
+  t('PNG generici: «Esporta tutto» e unione', tg.generici.length === 2 && M.unisciMostri([gen[0]], tg.generici, rng, 4, false, 'g').lista.length === 2);
+  t('Esporta con un elenco di soli mostri (Build 2b)', M.importa(M.esporta(c, 'campagna', best)).mostri.length === 1);
   lancia('Importa: mostri non validi', () => M.importa(JSON.stringify({ formato: M.FORMATO, tipo: 'bestiario', dati: { mostri: [{ x: 1 }] } })), 'mostri'); }
 // migrazione: le campagne della Build 1 e della Build 2a si aprono e si usano
 for (const f of ['campagna_build1.json', 'campagna_build2a.json']) {

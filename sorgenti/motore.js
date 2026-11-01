@@ -196,24 +196,32 @@ function creaCampagna(dati, meteo, rng, oraReale) {
 function duplicaCampagna(camp, rng, oraReale) {
   const c = clona(camp); c.id = (oraReale || 0).toString(36) + nuovoId(rng); c.nome = camp.nome + ' (copia)'; c.creata = c.modificata = oraReale || 0; return c;
 }
-// tipo: 'campagna' (con i mostri condivisi usati dagli incontri e dai combattimenti), 'tutto' ({campagne, bestiario}), 'bestiario'
-function esporta(oggetto, tipo, mostri) { return JSON.stringify({ formato: FORMATO, tipo, dati: oggetto, ...(mostri ? { mostri } : {}) }, null, 1); }
-// mostri del bestiario a cui la campagna fa riferimento (incontri e righe dell'iniziativa)
-function mostriUsati(camp, bestiario) {
-  const ids = new Set();
-  for (const i of camp.incontri || []) for (const p of i.partecipanti) if (p.rif && p.rif.fonte === 'mostro') ids.add(p.rif.id);
-  if (camp.combattimento) for (const r of Object.values(camp.combattimento.righe)) if (r.rif && r.rif.fonte === 'mostro') ids.add(r.rif.id);
-  return (bestiario || []).filter(m => ids.has(m.id));
+// tipo: 'campagna' (con le schede condivise usate dagli incontri e dai combattimenti), 'tutto' ({campagne, bestiario}), 'bestiario'
+// condivise: un elenco di mostri (Build 2b) oppure {mostri, generici} (PNG generici, Build 2b rivista)
+function esporta(oggetto, tipo, condivise) {
+  const c = Array.isArray(condivise) ? { mostri: condivise } : condivise || {};
+  return JSON.stringify({ formato: FORMATO, tipo, dati: oggetto, ...(c.mostri && c.mostri.length ? { mostri: c.mostri } : {}), ...(c.generici && c.generici.length ? { generici: c.generici } : {}) }, null, 1);
 }
+// schede del bestiario condiviso (fonte 'mostro' o 'generico') a cui la campagna fa riferimento (incontri e righe dell'iniziativa)
+function idUsati(camp, fonte) {
+  const ids = new Set();
+  for (const i of camp.incontri || []) for (const p of i.partecipanti) if (p.rif && p.rif.fonte === fonte) ids.add(p.rif.id);
+  if (camp.combattimento) for (const r of Object.values(camp.combattimento.righe)) if (r.rif && r.rif.fonte === fonte) ids.add(r.rif.id);
+  return ids;
+}
+function mostriUsati(camp, bestiario) { const ids = idUsati(camp, 'mostro'); return (bestiario || []).filter(m => ids.has(m.id)); }
+function condiviseUsate(camp, best) { const im = idUsati(camp, 'mostro'), ig = idUsati(camp, 'generico');
+  return { mostri: ((best && best.mostri) || []).filter(m => im.has(m.id)), generici: ((best && best.generici) || []).filter(m => ig.has(m.id)) }; }
 function importa(testo) {
   let j; try { j = JSON.parse(testo); } catch (e) { throw new Error('il file non è un JSON valido'); }
   if (!j || j.formato !== FORMATO) throw new Error('formato non riconosciuto (atteso ' + FORMATO + ')');
   const lista = j.tipo === 'tutto' ? j.dati.campagne : j.tipo === 'campagna' ? [j.dati] : j.tipo === 'bestiario' ? [] : null;
   if (!lista) throw new Error('contenuto non riconosciuto');
   for (const c of lista) if (!c || c.formato !== FORMATO || !c.id || !c.calendario || !c.tempo) throw new Error('campagna non valida nel file');
-  const mostri = j.tipo === 'bestiario' ? (j.dati && j.dati.mostri) : j.tipo === 'tutto' ? (j.dati.bestiario && j.dati.bestiario.mostri) : j.mostri;
-  if (mostri && (!Array.isArray(mostri) || mostri.some(m => !m || !m.id || !m.nome))) throw new Error('mostri non validi nel file');
-  return { tipo: j.tipo, campagne: lista.map(migra), mostri: mostri || [] };
+  const da = k => j.tipo === 'bestiario' ? (j.dati && j.dati[k]) : j.tipo === 'tutto' ? (j.dati.bestiario && j.dati.bestiario[k]) : j[k];
+  const mostri = da('mostri'), generici = da('generici');
+  for (const [l, n] of [[mostri, 'mostri'], [generici, 'PNG generici']]) if (l && (!Array.isArray(l) || l.some(m => !m || !m.id || !m.nome))) throw new Error(n + ' non validi nel file');
+  return { tipo: j.tipo, campagne: lista.map(migra), mostri: mostri || [], generici: generici || [] };
 }
 function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 → v2…)
   const x = clona(c);
@@ -1847,7 +1855,7 @@ function cercaSchede(lista, f = {}) {
 function salvaPNG(camp, s, ora) { const c = clona(camp); c.png = salvaScheda(c.png || [], s, ora); return c; }
 function eliminaPNG(camp, id) { const c = clona(camp); c.png = (c.png || []).filter(s => s.id !== id); return c; }
 // mostri condivisi importati: si aggiungono quelli che mancano; con lo stesso id e contenuto diverso entrano come copia
-function unisciMostri(lista, nuovi, rng, ora, soloMancanti) {
+function unisciMostri(lista, nuovi, rng, ora, soloMancanti, pref = 'm') {
   const out = clona(lista); let aggiunti = 0, copie = 0;
   for (const m of nuovi || []) {
     const es = out.find(x => x.id === m.id);
@@ -1855,7 +1863,7 @@ function unisciMostri(lista, nuovi, rng, ora, soloMancanti) {
     if (soloMancanti) continue;
     const a = { ...es, modificata: 0 }, b = { ...m, modificata: 0 };
     if (JSON.stringify(a) === JSON.stringify(b)) continue;
-    out.push(nuovaScheda({ ...m, nome: m.nome + ' (importato)' }, rng, ora, 'm')); copie++;
+    out.push(nuovaScheda({ ...m, nome: m.nome + ' (importato)' }, rng, ora, pref)); copie++;
   }
   return { lista: out, aggiunti, copie };
 }
@@ -1961,7 +1969,7 @@ function promemoriaRound(c) { const cb = c.combattimento; return cb && cb.promem
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
-  meteoCorrente, nomeZona, nomeStagione, creaCampagna, duplicaCampagna, esporta, importa, migra, mostriUsati,
+  meteoCorrente, nomeZona, nomeStagione, creaCampagna, duplicaCampagna, esporta, importa, migra, mostriUsati, condiviseUsate,
   aggiungiPG, modificaPG, rimuoviPG, controllaScheda, danno, dannoNonLetale, statoNonLetali, cura, pfTemporanei, rifiatare, puntoEroe, valoriPG,
   avanza, vaiA, riposo, consumoGiornaliero, bastanoPer, modificaScorta, impostaAccompagnatori, togliDallaCoda,
   risolviRazionamento, razionamentoAperto, puoRiposare,
