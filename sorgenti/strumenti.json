@@ -1,0 +1,171 @@
+{
+ "fonte": "Guida del DM (Fonti di luce); Tabelle del Tempo Atmosferico v1.0 (Fiamme)",
+ "luce": [
+  {
+   "id": "candela",
+   "nome": "Candela",
+   "voce": "Candela x5",
+   "raggio": 3,
+   "ore": 1,
+   "fiamme": "candela",
+   "costo": "5 mr",
+   "testo": "Illumina in un raggio di 3 m. Brucia per 1 ora. Pioggia e vento la spengono. Si spegne se chi la sorregge si muove a più della propria velocità base o al 25% dopo aver effettuato un’azione di attacco."
+  },
+  {
+   "id": "caschetto",
+   "nome": "Caschetto portacandela",
+   "voce": "Caschetto portacandela",
+   "raggio": 3,
+   "ore": 1,
+   "fiamme": "candela",
+   "costo": "2 mo",
+   "testo": "Copricapo con anello su cui è inserita una Candela (vedi sopra). Permette di tenere le mani libere per altre attività. Occupa lo slot testa."
+  },
+  {
+   "id": "torcia",
+   "nome": "Torcia",
+   "voce": "Torcia",
+   "raggio": 9,
+   "ore": 1,
+   "fiamme": "torcia",
+   "costo": "5 ma",
+   "testo": "Illumina in un raggio di 9 m. Brucia per 1 ora. Pioggia e vento moderati la spengono. In combattimento, viene considerata un’arma improvvisata ad una mano che infligge 1d3 danni contundenti + 1 danno da fuoco."
+  },
+  {
+   "id": "lanterna",
+   "nome": "Lanterna",
+   "voce": "Lanterna",
+   "raggio": 15,
+   "ore": 3,
+   "fiamme": "lanterna",
+   "olio": true,
+   "costo": "5 mo",
+   "testo": "Illumina in un raggio di 15 m. Brucia per 3 ore usando 1 Fiaschetta d’olio. Pioggia e vento forti la spengono. Spegnerla è un’azione di round completo."
+  },
+  {
+   "id": "lanterna_impermeabile",
+   "nome": "Lanterna impermeabile",
+   "voce": "Lanterna impermeabile",
+   "raggio": 15,
+   "ore": 3,
+   "fiamme": "impermeabile",
+   "olio": true,
+   "costo": "10 mo",
+   "testo": "Conta come una Lanterna ma pioggia e vento forti non la spengono."
+  },
+  {
+   "id": "lanterna_schermabile",
+   "nome": "Lanterna schermabile",
+   "voce": "Lanterna schermabile",
+   "raggio": 15,
+   "ore": 3,
+   "fiamme": "lanterna",
+   "olio": true,
+   "costo": "20 mo",
+   "testo": "Conta come una Lanterna ma come azione veloce si può occultarne temporaneamente la luce."
+  },
+  {
+   "id": "lanterna_deluxe",
+   "nome": "Lanterna deluxe",
+   "voce": "Lanterna deluxe",
+   "raggio": 15,
+   "ore": 3,
+   "fiamme": "impermeabile",
+   "olio": true,
+   "costo": "30 mo",
+   "testo": "Conta come una Lanterna ma pioggia e vento forti non la spengono. Inoltre, come azione veloce si può occultarne temporaneamente la luce."
+  }
+ ],
+ "fiaschetta": {
+  "nome": "Fiaschetta d’olio",
+  "costo": "1 ma",
+  "testo": "Contiene mezzo litro d’olio. Se versato è sufficiente per ricoprire 1,5 m quadrati."
+ },
+ "fiamme": {
+  "livelli": {
+   "Pioggia battente": 2,
+   "Grandine": 2,
+   "Pioggia gelata": 2,
+   "Neve": 2,
+   "Pioggia di cenere": 2,
+   "Vento forte": 2,
+   "Correnti d'aria": 2,
+   "Acquazzone": 3,
+   "Monsone": 3,
+   "Neve fitta": 3,
+   "Vento molto forte": 3,
+   "Temporale": 3,
+   "Tempesta di vento": 4,
+   "Uragano": 4,
+   "Tormenta": 4,
+   "Tempesta di grandine": 4,
+   "Tempesta di polvere": 4,
+   "Tempesta di sabbia": 4,
+   "Tempesta di cenere": 4
+  },
+  "soglia": {
+   "candela": 1,
+   "torcia": 2,
+   "lanterna": 3,
+   "impermeabile": 4
+  },
+  "vento_impermeabile": {
+   "voce": "Vento molto forte",
+   "perc": 50,
+   "ogni_min": 10
+  },
+  "aria_viziata": {
+   "voce": "Aria viziata",
+   "consumo": 2
+  },
+  "origine": {
+   "Grandine": "come la Pioggia battente",
+   "Pioggia gelata": "come la Pioggia battente",
+   "Pioggia di cenere": "come la Neve",
+   "Correnti d'aria": "come con il Vento forte",
+   "Temporale": "Acquazzone e Vento forte",
+   "Uragano": "Tempesta di vento e Monsone"
+  },
+  "nota": "Tormenta: il testo dell’effetto dice «come con il Vento molto forte», la tabella delle Fiamme la mette fra le tempeste che spengono anche la lanterna impermeabile: vale la tabella."
+ },
+ "bonus": {
+  "tipi": [
+   "senza tipo",
+   "schivare",
+   "razziale",
+   "eroico",
+   "circostanza",
+   "spiritico",
+   "alchemico",
+   "arcano",
+   "istinto",
+   "meccanico",
+   "armatura",
+   "scudo",
+   "deviazione",
+   "naturale",
+   "potenziamento",
+   "morale",
+   "cognitivo",
+   "fortuna",
+   "sacro",
+   "profano",
+   "resistenza",
+   "competenza",
+   "dimensione"
+  ],
+  "sommano": [
+   "senza tipo",
+   "schivare",
+   "razziale",
+   "eroico"
+  ],
+  "stessa_fonte_max": [
+   "circostanza"
+  ],
+  "stessa_fonte_somma": [
+   "spiritico"
+  ],
+  "istinto": "Vale per la CA e la CA di contatto, non per quella colto alla sprovvista (Vol. 1)."
+ }
+}

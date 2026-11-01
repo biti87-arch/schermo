@@ -137,7 +137,13 @@ label.spunta{display:flex;gap:6px;align-items:center;cursor:pointer}
 
 /* pannelli della terza colonna */
 .pannello{background:var(--pannello);border:1px solid var(--riga);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.schede{display:flex;gap:2px;border-bottom:1px solid var(--riga)}
+.schede{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--riga)}
+.chip.barrato{text-decoration:line-through;opacity:.6}
+.log li.sessione{border-top:2px solid var(--oro);color:var(--oro)}
+.filtri{gap:4px;margin:4px 0}
+.cond-card summary .nome-n{font-weight:600}
+.cond-t[data-az]{cursor:help}
+p.voce{margin:2px 0 2px 12px}
 .schede button{border:0;background:none;padding:6px 12px;cursor:pointer;color:var(--tenue);border-bottom:2px solid transparent}
 .schede button.on{color:var(--arancio);border-bottom-color:var(--arancio)}
 .effetto{border-left:3px solid var(--oro-scuro);padding-left:8px;font-size:.88rem}
@@ -258,6 +264,7 @@ const Archivio = (() => {
 
 // ================================================================= stato dell'interfaccia
 const M = Motore, MET = DATI.meteo;
+M.usaStrumenti(DATI.strumenti);
 const rng = Math.random;
 const S = { schermata: 'campagne', elenco: [], camp: null, ui: { scheda: 'viaggio', sel: null, avvio: null, vista: null, incontro: null, fuga: {},
   best: { fonte: 'png', testo: '', tipo: '', etichetta: '', gs_min: '', gs_max: '', preferiti: false } } };
@@ -274,7 +281,7 @@ function salvaPresto() {
 function salvaOra() { if (salvaTimer && S.camp) { clearTimeout(salvaTimer); salvaTimer = null; if (Archivio.subito) Archivio.subito(S.camp); else Archivio.scrivi(S.camp); } }
 window.addEventListener('beforeunload', salvaOra);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') salvaOra(); });
-function applica(c) { c.modificata = Date.now(); S.camp = c; salvaPresto(); disegna(); }
+function applica(c) { if (c.luci && c.luci.some(l => l.accesa)) c = M.controllaLuci(c, MET, DATI.strumenti); c.modificata = Date.now(); S.camp = c; salvaPresto(); disegna(); }
 function prova(f) { try { return f(); } catch (e) { avviso(e.message, true); return undefined; } }
 let avvisoT = null;
 function avviso(testo, errore) {
@@ -369,7 +376,7 @@ function disegnaTesta() {
         <button class="btn min" data-az="tempo" data-r="1">+1 round</button><button class="btn min" data-az="tempo" data-r="10">+1 min</button>
         <button class="btn min" data-az="tempo" data-r="100">+10 min</button><button class="btn min" data-az="tempo" data-r="600">+1 ora</button>
         <button class="btn min oro" data-az="riposo">Riposo 8 ore</button><button class="btn min" data-az="salto">Salto…</button>
-        <button class="btn min prim" data-az="aggiungiScheda" title="Aggiungi una scheda al bestiario">+ Scheda</button><button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
+        <button class="btn min" data-az="dadi" title="Dadi">🎲</button><button class="btn min prim" data-az="aggiungiScheda" title="Aggiungi una scheda al bestiario">+ Scheda</button><button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
     </div>${coda}</header>`;
 }
 
@@ -388,7 +395,7 @@ function disegnaPG(p, attivo) {
   const n = (x, nosegno) => { const f = nosegno ? String(x.valore) : segno(x.valore); return x.mod ? `<span class="mod${x.mod > 0 ? ' su' : ''}" title="Base ${nosegno ? x.base : segno(x.base)}" data-az="base" data-b="Base ${nosegno ? x.base : segno(x.base)}">${f}</span>` : f; };
   const fmx = v.fatica_max, femx = v.ferita_max;
   const temp = st.temp.length ? st.temp.map(t => `${t.fonte} ${t.valore}${t.scade !== null ? ' (fino a ' + M.formatoData(S.camp, t.scade) + ')' : ''}`).join('; ') : '';
-  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`), ...st.malus.map(m => chipMalus({ pg: p.id }, m))];
+  const chips = [...v.malus.map(m => `<span class="chip ${m.condizione ? 'cond' : 'sv'}">${esc(m.nome)}</span>`), ...st.malus.map(m => chipMalus({ pg: p.id }, m, v.nonContano))];
   const note = v.note.filter(x => x.length < 90);
   return `<article class="pg${attivo ? ' attivo' : ''}" data-pg="${p.id}">
     <div class="pg-testa"><span class="pg-nome">${esc(s.nome)}</span><span class="pg-classe">${esc([s.classe || `Livello ${s.livello}`, s.razza].filter(Boolean).join(' · '))}</span>
@@ -405,7 +412,7 @@ function disegnaPG(p, attivo) {
     ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}${note.length ? `<div class="note-pg">${note.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
     <div class="fila"><button class="btn min" data-az="danno" data-id="${p.id}">Danno</button><button class="btn min" data-az="cura" data-id="${p.id}">Cura</button>
       <button class="btn min" data-az="temp" data-id="${p.id}">PF temp</button><button class="btn min" data-az="rifiata" data-id="${p.id}">Rifiata</button>
-      <button class="btn min oro" data-az="malus" data-chi="pg:${p.id}">Malus/Bonus</button><button class="btn min" data-az="feritaGrave" data-id="${p.id}">Ferita grave</button>
+      <button class="btn min oro" data-az="malus" data-chi="pg:${p.id}">Malus/Bonus</button><button class="btn min" data-az="feritaGrave" data-id="${p.id}">Ferita grave</button><button class="btn min" data-az="fallimento" data-chi="pg:${p.id}">Fallimento critico</button>
       <span class="spazio"></span><button class="btn min" data-az="modificaPG" data-id="${p.id}" title="Scheda">Scheda</button></div></article>`;
 }
 
@@ -429,6 +436,7 @@ function disegnaIniziativa() {
     <div class="barra-turno"><span class="tenue piccolo">Tocca a</span><span class="chi">${a ? esc(M.etichetta(a)) : '—'}</span>
       ${a && a.prepara ? `<span class="piccolo">Azione preparata: ${esc(a.prepara.azione)}${a.prepara.innesco ? ' — se ' + esc(a.prepara.innesco) : ''}</span>` : ''}
       ${a ? barraMalus(a) : ''}${a ? barraTattiche(a) : ''}
+      ${a ? `<div class="fila"><button class="btn min" data-az="fallimento" data-chi="${a.tipo === 'pg' ? 'pg:' + a.pgId : 'riga:' + a.id}" title="1 naturale al tiro per colpire (Vol. 1)">Fallimento critico…</button></div>` : ''}
       <span class="tenue piccolo">Poi: ${esc(pros.join(', ') || '—')}</span></div>
     <div class="comandi"><button class="btn grande prim" data-az="cmd" data-c="avanti">Avanti ▸</button>
       <button class="btn" data-az="indietro" ${cb.storia.length ? '' : 'disabled'}>◂ Indietro</button>
@@ -450,6 +458,7 @@ function disegnaAzioniRiga(r) {
       ${inOrdine ? `<button class="btn min" data-az="cmd" data-c="fuori" data-id="${r.id}" data-ritorna="${r.stato === 'fuori' ? 1 : ''}">${r.stato === 'fuori' ? 'Rientra' : 'Fuori combattimento'}</button>` : ''}
       <button class="btn min" data-az="cmd" data-c="nascondi" data-id="${r.id}" data-nascosta="${r.nascosta ? '' : 1}">${r.nascosta ? 'Rivela' : 'Nascondi'}</button>
       <button class="btn min oro" data-az="malus" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Malus/Bonus</button>
+      <button class="btn min" data-az="fallimento" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Fallimento critico</button>
       <button class="btn min" data-az="correggi" data-id="${r.id}">Correggi</button>
       <button class="btn min peric" data-az="togli" data-id="${r.id}">Togli</button></div>
     ${r.tipo !== 'pg' ? `<div class="fila" style="margin-top:6px">${r.rif ? `<button class="btn min" data-az="statBlockRiga" data-id="${r.id}">Stat block</button>` : ''}
@@ -495,8 +504,8 @@ function disegnaAvvio() {
 function disegnaTerza() {
   let sch = S.ui.scheda; if (sch === 'vista' && !S.ui.vista) sch = S.ui.scheda = 'bestiario';
   const tab = (k, t) => `<button role="tab" class="${sch === k ? 'on' : ''}" data-az="scheda" data-s="${k}">${t}</button>`;
-  return `<div class="schede" role="tablist">${tab('viaggio', 'Viaggio')}${tab('bestiario', 'Bestiario')}${tab('incontri', 'Incontri')}${tab('log', 'Log')}${S.ui.vista ? tab('vista', 'Scheda') : ''}</div>
-    ${sch === 'log' ? disegnaLog() : sch === 'bestiario' ? disegnaBestiario() : sch === 'incontri' ? disegnaIncontri() : sch === 'vista' ? disegnaVista() : disegnaViaggio()}`;
+  return `<div class="schede" role="tablist">${tab('viaggio', 'Viaggio')}${tab('bestiario', 'Bestiario')}${tab('incontri', 'Incontri')}${tab('prontuario', 'Prontuario')}${tab('log', 'Log')}${S.ui.vista ? tab('vista', 'Scheda') : ''}</div>
+    ${sch === 'log' ? disegnaLog() : sch === 'prontuario' ? disegnaProntuario() : sch === 'bestiario' ? disegnaBestiario() : sch === 'incontri' ? disegnaIncontri() : sch === 'vista' ? disegnaVista() : disegnaViaggio()}`;
 }
 function selectZona(id, attr, scelta) {
   return `<select ${id ? `id="${id}"` : ''} ${attr}>${MET.gruppi.map(g => `<optgroup label="${g}">${MET.zone.filter(z => z.gruppo === g).map(z => `<option value="${z.id}" ${z.id === scelta ? 'selected' : ''}>${z.n}. ${esc(z.nome)}</option>`).join('')}</optgroup>`).join('')}</select>`;
@@ -528,7 +537,7 @@ function disegnaViaggio() {
       <details class="cartella"><summary>Fiamme</summary><p class="piccolo tenue">${esc(MET.fiamme.frase)}</p>${regoleHtml([{ tabella: [['Fonte', 'Si spegne con'], ...MET.fiamme.righe.map(r => [r.fonte, r.spegne])] }])}</details>
       <details class="cartella"><summary>Regole generali</summary>${MET.regole.map(s => `<h4 class="sotto">${esc(s.titolo)}</h4>${regoleHtml(s.parti)}`).join('')}</details>
       ${z.mare ? `<details class="cartella"><summary>Navigazione</summary>${regoleHtml(MET.navigazione)}</details>` : ''}</div>`;
-  return meteo + disegnaCompagnia() + (c.impostazioni.scorte !== false ? disegnaScorte() : '<div class="pannello"><span class="tenue piccolo">Scorte spente (⚙ Impostazioni): niente consumo né Fame e Sete automatiche.</span></div>');
+  return meteo + disegnaLuce() + disegnaPromemoria() + disegnaCompagnia() + (c.impostazioni.scorte !== false ? disegnaScorte() : '<div class="pannello"><span class="tenue piccolo">Scorte spente (⚙ Impostazioni): niente consumo né Fame e Sete automatiche.</span></div>');
 }
 function disegnaCompagnia() {
   const c = S.camp, k = c.compagnia, sc = c.impostazioni.scorte !== false;
@@ -561,11 +570,6 @@ function disegnaScorte() {
 }
 function coloraCondizioni(html) {
   return html.replace(/\b(affaticat[oaie]|esaust[oaie]|prive? di sensi|privo di sensi|prona|prono)\b/gi, m => `<span class="cond-t">${m}</span>`);
-}
-function disegnaLog() {
-  const c = S.camp, v = c.log.slice(-300).reverse();
-  return `<div class="pannello"><div class="fila"><h3>Log della sessione</h3><span class="spazio"></span><button class="btn min" data-az="esportaLog">Esporta .txt</button></div>
-    <ul class="log">${v.map(e => `<li><span class="q">${esc(M.formatoData(c, e.R).replace(/^\S+ /, ''))}</span><span>${esc(e.testo)}</span></li>`).join('')}</ul></div>`;
 }
 function aggiornaTimer() {
   const el = $('#timer'), cb = S.camp && S.camp.combattimento; if (!el || !cb || !cb.timer) return;
@@ -859,11 +863,12 @@ function classeMalus(m) {
 }
 function aiutoMalus(m) {
   const i = m.tipo === 'condizione' && infoCond(m.nome);
-  const ef = i ? (i.effetto ? 'Nel riquadro: ' + i.effetto + '. ' : '') + (i.testo_vol1 ? i.testo_vol1.replace(/^[^:]+: /, '') : '') : '';
+  const ef = i ? (i.effetto ? 'Nel riquadro: ' + i.effetto + '. ' : '') + (i.sintesi || '') : '';
   return [ef, m.fonte ? 'Fonte: ' + m.fonte : ''].filter(Boolean).join(' ');
 }
-function chipMalus(chi, m) {
-  return `<button type="button" class="chip ${classeMalus(m)}" data-az="vediMalus" data-chi="${chiStr(chi)}" data-id="${m.id}" title="${esc(aiutoMalus(m))}">${esc(M.descriviMalus(S.camp, m))}</button>`;
+function chipMalus(chi, m, nonConta) {
+  const nc = nonConta && nonConta.includes(m.id) ? M.motivoNonConta(elencoChi(S.camp, chi), m) : '';
+  return `<button type="button" class="chip ${classeMalus(m)}${nc ? ' barrato' : ''}" data-az="vediMalus" data-chi="${chiStr(chi)}" data-id="${m.id}" title="${esc([nc, aiutoMalus(m)].filter(Boolean).join(' · '))}">${esc(M.descriviMalus(S.camp, m))}${m.tb ? ` <small>(${esc(m.tb)})</small>` : ''}</button>`;
 }
 function bottoniCoda(q, i) {
   if (q.tipo === 'razionamento') return `<button class="btn min prim" data-az="razionamento" data-id="${q.razionamento}">Scegli chi</button>`;
@@ -877,20 +882,25 @@ function primoInCoda(c) { const pri = ['morte', 'ts', 'veleno', 'razionamento'];
 // ---------- G: finestra «Malus/Bonus»
 const UNITA = [['round', 'round'], ['minuti', 'minuti'], ['ore', 'ore'], ['giorni', 'giorni'], ['incontro', 'fino a fine incontro'], ['permanente', 'permanente'], ['libera', 'senza durata (si toglie a mano)']];
 const opz = (lista, sel) => lista.map(([v, t]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${t}</option>`).join('');
-function finestraMalus(chi) {
-  const c = S.camp, cb = c.combattimento;
+function finestraMalus(chi, preset) {
+  const c = S.camp, cb = c.combattimento, pgChi = chi.pg ? c.pg.find(p => p.id === chi.pg) : null;
   const righe = cb ? [...cb.ordine, ...cb.attesa].map(id => cb.righe[id]) : [];
   const num = (n, et) => `<label class="campo"><span>${et}</span><input type="number" name="${n}" data-etichetta="${et}"></label>`;
-  const el = apri({ titolo: `Malus o bonus: ${esc(nomeChi(c, chi))}`, larga: true, corpo: `<div class="griglia">
+  const el = apri({ titolo: `Malus o bonus: ${esc(nomeChi(c, chi))}`, larga: true, corpo: `${c.modelli.length ? `<div class="fila"><label class="campo" style="flex:1"><span>Modello</span><select name="modello"><option value="">—</option>${c.modelli.map(m => `<option value="${m.id}">${esc(m.nome)}</option>`).join('')}</select></label>
+        <button type="button" class="btn min peric" data-mod="elimina" title="Elimina il modello scelto">Elimina modello</button></div>` : ''}<div class="griglia">
       <label class="campo"><span>Tipo</span><select name="tipo">${opz([['condizione', 'Condizione'], ['bonus', 'Bonus'], ['altro', 'Altro malus'], ['veleno', 'Veleno'], ['malattia', 'Malattia']], 'condizione')}</select></label>
       <label class="campo" data-per="cond"><span>Condizione</span><select name="cond">${CONDIZ.map(x => `<option>${esc(x.nome)}</option>`).join('')}</select></label>
       <label class="campo" data-per="perc"><span>Offuscato %</span><input type="number" name="perc" min="1" max="100" value="20"></label>
       <label class="campo" data-per="n"><span>Livelli negativi</span><input type="number" name="n" min="1" value="1"></label>
       <label class="campo" data-per="nome"><span>Nome</span><input type="text" name="nome" placeholder="es. Benedizione"></label>
+      <label class="campo" data-per="tb"><span>Tipo di bonus</span><select name="tb">${STR.bonus.tipi.map(x => `<option>${esc(x)}</option>`).join('')}</select></label>
       <label class="campo"><span>Etichetta (facoltativa)</span><input type="text" name="etichetta" placeholder="es. Lupo 3"></label></div>
+    <div class="piccolo" id="mb-cresc" hidden></div><p class="tenue piccolo" data-per="tbnota">Stesso tipo: vale il più alto (schivare, razziale, eroico e senza tipo si sommano; circostanza: stessa fonte il più alto; spiritico: si sommano solo dalla stessa fonte). L'app non conosce i bonus già dentro la CA del PG.</p>
     <fieldset data-per="durata"><legend>Durata</legend><div class="griglia">
       <label class="campo"><span>Quantità</span><input type="number" name="dn" min="1" value="1"></label>
       <label class="campo"><span>Unità</span><select name="du">${opz(UNITA, 'round')}</select></label>
+      <label class="spunta piccolo" data-per="liv"><input type="checkbox" name="livOn"> × livello dell'incantatore</label>
+      <label class="campo" data-per="liv"><span>Livello</span><input type="number" name="liv" min="1" value="${pgChi ? pgChi.scheda.livello : 1}" data-etichetta="Livello"></label>
       ${cb ? `<label class="campo" style="grid-column:span 2"><span>I round scadono all'inizio del turno di</span><select name="sc"><option value="">${esc(nomeChi(c, chi))} (bersaglio)</option>${righe.map(r => `<option value="${r.id}">${esc(M.etichetta(r))} (chi l'ha causato)</option>`).join('')}</select></label>` : '<span class="tenue piccolo" style="grid-column:span 2">Fuori combattimento i round scorrono con l\'orologio (10 al minuto).</span>'}</div></fieldset>
     <fieldset data-per="mods"><legend>Modificatori (facoltativi)</legend><div class="griglia stretta">
       ${num('m_ts', 'TS (tutti)')}${num('m_tempra', 'Tempra')}${num('m_riflessi', 'Riflessi')}${num('m_volonta', 'Volontà')}${num('m_ca', 'CA')}${num('m_dmc', 'DMC')}${num('m_abilita', 'Abilità')}${num('m_iniziativa', 'Iniziativa')}${num('m_fatica_max', 'Fatica max')}</div>
@@ -908,7 +918,11 @@ function finestraMalus(chi) {
       <label class="campo" style="grid-column:span 2"><span>Effetto</span><input type="text" name="vE" placeholder="es. 1d2 For"></label>
       <label class="campo"><span>Cura: TS consecutivi</span><input type="number" name="vC" min="1" value="1"></label></div>
       <p class="tenue piccolo">Applicarlo vale come TS iniziale fallito: il primo effetto arriva subito (o alla fine dell'insorgenza), poi a ogni scadenza un promemoria con Superato e Fallito.</p></fieldset>`,
-    azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => {
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva come modello', fn: f => { const d = leggi(f);
+        apri({ titolo: 'Salva come modello', corpo: `<label class="campo"><span>Nome del modello</span><input type="text" name="nm" value="${esc(d.nome || '')}"></label><p class="tenue piccolo">Con lo stesso nome il modello si aggiorna.</p>`,
+          azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: g => { applica(M.salvaModello(S.camp, testo(g, 'nm'), d)); avviso('Modello salvato'); } }] }); return false; } },
+      { testo: 'Applica', classe: 'prim', fn: f => applicaS(M.aggiungiMalus(S.camp, chi, leggi(f), rng)) }] });
+  function leggi(f) {
       const tipo = val(f, 'tipo').value, n = k => { const v = testo(f, k); if (v === '') return 0; const x = Number(v); if (!Number.isInteger(x)) throw new Error('Valore non valido: ' + (val(f, k).dataset.etichetta || k)); return x; };
       const d = { tipo, etichetta: testo(f, 'etichetta') };
       if (tipo === 'condizione') { d.nome = val(f, 'cond').value; if (d.nome === 'Offuscato') d.perc = n('perc'); if (d.nome === 'Livelli negativi') d.n = n('n'); }
@@ -919,19 +933,40 @@ function finestraMalus(chi) {
           frequenza: { unita: val(f, 'vFu').value, volte: vn ? n('vN') : null }, effetto: testo(f, 'vE'), cura: n('vC') };
       } else {
         const du = val(f, 'du').value; d.durata = ['incontro', 'permanente', 'libera'].includes(du) ? { unita: du } : { n: n('dn'), unita: du };
+        if (spunta(f, 'livOn') && !['incontro', 'permanente', 'libera'].includes(du)) d.durata.liv = n('liv');
+        if (tipo === 'bonus') d.tb = val(f, 'tb').value;
+        if (tipo === 'condizione' && val(f, 'crescOn') && !spunta(f, 'crescOn')) d.crescente = false;
         if (val(f, 'sc') && val(f, 'sc').value) { d.scadenza = 'causa'; d.causa = val(f, 'sc').value; }
         d.mods = { altro: testo(f, 'm_altro') }; for (const k of ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max']) d.mods[k] = n('m_' + k);
         if (spunta(f, 'tsOn')) d.ts = { tipo: val(f, 'tsT').value, cd: n('tsCD') || null, ogni: n('tsN'), unita: val(f, 'tsU').value, finisce: spunta(f, 'tsFin') };
       }
-      applicaS(M.aggiungiMalus(S.camp, chi, d, rng));
-    } }] });
+      return d;
+  }
   const aggiorna = () => {
     const tipo = val(el, 'tipo').value, cnd = val(el, 'cond').value, vel = tipo === 'veleno' || tipo === 'malattia';
-    const vis = { cond: tipo === 'condizione', perc: tipo === 'condizione' && cnd === 'Offuscato', n: tipo === 'condizione' && cnd === 'Livelli negativi', nome: tipo !== 'condizione', durata: !vel, mods: !vel, ts: !vel, veleno: vel };
+    const vis = { cond: tipo === 'condizione', perc: tipo === 'condizione' && cnd === 'Offuscato', n: tipo === 'condizione' && cnd === 'Livelli negativi', nome: tipo !== 'condizione', durata: !vel, mods: !vel, ts: !vel, veleno: vel,
+      tb: tipo === 'bonus', tbnota: tipo === 'bonus', liv: !vel && !['incontro', 'permanente', 'libera'].includes(val(el, 'du').value) };
+    const cr = tipo === 'condizione' ? M.anteprimaCondizione(S.camp, chi, cnd) : null, box = el.querySelector('#mb-cresc'); // AB1-3
+    box.hidden = !cr; if (cr) { const on = val(el, 'crescOn') ? spunta(el, 'crescOn') : true;
+      box.innerHTML = cr.gia ? `<span class="chip">${esc(cr.motivo)}: non si aggiunge</span>` : `<label class="spunta"><input type="checkbox" name="crescOn" ${on ? 'checked' : ''}> diventa <b class="cond-t">${esc(cr.nome)}</b> (${esc(cr.motivo)})</label>`; }
     for (const [k, v] of Object.entries(vis)) for (const x of el.querySelectorAll(`[data-per="${k}"]`)) x.hidden = !v;
     if (tipo === 'malattia' && !el.dataset.malattia) { el.dataset.malattia = 1; val(el, 'vFu').value = 'giorni'; val(el, 'vN').value = ''; val(el, 'vIu').value = 'giorni'; }
   };
-  el.addEventListener('change', aggiorna); aggiorna();
+  const metti = d => { // riempie i campi da un modello o da «Applica a…»
+    val(el, 'tipo').value = d.tipo || 'condizione';
+    if (d.tipo === 'condizione') val(el, 'cond').value = d.nome; else val(el, 'nome').value = d.nome || '';
+    if (d.perc) val(el, 'perc').value = d.perc; if (d.n) val(el, 'n').value = d.n;
+    val(el, 'etichetta').value = d.etichetta || ''; if (d.tb) val(el, 'tb').value = d.tb;
+    if (d.durata) { val(el, 'du').value = d.durata.unita || 'round'; if (d.durata.n) val(el, 'dn').value = d.durata.n; val(el, 'livOn').checked = !!d.durata.liv; }
+    for (const k of ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max']) val(el, 'm_' + k).value = d.mods && d.mods[k] ? d.mods[k] : '';
+    val(el, 'm_altro').value = (d.mods && d.mods.altro) || '';
+    if (d.ts) { val(el, 'tsOn').checked = true; val(el, 'tsT').value = d.ts.tipo; val(el, 'tsCD').value = d.ts.cd || ''; val(el, 'tsN').value = d.ts.ogni; val(el, 'tsU').value = d.ts.unita; val(el, 'tsFin').checked = d.ts.finisce !== false; }
+  };
+  el.addEventListener('change', ev => { if (ev.target.name === 'modello' && ev.target.value) { const m = S.camp.modelli.find(x => x.id === ev.target.value); if (m) metti(m.dati); } aggiorna(); });
+  el.addEventListener('click', ev => { if (!ev.target.closest('[data-mod="elimina"]')) return; const id = val(el, 'modello').value; if (!id) return avviso('Scegli il modello da eliminare', true);
+    applica(M.eliminaModello(S.camp, id)); const o = val(el, 'modello').querySelector(`option[value="${id}"]`); if (o) o.remove(); avviso('Modello eliminato'); });
+  if (preset) metti(preset);
+  aggiorna();
   return el;
 }
 // ---------- dettaglio di un malus
@@ -1302,12 +1337,13 @@ const rifStr = rif => rif ? rif.fonte + ':' + rif.id : '';
 const rifDa = v => { if (!v) return null; const [fonte, ...id] = v.split(':'); return { fonte, id: id.join(':') }; };
 const migl = n => M.migliaia(n);
 // tutte le condizioni in rosso, con plurali e femminili (Morente no: è narrativa)
-const RE_COND = (() => {
-  const forme = CONDIZIONI.map(n => n.toLowerCase()).map(n => n === 'morto' ? 'mort[oa]' : n.split(' ').map((w, i, a) => i === 0 || i === a.length - 1 && a.length === 2 && a[0] === 'sempre'
-    ? (/o$/.test(w) ? w.slice(0, -1) + '[oaie]' : /e$/.test(w) && !/^(in)$/.test(w) ? w.slice(0, -1) + '[ei]' : w) : w).join('\\s+'));
-  return new RegExp(`(?<![\\p{L}])(${forme.sort((a, b) => b.length - a.length).join('|')})(?![\\p{L}])`, 'giu');
-})();
-const coloraTutte = html => html.replace(RE_COND, m => `<span class="cond-t">${m}</span>`);
+const FORME_COND = CONDIZIONI.map(n => [n, n.toLowerCase()]).map(([n, x]) => [n, x === 'morto' ? 'mort[oa]' : x.split(' ').map((w, i, a) => i === 0 || i === a.length - 1 && a.length === 2 && a[0] === 'sempre'
+    ? (/o$/.test(w) ? w.slice(0, -1) + '[oaie]' : /e$/.test(w) && !/^(in)$/.test(w) ? w.slice(0, -1) + '[ei]' : w) : w).join('\\s+')]);
+const RE_COND = new RegExp(`(?<![\\p{L}])(${FORME_COND.map(x => x[1]).sort((a, b) => b.length - a.length).join('|')})(?![\\p{L}])`, 'giu');
+const RE_UNA = FORME_COND.map(([n, f]) => [n, new RegExp('^(?:' + f + ')$', 'iu')]);
+const condDi = m => { const x = RE_UNA.find(([n, re]) => re.test(m)); return x ? x[0] : null; };
+const coloraTutte = html => html.replace(RE_COND, m => { const n = condDi(m), i = n && infoCond(n);
+  return `<span class="cond-t"${n ? ` data-az="vediCond" data-n="${esc(n)}" title="${esc(n + (i && i.sintesi ? ': ' + i.sintesi : ''))}"` : ''}>${m}</span>`; });
 // note degli incontri: **grassetto** ed elenchi con «- »
 function mdLite(t) {
   const righe = esc(t || '').split('\n'); let out = '', lista = false;
@@ -1805,6 +1841,208 @@ Round 1: il branco accerchia il bersaglio più vicino.
 Round 2–3: morde per sbilanciare, due lupi sullo stesso bersaglio.
 Finita la Fatica: si allontana zoppicando e ulula.
 Fuga o resa: il branco fugge quando metà dei lupi è a terra o se il bandito cade.`;
+
+
+// ================================================================= Build 3a (sezione AB del design doc)
+const STR = DATI.strumenti, CREG = DATI.condizioni.regole, GRUPPI_C = DATI.condizioni.gruppi;
+const NOMI_GRUPPO = { Paura: 'Paura', Fatica: 'Fatica', Indifeso: 'Indifeso', Oggetti: 'Oggetti', Nuove: 'Nuove (Vol. 1)', Altre: 'Altre', Regole: 'Regole' };
+// testo di una scheda: le righe «a | b» consecutive diventano una tabella
+function testoScheda(righe) {
+  let out = '', tab = [];
+  const chiudi = () => { if (tab.length) { out += `<div class="tabmeteo"><table>${tab.map((r, i) => `<tr>${r.map(x => i ? `<td>${coloraTutte(esc(x))}</td>` : `<th>${esc(x)}</th>`).join('')}</tr>`).join('')}</table></div>`; tab = []; } };
+  for (const r of righe) { if (r.includes(' | ')) { tab.push(r.split(' | ')); continue; } chiudi(); out += r.startsWith('• ') ? `<p class="piccolo voce">${coloraTutte(esc(r))}</p>` : `<p class="piccolo">${coloraTutte(esc(r))}</p>`; }
+  chiudi(); return out;
+}
+// ---------- terza colonna: Prontuario (AB1-4, AB2-3, AB2-4)
+function disegnaProntuario() {
+  const P = S.ui.pront = S.ui.pront || { sez: 'condizioni', q: '', gruppo: '', aperta: null };
+  const sez = (k, t) => `<button class="btn min${P.sez === k ? ' oro' : ''}" data-az="prontSez" data-s="${k}">${t}</button>`;
+  return `<div class="pannello" id="p-prontuario"><div class="fila">${sez('condizioni', 'Condizioni')}${sez('imprevisti', 'Imprevisti')}
+      <span class="tenue piccolo">Prontuario della Guida: Build 3b</span></div>
+    <label class="campo"><span>Cerca</span><input type="search" id="pront-q" value="${esc(P.q)}" placeholder="nome o parola (anche nel testo)"></label>
+    ${P.sez === 'imprevisti' ? disegnaImprevisti(P) : disegnaCondizioni(P)}</div>`;
+}
+const cerca = (q, ...t) => !q || t.join(' ').toLowerCase().includes(q.toLowerCase());
+function disegnaCondizioni(P) {
+  const gr = ['', ...GRUPPI_C].map(g => `<button class="btn min${P.gruppo === g ? ' oro' : ''}" data-az="prontGruppo" data-g="${g}">${g ? NOMI_GRUPPO[g] : 'Tutte'}</button>`).join('');
+  const voci = [...CONDIZ.map(x => ({ ...x, cond: true })), ...CREG.map(x => ({ ...x, cond: false }))]
+    .filter(x => (!P.gruppo || x.gruppo === P.gruppo) && cerca(P.q, x.nome, x.sintesi || '', ...(x.testo || []), ...(x.sezioni || []).flatMap(s => s.testo)));
+  const card = x => `<details class="cartella cond-card" data-nome="${esc(x.nome)}" ${P.aperta === x.nome || (P.q && voci.length <= 3) ? 'open' : ''}>
+      <summary><span class="${x.rossa ? 'cond-t' : 'nome-n'}">${esc(x.nome)}</span>${x.sintesi ? ` <span class="tenue piccolo">— ${esc(x.sintesi)}</span>` : ''}</summary>
+      ${x.effetto ? `<p class="piccolo"><b>Applicato dall'app:</b> ${esc(x.effetto)}</p>` : ''}
+      ${testoScheda(x.testo || [])}${(x.sezioni || []).map(s => `<h4 class="sotto">${esc(s.titolo)}</h4>${testoScheda(s.testo)}`).join('')}
+      <p class="tenue piccolo">Fonte: ${esc(x.fonte)}${x.sintesi_fonte === 'app' ? ' · sintesi dell\'app' : ''}${x.adattato ? ` · <i>${esc(x.adattato)}</i>` : ''}</p>
+      ${x.cond && x.nome !== 'Morente' ? `<div class="fila"><button class="btn min oro" data-az="applicaCond" data-n="${esc(x.nome)}">Applica a…</button></div>` : ''}</details>`;
+  return `<div class="fila filtri">${gr}</div>${voci.map(card).join('') || '<p class="tenue piccolo">Nessuna voce.</p>'}`;
+}
+const spazi = t => t.replace(/([.a-zà])(-\d)/g, '$1 $2'); // «mancante.-5 Scalare» → «mancante. -5 Scalare» (AB2-3)
+function tabellaHtml(intest, righe) { return `<div class="tabmeteo"><table><tr>${intest.map(x => `<th>${esc(x)}</th>`).join('')}</tr>${righe.map(r => `<tr>${r.map(x => `<td>${coloraTutte(esc(x))}</td>`).join('')}</tr>`).join('')}</table></div>`; }
+function disegnaImprevisti(P) {
+  const q = P.q, F = FER.fallimenti, blocchi = [];
+  const sez = (titolo, html, testi) => { if (cerca(q, titolo, ...testi)) blocchi.push(`<details class="cartella" ${q ? 'open' : ''}><summary>${esc(titolo)}</summary>${html}</details>`); };
+  blocchi.push(`<h4 class="sotto">Fallimenti critici</h4><p class="tenue piccolo">${esc(F.regola)}</p>`);
+  for (const T of F.tabelle) sez(T.nome, tabellaHtml([T.dado, 'Effetto'], T.righe.map(r => [r.da === r.a ? String(r.da) : `${r.da}-${r.a}`, r.testo])) +
+    `<p class="tenue piccolo">¹ ${esc(F.note['1'])}<br>² ${esc(F.note['2'])}</p><div class="fila"><button class="btn min oro" data-az="fallimento" data-t="${T.id}">Tira…</button></div>`, T.righe.map(r => r.testo));
+  blocchi.push(`<h4 class="sotto">Ferite gravi</h4><p class="tenue piccolo">¹ ${esc(FER.nota_oggetti)}</p>`);
+  for (const T of FER.ferite_gravi) {
+    if (T.locazioni) { for (const [k, nome] of [['testa', '1: Testa'], ['busto', '2-4: Busto'], ['braccio', '5-6: Braccio sinistro / destro'], ['gamba', '7-8: Gamba sinistra / destra']]) {
+      const r = T.righe_per_locazione[k]; sez(`${T.nome} — ${nome}`, tabellaHtml(['Riga', 'Effetto'], Object.entries(r).map(([a, b]) => [a, b])), Object.values(r)); } }
+    else sez(T.nome, tabellaHtml(['Riga', 'Effetto'], Object.entries(T.righe).map(([a, b]) => [a, b])), Object.values(T.righe));
+  }
+  sez('Fermare le emorragie e curare le ferite gravi', `<p class="piccolo">${esc(FER.regola_fermare)}</p>` + tabellaHtml(['Ferita', 'Medicinali', 'CD e tempo', 'Ritentare'], FER.fermare.map(r => [r.ferita, r.testo.medicinali, r.testo.cd, r.testo.ritentare])), FER.fermare.map(r => r.ferita + ' ' + r.testo.cd));
+  sez('Amputazioni e arti inutilizzabili', `<p class="piccolo">${esc(FER.regola_dita)}</p>` + tabellaHtml(['Parte', 'Una', 'Entrambe'], FER.amputazioni.map(a => [a.nome, spazi(a.singolo.testo), a.entrambi ? spazi(a.entrambi.testo) : '—'])) +
+    `<p class="tenue piccolo">${FER.note.map(esc).join('<br>')}${FER.amputazioni.some(a => /\*/.test(a.singolo.testo)) ? '<br>Occhio, «*»: nota mancante nel Vol. 3.' : ''}</p>`, FER.amputazioni.map(a => a.nome + ' ' + a.singolo.testo));
+  return blocchi.join('');
+}
+// ---------- «Applica a…» dalla scheda di una condizione: si sceglie la creatura, poi la finestra Malus già impostata
+function finestraApplicaA(nome) {
+  const c = S.camp, cb = c.combattimento;
+  const opz = [...c.pg.map(p => [`pg:${p.id}`, p.scheda.nome]), ...(cb ? Object.values(cb.righe).filter(r => r.tipo !== 'pg').map(r => [`riga:${r.id}`, M.etichetta(r)]) : [])];
+  if (!opz.length) return avviso('Nessuna creatura: aggiungi un PG o avvia un combattimento', true);
+  apri({ titolo: `Applica ${esc(nome)} a…`, corpo: `<label class="campo"><span>Creatura</span><select name="chi">${opz.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select></label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Avanti', classe: 'prim', fn: f => { const [k, v] = val(f, 'chi').value.split(':'); finestraMalus({ [k]: v }, { tipo: 'condizione', nome }); } }] });
+}
+// ---------- AB2: Fallimento critico
+function finestraFallimento(chi, tabId) {
+  const c = S.camp, cb = c.combattimento;
+  const creature = [...c.pg.map(p => [`pg:${p.id}`, p.scheda.nome]), ...(cb ? Object.values(cb.righe).filter(r => r.tipo !== 'pg').map(r => [`riga:${r.id}`, M.etichetta(r)]) : [])];
+  if (!creature.length) return avviso('Nessuna creatura', true);
+  let fc = null;
+  const scelto = f => { const [k, v] = (chi ? chiStr(chi) : val(f, 'chi').value).split(':'); return { [k]: v }; };
+  const disegnaAnt = f => {
+    const box = f.querySelector('#fc-ant'); if (!fc) { box.innerHTML = '<p class="tenue piccolo">Scegli la tabella e tira.</p>'; return; }
+    const ch = scelto(f), altri = creature.filter(([v]) => v !== chiStr(ch));
+    box.innerHTML = `<div class="risultato">${esc(fc.dado)} = ${fc.tiro}${fc.passata ? ` <span class="chip">già prono: conta come ${fc.passata.a}</span>` : ''}</div>
+      <p>${coloraTutte(esc(fc.testo))}</p>
+      ${fc.comps.length ? `<ul class="voci piccolo">${M.descriviFallimento(S.camp, fc).map(x => `<li>${coloraTutte(esc(x))}</li>`).join('')}</ul>` : ''}
+      ${fc.note.length ? `<p class="tenue piccolo">${fc.note.map(esc).join(' ')}</p>` : ''}
+      ${fc.alleato ? `<label class="campo"><span>Chi viene colpito (¹ ${esc(fc.nota_alleato)})</span><select name="colpito"><option value="">nessun alleato: ti colpisci da solo</option>${altri.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select></label>` : ''}
+      ${fc.fineTurno ? '<p class="piccolo"><b>Il tuo turno termina.</b></p>' : ''}`;
+  };
+  const tira = f => { fc = M.fallimentoCritico(S.camp, scelto(f), FER, val(f, 't').value, rng); disegnaAnt(f); };
+  const applicaFc = (f, fine) => {
+    if (!fc) { tira(f); return false; }
+    const col = fc.alleato && val(f, 'colpito') && val(f, 'colpito').value ? (([k, v]) => ({ [k]: v }))(val(f, 'colpito').value.split(':')) : null;
+    let x = M.applicaFallimento(S.camp, scelto(f), fc, col, rng);
+    if (fine && x.combattimento) x = M.comando(x, 'avanti', {}, MET, rng, Date.now());
+    applicaS(x);
+  };
+  const el = apri({ titolo: 'Fallimento critico', larga: true, corpo: `<p class="tenue piccolo">${esc(FER.fallimenti.regola)}</p>
+      ${chi ? `<p class="piccolo"><b>${esc(nomeChi(c, chi))}</b></p>` : `<label class="campo"><span>Chi</span><select name="chi">${creature.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select></label>`}
+      <label class="campo"><span>Tabella</span><select name="t">${FER.fallimenti.tabelle.map(T => `<option value="${T.id}" ${T.id === (tabId || S.ui.fcTab) ? 'selected' : ''}>${esc(T.nome)} (${T.dado})</option>`).join('')}</select></label>
+      <div class="fila"><button type="button" class="btn oro" data-fc="tira">Tira</button></div><div id="fc-ant"></div>`,
+    azioni: [{ testo: 'Annulla' }, ...(cb ? [{ testo: 'Applica e termina il turno', fn: f => applicaFc(f, true) }] : []), { testo: 'Applica', classe: 'prim', fn: f => applicaFc(f, false) }] });
+  el.addEventListener('click', ev => { if (ev.target.closest('[data-fc="tira"]')) prova(() => tira(el)); });
+  el.addEventListener('change', ev => { if (ev.target.name === 't') { S.ui.fcTab = ev.target.value; fc = null; disegnaAnt(el); } if (ev.target.name === 'chi') { fc = null; disegnaAnt(el); } });
+  disegnaAnt(el);
+}
+// ---------- AB4-1: Dadi
+function finestraDadi() {
+  const D = S.ui.dadi = S.ui.dadi || { espr: '1d20', modo: 'prova', log: leggiPref('dadi-log') === '1' };
+  const storico = () => S.camp.tiri.map((x, i) => `<li><span class="num">${esc(M.testoTiro(x))}</span>${i === 0 && !x.ripetuto && !x.ripete ? ' <button type="button" class="btn min" data-dd="ripeti">Ripeti</button>' : ''}${x.fallimento ? ' <button type="button" class="btn min peric" data-dd="fc">Fallimento critico…</button>' : ''}</li>`).join('');
+  const el = apri({ titolo: 'Dadi', larga: true, corpo: `<div class="fila">${['1d20', '1d4', '1d6', '1d8', '1d10', '1d12', '1d100', '2d6', '4d6kh3'].map(x => `<button type="button" class="btn min" data-dd-e="${x}">${x}</button>`).join('')}</div>
+      <label class="campo"><span>Tiro (es. 1d20+5, 2d6+3, 4d6kh3)</span><input type="text" name="e" value="${esc(D.espr)}" autocomplete="off"></label>
+      <div class="fila">${[['prova', 'Prova/TS (1 = −10, 20 = 30)'], ['colpire', 'Tiro per colpire (20 = 30, 1 = Fallimento critico)'], ['libero', 'Libero']].map(([v, t]) => `<label class="spunta piccolo"><input type="radio" name="m" value="${v}" ${D.modo === v ? 'checked' : ''}> ${t}</label>`).join('')}</div>
+      <div class="fila"><label class="spunta piccolo"><input type="checkbox" name="va"> Vantaggio</label><label class="spunta piccolo"><input type="checkbox" name="sv"> Svantaggio</label>
+        <label class="spunta piccolo"><input type="checkbox" name="lg" ${D.log ? 'checked' : ''}> anche nel log</label></div>
+      <div id="dd-ris"></div><h4 class="sotto">Ultimi tiri</h4><ul class="log piccolo" id="dd-sto">${storico()}</ul>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Tira', classe: 'prim', fn: f => {
+      D.espr = testo(f, 'e'); D.modo = f.querySelector('[name="m"]:checked').value; D.log = spunta(f, 'lg'); scriviPref('dadi-log', D.log ? '1' : '0');
+      const r = M.tiraDadi(S.camp, D.espr, D.modo, { vantaggio: spunta(f, 'va'), svantaggio: spunta(f, 'sv'), log: D.log }, rng); applica(r.camp); mostra(f, r.esito); return false; } }] });
+  const mostra = (f, x) => { f.querySelector('#dd-ris').innerHTML = `<div class="risultato">${x.fallimento ? '<span class="cond-t">Fallimento critico</span>' : x.valore}</div>`; f.querySelector('#dd-sto').innerHTML = storico(); };
+  el.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-dd-e]'); if (b) { val(el, 'e').value = b.dataset.ddE; return; }
+    const r = ev.target.closest('[data-dd]'); if (!r) return;
+    if (r.dataset.dd === 'ripeti') prova(() => { const x = M.ripetiTiro(S.camp, S.camp.tiri[0].id, rng, { log: spunta(el, 'lg') }); applica(x.camp); mostra(el, x.esito); });
+    if (r.dataset.dd === 'fc') { const cb = S.camp.combattimento, a = cb && M.attuale(cb); finestraFallimento(a ? (a.tipo === 'pg' ? { pg: a.pgId } : { riga: a.id }) : null); }
+  });
+}
+// ---------- AB4-2: Luce
+function disegnaLuce() {
+  const c = S.camp, voci = c.luci.map(x => { const f = M.infoLuce(STR, x.tipo), sp = x.accesa ? '' : M.motivoSpegne(c, MET, STR, x, c.tempo.R);
+    return `<div class="membro"><div class="fila"><b>${esc(f.nome)}</b><span class="tenue piccolo">${esc(M.nomeChiLuce(c, x.chi))} · ${f.raggio} m</span>
+      <span class="chip ${x.accesa ? 'ok' : ''}">${x.accesa ? 'accesa' : 'spenta'}</span><span class="num piccolo">${x.resta > 0 ? M.formatoDurata(x.resta) : 'consumata'}</span>
+      <label class="spunta piccolo"><input type="checkbox" data-az-cambio="riparoLuce" data-id="${x.id}" ${x.riparo ? 'checked' : ''}> al riparo</label><span class="spazio"></span>
+      ${x.accesa ? `<button class="btn min" data-az="spegniLuce" data-id="${x.id}">Spegni</button>` : `<button class="btn min oro" data-az="accendiLuce" data-id="${x.id}" ${x.resta <= 0 || sp ? `disabled title="${esc(sp ? 'il tempo la spegne: ' + sp : 'consumata')}"` : ''}>Accendi</button>`}
+      <button class="btn min" data-az="ricaricaLuce" data-id="${x.id}">${f.olio ? 'Fiaschetta' : 'Sostituisci'}</button><button class="btn min peric" data-az="togliLuce" data-id="${x.id}" aria-label="Togli">✕</button></div>
+      ${!x.accesa && sp && x.resta > 0 ? `<div class="tenue piccolo">Con il tempo di adesso non resta accesa: ${esc(sp)}.</div>` : ''}</div>`; }).join('');
+  return `<div class="pannello" id="p-luce"><div class="fila"><h3>Luce</h3><span class="tenue piccolo">${c.luci.filter(x => x.accesa).length} accese</span><span class="spazio"></span><button class="btn min" data-az="nuovaLuce">+ Luce</button></div>
+    ${voci || '<p class="tenue piccolo">Nessuna fonte di luce. Si consumano con l\'orologio e il meteo le spegne (tabella delle Fiamme).</p>'}</div>`;
+}
+function finestraLuce() {
+  const c = S.camp, chi = [['gruppo', 'Il gruppo'], ...c.pg.map(p => ['pg:' + p.id, p.scheda.nome]), ...c.compagnia.persone.map(a => ['acc:' + a.id, a.nome])];
+  const el = apri({ titolo: 'Nuova fonte di luce', corpo: `<label class="campo"><span>Fonte</span><select name="t">${STR.luce.map(f => `<option value="${f.id}">${esc(f.nome)} (${f.raggio} m, ${f.ore} ${f.ore === 1 ? 'ora' : 'ore'}${f.olio ? ' per fiaschetta' : ''}) · ${esc(f.costo)}</option>`).join('')}</select></label>
+      <p class="tenue piccolo" id="l-desc"></p>
+      <label class="campo"><span>A chi</span><select name="c">${chi.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select></label>
+      <label class="spunta piccolo"><input type="checkbox" name="r"> Al riparo (al chiuso, in una grotta): il meteo non la spegne</label>
+      <label class="spunta piccolo"><input type="checkbox" name="a" checked> Accendila subito</label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { let x = M.aggiungiLuce(S.camp, STR, { tipo: val(f, 't').value, chi: val(f, 'c').value, riparo: spunta(f, 'r') });
+      if (spunta(f, 'a')) { try { x = M.accendiLuce(x, MET, STR, x.luci.at(-1).id); } catch (e) { avviso(e.message, true); } } applica(x); } }] });
+  const desc = () => { el.querySelector('#l-desc').textContent = M.infoLuce(STR, val(el, 't').value).testo; };
+  el.addEventListener('change', desc); desc();
+}
+// ---------- AB4-3: Promemoria
+function disegnaPromemoria() {
+  const c = S.camp, cb = c.combattimento;
+  const tempo = c.promemoria.map(p => `<div class="fila"><span class="chip promem num">${esc(M.formatoData(c, p.R))}</span><span class="spazio piccolo">${esc(p.testo)}</span><button class="btn min peric" data-az="togliPromemoria" data-id="${p.id}" aria-label="Togli">✕</button></div>`).join('');
+  const round = cb ? cb.promemoria.map((p, i) => `<div class="fila"><span class="chip promem num">round ${p.round}</span><span class="spazio piccolo">${esc(p.testo)}</span><button class="btn min peric" data-az="togliPromRound" data-i="${i}" aria-label="Togli">✕</button></div>`).join('') : '';
+  return `<div class="pannello" id="p-promemoria"><div class="fila"><h3>Promemoria</h3><span class="spazio"></span>${cb && cb.incontro && cb.promemoria.length ? '<button class="btn min" data-az="promInIncontro">Salva nell\'incontro</button>' : ''}<button class="btn min" data-az="nuovoPromemoria">+ Promemoria</button></div>
+    ${tempo}${round}${tempo || round ? '' : '<p class="tenue piccolo">Nessun promemoria. Scattano da soli, in coda e nel log.</p>'}</div>`;
+}
+function finestraPromemoria() {
+  const c = S.camp, t = M.scomponi(c), cb = c.combattimento;
+  const el = apri({ titolo: 'Nuovo promemoria', corpo: `<label class="campo"><span>Testo</span><input type="text" name="t" placeholder="es. Arriva la carovana"></label>
+      <div class="fila">${[['fra', 'Fra…'], ['alle', 'Il giorno… alle…'], ...(cb ? [['round', 'Al round…']] : [])].map(([v, x], i) => `<label class="spunta piccolo"><input type="radio" name="q" value="${v}" ${i === 0 ? 'checked' : ''}> ${x}</label>`).join('')}</div>
+      <div class="griglia" data-q="fra"><label class="campo"><span>Quantità</span><input type="number" name="n" min="1" value="30"></label><label class="campo"><span>Unità</span><select name="u"><option value="minuti">minuti</option><option value="ore">ore</option><option value="giorni">giorni</option></select></label></div>
+      <div class="griglia" data-q="alle" hidden><label class="campo"><span>Giorno</span><select name="g"><option value="0">oggi</option><option value="1">domani</option>${Array.from({ length: 12 }, (_, i) => `<option value="${i + 2}">fra ${i + 2} giorni</option>`).join('')}</select></label>
+        <label class="campo"><span>Ora (hh:mm)</span><input type="time" name="h" value="${String((t.ore + 1) % 24).padStart(2, '0')}:00"></label></div>
+      ${cb ? `<div class="griglia" data-q="round" hidden><label class="campo"><span>Round</span><input type="number" name="r" min="1" value="${cb.round + 1}"></label></div>` : ''}`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { const q = f.querySelector('[name="q"]:checked').value, testoP = testo(f, 't');
+      if (q === 'fra') return applica(M.aggiungiPromemoria(S.camp, { testo: testoP, tra: { n: intero(f, 'n'), unita: val(f, 'u').value } }));
+      if (q === 'round') return applica(M.aggiungiPromemoria(S.camp, { testo: testoP, round: intero(f, 'r') }));
+      const [hh, mm] = (val(f, 'h').value || '00:00').split(':').map(Number), g = M.scomponi(S.camp).N + +val(f, 'g').value;
+      applica(M.aggiungiPromemoria(S.camp, { testo: testoP, R: g * M.ROUND_GIORNO + hh * M.ROUND_ORA + mm * M.ROUND_MIN })); } }] });
+  el.addEventListener('change', ev => { if (ev.target.name !== 'q') return; for (const x of el.querySelectorAll('[data-q]')) x.hidden = x.dataset.q !== ev.target.value; });
+}
+// ---------- AB4-4: Log per sessione e per tipo
+const TIPI_L = [['combattimento', 'Combattimento'], ['tempo', 'Tempo e meteo'], ['ferite', 'Ferite e cure'], ['scorte', 'Scorte'], ['tiri', 'Tiri'], ['altro', 'Altro']];
+function disegnaLog() {
+  const c = S.camp, sel = S.ui.logTipi = S.ui.logTipi || [];
+  const v = M.righeLog(c, { tipi: sel }).slice(-300).reverse();
+  return `<div class="pannello"><div class="fila"><h3>Log</h3><span class="spazio"></span><button class="btn min oro" data-az="iniziaSessione">Inizia sessione</button><button class="btn min" data-az="esportaLog">Esporta .txt</button></div>
+    <div class="fila filtri">${TIPI_L.map(([k, t]) => `<button class="btn min${sel.includes(k) ? ' oro' : ''}" data-az="logTipo" data-k="${k}">${t}</button>`).join('')}${sel.length ? '<button class="btn min" data-az="logTipo" data-k="">Tutti</button>' : ''}</div>
+    <ul class="log">${v.map(e => `<li${e.sessione ? ' class="sessione"' : ''}><span class="q">${esc(M.formatoData(c, e.R).replace(/^\S+ /, ''))}</span><span>${esc(e.testo)}</span></li>`).join('')}</ul></div>`;
+}
+Object.assign(AZ, {
+  prontSez(el) { S.ui.pront.sez = el.dataset.s; disegna(); },
+  prontGruppo(el) { S.ui.pront.gruppo = el.dataset.g; disegna(); },
+  vediCond(el) { const n = el.dataset.n; S.ui.scheda = 'prontuario'; S.ui.pront = { sez: 'condizioni', q: '', gruppo: '', aperta: n }; disegna();
+    const x = document.querySelector(`.cond-card[data-nome="${CSS.escape(n)}"]`); if (x) x.scrollIntoView({ block: 'start' }); },
+  applicaCond(el) { finestraApplicaA(el.dataset.n); },
+  fallimento(el) { finestraFallimento(el.dataset.chi ? chiDi(el) : null, el.dataset.t || null); },
+  dadi() { finestraDadi(); },
+  nuovaLuce() { finestraLuce(); },
+  accendiLuce(el) { applica(M.accendiLuce(S.camp, MET, STR, el.dataset.id)); },
+  spegniLuce(el) { applica(M.spegniLuce(S.camp, STR, el.dataset.id)); },
+  ricaricaLuce(el) { applica(M.ricaricaLuce(S.camp, STR, el.dataset.id)); },
+  togliLuce(el) { applica(M.togliLuce(S.camp, STR, el.dataset.id)); },
+  nuovoPromemoria() { finestraPromemoria(); },
+  togliPromemoria(el) { applica(M.togliPromemoria(S.camp, el.dataset.id)); },
+  togliPromRound(el) { applica(M.togliPromemoriaRound(S.camp, +el.dataset.i)); },
+  promInIncontro() { applica(M.salvaPromemoriaInIncontro(S.camp)); avviso('Promemoria salvati nell\'incontro'); },
+  iniziaSessione() { applica(M.iniziaSessione(S.camp)); avviso('Inizio della sessione segnato nel log'); },
+  logTipo(el) { const k = el.dataset.k, s = S.ui.logTipi || []; S.ui.logTipi = !k ? [] : s.includes(k) ? s.filter(x => x !== k) : [...s, k]; disegna(); },
+  esportaLog() {
+    const c = S.camp, tipi = S.ui.logTipi || [], sess = c.log.some(e => e.sessione);
+    apri({ titolo: 'Esporta il log', corpo: `${sess ? `<div class="fila"><label class="spunta"><input type="radio" name="d" value="sessione" checked> Questa sessione</label><label class="spunta"><input type="radio" name="d" value="tutto"> Tutto</label></div>` : '<p class="tenue piccolo">Nessuna sessione segnata: si esporta tutto («Inizia sessione» segna l\'inizio).</p>'}
+        ${tipi.length ? `<p class="piccolo">Solo: ${tipi.map(k => TIPI_L.find(x => x[0] === k)[1]).join(', ')}</p>` : ''}`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Esporta', classe: 'prim', fn: f => { const da = sess ? f.querySelector('[name="d"]:checked').value : 'tutto';
+        finestraEsporta(`${c.nome} - log${da === 'sessione' ? ' (sessione)' : ''}.txt`, M.testoLog(c, { da, tipi }), 'text/plain'); } }] });
+  },
+});
+Object.assign(CAMBI, { riparoLuce(el) { applica(M.riparoLuce(S.camp, el.dataset.id, el.checked)); } });
+document.addEventListener('input', ev => { if (ev.target.id !== 'pront-q') return; S.ui.pront.q = ev.target.value; clearTimeout(S.ui.prontT);
+  S.ui.prontT = setTimeout(() => { const pos = ev.target.selectionStart; disegna(); const q = $('#pront-q'); if (q) { q.focus(); q.setSelectionRange(pos, pos); } }, 250); });
 
 // ================================================================= avvio
 async function ricaricaElenco() {

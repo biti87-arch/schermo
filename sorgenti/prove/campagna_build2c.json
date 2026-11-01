@@ -1,0 +1,683 @@
+{
+ "formato": "schermo-v1",
+ "tipo": "campagna",
+ "dati": {
+  "formato": "schermo-v1",
+  "id": "mohaj4sg1tcf70iz",
+  "nome": "Campagna della Build 2c",
+  "creata": 1777300000000,
+  "modificata": 1777300004000,
+  "calendario": {
+   "tipo": "reale",
+   "mesi": [
+    {
+     "nome": "gennaio",
+     "giorni": 31
+    },
+    {
+     "nome": "febbraio",
+     "giorni": 28
+    },
+    {
+     "nome": "marzo",
+     "giorni": 31
+    },
+    {
+     "nome": "aprile",
+     "giorni": 30
+    },
+    {
+     "nome": "maggio",
+     "giorni": 31
+    },
+    {
+     "nome": "giugno",
+     "giorni": 30
+    },
+    {
+     "nome": "luglio",
+     "giorni": 31
+    },
+    {
+     "nome": "agosto",
+     "giorni": 31
+    },
+    {
+     "nome": "settembre",
+     "giorni": 30
+    },
+    {
+     "nome": "ottobre",
+     "giorni": 31
+    },
+    {
+     "nome": "novembre",
+     "giorni": 30
+    },
+    {
+     "nome": "dicembre",
+     "giorni": 31
+    }
+   ],
+   "settimana": [
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
+   ],
+   "settimana0": 2
+  },
+  "anno": {
+   "base": 1462,
+   "etichetta": "dopo la Caduta"
+  },
+  "tempo": {
+   "R": 1647000
+  },
+  "zona": "1",
+  "varianti": {},
+  "meteo": {
+   "giorno": 114,
+   "zona": "1",
+   "stagione": "primavera",
+   "tiro": null,
+   "testo": "Acquazzone",
+   "opzioni": [
+    [
+     "Acquazzone"
+    ]
+   ],
+   "scelta": 0,
+   "manuale": true,
+   "durata": {
+    "voci": [
+     "Acquazzone"
+    ],
+    "ore": 3,
+    "da": 1649400,
+    "a": 1651200
+   }
+  },
+  "previsioni": {
+   "zona": "1",
+   "giorni": [
+    {
+     "giorno": 115,
+     "tiro": 31,
+     "stagione": "primavera",
+     "testo": "Clima mite"
+    },
+    {
+     "giorno": 116,
+     "tiro": 84,
+     "stagione": "primavera",
+     "testo": "Clima mite"
+    }
+   ]
+  },
+  "scorte": {
+   "cibo": 8,
+   "acqua": 9,
+   "foraggio": 5,
+   "cibo_avariato": 2,
+   "acqua_impura": 0,
+   "recipienti": true
+  },
+  "razionamenti": [],
+  "foraggiato": null,
+  "compagnia": {
+   "senza_nome": 2,
+   "persone": [
+    {
+     "id": "a3",
+     "nome": "Mira",
+     "ruolo": "",
+     "rif": null,
+     "stato": {
+      "fame": {
+       "giorni_senza": 0,
+       "penalita": 0
+      },
+      "sete": {
+       "giorni_senza": 0,
+       "penalita": 0
+      }
+     }
+    },
+    {
+     "id": "a4",
+     "nome": "Tobia",
+     "ruolo": "portatore",
+     "rif": null,
+     "stato": {
+      "fame": {
+       "giorni_senza": 0,
+       "penalita": 0
+      },
+      "sete": {
+       "giorni_senza": 0,
+       "penalita": 0
+      }
+     }
+    }
+   ],
+   "animali": [
+    {
+     "id": "b5",
+     "nome": "Fulmine",
+     "tipo": "cavalcatura",
+     "padrone": "pg:p1",
+     "rif": null,
+     "mangia": "foraggio",
+     "cibo": 1,
+     "acqua": 1,
+     "trova_cibo": false,
+     "trova_acqua": false,
+     "stato": {
+      "fame": {
+       "giorni_senza": 0,
+       "penalita": 0
+      },
+      "sete": {
+       "giorni_senza": 0,
+       "penalita": 0
+      }
+     }
+    },
+    {
+     "id": "b6",
+     "nome": "Zanna",
+     "tipo": "compagno",
+     "padrone": "pg:p2",
+     "rif": {
+      "fonte": "mostro",
+      "id": "mmohaj4sg2lxvhw60"
+     },
+     "mangia": "razioni",
+     "cibo": 1,
+     "acqua": 1,
+     "trova_cibo": false,
+     "trova_acqua": true,
+     "stato": {
+      "fame": {
+       "giorni_senza": 0,
+       "penalita": 0
+      },
+      "sete": {
+       "giorni_senza": 0,
+       "penalita": 0
+      }
+     }
+    }
+   ]
+  },
+  "pg": [
+   {
+    "id": "p1",
+    "scheda": {
+     "nome": "Aria",
+     "giocatore": "",
+     "razza": "Elfa",
+     "classe": "Ladro 7",
+     "livello": 7,
+     "fatica_max": 42,
+     "ferita_max": 40,
+     "rif_dadi": 7,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 19,
+     "ca_contatto": 14,
+     "ca_sprovvista": 15,
+     "dmc": 21,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 5,
+     "riflessi": 9,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 12,
+     "intuizione": 8,
+     "furtivita": 14,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 6,
+     "imp_pen": 3,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 42,
+     "ferita": 40,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m7",
+       "tipo": "bonus",
+       "nome": "Scudo",
+       "R": 1647000,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {
+        "ca": 4
+       },
+       "etichetta": "",
+       "fonte": "",
+       "durata": {
+        "tipo": "tempo",
+        "fine": 1647070,
+        "n": 7,
+        "unita": "minuti"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "p2",
+    "scheda": {
+     "nome": "Bruno",
+     "giocatore": "",
+     "razza": "Orco",
+     "classe": "Barbaro 7",
+     "livello": 7,
+     "fatica_max": 48,
+     "ferita_max": 49,
+     "rif_dadi": 7,
+     "rif_tipo": 12,
+     "rif_ripete": false,
+     "ca": 17,
+     "ca_contatto": 11,
+     "ca_sprovvista": 15,
+     "dmc": 24,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 9,
+     "riflessi": 4,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 9,
+     "intuizione": 2,
+     "furtivita": 1,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 2,
+     "imp_pen": 6,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 43,
+     "ferita": 49,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m8",
+       "tipo": "condizione",
+       "nome": "Livelli negativi",
+       "R": 1647000,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "n": 1,
+       "durata": {
+        "tipo": "permanente"
+       }
+      },
+      {
+       "id": "m9",
+       "tipo": "condizione",
+       "nome": "Scosso",
+       "R": 1647000,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "durata": {
+        "tipo": "round",
+        "fine": 1647003,
+        "n": 3
+       }
+      }
+     ]
+    }
+   }
+  ],
+  "combattimento": {
+   "round": 1,
+   "ordine": [
+    "r10",
+    "r11",
+    "r12"
+   ],
+   "righe": {
+    "r10": {
+     "id": "r10",
+     "tipo": "pg",
+     "pgId": "p1",
+     "nome": "Aria",
+     "bonus": 6,
+     "nat": null,
+     "totale": 18,
+     "n": 1,
+     "spareggio": 4,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r11": {
+     "id": "r11",
+     "tipo": "pg",
+     "pgId": "p2",
+     "nome": "Bruno",
+     "bonus": 2,
+     "nat": null,
+     "totale": 9,
+     "n": 1,
+     "spareggio": 15,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r12": {
+     "id": "r12",
+     "tipo": "nemico",
+     "nome": "Lupo",
+     "bonus": 2,
+     "nat": 2,
+     "totale": 4,
+     "n": 2,
+     "spareggio": 17,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": [],
+     "rif": {
+      "fonte": "mostro",
+      "id": "mmohaj4sg2lxvhw60"
+     },
+     "pf": null,
+     "faticaFinita": false,
+     "alleato": false
+    }
+   },
+   "turno": 1,
+   "attesa": [],
+   "avvisi": [],
+   "inizioR": 1647000,
+   "storia": [
+    "{\"formato\":\"schermo-v1\",\"id\":\"mohaj4sg1tcf70iz\",\"nome\":\"Campagna della Build 2c\",\"creata\":1777300000000,\"modificata\":1777300000000,\"calendario\":{\"tipo\":\"reale\",\"mesi\":[{\"nome\":\"gennaio\",\"giorni\":31},{\"nome\":\"febbraio\",\"giorni\":28},{\"nome\":\"marzo\",\"giorni\":31},{\"nome\":\"aprile\",\"giorni\":30},{\"nome\":\"maggio\",\"giorni\":31},{\"nome\":\"giugno\",\"giorni\":30},{\"nome\":\"luglio\",\"giorni\":31},{\"nome\":\"agosto\",\"giorni\":31},{\"nome\":\"settembre\",\"giorni\":30},{\"nome\":\"ottobre\",\"giorni\":31},{\"nome\":\"novembre\",\"giorni\":30},{\"nome\":\"dicembre\",\"giorni\":31}],\"settimana\":[\"lunedì\",\"martedì\",\"mercoledì\",\"giovedì\",\"venerdì\",\"sabato\",\"domenica\"],\"settimana0\":2},\"anno\":{\"base\":1462,\"etichetta\":\"dopo la Caduta\"},\"tempo\":{\"R\":1647000},\"zona\":\"1\",\"varianti\":{},\"meteo\":{\"giorno\":114,\"zona\":\"1\",\"stagione\":\"primavera\",\"tiro\":null,\"testo\":\"Acquazzone\",\"opzioni\":[[\"Acquazzone\"]],\"scelta\":0,\"manuale\":true,\"durata\":{\"voci\":[\"Acquazzone\"],\"ore\":3,\"da\":1649400,\"a\":1651200}},\"previsioni\":{\"zona\":\"1\",\"giorni\":[{\"giorno\":115,\"tiro\":31,\"stagione\":\"primavera\",\"testo\":\"Clima mite\"},{\"giorno\":116,\"tiro\":84,\"stagione\":\"primavera\",\"testo\":\"Clima mite\"}]},\"scorte\":{\"cibo\":8,\"acqua\":9,\"foraggio\":5,\"cibo_avariato\":2,\"acqua_impura\":0,\"recipienti\":true},\"razionamenti\":[],\"foraggiato\":null,\"compagnia\":{\"senza_nome\":2,\"persone\":[{\"id\":\"a3\",\"nome\":\"Mira\",\"ruolo\":\"\",\"rif\":null,\"stato\":{\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}},{\"id\":\"a4\",\"nome\":\"Tobia\",\"ruolo\":\"portatore\",\"rif\":null,\"stato\":{\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}}],\"animali\":[{\"id\":\"b5\",\"nome\":\"Fulmine\",\"tipo\":\"cavalcatura\",\"padrone\":\"pg:p1\",\"rif\":null,\"mangia\":\"foraggio\",\"cibo\":1,\"acqua\":1,\"trova_cibo\":false,\"trova_acqua\":false,\"stato\":{\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}},{\"id\":\"b6\",\"nome\":\"Zanna\",\"tipo\":\"compagno\",\"padrone\":\"pg:p2\",\"rif\":{\"fonte\":\"mostro\",\"id\":\"mmohaj4sg2lxvhw60\"},\"mangia\":\"razioni\",\"cibo\":1,\"acqua\":1,\"trova_cibo\":false,\"trova_acqua\":true,\"stato\":{\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}}]},\"pg\":[{\"id\":\"p1\",\"scheda\":{\"nome\":\"Aria\",\"giocatore\":\"\",\"razza\":\"Elfa\",\"classe\":\"Ladro 7\",\"livello\":7,\"fatica_max\":42,\"ferita_max\":40,\"rif_dadi\":7,\"rif_tipo\":8,\"rif_ripete\":false,\"ca\":19,\"ca_contatto\":14,\"ca_sprovvista\":15,\"dmc\":21,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":5,\"riflessi\":9,\"volonta\":3,\"ts_note\":\"\",\"percezione\":12,\"intuizione\":8,\"furtivita\":14,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":6,\"imp_pen\":3,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":42,\"ferita\":40,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m7\",\"tipo\":\"bonus\",\"nome\":\"Scudo\",\"R\":1647000,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{\"ca\":4},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"tempo\",\"fine\":1647070,\"n\":7,\"unita\":\"minuti\"}}]}},{\"id\":\"p2\",\"scheda\":{\"nome\":\"Bruno\",\"giocatore\":\"\",\"razza\":\"Orco\",\"classe\":\"Barbaro 7\",\"livello\":7,\"fatica_max\":48,\"ferita_max\":49,\"rif_dadi\":7,\"rif_tipo\":12,\"rif_ripete\":false,\"ca\":17,\"ca_contatto\":11,\"ca_sprovvista\":15,\"dmc\":24,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":9,\"riflessi\":4,\"volonta\":3,\"ts_note\":\"\",\"percezione\":9,\"intuizione\":2,\"furtivita\":1,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":2,\"imp_pen\":6,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":43,\"ferita\":49,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m8\",\"tipo\":\"condizione\",\"nome\":\"Livelli negativi\",\"R\":1647000,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"n\":1,\"durata\":{\"tipo\":\"permanente\"}},{\"id\":\"m9\",\"tipo\":\"condizione\",\"nome\":\"Scosso\",\"R\":1647000,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"durata\":{\"tipo\":\"round\",\"fine\":1647003,\"n\":3}}]}}],\"combattimento\":{\"round\":1,\"ordine\":[\"r10\",\"r11\",\"r12\"],\"righe\":{\"r10\":{\"id\":\"r10\",\"tipo\":\"pg\",\"pgId\":\"p1\",\"nome\":\"Aria\",\"bonus\":6,\"nat\":null,\"totale\":18,\"n\":1,\"spareggio\":4,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r11\":{\"id\":\"r11\",\"tipo\":\"pg\",\"pgId\":\"p2\",\"nome\":\"Bruno\",\"bonus\":2,\"nat\":null,\"totale\":9,\"n\":1,\"spareggio\":15,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r12\":{\"id\":\"r12\",\"tipo\":\"nemico\",\"nome\":\"Lupo\",\"bonus\":2,\"nat\":2,\"totale\":4,\"n\":2,\"spareggio\":17,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[],\"rif\":{\"fonte\":\"mostro\",\"id\":\"mmohaj4sg2lxvhw60\"},\"pf\":null,\"faticaFinita\":false,\"alleato\":false}},\"turno\":0,\"attesa\":[],\"avvisi\":[],\"inizioR\":1647000,\"storia\":[],\"timer\":null,\"incontro\":null,\"promemoria\":[]},\"coda\":[],\"log\":[{\"R\":1647000,\"testo\":\"PG aggiunto: Aria\"},{\"R\":1647000,\"testo\":\"PG aggiunto: Bruno\"},{\"R\":1647000,\"testo\":\"Compagnia: Mira si unisce\"},{\"R\":1647000,\"testo\":\"Compagnia: Tobia (portatore) si unisce\"},{\"R\":1647000,\"testo\":\"Campagna creata: Campagna della Build 2c, venerdì 25 aprile 1462 dopo la Caduta, 09:00\"},{\"R\":1647000,\"testo\":\"Meteo: Pioggia battente (d% 86, 1. Pianure e colline temperate, Primavera)\"},{\"R\":1647000,\"testo\":\"Meteo impostato: Acquazzone — Acquazzone 3 ore, dalle 06:00 alle 09:00\"},{\"R\":1647000,\"testo\":\"Acquazzone: dalle 13:00 alle 16:00\"},{\"R\":1647000,\"testo\":\"Predire il tempo: 22, 2 giorni: sabato 26 aprile 1462 dopo la Caduta Clima mite; domenica 27 aprile 1462 dopo la Caduta Clima mite\"},{\"R\":1647000,\"testo\":\"Compagnia: Fulmine (cavalcatura)\"},{\"R\":1647000,\"testo\":\"Compagnia: Zanna (compagno animale)\"},{\"R\":1647000,\"testo\":\"Scorta di cibo avariato: +2 → 2\"},{\"R\":1647000,\"testo\":\"Aria: bonus Scudo (7 min)\"},{\"R\":1647000,\"testo\":\"Bruno: malus Livelli negativi 1 (permanente)\"},{\"R\":1647000,\"testo\":\"Bruno: malus Scosso (3 r)\"},{\"R\":1647000,\"testo\":\"Inizio del combattimento (Lupi sulla strada): Aria 18, Bruno 9, Lupo ×2 4\"}],\"impostazioni\":{\"scorte\":true,\"xp\":false,\"pf_nemici\":false,\"timer\":false,\"timer_tv\":false,\"soglia_timer\":0,\"incontri_casuali\":false,\"tv_xn\":true,\"tv_fuori\":\"barrate\",\"tv_ora\":false,\"tv_meteo\":false,\"tv_solo_combattimento\":true,\"f10\":false,\"tema\":\"scuro\"},\"contatore\":12}"
+   ],
+   "timer": null,
+   "incontro": null,
+   "promemoria": []
+  },
+  "coda": [],
+  "log": [
+   {
+    "R": 1647000,
+    "testo": "PG aggiunto: Aria"
+   },
+   {
+    "R": 1647000,
+    "testo": "PG aggiunto: Bruno"
+   },
+   {
+    "R": 1647000,
+    "testo": "Compagnia: Mira si unisce"
+   },
+   {
+    "R": 1647000,
+    "testo": "Compagnia: Tobia (portatore) si unisce"
+   },
+   {
+    "R": 1647000,
+    "testo": "Campagna creata: Campagna della Build 2c, venerdì 25 aprile 1462 dopo la Caduta, 09:00"
+   },
+   {
+    "R": 1647000,
+    "testo": "Meteo: Pioggia battente (d% 86, 1. Pianure e colline temperate, Primavera)"
+   },
+   {
+    "R": 1647000,
+    "testo": "Meteo impostato: Acquazzone — Acquazzone 3 ore, dalle 06:00 alle 09:00"
+   },
+   {
+    "R": 1647000,
+    "testo": "Acquazzone: dalle 13:00 alle 16:00"
+   },
+   {
+    "R": 1647000,
+    "testo": "Predire il tempo: 22, 2 giorni: sabato 26 aprile 1462 dopo la Caduta Clima mite; domenica 27 aprile 1462 dopo la Caduta Clima mite"
+   },
+   {
+    "R": 1647000,
+    "testo": "Compagnia: Fulmine (cavalcatura)"
+   },
+   {
+    "R": 1647000,
+    "testo": "Compagnia: Zanna (compagno animale)"
+   },
+   {
+    "R": 1647000,
+    "testo": "Scorta di cibo avariato: +2 → 2"
+   },
+   {
+    "R": 1647000,
+    "testo": "Aria: bonus Scudo (7 min)"
+   },
+   {
+    "R": 1647000,
+    "testo": "Bruno: malus Livelli negativi 1 (permanente)"
+   },
+   {
+    "R": 1647000,
+    "testo": "Bruno: malus Scosso (3 r)"
+   },
+   {
+    "R": 1647000,
+    "testo": "Inizio del combattimento (Lupi sulla strada): Aria 18, Bruno 9, Lupo ×2 4"
+   }
+  ],
+  "impostazioni": {
+   "scorte": true,
+   "xp": false,
+   "pf_nemici": false,
+   "timer": false,
+   "timer_tv": false,
+   "soglia_timer": 0,
+   "incontri_casuali": false,
+   "tv_xn": true,
+   "tv_fuori": "barrate",
+   "tv_ora": false,
+   "tv_meteo": false,
+   "tv_solo_combattimento": true,
+   "f10": false,
+   "tema": "scuro"
+  },
+  "png": [],
+  "incontri": [],
+  "contatore": 12
+ },
+ "mostri": [
+  {
+   "id": "mmohaj4sg2lxvhw60",
+   "tipo_scheda": "mostro_pf1",
+   "alleato": false,
+   "capacita_trama": false,
+   "gs": "1",
+   "n_suggerito": 1,
+   "solo_ferita": false,
+   "car": {
+    "For": 10,
+    "Des": 10,
+    "Cos": 10,
+    "Int": 10,
+    "Sag": 10,
+    "Car": 10
+   },
+   "tattiche": {
+    "prima": "",
+    "r1": "",
+    "r23": "",
+    "fatica": "",
+    "fuga": "",
+    "tratto": "",
+    "generale": ""
+   },
+   "tesoro": null,
+   "extra": [],
+   "etichette": [],
+   "preferito": false,
+   "guida": {
+    "attiva": false,
+    "classi": [
+     {
+      "classe": "",
+      "livello": 1,
+      "archetipo": "",
+      "dv": 8
+     }
+    ],
+    "razza": "",
+    "tratto_bonus": "",
+    "taglia": "media",
+    "armatura": {
+     "nome": "",
+     "base": 0,
+     "sintonia": 0,
+     "des_max": null
+    },
+    "scudo": {
+     "nome": "",
+     "base": 0,
+     "sintonia": 0
+    },
+    "naturale": 0,
+    "deviazione": 0,
+    "schivare": 0,
+    "altri_ca": 0,
+    "robustezza": false,
+    "pf_extra": 0,
+    "bab": 0,
+    "ts_base": {
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0
+    },
+    "ts_extra": {
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0
+    },
+    "ts_condizionali": "",
+    "iniziativa_extra": 0,
+    "armi": [],
+    "attacco_poderoso": false,
+    "abilita": [],
+    "talenti": [],
+    "pf_bestiario": null,
+    "gs_bestiario": ""
+   },
+   "creata": 1777300000000,
+   "modificata": 1777300000000,
+   "nome": "Lupo",
+   "epiteto": "",
+   "classi_testo": "",
+   "note_testata": "",
+   "fonte": "",
+   "razza_riga": "",
+   "allineamento": "",
+   "ini_nota": "",
+   "sensi": "",
+   "perc_nota": "",
+   "aura": "",
+   "ca_scomp": "",
+   "pf_dadi": "",
+   "pf_nota": "",
+   "ts_note": "",
+   "difese": "",
+   "velocita": "",
+   "bab": "",
+   "bmc": "",
+   "dmc": "",
+   "mischia": "",
+   "distanza": "",
+   "speciali": "",
+   "incantesimi": "",
+   "talenti": "",
+   "abilita": "",
+   "lingue": "",
+   "tratti": "",
+   "sintonia": "",
+   "equip": "",
+   "statistiche_altro": "",
+   "altro": "",
+   "livello": null,
+   "iniziativa": 2,
+   "percezione": null,
+   "ca": null,
+   "ca_contatto": null,
+   "ca_sprovvista": null,
+   "pf": null,
+   "fatica": 6,
+   "ferita": 7,
+   "tempra": null,
+   "riflessi": null,
+   "volonta": null,
+   "xp": 400
+  }
+ ]
+}

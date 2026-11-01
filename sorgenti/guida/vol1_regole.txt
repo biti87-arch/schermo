@@ -1,0 +1,22 @@
+## Nuovi tipi di bonus
+•  Bonus alchemico, arcano, istinto e meccanico: molteplici bonus del medesimo tipo non si cumulano, ma si applica solo il bonus più alto. Un oggetto con un potenziamento arcano è considerato magico a tutti gli effetti. Il bonus di istinto si applica anche contro gli attacchi di contatto ma è perduto se il personaggio è colto alla sprovvista.
+•  Bonus spiritico: molteplici bonus spiritici si cumulano tra loro ma solo se provengono dalla stessa fonte.
+
+## Condizioni ed effetti
+•  Gli effetti di [AFFATICAMENTO] sono quelli che comportano le condizioni affaticato ed esausto.
+•  Affaticato o esausto: una creatura affaticata o esausta a causa di fame o sete può rimuovere tali condizioni solamente rifocillandosi.
+
+## 1, 20 e re-roll
+•  Salvo diversamente indicato, nei tiri di d20 un risultato naturale di 1 equivale a −10 mentre un risultato naturale di 20 equivale a 30.
+•  Un risultato naturale di 1 ottenuto in un tiro per colpire non equivale a −10 ma significa che si è ottenuto un Fallimento critico (vedi Volume 3 – Imprevisti: Fallimenti critici).
+•  Quando si decide di prendere 20, si conta il risultato come 20 e non come 30.
+•  Salvo diversamente indicato, un tiro può essere ripetuto una sola volta.
+
+## Vantaggio e svantaggio
+Quando un personaggio ha vantaggio può tirare due dadi nel relativo tiro e tenere il risultato migliore. Quando un personaggio ha svantaggio deve tirare due dadi nel relativo tiro e tenere il risultato peggiore. Un singolo vantaggio e un singolo svantaggio si annullano a vicenda.
+
+## Sanguinamento
+Gli effetti di [SANGUINAMENTO] possono essere fermati con una prova di Professione (cerusico) con CD 10 (vedi Volume 3, Fermare sanguinamento), con una prova di Sopravvivenza con CD 15 o tramite l'uso della magia.
+
+## Essere impreparati
+I personaggi impreparati, anziché non poter agire nel primo round di combattimento, subiscono una penalità di −6 alla prova di Iniziativa. Per il resto, la sorpresa funziona come di consueto (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.).

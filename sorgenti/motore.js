@@ -9,6 +9,8 @@ const Motore = (() => {
 const FORMATO = 'schermo-v1';
 const ROUND_MIN = 10, ROUND_ORA = 600, ROUND_GIORNO = 14400;
 const clona = o => JSON.parse(JSON.stringify(o));
+let STRUMENTI = null; // strumenti.json (Build 3a): fonti di luce e Fiamme, impostato con usaStrumenti()
+function usaStrumenti(s) { STRUMENTI = s; }
 const nuovoId = rng => Math.floor(rng() * 36 ** 8).toString(36).padStart(8, '0');
 // id interni (PG, righe dell'iniziativa): contatore della campagna, sempre univoci
 const prossimoId = (c, pre) => { c.contatore = (c.contatore || 0) + 1; return pre + c.contatore; };
@@ -329,6 +331,7 @@ function creaCampagna(dati, meteo, rng, oraReale) {
     scorte: { cibo: dati.cibo, acqua: dati.acqua, foraggio: dati.foraggio, cibo_avariato: 0, acqua_impura: 0, recipienti: true }, razionamenti: [], foraggiato: null,
     compagnia: { senza_nome: dati.accompagnatori, persone: [], animali: [] },
     pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) }, png: [], incontri: [],
+    modelli: [], luci: [], promemoria: [], tiri: [],
   };
   camp.tempo.R = tempoAssoluto(camp, dati.anno.numero, p.mese || 0, p.giorno || 1, p.ore || 0, p.min || 0);
   const L = cal.settimana ? cal.settimana.length : 0;
@@ -402,6 +405,8 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   for (const [k, v] of [['foraggio', 0], ['cibo_avariato', 0], ['acqua_impura', 0], ['recipienti', true]]) if (x.scorte[k] === undefined) x.scorte[k] = v;
   for (const r of x.razionamenti) { if (r.k === undefined) r.k = 1; if (r.gratis === undefined) r.gratis = null; }
   if (x.combattimento) for (const r of Object.values(x.combattimento.righe)) if (r.alleato === undefined) r.alleato = false;
+  // Build 3a: modelli della finestra Malus/Bonus, fonti di luce, promemoria, storico dei dadi
+  for (const k of ['modelli', 'luci', 'promemoria', 'tiri']) x[k] = x[k] || [];
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -533,6 +538,8 @@ function avanza(camp, dR, meteo, rng, motivo, opz) {
     recuperoNonLetali(c, prec, t);
     cambiMeteoNelGiorno(c, meteo, prec, t);
     tempoMalus(c, prec, t, rng, !!(opz && opz.daTurno));
+    luciTempo(c, meteo, STRUMENTI, prec, t, rng);
+    promemoriaTempo(c, prec, t);
     if (t % ROUND_GIORNO === 0 && t > prec) { c = cambioGiorno(c, meteo, rng); }
     prec = t;
   }
@@ -581,6 +588,8 @@ function riposo(camp, meteo, rng, ids) {
     st.ferita = Math.min(mx.ferita, st.ferita + s.livello); st.rif_riserva = s.rif_dadi;
     if (div > 1) log(c, `${s.nome}: organo compromesso, Punti Fatica recuperati ÷ ${div}`);
     st.ultimo_riposo = { inizio, fine: inizio + DURATA_RIPOSO };
+    for (const m of st.malus.filter(m => m.tipo === 'condizione' && ['Affaticato', 'Esausto'].includes(m.nome) && !daFameSete(m)))
+      togliDaElenco(c, st.malus, m, `${s.nome}: il riposo toglie ${m.nome}`);
   }
   log(c, `Riposo (${scelti.map(p => p.scheda.nome).join(', ')}): Fatica al massimo, +1 Ferita per livello, riserva del Rifiatare piena`);
   return c;
@@ -1141,7 +1150,11 @@ const PAURA = ['Scosso', 'Spaventato', 'In Preda al Panico', 'Accovacciato'];
 const EFFETTI_COND = { // G2: condizioni applicate ai valori del riquadro
   'Scosso': { ts: -2, abilita: -2 }, 'Spaventato': { ts: -2, abilita: -2 }, 'In Preda al Panico': { ts: -2, abilita: -2 }, 'Infermo': { ts: -2, abilita: -2 },
   'Abbagliato': { abilita_nome: { 'Percezione': -1 } }, 'Accecato': { ca: -2, abilita_nome: { 'Percezione': -4 } }, 'Assordato': { iniziativa: -4 },
-  'Impreparato': { sprovvista: true }, 'Colto alla sprovvista': { sprovvista: true }, 'Prono': { nota: '−4 CA in mischia / +4 a distanza' } };
+  'Impreparato': { sprovvista: true }, 'Colto alla sprovvista': { sprovvista: true }, 'Prono': { nota: '−4 CA in mischia / +4 a distanza' },
+  // AB1-3 (Build 3a)
+  'Affascinato': { abilita_nome: { 'Percezione': -4 } }, 'Stordito': { ca: -2, sprovvista: true }, 'Accovacciato': { ca: -2, sprovvista: true },
+  'Immobilizzato': { ca: -4, sprovvista: true }, 'Indifeso': { nota: 'Des 0, +4 ai TpC in mischia contro' }, 'Paralizzato': { nota: 'Des 0, +4 ai TpC in mischia contro' },
+  'Privo di Sensi': { nota: 'Des 0, +4 ai TpC in mischia contro' } };
 const CHIAVI_MOD = ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max', 'ferita_max'];
 function pulisciMods(mo) {
   const out = {};
@@ -1187,6 +1200,7 @@ function durataMalus(c, chi, m, dd) {
   if (dd.tipo) { if (!['incontro', 'permanente', 'libera', 'curata'].includes(dd.tipo)) throw new Error('durata non valida'); return { ...dd }; }
   if (['incontro', 'permanente', 'libera'].includes(dd.unita)) return { tipo: dd.unita };
   const k = UNITA_ROUND[dd.unita]; if (!k || !(Number.isInteger(dd.n) && dd.n > 0)) throw new Error('durata non valida');
+  if (dd.liv !== undefined && dd.liv !== null) { if (!(Number.isInteger(dd.liv) && dd.liv > 0)) throw new Error('livello dell\'incantatore non valido'); dd = { ...dd, n: dd.n * dd.liv }; }
   return dd.unita === 'round' ? { tipo: 'round', fine: fineRound(c, chi, m, dd.n), n: dd.n } : { tipo: 'tempo', fine: c.tempo.R + dd.n * k, n: dd.n, unita: dd.unita };
 }
 const PESO_DURATA = d => d.tipo === 'permanente' || d.tipo === 'libera' || d.tipo === 'curata' ? Infinity : d.tipo === 'incontro' ? 1e15 : d.fine;
@@ -1199,6 +1213,8 @@ function nuovoMalus(c, chi, d, rng) {
   if (!nome) nome = { bonus: 'Bonus', veleno: 'Veleno', malattia: 'Malattia' }[tipo] || 'Malus';
   const m = { id: prossimoId(c, 'm'), tipo, nome, R: c.tempo.R, scadenza: d.scadenza === 'causa' && d.causa ? 'causa' : 'bersaglio',
     causa: d.scadenza === 'causa' && d.causa ? d.causa : null, mods: pulisciMods(d.mods), etichetta: String(d.etichetta || '').trim(), fonte: d.fonte || '' };
+  if (tipo === 'bonus' && d.tb && d.tb !== 'senza tipo') m.tb = String(d.tb);
+  if (d.durata && d.durata.liv) m.liv = d.durata.liv;
   if (m.causa && !(c.combattimento && c.combattimento.righe[m.causa])) throw new Error('chi l\'ha causato non è nell\'iniziativa');
   if (d.perc) { if (!(Number.isInteger(d.perc) && d.perc > 0 && d.perc <= 100)) throw new Error('percentuale non valida'); m.perc = d.perc; }
   if (nome === 'Livelli negativi') { if (!(Number.isInteger(d.n) && d.n > 0)) throw new Error('numero dei livelli negativi non valido'); m.n = d.n; }
@@ -1217,6 +1233,20 @@ function nuovoMalus(c, chi, d, rng) {
   if (tipo === 'panico') m.spese = [];
   if (d.morteTra) m.morte_R = c.tempo.R + d.morteTra;
   if (d.dopoMorto) m.dopoMorto = true;
+  // AB1-3: Terrore crescente (Scosso o Spaventato su chi ha già paura) e Fatica (Affaticato su chi è già affaticato)
+  if (tipo === 'condizione' && m.durata.tipo !== 'curata' && d.crescente !== false) {
+    const cr = crescente(el, nome);
+    if (cr && cr.gia) { log(c, `${chiNome}: ${nome} — è già esausto`); return el.find(x => x.tipo === 'condizione' && x.nome === 'Esausto'); }
+    if (cr) {
+      let dur = m.durata; for (const x of cr.via) if (PESO_DURATA(x.durata) > PESO_DURATA(dur)) dur = x.durata;
+      for (const x of cr.via) togliDaElenco(c, el, x, null);
+      log(c, `${chiNome}: ${cr.motivo} → ${cr.risultato}`);
+      const nd = { ...d, nome: cr.risultato, crescente: false, durata: dur.tipo === 'round' || dur.tipo === 'tempo' ? null : { tipo: dur.tipo } };
+      const nm = nuovoMalus(c, chi, nd, rng);
+      if (dur.tipo === 'round' || dur.tipo === 'tempo') nm.durata = clona(dur);
+      return nm;
+    }
+  }
   // la stessa condizione non si somma: resta la durata più lunga
   if (tipo === 'condizione' && m.durata.tipo !== 'curata') {
     const es = el.find(x => x.tipo === 'condizione' && x.nome === nome && x.durata.tipo !== 'curata' && (x.perc || 0) === (m.perc || 0) && (x.n || 0) === (m.n || 0));
@@ -1226,7 +1256,15 @@ function nuovoMalus(c, chi, d, rng) {
       return es;
     }
   }
+  const lnPrima = nome === 'Livelli negativi' ? divisioneLivelli(livelliNegativiDi(el)) : null;
   el.push(m);
+  if (lnPrima) { // AB1-2: anche i valori correnti calano (i Ferita non sotto 0)
+    const dopo = divisioneLivelli(livelliNegativiDi(el)), dF = dopo.fatica - lnPrima.fatica, dW = dopo.ferita - lnPrima.ferita;
+    const cala = st => { st.fatica = Math.max(0, st.fatica - dF); if (st.ferita > 0) st.ferita = Math.max(0, st.ferita - dW); };
+    if (chi.pg) cala(trova(c, chi.pg).stato);
+    else { const r = c.combattimento.righe[chi.riga]; if (r.pf) r.pf.forEach(cala); }
+    log(c, `${chiNome}: livelli negativi, −${dF} Punti Fatica e −${dW} Punti Ferita (massimi e correnti)`);
+  }
   log(c, `${chiNome}: ${tipo === 'bonus' ? 'bonus' : 'malus'} ${nomeEsteso(m)}` + (m.etichetta ? ` [${m.etichetta}]` : '') + (descriviDurata(c, m) ? ` (${descriviDurata(c, m)})` : ''));
   if (chi.pg) { const p = trova(c, chi.pg), mx = massimi(c, p); // massimi ridotti: i valori correnti non li superano
     p.stato.fatica = Math.min(p.stato.fatica, mx.fatica); p.stato.ferita = Math.min(p.stato.ferita, mx.ferita); }
@@ -1287,6 +1325,11 @@ function inizioTurno(c, rigaId, rng) {
     const proprio = x.chi.riga === rigaId || (x.p && rigaDiPG(c.combattimento, x.p.id) === rigaId);
     if (m.durata.tipo === 'round' && c.tempo.R >= m.durata.fine) { scadeMalus(c, x, m); avv.push(`${nomeEsteso(m)} scade ora` + (proprio ? '' : ` (${x.nome})`)); continue; }
     if (!fermo && m.per && m.per.unita === 'round' && !m.per.attesa && c.tempo.R >= m.per.prossimo) dovuto(c, x, m, rng);
+  }
+  for (const x of tutti(c)) { // AB1-3 Confuso: d% all'inizio del turno della creatura
+    const proprio = x.chi.riga === rigaId || (x.p && rigaDiPG(c.combattimento, x.p.id) === rigaId);
+    if (!proprio || !x.elenco.some(m => m.tipo === 'condizione' && m.nome === 'Confuso')) continue;
+    const t = tiroConfuso(rng); avv.push(`Confuso, d% ${t.tiro}: ${t.testo}` + (x.chi.riga === rigaId || x.p ? '' : ` (${x.nome})`)); log(c, `${x.nome}: confuso, d% ${t.tiro} — ${t.testo}`);
   }
   return avv;
 }
@@ -1457,10 +1500,19 @@ function valoriPG(camp, p) {
     if (m.tipo === 'condizione') {
       cond.add(m.nome);
       if (m.nome === 'Offuscato') offuscato = Math.max(offuscato, m.perc || 0);
-      if (m.nome === 'Livelli negativi') somma({ ts: -m.n, abilita: -m.n, dmc: -m.n, fatica_max: -5 * m.n });
+      if (m.nome === 'Livelli negativi') somma({ ts: -m.n, abilita: -m.n, dmc: -m.n });
     }
-    somma(m.mods);
+    if (m.tipo !== 'bonus') somma(m.mods);
     if (m.mods && m.mods.altro) note.push(`${m.nome}: ${m.mods.altro}`);
+  }
+  const ln = livelliNegativiDi(st.malus || []); // AB1-2: 5 per livello dal totale di Fatica e Ferita
+  if (ln) { const x = divisioneLivelli(ln); somma({ fatica_max: -x.fatica, ferita_max: -x.ferita }); }
+  const be = bonusEffettivi(st.malus || []); let istinto = 0; // AB3-3: tipi di bonus
+  for (const [k, val] of Object.entries(be.tot)) {
+    if (k.startsWith('n:')) somma({ abilita_nome: { [k.slice(2)]: val } });
+    else if (k === 'ca') { const ist = (st.malus || []).filter(m => m.tipo === 'bonus' && m.tb === 'istinto' && m.mods && m.mods.ca > 0 && !be.nonContano.includes(m.id)).reduce((a, m) => a + m.mods.ca, 0);
+      istinto = Math.min(ist, val); somma({ ca: val - istinto }); }
+    else somma({ [k]: val });
   }
   for (const a of amputazioniAttive(p)) {
     somma(a.mods); note.push(`${a.nome}: ${a.testo}`);
@@ -1468,7 +1520,7 @@ function valoriPG(camp, p) {
   }
   for (const n of cond) {
     const e = EFFETTI_COND[n]; if (!e) continue;
-    if (PAURA.includes(n)) { paura = Math.min(paura, e.ts || 0); continue; } // la paura non si somma con sé stessa
+    if (PAURA.includes(n) && e.ts) { paura = Math.min(paura, e.ts || 0); continue; } // la paura non si somma con sé stessa
     if (e.sprovvista) sprovvista = true;
     if (e.nota) note.push(`${n}: ${e.nota}`);
     somma(e);
@@ -1481,9 +1533,9 @@ function valoriPG(camp, p) {
     tempra: v(s.tempra, tot.ts + tot.tempra), riflessi: v(s.riflessi, tot.ts + tot.riflessi), volonta: v(s.volonta, tot.ts + tot.volonta),
     percezione: abil('Percezione', s.percezione), intuizione: abil('Intuizione', s.intuizione), furtivita: abil('Furtività', s.furtivita),
     libere: s.abilita_libere.filter(a => a.nome).map(a => ({ nome: a.nome, ...abil(a.nome, a.valore) })),
-    ca: v(s.ca, caMostrata - s.ca + tot.ca), ca_contatto: v(s.ca_contatto, tot.ca), ca_sprovvista: v(s.ca_sprovvista, tot.ca), dmc: v(s.dmc, tot.dmc),
+    ca: v(s.ca, caMostrata - s.ca + tot.ca + (sprovvista ? 0 : istinto)), ca_contatto: v(s.ca_contatto, tot.ca + istinto), ca_sprovvista: v(s.ca_sprovvista, tot.ca), dmc: v(s.dmc, tot.dmc),
     iniziativa: v(s.iniziativa, tot.iniziativa), fatica_max: v(s.fatica_max, Math.max(-s.fatica_max, tot.fatica_max)), ferita_max: v(s.ferita_max, Math.max(-s.ferita_max, tot.ferita_max)),
-    temp: totTemp(st), malus: mal, condizioni: [...cond], offuscato, sprovvista, note,
+    temp: totTemp(st), malus: mal, condizioni: [...cond], offuscato, sprovvista, note, nonContano: be.nonContano,
   };
 }
 
@@ -2370,6 +2422,300 @@ function tatticheTurno(c, schedaDi, rigaId) {
 }
 function promemoriaRound(c) { const cb = c.combattimento; return cb && cb.promemoria ? cb.promemoria.filter(p => p.round === cb.round).map(p => p.testo) : []; }
 
+// ------------------------------------------------------------------ Build 3a: condizioni (AB1), Fallimenti critici (AB2), bonus (AB3), strumenti (AB4)
+// AB1-3 Terrore crescente e Fatica: la condizione nuova su chi ha già paura o è già affaticato
+const CRESCENTE = { Scosso: ['Scosso', 'Spaventato'], Spaventato: ['Scosso', 'Spaventato'], Affaticato: ['Affaticato'] };
+function crescente(el, nome) {
+  const prima = CRESCENTE[nome]; if (!prima) return null;
+  const es = el.filter(x => x.tipo === 'condizione' && prima.includes(x.nome) && x.durata.tipo !== 'curata');
+  if (nome === 'Affaticato') {
+    if (el.some(x => x.tipo === 'condizione' && x.nome === 'Esausto')) return { risultato: 'Esausto', via: [], gia: true, motivo: 'già esausto' };
+    return es.length ? { risultato: 'Esausto', via: es, motivo: 'Affaticato su chi è già affaticato' } : null;
+  }
+  if (!es.length) return null;
+  const spav = es.some(x => x.nome === 'Spaventato') || nome === 'Spaventato';
+  return { risultato: spav ? 'In Preda al Panico' : 'Spaventato', via: es, motivo: `Terrore crescente: ${es.map(x => x.nome).join(' + ')} + ${nome}` };
+}
+// anteprima per la finestra: che condizione diventa (null = resta quella scelta)
+function anteprimaCondizione(c, chi, nome) { const x = crescente(elencoDi(c, chi), nome); return x ? { nome: x.risultato, motivo: x.motivo, gia: !!x.gia } : null; }
+// AB1-2 livelli negativi: 5 per livello dal totale di Fatica e Ferita, metà e metà, il dispari ai Ferita
+const divisioneLivelli = n => ({ fatica: Math.floor(5 * n / 2), ferita: Math.ceil(5 * n / 2) });
+function livelliNegativiDi(el) { return el.filter(m => m.tipo === 'condizione' && m.nome === 'Livelli negativi').reduce((a, m) => a + (m.n || 0), 0); }
+// AB1-3 Confuso: d% all'inizio del turno (tabella di golarion, uguale a condizioni.json)
+const CONFUSO = [[25, 'Agisce normalmente'], [50, 'Non fa altro che balbettare in modo incoerente'], [75, "Si infligge 1d8 + modificatore di Forza con l'arma che tiene in mano"],
+  [100, 'Attacca la creatura più vicina (a tale scopo, un Famiglio conta come parte del soggetto stesso)']];
+function tiroConfuso(rng) { const t = d(100, rng); return { tiro: t, testo: CONFUSO.find(([a]) => t <= a)[1] }; }
+// AB1-3 Riposo 8 ore: toglie Affaticato ed Esausto, tranne quelli dovuti a fame o sete (Vol. 1)
+const daFameSete = m => /fame|sete/i.test(`${m.fonte || ''} ${m.etichetta || ''}`);
+
+// ---- AB2 Fallimenti critici (Vol. 3, Cap. 3): tiro, sotto-tiri e componenti dalla riga
+const DIREZIONI = ['nord', 'nord-est', 'est', 'sud-est', 'sud', 'sud-ovest', 'ovest', 'nord-ovest'];
+function slotOggetto(FER, rng) {
+  const nota = FER.fallimenti.note['2'], voci = [...nota.matchAll(/(\d+): ([a-zà]+)/g)].map(m => m[2]);
+  const t = d(12, rng); return { tiro: t, slot: voci[t - 1], ordine: voci.slice(t - 1).concat(voci.slice(0, t - 1)) };
+}
+function fallimentoCritico(camp, chi, FER, tabId, rng, forzato) {
+  const T = FER.fallimenti.tabelle.find(x => x.id === tabId); if (!T) throw new Error('tabella dei Fallimenti critici sconosciuta');
+  const facceN = +T.dado.slice(1), tiro = forzato || d(facceN, rng);
+  let riga = T.righe.find(r => tiro >= r.da && tiro <= r.a), passata = null;
+  const prono = chi ? elencoDi(camp, chi).some(m => m.tipo === 'condizione' && m.nome === 'Prono') : false;
+  const pm = riga.testo.match(/Se sei già prono conta questo risultato come (\d+)/);
+  if (prono && pm) { passata = { da: tiro, a: +pm[1] }; riga = T.righe.find(r => +pm[1] >= r.da && +pm[1] <= r.a); }
+  const testo = riga.testo, comps = [], note = [];
+  const cond = (nome, n, chi2) => comps.push({ k: 'condizione', nome, durata: n ? { n, unita: 'round' } : { tipo: 'libera' }, su: chi2 });
+  let m;
+  if ((m = testo.match(/Sei infermo per (\d+) round/))) cond('Infermo', +m[1], 'se');
+  if (/(a terra|finisci) prono/.test(testo)) cond('Prono', 0, 'se');
+  if ((m = testo.match(/rendendoti (barcollante|nauseato) per (\d+) round/))) cond(m[1] === 'barcollante' ? 'Barcollante' : 'Nauseato', +m[2], 'se');
+  if ((m = testo.match(/rende barcollante per (\d+) round chi viene colpito/))) cond('Barcollante', +m[1], 'colpito');
+  if ((m = testo.match(/a (\d+d\d+\+\d+) caselle in una direzione casuale/))) {
+    const r = tira(m[1], rng), dir = d(8, rng);
+    comps.push({ k: 'caselle', n: r.totale, direzione: DIREZIONI[dir - 1], tiro: `${m[1]} = ${r.totale}, 1d8 = ${dir}` });
+  }
+  const danno = (cosa, su, volte, tiro2, ogg) => comps.push({ k: 'danneggia', cosa, su, volte: volte || 1, tiro: tiro2 || null, oggetto: ogg || null });
+  if (/danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto²/.test(testo)) {
+    const t = d(6, rng), cosa = t <= 2 ? 'scudo' : t <= 4 ? 'armatura' : 'oggetto';
+    danno(cosa, 'se', 1, `1d6 = ${t}`, cosa === 'oggetto' ? slotOggetto(FER, rng) : null);
+  }
+  if (/danneggia un oggetto² di chi viene colpito/.test(testo)) danno('oggetto', 'colpito', 1, null, slotOggetto(FER, rng));
+  if ((m = testo.match(/danneggia (due volte )?1-2: lo scudo o 3-4: l’armatura di chi viene colpito/))) {
+    const volte = m[1] ? 2 : 1;
+    for (let k = 0; k < volte; k++) { const t = d(4, rng); danno(t <= 2 ? 'scudo' : 'armatura', 'colpito', 1, `1d4 = ${t}`); }
+  }
+  if (/danneggia la tua arma|l’arma si danneggia/.test(testo)) danno('arma', 'se');
+  if ((m = testo.match(/per (\d+d\d+\+\d+) giorni/))) { const r = tira(m[1], rng); comps.push({ k: 'giorni', n: r.totale, tiro: `${m[1]} = ${r.totale}` }); }
+  const alleato = /alleat[oi]¹/.test(testo);
+  if (/serie di attacchi termina/.test(testo)) note.push('L’eventuale serie di attacchi termina.');
+  if (/contrattacco/.test(testo)) note.push('Il nemico attaccato può contrattaccare con +4 al tiro per colpire.');
+  return { tabella: T.id, nome: T.nome, dado: T.dado, tiro, riga: { da: riga.da, a: riga.a }, testo, passata, comps, alleato, note,
+    fineTurno: /Il tuo turno termina/.test(testo), nota_alleato: alleato ? FER.fallimenti.note['1'] : null };
+}
+function descriviFallimento(c, fc) {
+  return fc.comps.map(k => {
+    if (k.k === 'condizione') return `${k.nome}${k.durata.n ? ` ${k.durata.n} round` : ''}${k.su === 'colpito' ? ' a chi viene colpito' : ''}`;
+    if (k.k === 'caselle') return `l'arma cade a ${k.n} caselle verso ${k.direzione} (${k.tiro})`;
+    if (k.k === 'danneggia') return `+1 livello di danneggiamento${k.volte > 1 ? ' ×' + k.volte : ''}: ${k.cosa === 'oggetto' ? `oggetto (slot ${k.oggetto.slot}, 1d12 = ${k.oggetto.tiro}; se vuoto: ${k.oggetto.ordine.slice(1, 4).join(', ')}…)` : k.cosa}${k.su === 'colpito' ? ' di chi viene colpito' : ''}` + (k.tiro ? ` (${k.tiro})` : '');
+    if (k.k === 'giorni') return `l'oggetto smette di funzionare per ${k.n} giorni (${k.tiro})`;
+    return '';
+  });
+}
+// applica: condizioni sulla creatura (o su chi viene colpito), righe nel log. colpito: chi | null (= ti colpisci da solo)
+function applicaFallimento(camp, chi, fc, colpito, rng) {
+  const c = clona(camp), nome = nomeDi(c, chi), su = k => k.su === 'colpito' ? (colpito || chi) : chi;
+  log(c, `${nome}: Fallimento critico (${fc.nome}, ${fc.dado} = ${fc.tiro}${fc.passata ? `, già prono: conta come ${fc.passata.a}` : ''}) — ${fc.testo}`);
+  if (fc.alleato) log(c, colpito && !(colpito.pg === chi.pg && colpito.riga === chi.riga) ? `${nome} colpisce ${nomeDi(c, colpito)}` : `${nome}: nessun alleato, si colpisce da solo`);
+  for (const k of fc.comps) {
+    if (k.k === 'condizione') nuovoMalus(c, su(k), { tipo: 'condizione', nome: k.nome, durata: k.durata, fonte: 'Fallimento critico' }, rng);
+    else if (k.k === 'danneggia') log(c, `${nomeDi(c, su(k))}: ${descriviFallimento(c, { comps: [k] })[0]} (scheggiato → rotto → distrutto)`);
+    else log(c, `${nome}: ${descriviFallimento(c, { comps: [k] })[0]}`);
+  }
+  return c;
+}
+
+// ---- AB3 tipi di bonus: quali si sommano (strumenti.json, bonus)
+const SOMMANO = ['senza tipo', 'schivare', 'razziale', 'eroico', ''];
+// bonus effettivi per chiave: restituisce {mods sommati, conta: Set(id dei bonus che contano)}
+function bonusEffettivi(el) {
+  const voci = []; // [m, chiave, valore]
+  for (const m of el) {
+    if (m.tipo !== 'bonus' || !m.mods) continue;
+    for (const k of CHIAVI_MOD) if (m.mods[k]) voci.push([m, k, m.mods[k]]);
+    for (const [n, v] of Object.entries(m.mods.abilita_nome || {})) if (v) voci.push([m, 'n:' + n, v]);
+  }
+  const tot = {}, conta = new Set(), add = (k, v, ms) => { tot[k] = (tot[k] || 0) + v; for (const m of ms) conta.add(m.id); };
+  const perChiave = {};
+  for (const v of voci) (perChiave[v[1]] = perChiave[v[1]] || []).push(v);
+  for (const [k, lista] of Object.entries(perChiave)) {
+    const gruppi = {};
+    for (const v of lista) { const tb = v[0].tb || 'senza tipo'; (gruppi[tb] = gruppi[tb] || []).push(v); }
+    for (const [tb, g] of Object.entries(gruppi)) {
+      const neg = g.filter(v => v[2] < 0), pos = g.filter(v => v[2] > 0);
+      for (const v of neg) add(k, v[2], [v[0]]);   // i bonus negativi (penalità) si sommano sempre
+      if (!pos.length) continue;
+      if (SOMMANO.includes(tb)) { for (const v of pos) add(k, v[2], [v[0]]); continue; }
+      const fonte = v => v[0].nome.trim().toLowerCase(), perFonte = {};
+      for (const v of pos) (perFonte[fonte(v)] = perFonte[fonte(v)] || []).push(v);
+      if (tb === 'circostanza') { for (const f of Object.values(perFonte)) { const b = f.reduce((a, v) => v[2] > a[2] ? v : a); add(k, b[2], [b[0]]); } continue; }
+      if (tb === 'spiritico') { const best = Object.values(perFonte).reduce((a, f) => f.reduce((s, v) => s + v[2], 0) > a.reduce((s, v) => s + v[2], 0) ? f : a);
+        add(k, best.reduce((s, v) => s + v[2], 0), best.map(v => v[0])); continue; }
+      const b = pos.reduce((a, v) => v[2] > a[2] ? v : a); add(k, b[2], [b[0]]);
+    }
+  }
+  const nonContano = el.filter(m => m.tipo === 'bonus' && m.mods && Object.keys(m.mods).some(k => k !== 'altro') && !conta.has(m.id)).map(m => m.id);
+  return { tot, nonContano };
+}
+function motivoNonConta(el, m) {
+  const altri = el.filter(x => x !== m && x.tipo === 'bonus' && (x.tb || 'senza tipo') === (m.tb || 'senza tipo'));
+  return altri.length ? `non si somma con ${altri.map(x => x.nome).join(', ')} (bonus ${m.tb})` : '';
+}
+// AB3-2 modelli della finestra Malus/Bonus
+function salvaModello(camp, nome, dati) {
+  nome = String(nome || '').trim(); if (!nome) throw new Error('il modello non ha un nome');
+  const c = clona(camp), x = clona(dati); delete x.causa; delete x.scadenza;
+  const i = c.modelli.findIndex(m => m.nome.toLowerCase() === nome.toLowerCase());
+  if (i >= 0) c.modelli[i].dati = x; else c.modelli.push({ id: prossimoId(c, 'mod'), nome, dati: x });
+  c.modelli.sort((a, b) => a.nome.localeCompare(b.nome, 'it'));
+  return c;
+}
+function eliminaModello(camp, id) { const c = clona(camp); c.modelli = c.modelli.filter(m => m.id !== id); return c; }
+
+// ---- AB4-1 dadi: espressioni, vantaggio/svantaggio, tre modi del d20, ripeti una volta, storico
+function tiraDadi(camp, espr, modo, opz, rng) {
+  opz = opz || {}; modo = modo || 'libero';
+  if (!['prova', 'colpire', 'libero'].includes(modo)) throw new Error('modo non valido');
+  let e = String(espr || '').replace(/\s+/g, '').toLowerCase(); if (!e) throw new Error('scrivi un tiro');
+  const d20 = (e.match(/(^|[+-])1?d20(?![0-9k])/g) || []).length;
+  if ((opz.vantaggio || opz.svantaggio) && d20 !== 1) throw new Error('vantaggio e svantaggio valgono per un tiro con un solo d20');
+  if (opz.vantaggio && opz.svantaggio) opz = { ...opz, vantaggio: false, svantaggio: false }; // si annullano (Vol. 1)
+  const e2 = opz.vantaggio ? e.replace(/(^|[+-])1?d20(?![0-9k])/, '$12d20kh1') : opz.svantaggio ? e.replace(/(^|[+-])1?d20(?![0-9k])/, '$12d20kl1') : e;
+  const r = tira(e2, rng);
+  const out = { id: null, espr: String(espr).trim(), modo, vantaggio: !!opz.vantaggio, svantaggio: !!opz.svantaggio, totale: r.totale, dadi: r.dadi, nat: null, valore: r.totale, fallimento: false, ripetuto: false, ripete: null };
+  if (d20 === 1) {
+    const dd = r.dadi.find(x => x.facce === 20), nat = dd.tenuti[0]; out.nat = nat;
+    if (modo === 'prova') out.valore = r.totale - nat + valoreD20(nat);
+    if (modo === 'colpire') { if (nat === 1) out.fallimento = true; else if (nat === 20) out.valore = r.totale - nat + 30; }
+  }
+  const c = clona(camp); out.id = prossimoId(c, 't'); out.R = c.tempo.R;
+  c.tiri.unshift(out); if (c.tiri.length > 50) c.tiri.length = 50;
+  if (opz.log) log(c, `Dadi: ${testoTiro(out)}`);
+  return { camp: c, esito: out };
+}
+function testoTiro(x) {
+  const dadi = x.dadi.map(z => z.risultati.length > 1 || z.tenuti.length !== z.risultati.length ? `[${z.risultati.join(', ')}${z.tenuti.length !== z.risultati.length ? ' → ' + z.tenuti.join(', ') : ''}]` : `[${z.risultati[0]}]`).join(' ');
+  return `${x.espr}${x.vantaggio ? ' con vantaggio' : x.svantaggio ? ' con svantaggio' : ''} ${dadi} = ${x.fallimento ? '1 naturale: Fallimento critico' : x.valore}` +
+    (x.nat === 20 && x.modo !== 'libero' ? ' (20 naturale = 30)' : x.nat === 1 && x.modo === 'prova' ? ' (1 naturale = −10)' : '') + (x.ripete ? ' (ripetuto)' : '');
+}
+function ripetiTiro(camp, id, rng, opz) {
+  const x = camp.tiri.find(t => t.id === id); if (!x) throw new Error('tiro non trovato');
+  if (x.ripetuto || x.ripete) throw new Error('un tiro si ripete una sola volta (Vol. 1)');
+  const r = tiraDadi(camp, x.espr, x.modo, { vantaggio: x.vantaggio, svantaggio: x.svantaggio, log: opz && opz.log }, rng);
+  const c = r.camp; c.tiri.find(t => t.id === id).ripetuto = true; c.tiri[0].ripete = id;
+  if (opz && opz.log) c.log[c.log.length - 1].testo = `Dadi: ${testoTiro(c.tiri[0])}`;
+  return { camp: c, esito: c.tiri[0] };
+}
+
+// ---- AB4-2 fonti di luce: consumo con l'orologio, Fiamme dal meteo in vigore, al riparo
+function infoLuce(STR, tipo) { const f = STR.luce.find(x => x.id === tipo); if (!f) throw new Error('fonte di luce sconosciuta'); return f; }
+function nomeChiLuce(c, chi) {
+  if (chi === 'gruppo') return 'gruppo';
+  if (chi.startsWith('pg:')) { const p = c.pg.find(x => 'pg:' + x.id === chi); return p ? p.scheda.nome : '?'; }
+  const a = compagnia(c).persone.find(x => 'acc:' + x.id === chi); return a ? a.nome : '?';
+}
+function aggiungiLuce(camp, STR, d) {
+  const f = infoLuce(STR, d.tipo), c = clona(camp), chi = d.chi || 'gruppo';
+  if (chi !== 'gruppo' && nomeChiLuce(c, chi) === '?') throw new Error('a chi va la luce?');
+  const x = { id: prossimoId(c, 'l'), tipo: f.id, chi, accesa: false, resta: f.ore * ROUND_ORA, riparo: !!d.riparo, avvisata: false };
+  c.luci.push(x); log(c, `Luce: ${f.nome} (${nomeChiLuce(c, chi)})`); return c;
+}
+function luceDi(c, id) { const x = c.luci.find(l => l.id === id); if (!x) throw new Error('fonte di luce non trovata'); return x; }
+// che cosa la spegne adesso (null = niente): voci del meteo in vigore, Sotterraneo con le Correnti d'aria
+function motivoSpegne(c, meteo, STR, x, R) {
+  const F = STR.fiamme, f = infoLuce(STR, x.tipo), soglia = F.soglia[f.fiamme];
+  const sott = c.zona === meteo.sotterraneo.zona;
+  if (x.riparo && !sott) return null;
+  const voci = vociAllOra(c, meteo, R).filter(v => !sott || v === "Correnti d'aria");
+  const v = voci.find(v => (F.livelli[v] || 0) >= soglia); return v || null;
+}
+function accendiLuce(camp, meteo, STR, id) {
+  const c = clona(camp), x = luceDi(c, id), f = infoLuce(STR, x.tipo);
+  if (x.resta <= 0) throw new Error(f.olio ? 'serve una fiaschetta d’olio' : 'è consumata: sostituiscila');
+  const v = motivoSpegne(c, meteo, STR, x, c.tempo.R); if (v) throw new Error(`non resta accesa: ${v}`);
+  x.accesa = true; log(c, `${f.nome} (${nomeChiLuce(c, x.chi)}) accesa: ${formatoDurata(x.resta)}`); return c;
+}
+function spegniLuce(camp, STR, id) { const c = clona(camp), x = luceDi(c, id); x.accesa = false; log(c, `${infoLuce(STR, x.tipo).nome} (${nomeChiLuce(c, x.chi)}) spenta: restano ${formatoDurata(x.resta)}`); return c; }
+function ricaricaLuce(camp, STR, id) {
+  const c = clona(camp), x = luceDi(c, id), f = infoLuce(STR, x.tipo);
+  x.resta = f.ore * ROUND_ORA; x.avvisata = false; log(c, `${f.nome} (${nomeChiLuce(c, x.chi)}): ${f.olio ? 'nuova fiaschetta d’olio' : 'sostituita'}`); return c;
+}
+function riparoLuce(camp, id, si) { const c = clona(camp); luceDi(c, id).riparo = !!si; return c; }
+function togliLuce(camp, STR, id) { const c = clona(camp), x = luceDi(c, id); c.luci = c.luci.filter(l => l !== x); log(c, `Luce tolta: ${infoLuce(STR, x.tipo).nome} (${nomeChiLuce(c, x.chi)})`); return c; }
+// il tempo che passa per le luci accese: consumo (×2 con l'Aria viziata), avviso 10 minuti prima, Fiamme a ogni cambio del tempo
+function luciTempo(c, meteo, STR, da, a, rng) {
+  if (!STR || !c.luci || !c.luci.some(l => l.accesa) || a <= da) return;
+  const m = c.meteo, tagli = new Set([da, a]);
+  if (m && m.durata) for (const t of [m.durata.da, m.durata.a]) if (t > da && t < a) tagli.add(t);
+  if (m && m.nebbia && m.nebbia.fino > da && m.nebbia.fino < a) tagli.add(m.nebbia.fino);
+  const punti = [...tagli].sort((x, y) => x - y), F = STR.fiamme, DIECI = 10 * ROUND_MIN;
+  const sott = c.zona === meteo.sotterraneo.zona;
+  for (const x of c.luci) {
+    const f = infoLuce(STR, x.tipo), chi = nomeChiLuce(c, x.chi);
+    for (let i = 0; i < punti.length - 1 && x.accesa; i++) {
+      const s = punti[i], e = punti[i + 1];
+      const v = motivoSpegne(c, meteo, STR, x, s);
+      if (v) { x.accesa = false; avvisoLuce(c, s, `${f.nome} (${chi}) si spegne: ${v}`); break; }
+      const voci = vociAllOra(c, meteo, s);
+      const k = sott && voci.includes(F.aria_viziata.voce) ? F.aria_viziata.consumo : 1;
+      let fine = Math.min(e, s + Math.ceil(x.resta / k));
+      // lanterna impermeabile o deluxe con il Vento molto forte: 50% ogni 10 minuti
+      if (f.fiamme === 'impermeabile' && !x.riparo && !sott && voci.includes(F.vento_impermeabile.voce)) {
+        for (let t = s + DIECI; t <= fine; t += DIECI) if (d(100, rng) <= F.vento_impermeabile.perc) { x.resta -= (t - s) * k; x.accesa = false; avvisoLuce(c, t, `${f.nome} (${chi}) si spegne: ${F.vento_impermeabile.voce} (50% ogni 10 minuti)`); break; }
+        if (!x.accesa) break;
+      }
+      const prima = x.resta; x.resta = Math.max(0, x.resta - (fine - s) * k);
+      if (!x.avvisata && prima > DIECI && x.resta <= DIECI && x.resta > 0) { x.avvisata = true; avvisoLuce(c, fine, `${f.nome} (${chi}): restano 10 minuti`); }
+      if (x.resta <= 0) { x.accesa = false; avvisoLuce(c, fine, `${f.nome} (${chi}) si è consumata${f.olio ? ': serve una fiaschetta d’olio' : ''}`); }
+    }
+  }
+}
+function avvisoLuce(c, R, testo) { c.coda.push({ id: prossimoId(c, 'q'), R, tipo: 'luce', testo }); log(c, testo); }
+// dopo un cambio del meteo fatto dal GM (Ritira, Imposta, Inizio…): le luci accese che il tempo spegne adesso
+function controllaLuci(camp, meteo, STR) {
+  const c = clona(camp);
+  for (const x of c.luci || []) if (x.accesa) { const v = motivoSpegne(c, meteo, STR, x, c.tempo.R); if (v) { x.accesa = false; avvisoLuce(c, c.tempo.R, `${infoLuce(STR, x.tipo).nome} (${nomeChiLuce(c, x.chi)}) si spegne: ${v}`); } }
+  return c;
+}
+
+// ---- AB4-3 promemoria: a un'ora del calendario o fra X minuti/ore (in coda e nel log); quelli dei round vanno nel combattimento
+function aggiungiPromemoria(camp, d) {
+  const testo = String(d.testo || '').trim(); if (!testo) throw new Error('scrivi il promemoria');
+  const c = clona(camp);
+  if (d.round) {
+    if (!c.combattimento) throw new Error('i promemoria dei round valgono in combattimento');
+    if (!(Number.isInteger(d.round) && d.round >= 1)) throw new Error('round non valido');
+    c.combattimento.promemoria.push({ round: d.round, testo }); c.combattimento.promemoria.sort((a, b) => a.round - b.round);
+    log(c, `Promemoria al round ${d.round}: ${testo}`); return c;
+  }
+  let R = d.R;
+  if (d.tra) { const k = UNITA_ROUND[d.tra.unita]; if (!k || !(Number.isInteger(d.tra.n) && d.tra.n > 0)) throw new Error('quando?'); R = c.tempo.R + d.tra.n * k; }
+  if (!(Number.isInteger(R) && R > c.tempo.R)) throw new Error('il promemoria deve essere nel futuro');
+  c.promemoria.push({ id: prossimoId(c, 'pr'), testo, R }); c.promemoria.sort((a, b) => a.R - b.R);
+  log(c, `Promemoria per ${formatoData(c, R)}: ${testo}`); return c;
+}
+function togliPromemoria(camp, id) { const c = clona(camp); c.promemoria = c.promemoria.filter(p => p.id !== id); return c; }
+function togliPromemoriaRound(camp, i) { const c = clona(camp), cb = c.combattimento; if (!cb || !cb.promemoria[i]) throw new Error('promemoria non trovato'); cb.promemoria.splice(i, 1); return c; }
+function promemoriaTempo(c, da, a) {
+  const scattano = c.promemoria.filter(p => p.R > da && p.R <= a);
+  for (const p of scattano) { c.coda.push({ id: prossimoId(c, 'q'), R: p.R, tipo: 'promemoria', testo: `Promemoria: ${p.testo}` }); log(c, `Promemoria: ${p.testo}`); }
+  if (scattano.length) c.promemoria = c.promemoria.filter(p => !scattano.includes(p));
+}
+// i promemoria dei round del combattimento in corso salvati nell'incontro da cui è partito
+function salvaPromemoriaInIncontro(camp) {
+  const c = clona(camp), cb = c.combattimento; if (!cb || !cb.incontro) throw new Error('il combattimento non viene da un incontro');
+  const inc = c.incontri.find(x => x.id === cb.incontro); if (!inc) throw new Error('incontro non trovato');
+  inc.promemoria = clona(cb.promemoria); log(c, `Promemoria salvati nell'incontro «${inc.titolo}»`); return c;
+}
+
+// ---- AB4-4 log: sessioni, filtri per tipo, esportazione
+const TIPI_LOG = [
+  ['combattimento', /^Round \d|iniziativa|[Cc]ombattimento|ritarda|prepara|Fallimento critico|entra nell'iniziativa|XP |Fatica finita|rinforz|fuori combattimento|turno/],
+  ['ferite', /[Ff]erit[ae]|[Ee]morragia|[Cc]ura|danni|PF |PF$|Punti (Fatica|Ferita)|muore|[Mm]orente|[Mm]orto|cerusico|Rifiata|[Aa]mputazion|[Dd]ita perse|non letal/],
+  ['scorte', /[Ss]corta|Foraggi|[Rr]azion|cibo|acqua|Fame|Sete|[Cc]ompagnia|[Ss]ciogli|Bolli|[Pp]urific|[Aa]ccompagnator|foraggio/],
+  ['tempo', /^Meteo|[Cc]omincia:|^Finisce |Nebbia|→ \S+ \d+ \S+ \d+|Riposo|Predire|[Zz]ona|[Vv]ariante|[Ll]uce|accesa|spent[ao]|si spegne|consumata|Promemoria|Inizio sessione/],
+  ['tiri', /^Dadi:/],
+];
+function tipoLog(testo) { if (/^Dadi:/.test(testo)) return 'tiri'; for (const [k, re] of TIPI_LOG) if (re.test(testo)) return k; return 'altro'; }
+function iniziaSessione(camp) {
+  const c = clona(camp), n = c.log.filter(e => e.sessione).length + 1;
+  c.log.push({ R: c.tempo.R, testo: `— Inizio sessione ${n} —`, sessione: n }); return c;
+}
+function righeLog(camp, opz) {
+  opz = opz || {}; let el = camp.log;
+  if (opz.da === 'sessione') { let i = -1; for (let k = el.length - 1; k >= 0; k--) if (el[k].sessione) { i = k; break; } if (i >= 0) el = el.slice(i); }
+  if (opz.tipi && opz.tipi.length) el = el.filter(e => e.sessione || opz.tipi.includes(tipoLog(e.testo)));
+  return el;
+}
+function testoLog(camp, opz) { return righeLog(camp, opz).map(e => `[${formatoData(camp, e.R)}] ${e.testo}`).join('\n'); }
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -2385,6 +2731,10 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   scomponiFerita, descriviComponente, attaccaFerita, feritaDaTabella, mettiUltimo, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza,
   XP_GS, migliaia, MEDIE_DV, TAGLIE_PNG, CLASSI, ABIL_CAR, TATTICHE, schedaVuota, guidaVuota, nomeProprio, tettoSintonia, gsDaLivello, xpDi, leggiStatBlock, calcolaGuida, applicaGuida,
   segnalazioni, sommaScomposizione, testoStatBlock, nuovaScheda, salvaScheda, cercaSchede, salvaPNG, eliminaPNG, unisciMostri, incontroVuoto, salvaIncontro, duplicaIncontro,
-  eliminaIncontro, cartelle, xpIncontro, nemicoDaPartecipante, pfDaScheda, dannoRiga, curaRiga, separaPerFerita, faticaFinita, tatticheTurno, promemoriaRound };
+  eliminaIncontro, cartelle, xpIncontro, nemicoDaPartecipante, pfDaScheda, dannoRiga, curaRiga, separaPerFerita, faticaFinita, tatticheTurno, promemoriaRound,
+  usaStrumenti, anteprimaCondizione, divisioneLivelli, tiroConfuso, CONFUSO, fallimentoCritico, descriviFallimento, applicaFallimento, DIREZIONI,
+  bonusEffettivi, motivoNonConta, salvaModello, eliminaModello, tiraDadi, testoTiro, ripetiTiro,
+  aggiungiLuce, accendiLuce, spegniLuce, ricaricaLuce, riparoLuce, togliLuce, controllaLuci, motivoSpegne, nomeChiLuce, infoLuce,
+  aggiungiPromemoria, togliPromemoria, togliPromemoriaRound, salvaPromemoriaInIncontro, tipoLog, iniziaSessione, righeLog, testoLog };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

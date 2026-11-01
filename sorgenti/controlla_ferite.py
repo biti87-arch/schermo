@@ -90,8 +90,19 @@ i = G.index('Ferite gravi')
 ok(G[i + 1] == '1 ' + F['nota_oggetti'], 'nota ¹ degli oggetti')
 fc = [t for tit, t in T if t and t[0][1:] == ['Effetto']]
 ok(len(fc) == 5 and sum(len(t) - 1 for t in fc) == 45, 'tabelle dei Fallimenti critici')
+# Fallimenti critici in ferite.json (Build 3a): righe uguali all'estratto (apici ¹ ² a parte), dado coperto senza buchi, note
+FCJ = F['fallimenti']['tabelle']
+ok([t['id'] for t in FCJ] == ['mischia', 'contatto', 'tiro', 'spargimento', 'contatto_distanza'], 'cinque tabelle dei Fallimenti critici nel JSON')
+for t, tv in zip(FCJ, fc):
+    facce = int(t['dado'][1:])
+    ok(sorted(v for r in t['righe'] for v in range(r['da'], r['a'] + 1)) == list(range(1, facce + 1)), f"{t['id']}: il {t['dado']} non è coperto")
+    testi = [r['testo'].replace('alleato¹', 'alleato1').replace('oggetto²', 'oggetto2') for r in t['righe']]
+    ok(testi == [r[1] for r in tv[1:]], f"{t['id']}: righe diverse dall'estratto")
+    ok(t['dado'] == tv[0][0], f"{t['id']}: dado")
+i = G.index('Fallimenti critici')
+ok(G[i + 1] == '1 ' + F['fallimenti']['note']['1'] and G[i + 2] == '2 ' + F['fallimenti']['note']['2'], 'note ¹ e ² dei Fallimenti critici')
 
 for e in err: print('ERRORE', e)
 righe_fg = sum(len(t) - 1 for _, t in fg)
-print(f'controllo ferite: {n} controlli, {len(err)} errori; fermare {len(F["fermare"])} righe, amputazioni {len(F["amputazioni"])} locazioni, ferite gravi {len(fg)} tabelle / {righe_fg} righe')
+print(f'controllo ferite: {n} controlli, {len(err)} errori; fallimenti {len(FCJ)} tabelle / {sum(len(t["righe"]) for t in FCJ)} righe, fermare {len(F["fermare"])} righe, amputazioni {len(F["amputazioni"])} locazioni, ferite gravi {len(fg)} tabelle / {righe_fg} righe')
 sys.exit(1 if err else 0)

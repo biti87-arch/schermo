@@ -1,0 +1,1279 @@
+               Indice dei contenuti
+                              Cap. 1: Riassunti
+
+Abilità
+Acrobazia
+Artista della fuga
+Addestrare animali
+Camuffare
+Cavalcare
+Conoscenze
+Diplomazia
+Disattivare congegni
+Furtività
+Intimidire
+Intuizione
+Nuotare
+Percezione
+Raggirare
+Rapidità di mano
+Sapienza magica
+Scalare
+Sopravvivenza
+Utilizzare oggetti magici
+Valutare
+
+Vari
+Concentrazione
+Condizioni
+Occultamento e coperture
+Cure e recupero
+
+                          Cap. 2: Viaggi e pericoli
+Spostamenti
+Riparare oggetti rotti
+Annegamento
+Cadere
+Fumo
+Fame e sete
+Terreni scivolosi
+Ambienti specifici
+Tempo atmosferico
+Riduzione del danno
+Incontri casuali e giornalieri pianificati
+                                                                      Riparare per conto proprio
+1- Si dedica alla Professione 30 minuti per riparare un oggetto scheggiato o 2 ore per riparare un oggetto rotto.
+2- Si effettua una prova di Professione senza aggiungere il bonus di Intelligenza con uan CD variabile in base alla potenza o al valore dell’oggetto, come indicato
+  nella tabella sottostante. In questa prova un risultato naturale di 20 non è mai considerato pari a 30.
+3- Se la prova ha successo, l’oggetto è stato riparato.
+4- Se la prova fallisce, la condizione dell’oggetto peggiora di un grado (scheggiato → rotto → distrutto).
+
+                                  Armature e scudi                                            Armi                                   Oggetti vari
+                          Bonus         CD             CD                   Bonus            CD        CD                   Valore            CD            CD
+                         oggetto     scheggiato       rotto                oggetto        scheggiato   rotto            dell’oggetto       scheggiato       rotto
+                         Comune           8             9                  Comune              8         9                  1-1.000            8              9
+                         Perfetto        11            12                  Perfetto           11        12               1.001-1.999           11            12
+                           +1            12            13                    +1               13        14               fino a 2.000          13            14
+                           +2            15            16                    +2               16        17               fino a 8.000          16            17
+                           +3            18            19                    +3               19        20              fino a 18.000          19            20
+                           +4            21            22                    +4               22        23              fino a 32.000          22            23
+                           +5            24            25                    +5               25        26              fino a 50.000          25            26
+                           +6            26            27                    +6               26        27              fino a 72.000          26            27
+                           +7            27            28                    +7               27        28              fino a 98.000          27            28
+                           +8            28            29                    +8               28        29             fino a 128.000          28            29
+                           +9            29            30                    +9               29        30             fino a 162.000          29            30
+                           +10           29            30                    +10              39        30             fino a 200.000          29            30
+
+
+
+                                                                 Riparare presso artigiani PNG
+1- Si versa in anticipo all’artigiano una commissione pari a un quarantesimo del valore dell’oggetto scheggiato o pari a un ventesimo del valore dell’oggetto rotto.
+  La paga minima è sempre e comunque di 1 mo.
+2- Un oggetto scheggiato verrà riparato e riconsegnato dopo 1d4 ore mentre uno rotto dopo 1 giorno.
+
+
+
+
+                                                              Tabella veloce per locande e taverne
+Servizio giornaliero       Costo                                          Descrizione                                                                 Effetto
+Dormitorio                  4 ma     Pagliericcio in una stanza comune non riscaldata. Bagno esterno.               Punti Fatica massimi ridotti di un quarto per quel giorno.
+Stanza per 4 persone        8 mo     Due letti a castello, pitale e braciere per scaldare la stanza.                                                    —
+Stanza per 2 persone        6 mo     Due letti singoli, due bauli, pitale e braciere per scaldare la stanza.                                            —
+Stanza singola              5 mo     Letto singolo, baule, pitale e braciere per scaldare la stanza.                                                    —
+Suite (1 per locanda)      20 mo     Letto singolo sontuoso, armadio, cassapanca, caminetto e bagno in camera.      +1 Punto Fatica massimo/livello per quel giorno (minimo +3).
+Bagno caldo                 2 mo     Vasca privata con acqua riscaldata, olii, sapone e asciugamani caldi.          +2 alla prima prova di Diplomazia o Raggirare effettuata entro 3 giorni.
+                                                                                                                    +2 a una prova di Diplomazia o Raggirare effettuata durante la bevuta se
+Bevuta                     1 ma      Birra, liquore di scarsa qualità, vino della casa.
+                                                                                                                    la si offre al bersaglio.
+Pasto scadente             2 ma      Una portata di sole verdure acquose con del pane raffermo.                     Penalità -1 al primo Tiro Salvezza su Tempra effettuato entro 24 ore.
+Pasto                      1 mo      Una portata di carne o pesce di seconda scelta, pane e verdure.                                                    —
+Pasto eccellente           5 mo      Due portate di carne o pesce, pane, verdure, formaggi, frutta, dolci e vino.   Bonus +1 al primo Tiro Salvezza su Tempra effettuato entro 24 ore.
+                                     Un ragazzo o una ragazza esperti nell’arte amatoria per un’ora. Richiede la
+Compagnia intima           25 mo                                                                                    Bonus +1 al primo Tiro Salvezza su Volontà effettuato entro 24 ore.
+                                     prenotazione di una stanza privata senza altri ospiti.
+
+
+
+
+                                                                                      Fonti di luce
+                        Oggetto             Costo                                                         Descrizione
+                                                         Illumina in un raggio di 3 m. Brucia per 1 ora. Pioggia e vento la spengono. Si spegne se chi la sorregge si
+              Candela x5                     5 mr
+                                                         muove a più della propria velocità base o al 25% dopo aver effettuato un’azione di attacco.
+                                                         Copricapo con anello su cui è inserita una Candela (vedi sopra). Permette di tenere le mani libere per altre
+              Caschetto portacandela         2 mo
+                                                         attività. Occupa lo slot testa.
+                                                         Illumina in un raggio di 9 m. Brucia per 1 ora. Pioggia e vento moderati la spengono. In combattimento,
+              Torcia                         5 ma
+                                                         viene considerata un’arma improvvisata ad una mano che infligge 1d3 danni contundenti + 1 danno da fuoco.
+                                                         Illumina in un raggio di 15 m. Brucia per 3 ore usando 1 Fiaschetta d’olio. Pioggia e vento forti la spengono.
+              Lanterna                       5 mo
+                                                         Spegnerla è un’azione di round completo.
+              Lanterna impermeabile         10 mo        Conta come una Lanterna ma pioggia e vento forti non la spengono.
+              Lanterna schermabile          20 mo        Conta come una Lanterna ma come azione veloce si può occultarne temporaneamente la luce.
+                                                         Conta come una Lanterna ma pioggia e vento forti non la spengono. Inoltre, come azione veloce si può
+              Lanterna deluxe               30 mo
+                                                         occultarne temporaneamente la luce.
+              Fiaschetta d’olio              1 ma        Contiene mezzo litro d’olio. Se versato è sufficiente per ricoprire 1,5 m quadrati.
+                                                   Capitolo 1: Riassunti
+
+                                                                        Abilità
+
+                                                                       Acrobazia
+Azione: Nessuna, è effettuata come parte di un'altra azione o come reazione ad una situazione.
+
+Speciale: Se si hanno 3 o più gradi in Acrobazia si ottiene Bonus di Schivare +3 alla CA quando si Combatte sulla Difensiva invece del solito +2 e Bonus
+di Schivare +6 alla CA quando si esegue l'azione di Difesa Totale invece del solito +4.
+
+
+Muoversi quando si è minacciati (una prova alla volta per ciascun nemico)
+Situazione                                                                  CD
+Muoversi a ½ velocità evitando AdO                                          DMC dell'avversario +2 cumulativo per ogni avversario oltre il primo
+Muoversi a ½ velocità attraverso lo spazio occupato da un avversario        5 + DMC dell'avversario +2 per ogni avversario extra evitato in 1 round
+Muoversi a velocità normale: +10 alla CD.
+Fallire: provoca AdO; se si attraversa spazio occupato pone anche termine al movimento.
+
+
+Salto in lungo
+  Distanza              CD ¹
+    1,5 m                 5
+     3m                  10
+    4,5 m                15
+     6m                  20
+  Più di 6 m     +5 ogni 1,5 metri
+¹ = raddoppia senza 3 m di rincorsa
+
+Fallire: se si fallisce di 4 o meno, si può tentare un Tiro Salvezza su Riflessi con CD 20 per afferrare l'estremità opposta. Se si fallisce di 5 o più, si cade
+proni.
+
+
+Attutire cadute
+Se si salta in basso intenzionalmente o in conseguenza di un salto fallito, una prova con CD 15 permette di ignorare i primi 3 metri di caduta, sebbene si
+finisca sempre Proni se si subiscono danni da Caduta.
+
+Modificatori
+La Superficie è...                                                          Modificatore ¹
+Leggermente ostruita (sassolini, sabbia)                                           +2
+Molto ostruita (caverna, macerie)                                                  +5
+Leggermente scivolosa (umidità)                                                    +2
+Molto scivolosa (ghiaccio)                                                         +5
+Leggermente pendente (<45°)                                                        +2
+Molto pendente (>45°)                                                              +5
+Leggermente instabile (barca in acque agitate)                                     +2
+Moderatamente instabile (barca in una tempesta)                                    +5
+Molto instabile (terremoto)                                                       +10
+¹ I modificatori si sommano l'uno con l'altro, ma solo quello più grave per ogni diversa
+condizione che si applica alla prova.
+
+
+
+Camminare su superfici scivolose
+CD 10 se si va a metà velocità ma per ogni 5 punti di successo extra ci si può muovere di 3 metri extra ma a quel punto si è considerati impreparati.
+CD 20 se si corre o carica.
+Fallire manda proni all’inizio del movimento.
+                                                                      Artista della fuga
+Azione: Effettuare una prova di Artista della fuga per liberarsi da corde, manette o altri impedimenti richiede 1 minuto. Liberarsi da una rete o da un
+incantesimo di Animare corde, Comandare vegetali, Controllare vegetali o Intralciare è un'azione di round completo.
+
+
+Sfuggire a varie forme di impedimenti
+Impedimento                                                                                       CD
+Corda/Legacci                                                                           BMC di chi lega + 20
+Rete, Animare corde, Comandare vegetali, Controllare vegetali o Intralciare                       20
+Calappio                                                                                          23
+Manette                                                                                           30
+Spazio ristretto                                                                                  30
+Manette perfette                                                                                  35
+Lottatore                                                                                DMC del lottatore
+
+
+
+
+                                                                    Addestrare animali
+Azione: Gestire un animale è un'azione di movimento, mentre spingere un animale è un'azione di round completo.
+
+Speciale: Si può utilizzare questa abilità su una creatura con un punteggio di Intelligenza di 1 o 2 che non sia un animale, ma la CD di qualsiasi prova
+aumenta di 5. Queste creature hanno lo stesso limite sui comandi apprendibili di un animale.
+
+
+
+Azione                                                                                                 CD ¹
+Far compiere comando conosciuto                                                                         10
+Far compiere comando non conosciuto                                                                     25
+Insegnare comandi a un animale                                                                      15 o 20
+Addestrare un animale per un compito generico                                                       15 o 20
+Allevare un animale selvatico                                                               15 + DV dell'animale
+¹ = Se l'animale è ferito o ha subito danni non letali o danni ai punteggi di caratteristica, la CD aumenta di 2.
+
+
+
+
+Lista dei Comandi
+Comando CD Descrizione
+Annusa        20 L'animale segue le tracce dell'odore che gli viene fatto annusare. (Richiede che l'animale possieda la capacità Fiuto).
+Attacca       20 L'animale attacca i nemici.
+Cerca         15 L'animale si muove in un'area alla ricerca di qualsiasi cosa palesemente vivente o animata.
+Difendi       20 L'animale difende un personaggio specifico (o è pronto a difenderlo se non c'è nessuna minaccia evidente), anche senza ricevere alcun ordine.
+Fermo         15 L'animale resta sul posto, aspettando il ritorno del personaggio. Non aggredisce le creature di passaggio, ma si difende se viene attaccato.
+Indietro      15 L'animale interrompe l'attacco o si ritira in qualche modo.
+Intrattieni   15 L'animale esegue diversi semplici comandi, come mettersi seduto, rotolarsi, ruggire o abbaiare e così via.
+Lavoro        15 L'animale tira o spinge un carico medio o pesante.
+Proteggi      20 L'animale resta sul posto e impedisce ad altri di avvicinarsi.
+Recupera      15 L'animale si reca a recuperare una cosa. Se non gli viene indicato un oggetto specifico, l'animale recupera un oggetto a caso.
+Segui         15 L'animale segue il personaggio da vicino, anche in luoghi dove normalmente non si recherebbe.
+Vieni         15 L'animale torna dal padrone, anche se normalmente non lo farebbe.
+                                                                    Camuffare
+Azione: Creare un travestimento richiede 1d3×10 minuti di lavoro.
+
+CD: è una prova contrapposta alla Percezione di chi si vuol ingannare ma, se non si desta sospetti, si presuma le persone prendano 10.
+
+
+Modificatori in base al camuffamento
+Camuffamento                                Modificatori cumulativi
+Solo dettagli minori                                   +5
+Camuffato di sesso diverso                             -2
+Camuffato di razza diversa                             -2
+Camuffato di diversa categoria d'età                   -2
+Camuffato di diversa categoria di taglia               -2
+
+
+
+Modificatori relazionali
+Familiarità            Modificatori
+Conoscenza di vista        +4
+Amico o associato          +6
+Amico del cuore            +8
+Intimo                     +10
+
+
+
+
+                                                                    Cavalcare
+Azione: Montare o smontare è un'azione di movimento. Le altre azioni sono azioni di movimento, azioni gratuite o non sono azioni come indicato sopra.
+
+Azione                                                                 Azione     CD
+Guidare con le ginocchia                                                  −       5
+Rimanere in sella                                                         −       5
+Entrare in combattimento con cavalcatura addestrata                    gratuita   10
+Caduta attenuata                                                          −       15
+Salto                                                                movimento 15
+Controllare cavalcatura non addestrata (se si fallisce non si fa altro) movimento 20
+Montare o smontare velocemente                                         gratuita   20
+                                                                      Conoscenze
+Arcane: bestie magiche, costrutti, draghi, frasi criptiche, misteri antichi, simboli arcani, tradizioni magiche.
+Dungeon: aberrazioni, caverne, esplorazioni sotterranee, melme.
+Generali: abitanti, araldica, clima, costumi, leggende, leggi, personalità, popolazione, storia, terreni, territori, tradizioni, umanoidi.
+Ingegneria: acquedotti, costruzioni, fortificazioni, ponti.
+Natura: animali, folletti, parassiti, stagioni e cicli, tempo atmosferico, umanoidi mostruosi, vegetali.
+Proibite: demoni, magia legata ai piani, riti esoterici.
+Religioni: divinità, mitologia, non morti, simboli sacri, tradizione ecclesiastica.
+
+
+Conoscere nozioni
+CD: 10 per domande decisamente facili, 15 per domande base, 20 per domande complesse e 30 per domande molto complesse.
+
+
+Identificare mostri
+Una prova con CD 10 + GS della creatura, permette di identificarla e ricordarne 1 caratteristica. Per ogni 5 punti con cui si supera la prova, si viene a
+conoscenza di a un’ulteriore caratteristica.
+
+
+Conoscenze varie
+Azione                                                                                          Abilità di Conoscenza                        CD
+Identificare l'effetto di un incantesimo già attivo                                                       Arcane                 20 + livello dell'incantesimo
+Identificare un pericolo naturale sotterraneo                                                            Dungeon                     15 + GS del pericolo
+Identificare un minerale, una roccia o un metallo                                                        Dungeon                              10
+Determinare la pendenza                                                                                  Dungeon                              15
+Determinare la profondità sottoterra                                                                     Dungeon                              20
+Identificare una costruzione pericolante                                                                 Ingegneria                           10
+Determinare l'età e lo stile architettonico di un edificio                                               Ingegneria                           15
+Determinare i punti deboli di una struttura                                                              Ingegneria                           20
+Riconoscere le caratteristiche regionali del terreno                                                      Generali                            15
+Conoscere la posizione della comunità più vicina o di un sito degno di nota                               Generali                            20
+Conoscere un evento recente o storicamente importante                                                 Storia e nobiltà                        10
+Determinare la data approssimativa di un evento specifico                                             Storia e nobiltà                        15
+Conoscere un evento poco noto o di storia antica                                                      Storia e nobiltà                        20
+Conoscere le leggi e i governanti locali, e i luoghi popolari                                         Storia e nobiltà                        10
+Conoscere una diceria comune o una tradizione locale                                                      Generali                            15
+Conoscere organizzazioni segrete, i loro capi e la loro ubicazione                                        Generali                            20
+Conoscere i governanti attuali e i loro simboli                                                       Storia e nobiltà                        10
+Conoscere il galateo                                                                                  Storia e nobiltà                        15
+Conoscere la linea di successione                                                                     Storia e nobiltà                        20
+Identificare un pericolo naturale                                                                          Natura                    15 + GS del pericolo
+Identificare una pianta o un animale comune                                                                Natura                             10
+Identificare un fenomeno atmosferico innaturale                                                            Natura                             15
+Determinare una caratteristica naturale artificiale                                                        Natura                             20
+Conoscere il nome di un piano extradimensionale                                                           Proibite                            10
+Riconoscere il simbolo o il clero di una divinità comune                                                 Religioni                            10
+Conoscere mitologie e dogmi religiosi comuni                                                             Religioni                            15
+Riconoscere il simbolo o il clero di una divinità poco nota                                              Religioni                            20
+                                                                      Diplomazia
+Cambiare di 1 grado l'atteggiamento dei PNG (richiede 1 minuto)
+Per ogni 5 punti in cui il risultato della prova supera la CD, l'atteggiamento del personaggio aumenta di un grado addizionale (massimo 1 extra). Se si
+fallisce la prova di 4 o meno, l'atteggiamento del personaggio resta inalterato. Se si fallisce di 5 o più, l'atteggiamento del personaggio scende di un grado.
+
+Atteggiamento Iniziale                          CD
+Ostile                     25 + modificatore di Carisma della creatura
+Maldisposto                20 + modificatore di Carisma della creatura
+Indifferente               15 + modificatore di Carisma della creatura
+Amichevole                 10 + modificatore di Carisma della creatura
+Premuroso                  0 + modificatore di Carisma della creatura
+
+
+
+Raccogliere informazioni (richiede da 5 minuti a 1d4 ore)
+Richiesta                                    Modificatore
+Dare semplici consigli o direzioni                 -5
+Dare consigli specifici                            +0
+Dare un semplice aiuto                             +0
+Rivelare un segreto poco importante                +5
+Dare un aiuto complicato e lungo                   +5
+Dare un aiuto pericoloso                          +10
+Rivelare un segreto importante                 +10 o più
+Dare un aiuto che potrebbe essere punito       +15 o più
+Richieste addizionali                       +5 per richiesta
+
+CD: 10 per domande decisamente facili, 15 per domande base, 20 o 30 per domande molto complesse.
+
+
+
+
+                                                               Disattivare congegni
+
+ Congegno       Tempo CD ¹                                                          Esempio
+Semplice       1 round    10    Bloccare una serratura
+Complicato 1d4 round 15         Sabotare una ruota di carro
+Difficile      2d4 round 20     Disarmare una trappola; se si fallisce di 4 o meno, si può ritentare. Se si fallisce di 5 o più la trappola scatta.
+Ostico         2d4 round 25     Disarmare una trappola complessa, sabotare astutamente un congegno meccanico
+¹ = +5 se si tenta di non lasciare tracce della manomissione.
+Solo i personaggi con scoprire trappole possono disarmare le trappole magiche.
+
+Tecnologia: penalità di -5 per disattivare congegni “tecnologici” se non si ha Conoscenze (scientifiche) come abilità di classe con almeno 1 grado assegnato.
+
+
+
+Scassinare Serrature
+Qualità della serratura CD
+Semplice                   20
+Media                      25
+Buona                      30
+Superiore                  40
+                                                                         Furtività
+Prova: La prova di Nascondersi è contrapposta dalla prova di Percezione di chiunque sia in grado di vedere il personaggio.
+
+
+Azioni furtive
+
+Muoversi: È possibile muoversi fino alla metà della velocità normale per round ed usare Furtività senza penalità. Oltre la metà e fino alla propria velocità
+normale, si subisce penalità -5. È praticamente impossibile usare Furtività mentre si attacca, si corre o si carica.
+
+Distrarre e nascondersi: Se gli osservatori sono momentaneamente distratti (come da una prova di Raggirare), si può tentare una prova di Furtività. Mentre
+gli altri distolgono la loro attenzione, è possibile tentare una prova di Furtività se si riesce a raggiungere un posto nascosto di qualche tipo. Questa prova,
+tuttavia, è effettuata con penalità -10 poiché bisogna muoversi velocemente.
+
+Cecchino: Se si supera la prova di Furtività ad almeno 3 metri dal bersaglio, si può compiere un attacco a distanza e poi riusare immediatamente Furtività.
+Si subisce penalità -20 alla prova di Furtività perché bisogna occultarsi dopo il tiro.
+
+
+
+Furtività e Percezione nelle foreste
+In una foresta rada, la massima distanza alla quale effettuare una prova di Percezione può essere efficace per individuare presenze altrui nei dintorni è pari
+a 3d6 x 3m. In una foresta media, la distanza massima diventa pari a 2d8 x 3m. In una foresta fitta, la distanza massima diventa pari a 2d6 x 3m.
+
+
+
+
+                                                                        Intimidire
+Cambiare atteggiamento (richiede 1 minuto)
+Si può usare Intimidire per costringere un avversario ad agire in modo amichevole nei propri confronti per 1d6 × 10 minuti con una prova riuscita. La CD
+della prova è pari a 10 + i Dadi Vita del bersaglio + il modificatore di Saggezza del bersaglio. Se si supera la prova, il bersaglio darà le informazioni richieste,
+compirà azioni che non lo mettano in pericolo, o offrirà un aiuto limitato. Terminato l'effetto, l'atteggiamento del bersaglio nei propri confronti diventerà
+maldisposto e potrebbe fare rapporto alle autorità locali. Se si fallisce la prova di 5 o più, il bersaglio fornirà informazioni errate o inutili, oppure frustrerà
+gli sforzi del personaggio.
+
+Demoralizzare (azione standard)
+Si può utilizzare Intimidire anche per rendere scosso un avversario. La CD della prova è pari a 10 + i Dadi Vita del bersaglio + il bonus di Saggezza del
+bersaglio. Se si supera la prova, il bersaglio rimane scosso per 1 round. La durata aumenta di 1 round ogni 5 punti con cui si supera la CD. Si può
+demoralizzare un avversario solo se si trova entro 9 metri e se si è chiaramente a portata di vista e udito. Usando ancora demoralizzare sulla stessa creatura
+ne estende solo la durata, senza creare una condizione di paura più intensa.
+
+Ritentare: ad ogni tentativo extra la CD aumenta di 5. Questo aumento si annulla dopo che è passata 1 ora.
+
+Speciale: +4 alla prova di Intimidire per ogni categoria di taglia per cui si è più grande del bersaglio e penalità –4 alla prova per ogni categoria di taglia per
+cui si è più piccoli del bersaglio.
+
+
+
+
+                                                                        Intuizione
+Prova: La prova di Intuizione è contrapposta dalla prova di Raggirare di chi sta mentendo al personaggio.
+
+Sospetto
+In base al comportamento altui, è possibile avere l'impressione che ci sia qualcosa di sbagliato, come quando si parla con un impostore. In alternativa, si
+può avere la sensazione che qualcuno sia completamente degno di fiducia. La CD della prova è pari a 20.
+
+Percepire ammaliamento
+È possibile capire quando il comportamento di qualcuno è influenzato da un effetto di ammaliamento. La CD della prova è pari a 25, ma se il bersaglio è
+dominato, la CD è pari a 15 a causa della portata limitata delle capacità del bersaglio.
+
+
+Ritentare: No, anche se si può effettuare una prova di Intuizione per ogni prova contrapposta di Raggirare effettuata.
+                                                                                  Nuotare
+Tipi di acqua e CD: calma CD 10, Agitata CD 15 e tempestosa CD 20
+
+
+Nuotare per lunghi tratti
+Si può sempre prendere 10 alla prova di Nuotare, anche se distratti o minacciati mentre si nuota. Per ogni ora nuotata, occorre superare una prova di Nuotare
+con CD 20 oppure si subiscono 1d6 danni non letali per l'affaticamento.
+
+Muoversi per piccoli tratti (1 prova per round)
+Una prova di Nuotare effettuata con successo permette di Nuotare alla metà della propria velocità (come Azione di Round Completo) o a un quarto della
+propria velocità (come Azione di Movimento). Se il tiro fallisce di 4 o meno, non si avanza nell'acqua. Se si fallisce di 5 o più, si finisce sott'acqua.
+
+
+
+
+                                                                               Percezione
+
+Dettaglio                                                     CD
+                                     Olfatto
+Sentire odori forti (decomposizione)                          -10
+Sentire odore di fumo                                          0
+Sentire odore di cibo avariato                                 5
+
+                                       Udito
+Una battaglia                                                 -10
+Persone che parlano                                            0
+Una creatura che cammina                                      10
+Persone che sussurrano tra loro                               15
+Una serratura che si apre                                     20
+Un arco che si tende                                          25
+Una creatura che scava nel terreno                            25
+                                  Modificatori
+Udire attraverso una porta chiusa                             +5
+Udire attraverso un muro                          +10 ogni 30 cm di spessore
+Udire distanti dalla fonte del suono                    +1 ogni 3 metri
+La creatura che ascolta dorme                                 +5
+
+                                       Vista
+Una tipica porta nascosta                                     15
+Una tipica porta segreta                                      20
+Un borseggiatore                                Contrapposta a Rapidità di Mano
+Una creatura furtiva                                Contrapposta a Furtività
+                                  Modificatori
+La creatura o l'oggetto sono invisibili                       +20
+La creatura che effettua la prova è distratta                 +5
+
+
+
+
+                                                                    Professione: alchimista
+Identificare pozioni in base al livello dell’incantesimo Liv. 0 CD13; Liv 1 CD 15; Liv. 2 CD 17; Liv. 3 CD 19
+                                                                      Raggirare
+Una prova di Raggirare è contrapposta ad una prova di Intuizione da parte della vittima.
+
+Modificatori
+Circostanze                               Modificatore
+La vittima vuole crederci                     +5
+L'inganno è credibile                          0
+L'inganno è un po' difficile da credere        -5
+L'inganno è molto difficile da credere        -10
+L'inganno è inverosimile                      -20
+Il bersaglio è ubriaco o menomato             +5
+Si ha una prova convincente                Fino a +10
+
+
+
+Fintare (richiede un’azione standard)
+È possibile fintare per far perdere al bersaglio il suo bonus di Destrezza alla CA contro il prossimo attacco in mischia che si compie contro di lui. La CD
+della prova è pari a 10 + il BaB dell'avversario + il bonus di Saggezza dell'avversario.
+Se l'avversario è addestrato in Intuizione, la CD è invece 10 + il bonus di Intuizione dell'avversario, se maggiore.
+
+
+
+
+                                                               Rapidità di mano
+Quando si utilizza questa abilità sotto stretta osservazione, la prova è contrapposta dalla prova di Percezione dell'osservatore. Il successo della prova
+dell'osservatore non impedisce di compiere l'azione, ma solo di compierla senza essere notati.
+
+Borseggiare
+                      Azione                        CD
+Fare sparire un oggetto grande come una moneta 10
+Sfilare un piccolo oggetto a una persona            20
+
+
+Borseggiare in combattimento
+Non si può utilizzare questa abilità per prendere un oggetto ad un'altra creatura durante un combattimento se la creatura è conscia della presenza di chi tenta
+l’azione.
+
+
+
+
+                                                               Sapienza magica
+Azione                                                                              CD
+Identificare un incantesimo al momento del lancio        15 + livello dell'incantesimo
+Identificare un oggetto magico generico                  15 + livello dell'incantatore dell'oggetto
+Identificare un oggetto con bonus +X                     15 + 3x bonus di potenziamento totale
+Identificare pozioni in base al livello dell’incantesimo Liv. 0 CD16; Liv 1 CD 18; Liv. 2 CD 20; Liv. 3 CD 22
+Decifrare una pergamena                                  20 + livello dell'incantesimo
+
+
+Identificare un oggetto maledetto: si deve superare la CD base di 5 punti
+                                                                          Scalare
+Una prova di Scalare fallita di 4 o meno significa che non si fanno progressi e una prova fallita di 5 o più significa che si cade dall'altezza già raggiunta.
+
+
+CD Esempio di Superficie o Attività
+  0 Una corda con nodi e una parete d'appoggio.
+  5 Una corda liscia con una parete d’appoggio o una corda con nodi.
+ 10 Una superficie con buone sporgenze o il sartiame di una nave.
+ 15 Un albero o una corda liscia.
+ 20 Una superficie con qualche appiglio stretto per mani e piedi, come una tipica parete in un dungeon.
+ 25 Una parete rocciosa naturale o un muro di mattoni.
+ 30 Sporgenza o soffitto con appigli per le mani ma non per i piedi.
+ +5 La superficie è scivolosa.
+
+Mani libere
+Durante l'arrampicata, non è possibile spostarsi per evitare un colpo, quindi si perde il bonus di Destrezza alla CA (se presente).
+
+Combattimento e danni
+Non è possibile utilizzare lo scudo mentre si scala e quando si subisce danni occorre effettuare una prova di Scalare con la CD della parete. Il fallimento
+significa che si cade dall'attuale altezza.
+
+Scalare accelerato
+Si tenta di Scalare più velocemente del normale. Accettando penalità –5, ci si può muovere a metà della propria velocità (invece che ad un quarto).
+
+Attrezzi da scalata
+Ci si può creare degli appigli per mani e piedi piantando chiodi da rocciatore in una parete. Per farlo occorre 1 minuto per chiodo, ed è necessario un
+chiodo ogni 150 cm di distanza.
+
+Aggrapparsi mentre si cade
+Per riuscirci, bisogna effettuare una prova di Scalare (CD della parete + 20). È molto più facile aggrapparsi ad una pendenza (CD della pendenza + 10).
+
+Afferrare qualcuno che cade mentre si scala
+Farlo richiede un attacco di contatto in mischia contro il personaggio che cade (senza bonus di Destrezza alla CA). Se l'attacco ha successo, si deve
+immediatamente tentare una prova di Scalare (CD = CD della parete +10). Il successo indica che si è riusciti ad afferrare il personaggio che cade, ma il
+suo peso totale, compreso l'equipaggiamento, non può eccedere il proprio limite di carico massimo, altrimenti si rischia di cadere a propria volta. Se si
+fallisce la prova di Scalare di 4 o meno, non si riesce a fermare la caduta ma non si perde la propria presa sulla parete. Se si fallisce di 5 o più, non solo
+non si riesce a fermare la caduta ma si cade con l'altro personaggio.
+                                                                         Sopravvivenza
+CD Azione
+ 10 Foraggiare per fornire cibo e acqua per sé stessi e un'altra persona per ogni 2 punti con cui si supera la prova
+ 15 Trovare un riparo adeguato e ridurre del 5% la possibilità di essere aggrediti durante la notte (vedi Cap. 2 Incontri casuali)
+ 15 Fermare un effetto di sanguinamento
+ 15 Orientarsi e viaggiare senza perdersi
+ 15 Predire il tempo fino a 24 ore in anticipo + altre 24 ore per ogni 5 punti con cui si supera la prova
+
+
+Seguire tracce (richiede una prova ogni 1,5 Km)
+Tipo Di terreno                                            CD
+Molto soffice (neve fresca, polvere spessa, fango umido) 5
+Soffice                                                       10
+Compatto (prati, campi, boschi e simili)                      15
+Duro (nuda roccia o i pavimenti delle abitazioni)             20
+
+
+Modificatori
+Condizione                                                                            Modificatore
+Ogni tre creature incluse nel gruppo seguito                                                -1
+
+Taglia della creatura o delle creature seguite
+Piccolissima                                                                                +8
+Minuta                                                                                      +4
+Minuscola                                                                                   +2
+Piccola                                                                                     +1
+Media                                                                                        0
+Grande                                                                                      -1
+Enorme                                                                                      -2
+Mastodontica                                                                                -4
+Colossale                                                                                   -8
+
+Tempo trascorso
+Ogni 24 ore da quando sono state lasciate le tracce                                         +1
+Ogni ora di pioggia da quando sono state lasciate le tracce                                 +1
+
+Visibilità
+Notte senza luna o nuvolosa                                                                 +6
+Luce lunare                                                                                 +3
+Nebbia o precipitazioni                                                                     +3
+Gruppo seguito che nasconde le proprie tracce (e si muove alla metà della velocità)         +5
+                                                            Utilizzare oggetti magici
+Si può utilizzare questa abilità per utilizzare un oggetto magico come se si avesse la capacità magica o i privilegi di classe di un'altra classe, come se si
+fosse di una razza diversa, e come se si avesse un allineamento differente.
+
+
+Azione                                                CD
+Attivare alla cieca                                    25
+Emulare un allineamento                                30
+Emulare una razza                                      25
+Emulare un punteggio di caratteristica             Vedi sotto
+Emulare un privilegio di classe                        20
+Utilizzare bacchette, bastoni, etc.                    20
+Utilizzare una pergamena                  20 + livello dell'incantatore
+
+Attivare alla cieca
+Alcuni oggetti magici sono attivati da parole, pensieri e azioni speciali. È possibile attivare tali oggetti come se si stesse usando la parola, il pensiero o
+l'azione di attivazione, anche se non lo si sta facendo e anche se non la si conosce. Bisogna utilizzare una qualche attività equivalente per compiere la prova.
+Occorre parlare, roteare l'oggetto o tentare in altro modo di attivarlo. Si riceve bonus speciale +2 se si è attivato l'oggetto almeno un'altra volta in passato.
+Se si fallisce di 9 o meno, non si riesce ad attivare l'oggetto. Se si fallisce di 10 o più, si subisce un malfunzionamento. Un malfunzionamento significa che
+l'energia magica viene comunque sprigionata, ma non nel modo desiderato. I malfunzionamenti in genere implicano che l'oggetto ha effetto sul bersaglio
+sbagliato o che viene sprigionata energia magica incontrollata che infligge 2d6 danni a chi utilizza l'oggetto. Questo malfunzionamento è in aggiunta alla
+possibilità del normale malfunzionamento che capita quando si lancia un incantesimo da una pergamena che non si potrebbe altrimenti utilizzare.
+
+Emulare un privilegio di classe
+Talvolta occorre un privilegio di classe per attivare un oggetto magico. In questo caso, il proprio livello effettivo nella classe emulata è pari al risultato
+ottenuto con la prova di Utilizzare congegni magici meno 20. Questa abilità non permette di sfruttare il privilegio di classe di un'altra classe. Permette solo
+di attivare oggetti magici come se si possedesse il privilegio di classe. Se la classe di cui si sta emulando il privilegio ha un requisito d'allineamento, occorre
+soddisfarlo, sia onestamente sia emulando un allineamento appropriato con una prova separata (vedi sopra).
+
+Emulare un punteggio di caratteristica
+Per lanciare un incantesimo da una pergamena si ha bisogno di un alto punteggio di caratteristica nella caratteristica appropriata. Il proprio punteggio di
+caratteristica effettivo (appropriato alla classe che si sta emulando quando si tenta di lanciare l'incantesimo dalla pergamena) è il risultato ottenuto nella
+prova di Utilizzare congegni magici meno 15. Se già si possiede un punteggio sufficientemente alto per utilizzare la capacità appropriata, allora la prova
+non è necessaria.
+
+Utilizzare una pergamena
+Normalmente per lanciare un incantesimo da una pergamena si deve possedere quell'incantesimo particolare nella lista degli incantesimi della propria classe.
+Usando Utilizzare congegni magici in questo modo si può utilizzare un tale oggetto come se si avesse l'incantesimo nella lista degli incantesimi della propria
+classe. La CD è uguale a 20 + il livello di incantatore dell'incantesimo che si sta cercando di lanciare. In aggiunta, lanciare un incantesimo da una pergamena
+richiede un punteggio minimo (10 + il livello dell'incantesimo) nella caratteristica appropriata. Se non si possiede un punteggio sufficiente nella caratteristica,
+bisogna emularla con una prova di Utilizzare congegni magici separata (vedi sopra).
+Questo uso dell'abilità si applica anche ad altri oggetti magici a completamento di incantesimo.
+
+
+Ritentare: Sì, ma se si ottiene un 1 naturale mentre si tenta di attivare un oggetto e si fallisce, allora non è possibile cercare di attivarlo nuovamente prima
+che siano passate 24 ore.
+
+
+
+
+                                                                          Valutare
+
+
+Stima da Affrontare                      CD
+Stimare il valore di un oggetto         15-30
+Determinare se un oggetto è magico       25
+
+
+Fallire una valutazione di 5 punti o meno: si stima un valore inferiore del 20%.
+
+Fallire una valutazione di 6 punti o più: si stima un valore del 50%.
+                                                                   Concentrazione
+Quando si effettua una prova di concentrazione si tira 1d20 e si aggiunge il proprio livello dell'incantatore e il modificatore della caratteristica usata per
+determinare gli incantesimi bonus dello stesso tipo.
+
+
+Situazione del Lancio                                            CD della Prova di
+Lanciare sulla difensiva                                         15 + livello dell'incantesimo x2
+Feriti da un attacco mentre si lancia                            10 + danni subiti + livello dell'incantesimo
+Danni continui                                                   10 + 1/2 danni subiti + livello dell'incantesimo
+Distratto da un incantesimo                                      CD dell'incantesimo che non danneggia + livello dell'incantesimo
+In lotta o Immobilizzato                                         10 + BMC dell'aggressore + livello dell'incantesimo
+Movimento vigoroso (cavalcare, acque agitate)                    10 + livello dell'incantesimo
+Movimento violento (al galoppo, rapide, mare in tempesta) 15 + livello dell'incantesimo
+Movimento estremamente violento                                  20 + livello dell'incantesimo
+Vento con pioggia o nevischio                                    5 + livello dell'incantesimo
+Vento con grandine e detriti                                     10 + livello dell'incantesimo
+Intralciato                                                      15 + livello dell'incantesimo
+
+
+
+
+                                                                        Condizioni
+       Condizione                                                                    La creatura ottiene
+ Abbagliato                  -1 TpC e prove di Percezione
+                             -2 CA, no Des, -4 prove su For, Des e Percezione, prova di Acrobazia CD 10 per andare a più di velocità dimezzata o cade prona,
+ Accecato
+                             considera gli avversari occultati al 50%
+ Affascinato                 Sta tranquilla senza compiere azioni; -4 Percezione; si libera se attaccata
+ Assordato                   -4 Iniziativa, fallisce prove di percezione basate sull’udito; 20% di fallimento incantesimi vocali
+ Azzoppato                   Movimento dimezzato e non si può compiere passi di 1,5 m
+ Barcollante                 O azione di movimento o azione standard
+ Confuso                     Tira d100: 1-25 agisce normalmente; 26-50: non agisce;           51-75: si infligge 1d8+For;   76-00: attacca il più vicino
+ Frastornato                 Non può agire ma non ha penalità alla CA
+                             No azioni di movimento ed è impreparato. -4 CA, no Des alla CA e alla DMC, no AdO senza Riflessi in combattimento o Schivare
+ Immobilizzato
+                             prodigioso. No azioni immediate
+ Impreparato                 No Des alla CA e alla DMC, non può effettuare AdO senza Riflessi in combattimento. Nessuna azione immediata
+ Incorporeo                  Immune a qualsiasi azione fisica non magica, subisce metà danni da armi magiche, incantesimi, etc.
+ In lotta                    -4 Des, -2 ai TpC e alle manovre in combattimento e non possono usare azioni con due mani
+ Indifeso
+           Addormentato
+           Bloccato          Des 0 (-5); gli avversari hanno +4 ai TpC; può subire un Colpo di grazia *
+           Legato
+           Paralizzato
+           Privo di Sensi
+ Infermo                     -2 TpC, danni, TS e prove
+ Intralciato                 Non può correre o caricare, Velocità dimezzata, -2 TpC e -4 Des; concentrazione per lanciare incantesimi
+ Invisibile                  +2 TpC contro creature visibili, nega Des, occultamento totale ma individuabile con Percezione CD 20
+ Morente                     Una creatura vivente sconfitta durante un combattimento ha il 20% di essere morente per un minuto.
+ Nauseato                    Solo un’azione di movimento per turno
+                             Probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio che sia diverso da sé
+ Offuscato (xx%)
+                             stessa.
+ Paralizzato                 Ha For e Des 0 (-5); gli avversari hanno +4 ai TpC; può subire colpi di grazia
+ Prono                       -4 TpC e CA in mischia, nessun attacco a distanza (solo balestre), si rialza subendo AdO, +4 CA contro attacchi a distanza
+                             non subisce la penalità di -6 alle prove di Iniziativa quando viene colta di sorpresa. Subisce comunque le altre consuete penalità nel
+ Sempre pronta
+                             primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.).
+ Stordito                    Fa cadere oggetti di mano, non può agire, -2 CA e no Des
+
+ Stadi di Paura
+ Scosso (1)                  -2 TpC, TS e prove
+ Spaventato (2)              Come scosso ma fugge dalla fonte della paura e rifugge se essa si ripresenta per la durata di quell’effetto di paura
+ In preda al panico (3)      Come spaventato ma fa cadere al 50% oggetti di mano; se non può fuggire diventa accovacciato
+ Accovacciato                Non può compiere azioni, -2 CA, no Des
+
+ Stadi di fatica
+ Affaticato                  Non può correre o caricare, -2 For e Des; diventa esausta se compie azione affaticante
+ Esausto                     Come affaticato ma velocità dimezzata, -6 For e Des. Dopo 1 ora di riposo diventa affaticata.
+                                                                      Occultamento
+                                                  Dovuto a scarsa visibilità naturale o magica
+
+                             Tipo                                                 Effetto sulla creatura
+                      Occultamento               20% di essere mancata a distanza a causa di scarsa visibilità
+                      Occultamento totale        Non è visibile ma si può attaccare la sua casella colpendo la creatura il 50% delle volte
+
+
+
+                                                                          Coperture
+                                                      Dovute a ostacoli fisici sulla traiettoria
+
+                                                                         Tipo                                   Effetto
+                                               Copertura leggera (visibile ma protetta meno della metà)         +2 CA
+                                               Copertura pesante (visibile ma protetta più della metà)          +4 CA
+
+
+
+
+                                                                 Cure e recupero
+
+                                                                         Guarigione
+Punti Fatica: tutti dopo 8 ore di sonno o tramite il Rifiatare.
+Punti Ferita: 1 x livello dopo 8 ore di sonno o 2 x livello dopo 1 giorno di totale inattività.
+Danni non letali: 1 all’ora.
+Danni alle caratteristiche: 1 dopo 8 ore di sonno o 2 dopo 1 giorno di totale inattività.
+
+
+
+
+                                                                    Danni non letali
+Quando i danni non letali sono pari ai propri Punti Ferita attuali, si acquisisce la condizione barcollante, e quando li superano si perdono i sensi.
+Si può usare un'arma da mischia che infligge danni letali per infliggere danni non letali, ma con di penalità –4 al tiro per colpire.
+
+
+
+                                                            Danni alle caratteristiche
+Per ogni 2 danni inflitti ad una singola caratteristica, si applica penalità -1 alle Abilità ed alle statistiche indicate con la relativa caratteristica. Se la quantità
+di danno inflitto ad una caratteristica è pari o eccede il punteggio di caratteristica stesso, si perdono i sensi fino a che il danno non sia inferiore al punteggio
+di caratteristica. L'unica eccezione a questa regola è relativa al punteggio di Costituzione. Se il danno alla Costituzione è pari o maggiore al punteggio di
+Costituzione, si muore.
+
+
+
+                                                                      Livelli negativi
+Per ogni livello negativo che grava su una creatura, subisce penalità cumulativa -1 a qualsiasi prova di abilità e di caratteristica, ai tiri per colpire e ai tiri
+salvezza, alla BMC e alla DMC. Inoltre, la creatura riduce i suoi Punti Ferita totali e correnti per una quantità di 5 PF per ogni livello negativo posseduto.
+La creatura è anche considerata come se avesse un livello in meno nei riguardi dei parametri dipendenti dal livello (come il lancio degli incantesimi o alcune
+capacità speciali dipendenti dal livello) per ogni livello negativo posseduto.
+Gli incantatori non perdono gli incantesimi o gli slot preparati in conseguenza dei livelli negativi.
+Se i livelli negativi di una creatura sono uguali o superiori ai suoi Dadi Vita totali, la creatura muore.
+
+Livelli negativi temporanei
+Una creatura con livelli negativi temporanei ha diritto ogni giorno ad un nuovo Tiro Salvezza per rimuovere un livello negativo. La CD di questo Tiro
+Salvezza è la stessa dell'effetto che ha causato i livelli negativi.
+
+Livelli negativi permanenti
+Alcune capacità e certi incantesimi, come Rianimare Morti, comportano un risucchio di livello permanente ad una creatura. Questi sono trattati come livelli
+negativi temporanei, ma non permettono di effettuare ogni giorno un nuovo tiro salvezza per rimuoverli.
+I livelli negativi permanenti che gravano su una creatura vivente che dovesse morire, permangono anche dopo che la creatura morta viene riportata in vita.
+
+Ristorare livelli negativi
+Il risucchio di livello può essere eliminato con incantesimi come Ristorare. Se i livelli negativi permanenti sono pari ai Dadi Vita della creatura, questa non
+può essere riportata in vita con incantesimi come Rianimare Morti e Resurrezione salvo che si possa infonderle un incantesimo Ristorare, lanciato nel round
+immediatamente successivo a quello in cui viene riportata in vita.
+                                         Capitolo 2: Viaggi e pericoli
+
+                                                                   Spostamenti
+
+Marcia giornaliera: In un giorno di cammino normale, si può camminare per 8 ore. Il resto del giorno viene sfruttato per fare e disfare il campo,
+riposarsi, cacciare, mangiare, dormire e altre attività secondarie.
+
+Marcia forzata: È possibile camminare per più di 8 ore in un giorno compiendo una marcia forzata. Per ogni ora di marcia oltre le 8 ore, è necessario
+effettuare una prova di Costituzione (CD 18, +2 per ogni ora aggiuntiva). Se la prova fallisce si subisce 1 danno a Costituzione e ci si deve fermare per
+quella giornata.
+
+Cavalcare veloci: È possibile forzare una cavalcatura a procedere per più di 8 ore in un giorno compiendo una marcia forzata. Per ogni ora di marcia oltre
+le 8 ore, è necessario effettuare una prova di Costituzione (CD 18, +2 per ogni ora aggiuntiva). Se la prova fallisce si subisce 2 danni a Costituzione e si
+deve fermare per quella giornata.
+
+
+
+
+                                                           Creatura o mezzo              Miglia/h
+                                                           Creatura umanoide a piedi        3
+                                                           Cavallo                          6
+                                                           Pony o cavalcatura media         4
+                                                           Carro                            3
+                                                           Imbarcazione fluviale            1
+
+
+                                                                                  Velocità di
+                                                              Terreno
+                                                                                  Movimento
+                                                              Strade ben tenute         -
+                                                              Pianura                   -
+                                                              Colline                  1/2
+                                                              Foresta                  1/2
+                                                              Montagna                 1/3
+                                                              Deserto sabbioso         1/3
+                                                              Tundra Ghiacciata        1/3
+                                                              Paludi                   1/4
+                                                              Giungla                  1/4
+                                                        Riparare oggetti rotti
+
+Quando un oggetto si danneggia ottiene 1 livello di danneggiamento. I livelli di danneggiamento sono cumulabili e sono: scheggiato → rotto → distrutto.
+
+Penalità degli oggetti scheggiati
+- Le armi scheggiate impongono penalità -2 ai tiri per colpire e hanno un critico fisso di 20/x2.
+- Le armature e gli scudi scheggiati forniscono metà bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura.
+- Gli oggetti vari scheggiati non forniscono alcun beneficio.
+
+Riparare gli oggetti scheggiati
+Un oggetto scheggiato ha subito danni minimi e può essere riparato utilizzando un bancone da artigiano ben fornito o dei semplici attrezzi da artigiano,
+anche mentre si è in viaggio.
+
+
+Penalità degli oggetti rotti
+- Le armi rotte impongono penalità -3 ai tiri per colpire e hanno un critico fisso di 20/x2.
+- Le armature e gli scudi rotti forniscono un terzo del bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura.
+- Gli oggetti vari rotti non forniscono alcun beneficio.
+
+Riparare gli oggetti rotti
+Un oggetto rotto ha subito ingenti danni e può essere riparato solo utilizzando un bancone da artigiano ben fornito.
+
+
+Oggetti distrutti
+Le armi, le armature, gli scudi e gli oggetti vari distrutti hanno subito danni critici, non sono più utilizzabili e non possono più essere riparati (salvo
+diversamente indicato dal DM).
+
+
+
+
+                                                              Riparare per conto proprio
+1- Si dedica alla Professione 30 minuti per riparare un oggetto scheggiato o 2 ore per riparare un oggetto rotto.
+2- Si effettua una prova di riparazione tirando 1d20 + i gradi totali nella Professione + bonus vari. Si noti che non viene aggiunto alcun bonus di caratteristica
+  per la prova. La CD della prova varia in base alla potenza o al valore dell’oggetto, come indicato nella tabella. Nelle prove di Professione un risultato
+  naturale di 20 non è considerato pari a 30.
+3- Se la prova ha successo, l’oggetto è stato riparato.
+4- Se la prova fallisce, la condizione dell’oggetto peggiora di un grado (scheggiato → rotto → distrutto).
+
+
+                             Armature e scudi                                 Armi                                  Oggetti vari
+                       Bonus        CD         CD               Bonus        CD        CD                    Valore         CD        CD
+                      oggetto    scheggiato   rotto            oggetto    scheggiato   rotto             dell’oggetto    scheggiato   rotto
+                      Comune          8         9              Comune          8         9                   1-1.000         8          9
+                      Perfetto       11        12              Perfetto       11        12                1.001-1.999        11        12
+                        +1           12        13                +1           13        14                fino a 2.000       13        14
+                        +2           15        16                +2           16        17                fino a 8.000       16        17
+                        +3           18        19                +3           19        20               fino a 18.000       19        20
+                        +4           21        22                +4           22        23               fino a 32.000       22        23
+                        +5           24        25                +5           25        26               fino a 50.000       25        26
+                        +6           26        27                +6           26        27               fino a 72.000       26        27
+                        +7           27        28                +7           27        28               fino a 98.000       27        28
+                        +8           28        29                +8           28        29              fino a 128.000       28        29
+                        +9           29        30                +9           29        30              fino a 162.000       29        30
+                        +10          29        30                +10          39        30              fino a 200.000       29        30
+
+
+
+
+                                                           Riparare presso artigiani PNG
+1- Si versa in anticipo all’artigiano una commissione pari a un quarantesimo del valore dell’oggetto scheggiato o pari a un ventesimo del valore dell’oggetto
+  rotto. La paga minima è sempre e comunque di 1 mo.
+2- Un oggetto scheggiato verrà riparato e riconsegnato dopo 1d4 ore mentre uno rotto dopo 1 giorno.
+                                 Pericoli dell’ambiente e tempo atmosferico
+
+                                                                    Annegamento
+1) Si può trattenere il fiato per un numero di round pari al doppio del punteggio di Costituzione. Se una creatura compie un’azione standard o di round
+completo, la durata restante per cui può trattenere il fiato è ridotta di 1 round. Una creatura priva di sensi inizia dal punto 3, come se avesse fallito la prova.
+2) Trascorso questo periodo di tempo, la creatura deve effettuare una prova di Costituzione con CD 10 ad ogni round per continuare a trattenere il fiato.
+Ogni round, la CD aumenta di 1.
+3) Quando alla fine la creatura fallisce la sua prova di Costituzione, comincia ad annegare: nel 1° round perde i sensi (0 Punti Ferita ), nel round seguente
+perde i sensi e nel 3° terzo round annega.
+
+Issare a riva: Chi tenta il salvataggio ha bisogno di un ramo, dell’asta di una lancia, di una corda. Poi deve superare una prova di Forza con CD 10 per
+tirare fuori la vittima, e la vittima deve superare una prova di Forza con CD 10 per rimanere aggrappata al ramo, al bastone o alla corda. Se entrambe le
+prove hanno successo, la vittima viene tirata 1,5 metri più vicina alla salvezza. Se la vittima non supera questa prova, deve immediatamente effettuare una
+prova di Nuotare con CD 15 per rimanere al di sopra della superficie.
+
+
+
+                                                                             Cadere
+Se una creatura si lascia cadere volontariamente il conteggio della caduta viene considerato di 3m inferiore, ed è possibile effettuare una prova di Acrobazia
+con CD 15 per considerare il primo d6 di danno come danno non letale più 1d6 per ogni 5 punti per cui la prova viene superata. Se si subiscono danni che
+non siano danni non letali si cade a terra proni. Una creatura può lanciare incantesimi mentre cade normalmente solo se questi richiedono un’azione
+immediata, altrimenti è necessaria una prova di Concentrazione con CD pari a 20 + il livello dell’incantesimo
+
+Cadere in acqua: Fino a quando l'acqua è profonda perlomeno 3 metri, i primi 6 m di caduta non infliggono danni mentre i successivi 6 infliggono danni
+non letali. Oltre questa distanza, si deve far normalmente riferimento alla tabella sottostante.
+Le creature che si tuffano volontariamente in acqua non subiscono danni se superano una prova di Acrobazia o di Nuotare con CD 15, se l'acqua è profonda
+almeno 3 metri (serve una prova per ogni 9 m di tuffo). La CD della prova aumenta di 5 ogni 15 m di tuffo.
+
+
+                                                                      Metri     Danno Media
+                                                                         3       1d6   3-4
+                                                                       4-5       2d6       7
+                                                                       6-8       4d6       14
+                                                                       9 - 11   12d6       42
+                                                                      12 - 14   20d6       70
+                                                                      15 - 17   26d6       91
+                                                                      18 - 20   32d6   112
+                                                                      21 - 33   40d6   140
+                                                                        34+        morte
+
+
+
+
+                                                                              Fumo
+1) Una creatura costretta a respirare del fumo denso deve superare un Tiro Salvezza su Tempra ogni round (CD 15, +1 per ogni prova precedente) oppure
+passa il round a tossire e soffocare.
+2) Una creatura che continua a soffocare per 2 round consecutivi subisce 1d6 Danni Non Letali. Il fumo oscura la vista, fornendo Occultamento (probabilità
+del 20% di essere mancato) alle creature che si trovano al suo interno.
+
+
+
+
+                                                                      Fame e sete
+1) Una creatura che non abbia mangiato nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni
+giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto.
+2) A partire dal quarto, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a
+10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore.
+
+1) Una creatura che non abbia mangiato nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni
+giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato.
+2) A partire dal settimo, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a
+10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore.
+
+
+
+
+                                                                  Terreni scivolosi
+Una creatura che attraversi una superfice scivolosa con una velocità superiore a metà, deve effettuare una prova di Acrobazia con CD 15 all'inizio del
+movimento. Il fallimento significa che è caduta prona all'inizio del movimento. Correre o caricare su terreno scivoloso aumenta la CD di 5. Una creatura
+che superi questa prova di 5 o più può aumentare il proprio movimento di 3 metri, ma è considerata impreparata fino all'inizio del suo prossimo turno. Le
+creature che non possono essere colte alla sprovvista sono immuni a questo effetto.
+                                                                Ambienti specifici
+
+Acquatici
+Acqua corrente: Qualsiasi cosa che galleggi sulla superficie viene spinta in direzione della corrente a una velocità compresa tra 3 metri e 12 metri per
+round. Le rapide più veloci possono spingere i nuotatori in direzione della corrente a una velocità compresa tra i 18 e i 27 metri per round. I fiumi più rapidi
+sono sempre composti almeno da acque agitate (Nuotare CD 15) e le rapide sono considerate acque tempestose (Nuotare CD 20). Se un personaggio si trova
+in acque correnti, viene spostato in direzione della corrente della quantità indicata alla fine del suo turno. Se un personaggio prova a mantenere la sua
+posizione fissa rispetto alla riva, può impiegare tutto il suo turno per nuotare contro corrente.
+
+Portato via: I personaggi portati via da un fiume che si muovono ad una velocità pari o superiore a 18 metri per round devono superare una prova di Nuotare
+con CD 20 ad ogni round per evitare di finire sott'acqua. Se un personaggio supera la prova di 5 o più rispetto al minimo richiesto, ferma il suo movimento
+aggrappandosi a qualcosa, una roccia, il ramo di un albero o un tronco affiorante: in questo caso non viene più portato via dal flusso della corrente. Per
+sfuggire alle rapide raggiungendo la riva, sono necessarie tre prove di Nuotare con CD 20 una dopo l'altra. Quei personaggi che si sono fermati grazie a una
+roccia, un ramo o un tronco non possono andarsene con le loro forze a meno che non si rituffino in acqua e non tentino un'attraversata a nuoto. Altri
+personaggi possono provare a salvarli, come se fossero intrappolati nelle sabbie mobili (descritte in Terreni Paludosi).
+
+Acqua ferma: I laghi e gli oceani richiedono semplicemente una velocità di nuoto o una prova di Nuotare per spostarsi (CD 10 in acque calme, CD 15 in
+acque agitate e CD 20 in acque tempestose). I personaggi devono trovare un modo per respirare, se si trovano sott’acqua, altrimenti annegheranno. Quando
+un personaggio si trova sott’acqua, può spostarsi in qualsiasi direzione.
+
+
+
+
+Combattimento sott'acqua
+                                           Attacco/Danni
+Circostanza                                   Tagliente o contundente            Penetrante              Movimento                Senza equilibrio1
+Libertà di movimento                              normale/normale             normale/normale              normale                        No
+Si possiede velocità di nuotare                     –2/dimezzati                   normale                 normale                        No
+Prova di Nuotare superata                           –2/dimezzati2                  normale            un quarto o metà3                   No
+Appoggio solido4                                    –2/dimezzati2                  normale                  metà                          No
+Nessuna delle voci sopraelencate                    –2/dimezzati2               –2/dimezzati               normale                        Sì
+1 Le creature che annaspano in acqua (solitamente poiché hanno fallito la loro prova di Nuotare) hanno difficoltà a combattere efficacemente. Una
+
+creatura senza equilibrio perde il suo bonus di Destrezza alla Classe Armatura, e gli avversari ottengono bonus +2 ai loro Tiri per Colpire contro di
+essa.
+2 Una creatura senza un effetto di Libertà di Movimento o una velocità di nuotare effettua le sue prove di Lotta sott'acqua con penalità –2, ma infligge
+
+danni normalmente quando è in lotta.
+3 Una prova di Nuotare superata consente a una creatura di muoversi a un quarto della sua velocità come Azione di movimento o a metà della sua
+
+velocità come azione di round completo.
+4 Le creature dotate di appoggio solido che stanno camminando sul fondo, si appoggiano allo scafo della nave o sono in condizioni analoghe; una
+
+creatura può camminare sul fondo solo se indossa o trasporta peso a sufficienza per ancorarsi sul fondo (almeno 8 kg per le creature Medie, viene
+raddoppiato per ogni categoria di taglia superiore a media e dimezzato per ogni categoria inferiore).
+
+Attacchi in acqua: le creature non acquatiche vedono male quando immerse e subiscono -2 ai tiri per colpire e -2 Percezione (vista).
+
+Attacchi a distanza sott'acqua: Le armi da lancio sono inefficaci sott’acqua, anche quando vengono lanciate da terra. Gli attacchi con le altre armi a
+distanza subiscono penalità –2 ai Tiri per Colpire per ogni 1,5 metri d’acqua che attraversano, oltre alle normali penalità per la gittata.
+
+Attacchi dalla terraferma: Quei personaggi che nuotano, galleggiano o attraversano l’acqua in superficie, o guadano un tratto in cui l’acqua è alta almeno
+fino al petto, godono di copertura migliorata (bonus +8 alla CA, bonus +4 ai Tiri Salvezza su Riflessi) nei confronti degli avversari che si trovano sulla
+terraferma. Quegli avversari che si avvalgono degli effetti di Libertà di movimento ignorano questa copertura quando compiono attacchi in mischia contro
+i bersagli in acqua. Una creatura completamente sommersa dispone di copertura totale contro gli avversari sulla terraferma a meno che quegli avversari non
+beneficino degli effetti di Libertà di movimento. Gli effetti magici non sono influenzati, tranne quelli che richiedono un tiro per colpire (che vengono trattati
+come tutti gli altri effetti) e gli effetti di fuoco.
+
+Fuoco: Il fuoco non magico non brucia sott'acqua. Gli incantesimi o gli effetti magici dotati del descrittore fuoco sono inefficaci sott'acqua, a meno che
+l'incantatore non effettui una prova di livello dell'incantatore (CD 20 + livello dell'incantesimo). Se la prova ha successo, l’incantesimo crea una bolla di
+vapore invece dell’effetto di fuoco desiderato, ma per il resto l’incantesimo funziona come descritto. Un effetto di fuoco soprannaturale è inefficace
+sott’acqua, a meno che la sua descrizione specifica non indichi il contrario. La superficie di uno specchio d’acqua blocca la linea di effetto di qualsiasi
+incantesimo di fuoco. Se l’incantatore ha effettuato una prova di livello dell’incantatore per rendere l’incantesimo di fuoco utilizzabile sott’acqua, la
+superficie blocca comunque la linea di effetto dell’incantesimo.
+
+Lanciare incantesimi sott'acqua: Lanciare incantesimi mentre ci si trova sott'acqua può essere difficile per chi non ha la capacità di respirare sott'acqua.
+Una creatura che non è in grado di respirare sott'acqua deve effettuare una prova di Concentrazione (CD 15 + livello dell'incantesimo) per lanciare un
+incantesimo sott’acqua (questa è in aggiunta alla prova di livello dell’incantatore richiesta per lanciare con successo un incantesimo di fuoco sott’acqua).
+Le creature che respirano sott’acqua possono invece lanciare normalmente i loro incantesimi. Alcuni incantesimi potrebbero funzionare diversamente
+sott’acqua, a discrezione del GM.
+Boschivi
+Alberi: Una creatura in piedi nello stesso quadretto dell’albero ottiene copertura parziale, che concede bonus +2 alla Classe Armatura e bonus +1 ai Tiri
+Salvezza su Riflessi. È necessaria una prova di Scalare con CD 15 per arrampicarsi su un albero.
+
+Sottobosco rado: Viticci, radici e cespugli bassi coprono buona parte del terreno in una foresta. Uno spazio coperto da sottobosco rado richiede 2 quadretti
+di movimento per attraversarlo, e fornisce Occultamento. Il sottobosco incrementa la CD delle prove di Acrobazia e Furtività di +2.
+
+Sottobosco fitto: Richiede 4 quadretti di movimento per attraversarlo, e fornisce Occultamento con una possibilità del 30% di mancare il bersaglio (invece
+del normale 20%). Incrementa la CD delle prove di Acrobazia e Furtività di +5. Nascondersi nel sottobosco fitto è facile, e chi lo fa ottiene Bonus di
+Circostanza +5 alle prove di Furtività.
+
+Fronde degli alberi: Le creature sulle piattaforme o tra i rami degli alberi vengono considerate dotate di Copertura quando attaccano creature a terra, e nei
+terreni boschivi medi o fitti hanno anche Occultamento.
+
+Furtività: Per una creatura usare Furtività è facile in un terreno boschivo. I tronchi e i grossi alberi forniscono Copertura, offrendo anche altre opportunità
+per nascondersi. I rumori di sottofondo in una foresta rendono le prove di Percezione più difficoltose, incrementando la CD della prova di +2 per ogni 3
+metri, invece di +1.
+
+
+
+
+Collinari
+Pendio graduale: Questa inclinazione non è abbastanza ripida da influenzare il movimento, ma i personaggi ottengono bonus +1 agli attacchi in mischia
+contro gli avversari che si trovano più in basso rispetto a loro.
+
+Pendio ripido: I personaggi che si muovono in salita (su un quadretto adiacente di elevazione superiore) devono utilizzare 2 quadretti di movimento per
+entrare in ogni quadretto di pendio ripido.
+
+Rupe: Arrampicarsi su una rupe normalmente richiede una prova di Scalare con CD 15, e la parete di solito è alta 1d4 × 3 metri, anche se le necessità della
+mappa potrebbero richiedere una rupe più alta.
+
+
+
+
+Desertici
+
+Ghiaccio: Il terreno è coperto da ghiaccio scivoloso. Sono necessari 2 quadretti di movimento per entrare in un quadretto coperto da una lastra di ghiaccio,
+e la CD delle prove di Acrobazia aumenta di +5. È necessaria una prova di Acrobazia con CD 10 per correre o Caricare su una lastra di ghiaccio.
+
+Dune di sabbia: Le dune di sabbia funzionano come colline.
+
+
+
+
+Paludosi
+Stagno 30 cm: Sono necessari 2 quadretti di movimento per entrare in un quadretto di stagno basso, e la CD delle prova di Acrobazia in quel quadretto
+aumenta di +2.
+
+Stagno 120 cm: Le creature medie o di taglia superiore devono utilizzare 4 quadretti di movimento per entrare in un quadretto di stagno profondo o, se
+preferiscono, possono attraversare lo spazio a nuoto. Le creature piccole o di taglia inferiore devono attraversare uno stagno profondo a nuoto. Non è
+possibile effettuare prove di Acrobazia in uno stagno profondo.
+L’acqua in uno stagno profondo fornisce Copertura alle creature medie o di taglia superiore. Le creature più piccole ottengono copertura migliorata (bonus
++8 alla CA, bonus +4 ai Tiri Salvezza su Riflessi).
+
+Sabbie mobili: Un personaggio che si avvicina senza correre o caricare a un banco di sabbie mobili a passo normale ha diritto a una prova di Sopravvivenza
+con CD 8 per scorgere il pericolo prima di finirci dentro. I personaggi intrappolati nelle sabbie mobili devono superare una prova di Nuotare con CD 10 ad
+ogni round per rimanere fermi al loro posto, o una prova con CD 15 per avanzare di 1,5 metri in una qualsiasi direzione desiderata. Se un personaggio
+intrappolato fallisce la prova di 5 o più, affonda al di sotto della superficie e inizia ad annegare quando non è più in grado di trattenere il respiro (vedi
+Nuotare). I personaggi al di sotto della superficie di un banco di sabbie mobili possono tornare in superficie superando una prova di Nuotare (CD 15, +1 per
+ogni round consecutivo in cui sono rimasti sotto la superficie).
+
+Chi tenta il salvataggio ha bisogno di un ramo, dell’asta di una lancia, di una corda. Poi deve superare una prova di Forza con CD 15 per tirare fuori la
+vittima dalle sabbie mobili, e la vittima deve superare una prova di Forza con CD 10 per rimanere aggrappata al ramo, al bastone o alla corda. Se entrambe
+le prove hanno successo, la vittima viene tirata 1,5 metri più vicina alla salvezza. Se la vittima non supera questa prova, deve immediatamente effettuare
+una prova di Nuotare con CD 15 per rimanere al di sopra della superficie.
+Montuosi
+Pendii e rupi: Funzionano come descritto in Terreni collinosi.
+
+Baratro: È necessaria un prova di Scalare con CD 15 per arrampicarsi fuori da un baratro.
+
+Sottobosco rado: Funziona come in Terreni boschivi.
+
+Ghiaia: Una distesa di ciottoli che normalmente non influenza la velocità, ma che può risultare pericolosa su un pendio. La CD delle prove di Acrobazia
+aumenta di +2 se un pendio graduale è ricoperto di ghiaia, e di +5 se un pendio ripido è ricoperto di ghiaia. La CD delle prove di Furtività aumenta di +2 se
+c'è ghiaia su un qualsiasi pendio.
+
+Detriti grandi: Il terreno è fittamente disseminato di rocce di tutte le dimensioni. Sono necessari 2 quadretti di movimento per entrare in un quadretto
+coperto da detriti fitti. La CD delle prove di Acrobazia aumenta di +5 e la CD delle prove di Furtività aumenta di +2.
+
+Parete rocciosa: Una parete di roccia verticale che è possibile scalare solo con una prova di Scalare con CD 25.
+
+Acclimatarsi: Le creature abituate alle alte quote solitamente se la cavano meglio rispetto a chi vive a bassa quota. Qualsiasi creatura la cui voce Ambiente
+includa la dicitura montagne viene considerata nativa della zona e acclimatata alle alte quote. I personaggi possono acclimatarsi vivendo in alta montagna
+per un mese. I personaggi che passano più di due mesi lontani dalle montagne dovranno acclimatarsi di nuovo quando ritornano. I non morti, i costrutti e le
+altre creature che non respirano sono immuni agli effetti dell’altitudine.
+
+Fino ai 1.500 metri: La maggior parte dei viaggi nei territori montuosi avviene attraverso i bassi passi, una zona composta per la maggior parte da rilievi
+alpini e foreste. I viaggiatori potrebbero avere qualche difficoltà (come indicato dai modificatori di movimento dei viaggi attraverso le montagne), ma
+l’altitudine in sé non ha alcun effetto in termini di gioco.
+
+Tra i 1.500 metri e i 4.500 metri: La salita verso le pendici più alte delle montagna o l'attraversamento delle montagne vere e proprie ricadono in questa
+categoria. Tutte le creature non acclimatate respirano a fatica per effetto dell'aria rarefatta di queste zone. I personaggi dovranno superare un Tiro Salvezza
+su Tempra ogni 6 ore (CD 20+6 ogni 6 ore), altrimenti diverranno affaticati. L'affaticamento ha fine quando il personaggio ridiscende a un'altitudine dove
+l'aria è più densa. I personaggi acclimatati non devono effettuare alcun Tiro Salvezza su Tempra a questo scopo.
+
+Oltre i 4.500 metri: Le montagne più alte possono superare i 6.000 metri d'altezza. A queste quote, i personaggi sono soggetti all'affaticamento da alta
+quota (descritto sopra) e all'infermità d'alta quota, che siano acclimatati o meno all'alta quota. L'infermità da alta quota sta ad indicare la privazione a lungo
+termine di ossigeno, ed influenza i punteggi delle caratteristiche fisiche e mentali. Per ogni 6 ore trascorse a un'altitudine superiore ai 4.000 metri, un
+personaggio dovrà superare un Tiro Salvezza su Tempra (CD 15, + 1 per ogni prova precedente), altrimenti subirà 1 danno a tutti i punteggi di caratteristica.
+Le creature acclimatate alle alte quote ottengono bonus di competenza +4 ai Tiri Salvezza per resistere agli effetti dell'infermità da alta quota, ma prima o
+poi anche i montanari più esperti dovranno abbandonare queste pericolose altitudini
+
+
+
+Valanghe e frane
+Vedere la valanga: Una valanga può essere scorta fin da 1d10 × 150 metri più a valle da un personaggio che superi una prova di Percezione con CD 20. Se
+tutti i personaggi falliscono la loro prova di Percezione per determinare la distanza dell’incontro, la valanga si avvicina, e tutti la notano automaticamente
+quando giunge a metà della distanza originaria.
+
+Sentire la valanga: In condizioni ottimali, un personaggio che superi una prova di Percezione con CD 15 può sentire la valanga o la frana in arrivo quando
+è lontana 1d6 × 150 metri. Questa prova può anche avere una CD di 20, 25 o più in condizioni in cui altri rumori forti si sovrappongono (come ad esempio
+nel mezzo di una tempesta).
+
+Effetti: I personaggi travolti subiscono 8d6 danni o danni dimezzati se superano un Tiro Salvezza su Riflessi con CD 15. Come conseguenza risultano
+sepolti. I personaggi sepolti subiscono 1d6 danni non letali al minuto; se un personaggio sepolto perde i sensi, deve superare una prova di Costituzione con
+CD 15, altrimenti subisce 1d6 danni letali ad ogni minuto, finché non viene liberato o non muore.
+                                                        Tabelle del tempo atmosferico
+
+                                                                       Zone temperate
+              Primavera                                    Estate                                      Autunno                                       Inverno
+  d%
+          21 marzo - 21 giugno            d%       2 giugno - 22 settembre          d%        23 settembre - 21 dicembre              d%      22 dicembre - 20 marzo
+ 01-85         Clima mite                01-75           Clima caldo                01-80              Clima fresco                   01-75        Clima freddo
+ 86-90       Pioggia battente            76-90         Pioggia battente             81-89             Pioggia battente                76-90   Pioggia battente / Neve
+ 91-94         Acquazzone                91-94              Arsura                  90-94              Acquazzone                     91-94            Gelo
+ 95-97         Vento forte               95-96           Acquazzone                 95-96               Vento forte                   95-96   Acquazzone / Neve fitta
+ 98-99      Vento molto forte            97-98           Vento forte                97-98            Vento molto forte                97-98         Vento forte
+   00            Nebbia                  99-00        Vento molto forte             99-00                 Nebbia                      99-00      Vento molto forte
+
+
+
+
+                                                                       Zone desertiche
+                                                      Primavera - estate                                    Autunno - Inverno
+                                 d%
+                                                   21 marzo – 22 settembre                    d%          23 settembre -20 marzo
+                                 01-85                      Arsura                           01-75               Clima caldo
+                                 86-90                   Clima caldo                         76-90                    Arsura
+                                 91-94            Clima caldo + Vento forte                  91-94        Clima caldo + Vento forte
+                                 95-97         Clima caldo + Vento molto forte               95-96 Clima caldo + Vento molto forte
+                                 98-99                    Monsone                            97-98               Acquazzone
+                                  00     Clima caldo + Tempesta di polvere/sabbia            99-00                 Monsone
+
+
+
+
+                                                                          Zone artiche
+                                                       Primavera - estate                               Autunno - Inverno
+                                         d%
+                                                    21 marzo - 22 settembre                 d%        23 settembre -20 marzo
+                                       01-75              Clima freddo                      01-85               Gelo
+                                       76-90                  Gelo                          86-90        Gelo + Vento forte
+                                       91-94        Clima freddo + Vento forte              91-94     Gelo + Vento molto forte
+                                       95-96     Clima freddo + Vento molto forte           95-97           Gelo + Neve
+                                       97-98          Clima freddo + Neve                   98-99         Gelo + Neve fitta
+                                       99-00        Clima freddo + Neve fitta                00      Gelo + Tempesta di grandine
+
+
+
+
+Acquazzone: Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.
+
+Arsura/gelo: Giornata di caldo/freddo intenso. Una creatura senza abiti estivi/invernali, dopo 1 ora è esausta.
+
+Clima caldo/freddo: Il tipico clima estivo/invernale. Una creatura senza abiti estivi/invernali, dopo 1 ora è affaticata.
+
+Clima mite/fresco: Il tipico clima primaverile/autunnale. Nessun effetto particolare.
+
+Monsone: Visibilità massima 15 caselle. Penalità -4 ai tiri per colpire a distanza e alle prove di Percezione. Si spengono automaticamente le fiamme non
+protette.
+
+Nebbia: Le creature oltre 3 metri godono di Occultamento 50%.
+
+Neve e nevischio: Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione e -2 ai tiri per colpire a distanza. Se la neve si è già depositata il terreno
+è difficile (x2).
+
+Neve fitta: (solo in luoghi plausibili). Visibilità massima 10 caselle. Penalità -4 alle prove di Percezione e -2 ai Tiri per Colpire a distanza. Le creature oltre
+3 metri godono di Occultamento 50%. Se la neve si è già depositata il terreno è difficile (x4).
+
+Pioggia battente: Penalità -2 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.
+
+Tempesta di grandine/polvere/sabbia: Visibilità massima 5 caselle. I tiri per colpire a distanza falliscono automaticamente. Si spengono automaticamente
+le fiamme protette e non. Ogni minuto si subiscono 1d4 danni letali a causa delle escoriazioni, cadute, asfissia, etc.
+
+Vento forte: Penalità -2 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette.
+
+Vento molto forte: Penalità -4 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette e quelle protette hanno una probabilità
+del 50% di spegnersi ogni 10 minuti.
+                                                         Riduzione del danno
+Alcune creature magiche hanno la capacità soprannaturale di guarire all'istante i danni subiti dalle armi o di ignorare i colpi come se fossero invulnerabili.
+La parte numerica della riduzione del danno (o RD) di una creatura indica la quantità di punti ferita che una creatura ignora negli attacchi normali.
+
+Generalmente, un certo tipo Di arma può ignorare questa riduzione (vedi Superare la RD), Questa informazione è separata dalla riduzione del danno da una
+barra. Per esempio, RD 5/magia sta a significare che una creatura subisce 5 danni in meno da ogni arma che non sia magica. Se la barra è seguita da un
+trattino orizzontale, allora la riduzione del danno è efficace contro tutti i tipi di attacchi che non ignorano la riduzione del danno.
+
+Quando la riduzione del danno nega completamente il danno diretto da un attacco, nega anche buona parte degli effetti speciali che accompagnano tale
+attacco, come il Veleno da ferimento, lo Stordimento di un Marzialista, ed una Malattia trasmessa tramite il ferimento. La riduzione del danno non nega gli
+attacchi di contatto, i danni da energia inferti da un attacco o risucchi di energia. Non nega neppure i Veleni o le Malattie trasmessi per inalazione, ingestione
+o contatto.
+
+Quegli attacchi che non infliggono alcun danno a causa della riduzione del danno del bersaglio non provocano la perdita degli incantesimi.
+Gli incantesimi, le Capacità Magiche e gli attacchi di energia (anche fuoco non magico) ignorano la riduzione del danno.
+
+A volte la riduzione del danno funziona come guarigione istantanea. A volte rappresenta la robustezza della pelle o del corpo della creatura. In entrambi i
+casi, i personaggi noteranno che gli attacchi convenzionali non funzionano.
+
+Se una creatura è dotata di riduzione del danno da più di una fonte, le due forme di riduzione del danno non sono cumulative. La creatura ottiene invece il
+beneficio della riduzione del danno migliore in una determinata situazione.
+
+Superare la RD: La riduzione del danno può essere superata da Materiali Speciali, da armi magiche (qualsiasi arma con Bonus di Potenziamento +1 o
+superiore, non però il Bonus di Potenziamento dato dalla qualità Perfetta), da determinati tipi di armi (come tagliente o contundente) e dalle armi con un
+allineamento.
+
+Le munizioni scagliate da un’arma da tiro con un Bonus di Potenziamento +1 o superiore sono trattate come armi magiche allo scopo di superare la riduzione
+del danno. Allo stesso modo, le munizioni scagliate da un’arma da tiro con un allineamento guadagnano l’allineamento di quell'arma da tiro (oltre a qualsiasi
+allineamento che possano già avere).
+Le armi con un Bonus di Potenziamento +3 o superiore possono ignorare alcuni tipi di riduzioni del danno, a prescindere dal loro materiale o allineamento
+reale. La seguente tabella mostra che tipo Di Bonus di Potenziamento è necessario per superare alcuni tipi comuni di riduzione del danno.
+
+Tipo di RD                                             Bonus di potenziamento equivalente dell'arma
+Ferro freddo/argento                                   +3
+Adamantio (*)                                          +4
+Basata su allineamento                                 +5
+(*) Si noti che questo non dà la capacità di ignorare la Durezza, come una vera spada di Adamantio
+
+
+
+
+                                                              Incontri casuali
+                                              Probabilità di incontro ogni 6 ore di marcia
+                                                Tipo Di area                          Probabilità            Speciale
+                                               Terre selvagge                            20 %                   -
+                                            Caverne e sotterranei                        15 %                   -
+                                                  Montagna                               10 %            20 % nelle grotte
+                                                    Bosco                                10 %                   -
+                                   Campagna e colline; strade di collegamento             5%                    -
+                                           Deserto o desolazione                         5%            30 % in oasi e rovine
+
+
+Se avviene un incontro, stabilire tempo atmosferico (vedi pagina precedente) e l’ora del giorno tirando 2d12.
+
+Per la composizione dell’incontro, si vedano le tabelle a pagina seguente.
+

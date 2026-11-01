@@ -415,6 +415,275 @@
    "entrambi": null
   }
  ],
+ "fallimenti": {
+  "regola": "Vol. 1: un risultato naturale di 1 in un tiro per colpire non equivale a −10 ma è un Fallimento critico.",
+  "note": {
+   "1": "L’alleato è quello più vicino al bersaglio originale e deve essere uno entro portata o gittata.",
+   "2": "Tira 1d12: 1: volto, 2: gola, 3: testa, 4: torso, 5: armatura, 6: spalle, 7: vita, 8: braccia, 9: mani, 10: anello, 11: cintura, 12: piedi. Se lo slot è vuoto, l’oggetto è quello successivo, e così via."
+  },
+  "tabelle": [
+   {
+    "id": "mischia",
+    "nome": "Armi da mischia",
+    "dado": "d12",
+    "righe": [
+     {
+      "da": 1,
+      "a": 1,
+      "testo": "Giudichi male le distanze e ti esponi: il nemico che hai attaccato può effettuare un contrattacco con bonus +4 al tiro per colpire."
+     },
+     {
+      "da": 2,
+      "a": 2,
+      "testo": "L’attacco viene deviato e ti colpisci da solo."
+     },
+     {
+      "da": 3,
+      "a": 3,
+      "testo": "L’arma ti scivola di mano e cade a terra a 1d3+1 caselle in una direzione casuale. Se non impugni altre armi, l’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 4,
+      "a": 4,
+      "testo": "Il nemico approfitta del tuo errore per colpirti all’inguine o in un altro punto doloroso. Sei infermo per 5 round. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 5,
+      "a": 5,
+      "testo": "Uno spintone improvviso del nemico ti spedisce a terra prono. Il tuo turno termina."
+     },
+     {
+      "da": 6,
+      "a": 7,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo."
+     },
+     {
+      "da": 8,
+      "a": 8,
+      "testo": "Uno spintone improvviso ti spedisce a terra prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto². Il tuo turno termina. Se sei già prono conta questo risultato come 9."
+     },
+     {
+      "da": 9,
+      "a": 9,
+      "testo": "Il tuo attacco viene deviato e l’arma ti impatta in piena faccia rendendoti barcollante per 1 round. Inoltre, nell’urto l’arma si danneggia. Il tuo turno termina."
+     },
+     {
+      "da": 10,
+      "a": 10,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia un oggetto² di chi viene colpito."
+     },
+     {
+      "da": 11,
+      "a": 11,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito."
+     },
+     {
+      "da": 12,
+      "a": 12,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che danneggia la tua arma."
+     }
+    ]
+   },
+   {
+    "id": "contatto",
+    "nome": "Attacchi senz’armi o di contatto in mischia, compresi gli incantesimi",
+    "dado": "d12",
+    "righe": [
+     {
+      "da": 1,
+      "a": 1,
+      "testo": "Giudichi male le distanze e ti esponi: il nemico che hai attaccato può effettuare un contrattacco con bonus +4 al tiro per colpire."
+     },
+     {
+      "da": 2,
+      "a": 2,
+      "testo": "L’attacco viene deviato e ti colpisci da solo."
+     },
+     {
+      "da": 3,
+      "a": 3,
+      "testo": "Il tuo attacco viene deviato e impatta in piena faccia rendendoti barcollante per 1 round. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 4,
+      "a": 4,
+      "testo": "Il nemico approfitta del tuo errore per colpirti all’inguine o in un altro punto doloroso. Sei infermo per 5 round. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 5,
+      "a": 5,
+      "testo": "Uno spintone improvviso del nemico ti spedisce a terra prono. Il tuo turno termina."
+     },
+     {
+      "da": 6,
+      "a": 7,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo."
+     },
+     {
+      "da": 8,
+      "a": 8,
+      "testo": "Uno spintone improvviso ti spedisce a terra prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto². Il tuo turno termina. Se sei già prono conta questo risultato come 9."
+     },
+     {
+      "da": 9,
+      "a": 9,
+      "testo": "Il tuo attacco viene deviato e ti impatta in piena faccia rendendoti nauseato per 1 round. Il tuo turno termina."
+     },
+     {
+      "da": 10,
+      "a": 10,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia un oggetto² di chi viene colpito."
+     },
+     {
+      "da": 11,
+      "a": 11,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito."
+     },
+     {
+      "da": 12,
+      "a": 12,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che rende barcollante per 1 round chi viene colpito."
+     }
+    ]
+   },
+   {
+    "id": "tiro",
+    "nome": "Armi da tiro, da fuoco o da lancio",
+    "dado": "d12",
+    "righe": [
+     {
+      "da": 1,
+      "a": 1,
+      "testo": "Perdi il controllo dell’attacco e ti ferisci subendo un numero di danni pari al dado di danno dell’arma."
+     },
+     {
+      "da": 2,
+      "a": 2,
+      "testo": "Qualcosa va storto e ti colpisci da solo."
+     },
+     {
+      "da": 3,
+      "a": 3,
+      "testo": "L’arma ti scivola di mano e cade a terra a 1d3+1 caselle in una direzione casuale. Se non impugni altre armi, l’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 4,
+      "a": 4,
+      "testo": "Nel processo di caricare o preparare l’arma ti ferisci in un punto doloroso. Sei infermo per 5 round. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 5,
+      "a": 5,
+      "testo": "Incespichi nel tentativo di prendere la mira e finisci prono. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 6,
+      "a": 7,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo."
+     },
+     {
+      "da": 8,
+      "a": 8,
+      "testo": "Incespichi nel tentativo di prendere la mira e finisci prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto². Il tuo turno termina. Se sei già prono conta questo risultato come 9."
+     },
+     {
+      "da": 9,
+      "a": 9,
+      "testo": "Qualcosa va storto e l’arma sobbalza impattando in piena faccia rendendoti barcollante per 1 round. Inoltre, l’arma si danneggia. Il tuo turno termina."
+     },
+     {
+      "da": 10,
+      "a": 10,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo danneggia un oggetto² di chi viene colpito."
+     },
+     {
+      "da": 11,
+      "a": 11,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito."
+     },
+     {
+      "da": 12,
+      "a": 12,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati presenti, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che danneggia la tua arma."
+     }
+    ]
+   },
+   {
+    "id": "spargimento",
+    "nome": "Armi a spargimento",
+    "dado": "d6",
+    "righe": [
+     {
+      "da": 1,
+      "a": 1,
+      "testo": "Incespichi nel tentativo di prendere la mira e finisci prono. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 2,
+      "a": 2,
+      "testo": "L’arma ti scivola di mano e cade a 1d4+1 caselle in una direzione casuale, attivandosi. Se non impugni altre armi, l’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 3,
+      "a": 3,
+      "testo": "Il tuo attacco è un disastro totale e colpisci la tua casella."
+     },
+     {
+      "da": 4,
+      "a": 4,
+      "testo": "Qualcosa va storto e l’arma sobbalza impattando in piena faccia rendendoti barcollante per 1 round. Il tuo turno termina."
+     },
+     {
+      "da": 5,
+      "a": 5,
+      "testo": "Incespichi nel tentativo di prendere la mira e finisci prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto². Il tuo turno termina. Se sei già prono conta questo risultato come 6."
+     },
+     {
+      "da": 6,
+      "a": 6,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo danneggia due volte 1-2: lo scudo o 3-4: l’armatura di chi viene colpito."
+     }
+    ]
+   },
+   {
+    "id": "contatto_distanza",
+    "nome": "Incantesimi di contatto a distanza (comprese pergamene, bacchette, bastoni, etc.)",
+    "dado": "d6",
+    "righe": [
+     {
+      "da": 1,
+      "a": 1,
+      "testo": "Incespichi nel tentativo di prendere la mira e finisci prono. L’eventuale serie di attacchi termina."
+     },
+     {
+      "da": 2,
+      "a": 2,
+      "testo": "Sei vittima di un sovraccarico dei venti della magia. L’incantesimo consuma il doppio degli slot necessari (solitamente 2 per quelli preparati e 4 per quelli non preparati). Se l’incantesimo proviene da un oggetto, questo consuma il doppio delle cariche necessarie per attivarsi e smette di funzionare per 1d4+1 giorni."
+     },
+     {
+      "da": 3,
+      "a": 3,
+      "testo": "Qualcosa va storto e ti colpisci da solo."
+     },
+     {
+      "da": 4,
+      "a": 4,
+      "testo": "Qualcosa va storto e ti colpisci da solo con una mano in piena faccia rendendoti barcollante per 1 round. Il tuo turno termina."
+     },
+     {
+      "da": 5,
+      "a": 5,
+      "testo": "Incespichi nel tentativo di prendere la mira e finisci prono danneggiando 1-2: lo scudo, 3-4: l’armatura, 5-6 un oggetto². Il tuo turno termina. Se sei già prono conta questo risultato come 6."
+     },
+     {
+      "da": 6,
+      "a": 6,
+      "testo": "Colpisci accidentalmente un alleato¹. Se non ci sono alleati vicini, ti colpisci da solo. In qualunque caso, il colpo è un critico x2 che danneggia 1-2: lo scudo o 3-4: l’armatura di chi viene colpito."
+     }
+    ]
+   }
+  ]
+ },
  "note": [
   "Le combinazioni «entrambi» dei gruppi superiori (mano-mano, mano-braccio) e inferiori (piede-piede, piede-gamba) usano la riga di Mano e di Piede; braccio-braccio e gamba-gamba non sono scritte e si contano allo stesso modo.",
   "Occhio: l’asterisco «*» in entrambe le colonne non ha una nota nel volume.",

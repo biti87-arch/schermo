@@ -1,0 +1,40 @@
+Riparare oggetti rotti
+Quando un oggetto si danneggia ottiene 1 livello di danneggiamento. I livelli di danneggiamento sono cumulabili e sono: scheggiato → rotto → distrutto.
+Penalità degli oggetti scheggiati
+Le armi scheggiate impongono penalità -2 ai tiri per colpire e hanno un critico fisso di 20/x2.
+Le armature e gli scudi scheggiati forniscono metà bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura.
+Gli oggetti vari scheggiati non forniscono alcun beneficio.
+Riparare gli oggetti scheggiati
+Un oggetto scheggiato ha subito danni minimi e può essere riparato utilizzando un bancone da artigiano ben fornito o dei semplici attrezzi da artigiano, anche mentre si è in viaggio.
+Penalità degli oggetti rotti
+Le armi rotte impongono penalità -4 ai tiri per colpire e hanno un critico fisso di 20/x2.
+Le armature e gli scudi rotti forniscono un terzo del bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura.
+Gli oggetti vari rotti non forniscono alcun beneficio.
+Riparare gli oggetti rotti
+Un oggetto rotto ha subito ingenti danni e può essere riparato solo utilizzando un bancone da artigiano ben fornito.
+Oggetti distrutti
+Le armi, le armature, gli scudi e gli oggetti vari distrutti hanno subito danni critici, non sono più utilizzabili e non possono più essere riparati (salvo diversamente indicato dal DM).
+Riparare per conto proprio
+Si dedica alla Professione 30 minuti per riparare un oggetto scheggiato o 2 ore per riparare un oggetto rotto.
+Si effettua una prova di Professione senza aggiungere il bonus di Intelligenza con una CD variabile in base alla potenza o al valore dell’oggetto, come indicato nella tabella sottostante. In questa prova un risultato naturale di 20 non è mai considerato pari a 30.
+Se la prova ha successo, l’oggetto è stato riparato.
+Se la prova fallisce, la condizione dell’oggetto peggiora di un grado (scheggiato → rotto → distrutto).
+[TABELLA]
+| Armature e scudi |  | Armi |  | Oggetti vari |
+| Bonus oggetto | CD scheggiato | CD rotto |  | Bonus oggetto | CD scheggiato | CD rotto |  | Valore dell’oggetto | CD scheggiato | CD rotto |
+| Comune | 8 | 9 |  | Comune | 8 | 9 |  | 1-1.000 | 8 | 9 |
+| Perfetto | 11 | 12 |  | Perfetto | 11 | 12 |  | 1.001-1.999 | 11 | 12 |
+| +1 | 12 | 13 |  | +1 | 13 | 14 |  | fino a 2.000 | 13 | 14 |
+| +2 | 15 | 16 |  | +2 | 16 | 17 |  | fino a 8.000 | 16 | 17 |
+| +3 | 18 | 19 |  | +3 | 19 | 20 |  | fino a 18.000 | 19 | 20 |
+| +4 | 21 | 22 |  | +4 | 22 | 23 |  | fino a 32.000 | 22 | 23 |
+| +5 | 24 | 25 |  | +5 | 25 | 26 |  | fino a 50.000 | 25 | 26 |
+| +6 | 26 | 27 |  | +6 | 26 | 27 |  | fino a 72.000 | 26 | 27 |
+| +7 | 27 | 28 |  | +7 | 27 | 28 |  | fino a 98.000 | 27 | 28 |
+| +8 | 28 | 29 |  | +8 | 28 | 29 |  | fino a 128.000 | 28 | 29 |
+| +9 | 29 | 30 |  | +9 | 29 | 30 |  | fino a 162.000 | 29 | 30 |
+| +10 | 29 | 30 |  | +10 | 29 | 30 |  | fino a 200.000 | 29 | 30 |
+[/TABELLA]
+Riparare presso artigiani PNG
+Si versa in anticipo all’artigiano una commissione pari a un quarantesimo del valore dell’oggetto scheggiato o pari a un ventesimo del valore dell’oggetto rotto. La paga minima è sempre e comunque di 1 mo.
+Un oggetto scheggiato verrà riparato e riconsegnato dopo 1d4 ore mentre uno rotto dopo 1 giorno.

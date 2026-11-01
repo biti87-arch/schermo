@@ -330,7 +330,7 @@ const cond = (nome, durata, extra) => ({ tipo: 'condizione', nome, durata, ...(e
 { let c = M.aggiungiMalus(g0, PA, cond('Scosso', { n: 3, unita: 'round' }), rng); const v = vA(c);
   t('G2 Scosso: TS e abilità −2', v.tempra.valore === 3 && v.volonta.valore === 1 && v.percezione.valore === 10 && v.libere[0].valore === 11 && v.ca.valore === 19, v);
   t('G2 valore base conservato', v.tempra.base === 5 && v.tempra.mod === -2);
-  c = M.aggiungiMalus(c, PA, cond('Spaventato', { n: 1, unita: 'minuti' }), rng); t('G2 la paura non si somma', vA(c).tempra.valore === 3);
+  c = M.aggiungiMalus(c, PA, cond('Spaventato', { n: 1, unita: 'minuti' }, { crescente: false }), rng); t('G2 la paura non si somma', vA(c).tempra.valore === 3);
   c = M.aggiungiMalus(c, PA, cond('Infermo', { unita: 'libera' }), rng); t('G2 Infermo si somma alla paura', vA(c).tempra.valore === 1 && vA(c).furtivita.valore === 10);
   c = M.avanza(c, 2, meteo, rng); t('G1 fuori combattimento: 2 round dopo Scosso c\'è ancora', malA(c).some(m => m.nome === 'Scosso'));
   c = M.avanza(c, 1, meteo, rng); t('G1 al terzo round Scosso scade', !malA(c).some(m => m.nome === 'Scosso') && c.log.some(e => /scade Scosso/.test(e.testo)));
@@ -341,14 +341,14 @@ const cond = (nome, durata, extra) => ({ tipo: 'condizione', nome, durata, ...(e
   c = M.aggiungiMalus(c, PA, cond('Assordato', { n: 1, unita: 'ore' }), rng); t('G2 Assordato: Iniziativa −4', vA(c).iniziativa.valore === 2);
   c = M.aggiungiMalus(c, PA, cond('Impreparato', { unita: 'incontro' }), rng); t('G2 Impreparato: la CA mostrata è quella colto alla sprovvista', vA(c).ca.valore === 13 && vA(c).ca.base === 19, vA(c).ca);
   c = M.aggiungiMalus(c, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 2 }), rng);
-  const v = vA(c); t('G2 livelli negativi 2: TS, abilità e DMC −2, Fatica max −10', v.riflessi.valore === 7 && v.dmc.valore === 19 && v.fatica_max.valore === 32, v.fatica_max);
+  const v = vA(c); t('G2 livelli negativi 2: TS, abilità e DMC −2, Fatica e Ferita max −5 e −5 (AB1-2)', v.riflessi.valore === 7 && v.dmc.valore === 19 && v.fatica_max.valore === 37 && v.ferita_max.valore === 35, [v.fatica_max, v.ferita_max]);
   t('G2 Prono: solo nota', (() => { const x = M.aggiungiMalus(g0, PA, cond('Prono'), rng); return vA(x).ca.valore === 19 && vA(x).note.some(n => /mischia/.test(n)); })());
   lancia('G condizione senza nome', () => M.aggiungiMalus(g0, PA, { tipo: 'condizione' }, rng), 'condizione');
   lancia('G livelli negativi senza N', () => M.aggiungiMalus(g0, PA, cond('Livelli negativi'), rng), 'livelli negativi'); }
-{ let c = M.aggiungiMalus(g0, PA, cond('Scosso', { n: 2, unita: 'round' }), rng);
-  c = M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'minuti' }), rng);
-  t('G stessa condizione: una sola, resta la durata più lunga', malA(c).filter(m => m.nome === 'Scosso').length === 1 && malA(c)[0].durata.fine === c.tempo.R + 10);
-  c = M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'round' }), rng); t('G durata più corta ignorata', malA(c)[0].durata.fine === c.tempo.R + 10);
+{ let c = M.aggiungiMalus(g0, PA, cond('Infermo', { n: 2, unita: 'round' }), rng);
+  c = M.aggiungiMalus(c, PA, cond('Infermo', { n: 1, unita: 'minuti' }), rng);
+  t('G stessa condizione: una sola, resta la durata più lunga', malA(c).filter(m => m.nome === 'Infermo').length === 1 && malA(c)[0].durata.fine === c.tempo.R + 10);
+  c = M.aggiungiMalus(c, PA, cond('Infermo', { n: 1, unita: 'round' }), rng); t('G durata più corta ignorata', malA(c)[0].durata.fine === c.tempo.R + 10);
   c = M.aggiungiMalus(c, PA, cond('Offuscato', { n: 1, unita: 'ore' }, { perc: 20 }), rng); c = M.aggiungiMalus(c, PA, cond('Offuscato', { n: 1, unita: 'ore' }, { perc: 50 }), rng);
   t('Offuscato: vale la % più alta (Vol. 1)', vA(c).offuscato === 50); }
 // G3 bonus e modificatori liberi
@@ -590,8 +590,8 @@ const attacca = (c, tab, n, s = 5) => M.attaccaFerita(c, GA, M.scomponiFerita(ri
 // ---------------------------------------------------------------- dati e migrazione delle campagne della Build 1 (e, più sotto, della 2a)
 t('ferite.json: 5 righe per fermare e 8 amputazioni', FER.fermare.length === 5 && FER.amputazioni.length === 8 && M.rigaFermare(FER, { tipo: 'ferita', gravita: 3 }).cd === 25);
 { const g = fs.readFileSync(path.join(__dirname, 'guida', 'vol1_condizioni.txt'), 'utf8').split('\n');
-  const v1 = COND.condizioni.filter(x => x.testo_vol1);
-  t('condizioni.json: testi del Vol. 1 uguali all\'estratto', v1.length === 5 && v1.every(x => g.includes('•  ' + x.testo_vol1)));
+  const v1 = COND.condizioni.filter(x => x.fonte.startsWith('Vol. 1'));
+  t('condizioni.json: testi del Vol. 1 uguali all\'estratto', v1.length === 5 && v1.every(x => g.includes('•  ' + x.testo[0])));
   t('condizioni.json: 37 in rosso, Morente non colorato', COND.condizioni.filter(x => x.rossa).length === 37 && COND.condizioni.find(x => x.nome === 'Morente').rossa === false); }
 { const vecchia = fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build1.json'), 'utf8');
   const c = M.importa(vecchia).campagne[0];
@@ -972,6 +972,201 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json']) {
   x = M.avanza(x, M.ROUND_GIORNO, meteo, rng);
   t('Build 2b: giorno nuovo con le zone nuove e la compagnia', x.meteo.zona === '10' && meteo.tabelle['10'][x.meteo.stagione] && (x.scorte.cibo < c.scorte.cibo || M.razionamentoAperto(x)));
   x = M.aggiungiAccompagnatore(x, { nome: 'Hassim', rif: { fonte: 'png', id: c.png[0].id } }); t('Build 2b: accompagnatore con la scheda del PNG', x.compagnia.persone[0].rif.fonte === 'png'); }
+
+// ================================================================ Build 3a (sezione AB del design doc v15)
+const STR = require('./strumenti.json'); M.usaStrumenti(STR);
+const stA = c => pgA(c).stato;
+// ---- AB1-2 livelli negativi sul totale di Fatica e Ferita (metà e metà, il dispari ai Ferita)
+t('AB1-2 divisione: 1 → 2/3, 2 → 5/5, 3 → 7/8', JSON.stringify([1, 2, 3].map(n => M.divisioneLivelli(n))) === JSON.stringify([{ fatica: 2, ferita: 3 }, { fatica: 5, ferita: 5 }, { fatica: 7, ferita: 8 }]));
+{ let c = M.aggiungiMalus(g0, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 1 }), rng);
+  t('AB1-2 un livello: massimi −2/−3, correnti 42→40 e 40→37', vA(c).fatica_max.valore === 40 && vA(c).ferita_max.valore === 37 && stA(c).fatica === 40 && stA(c).ferita === 37, [vA(c).fatica_max, stA(c).fatica, stA(c).ferita]);
+  t('AB1-2 TS, abilità e DMC −1', vA(c).riflessi.valore === 8 && vA(c).dmc.valore === 20);
+  c = M.aggiungiMalus(c, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 2 }), rng);
+  t('AB1-2 tre livelli in due malus: massimi −7/−8, correnti −5/−5 in più', vA(c).fatica_max.valore === 35 && vA(c).ferita_max.valore === 32 && stA(c).fatica === 35 && stA(c).ferita === 32, [stA(c).fatica, stA(c).ferita]);
+  t('AB1-2 riga nel log', c.log.some(e => /livelli negativi, −5 Punti Fatica e −5 Punti Ferita/.test(e.testo)));
+  const id = malA(c).find(m => m.n === 2).id; c = M.togliMalus(c, PA, id);
+  t('AB1-2 tolto: tornano i massimi, i correnti restano', vA(c).fatica_max.valore === 40 && vA(c).ferita_max.valore === 37 && stA(c).fatica === 35 && stA(c).ferita === 32);
+  let z = M.clona(g0); z.pg[0].stato.ferita = 2; z = M.aggiungiMalus(z, PA, cond('Livelli negativi', { unita: 'permanente' }, { n: 2 }), rng);
+  t('AB1-2 i Ferita correnti non scendono sotto 0', stA(z).ferita === 0 && !z.coda.some(q => q.tipo === 'ferita'));
+  const gp = M.clona(g0); gp.impostazioni.pf_nemici = true;
+  let r = avviaG(gp, [{ tipo: 'nemico', nome: 'Orco', bonus: 0, n: 2, pf: { fatica: 10, ferita: 11, fatica_max: 10, ferita_max: 11 } }]);
+  const orco = rigaN(r, 'Orco'); r.combattimento.righe[orco].pf[1].fatica = 1; r = M.aggiungiMalus(r, { riga: orco }, cond('Livelli negativi', { unita: 'incontro' }, { n: 1 }), rng);
+  const pf = r.combattimento.righe[orco].pf; t('AB1-2 nemici con i PF: correnti −2/−3 (non sotto 0)', pf && pf[0].fatica === 8 && pf[0].ferita === 8 && pf[1].fatica === 0, pf); }
+// ---- AB1-3 Terrore crescente e Fatica
+{ let c = M.aggiungiMalus(g0, PA, cond('Scosso', { n: 3, unita: 'round' }), rng);
+  t('AB1-3 anteprima: Scosso su Scosso → Spaventato', M.anteprimaCondizione(c, PA, 'Scosso').nome === 'Spaventato' && /Terrore crescente/.test(M.anteprimaCondizione(c, PA, 'Scosso').motivo));
+  t('AB1-3 anteprima: Spaventato su Scosso → In Preda al Panico', M.anteprimaCondizione(c, PA, 'Spaventato').nome === 'In Preda al Panico');
+  t('AB1-3 anteprima: Infermo resta Infermo', M.anteprimaCondizione(c, PA, 'Infermo') === null);
+  let x = M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'minuti' }), rng);
+  t('AB1-3 Scosso + Scosso → Spaventato con la durata più lunga', malA(x).length === 1 && malA(x)[0].nome === 'Spaventato' && malA(x)[0].durata.fine === x.tempo.R + 10 && x.log.some(e => /Terrore crescente: Scosso \+ Scosso → Spaventato/.test(e.testo)), malA(x));
+  x = M.aggiungiMalus(x, PA, cond('Scosso', { n: 1, unita: 'round' }), rng);
+  t('AB1-3 Spaventato + Scosso → In Preda al Panico (durata più lunga)', malA(x).length === 1 && malA(x)[0].nome === 'In Preda al Panico' && malA(x)[0].durata.fine === x.tempo.R + 10);
+  x = M.aggiungiMalus(c, PA, cond('Spaventato', { n: 2, unita: 'round' }), rng);
+  t('AB1-3 Scosso + Spaventato → In Preda al Panico', malA(x).map(m => m.nome).join() === 'In Preda al Panico');
+  x = M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'round' }, { crescente: false }), rng);
+  t('AB1-3 senza Terrore crescente: resta Scosso', malA(x).map(m => m.nome).join() === 'Scosso');
+  x = M.aggiungiMalus(g0, PA, cond('Affaticato', { unita: 'libera' }), rng); x = M.aggiungiMalus(x, PA, cond('Affaticato', { n: 1, unita: 'ore' }), rng);
+  t('AB1-3 Affaticato + Affaticato → Esausto', malA(x).map(m => m.nome).join() === 'Esausto' && malA(x)[0].durata.tipo === 'libera');
+  x = M.aggiungiMalus(x, PA, cond('Affaticato', { n: 1, unita: 'ore' }), rng);
+  t('AB1-3 già esausto: Affaticato non si aggiunge', malA(x).map(m => m.nome).join() === 'Esausto' && x.log.some(e => /già esausto/.test(e.testo)));
+  x = M.aggiungiMalus(x, PB, { ...cond('Affaticato', { unita: 'libera' }), fonte: 'sete' }, rng);
+  x = M.riposo(x, meteo, rng);
+  t('AB1-3 il Riposo 8 ore toglie Esausto, non l\'Affaticato da sete', !malA(x).length && x.pg[1].stato.malus.some(m => m.nome === 'Affaticato') && x.log.some(e => /il riposo toglie Esausto/.test(e.testo))); }
+// ---- AB1-3 condizioni nel riquadro
+{ let c = M.aggiungiMalus(g0, PA, cond('Stordito', { n: 1, unita: 'round' }), rng);
+  t('AB1-3 Stordito: CA colto alla sprovvista −2', vA(c).ca.valore === 13 && vA(c).ca_contatto.valore === 12, vA(c).ca);
+  c = M.aggiungiMalus(g0, PA, cond('Accovacciato', { n: 1, unita: 'round' }), rng); c = M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'round' }, { crescente: false }), rng);
+  t('AB1-3 Accovacciato con Scosso: CA 13 e TS −2', vA(c).ca.valore === 13 && vA(c).tempra.valore === 3, [vA(c).ca, vA(c).tempra]);
+  c = M.aggiungiMalus(g0, PA, cond('Immobilizzato', { n: 1, unita: 'round' }), rng); t('AB1-3 Immobilizzato: CA colto alla sprovvista −4', vA(c).ca.valore === 11);
+  c = M.aggiungiMalus(g0, PA, cond('Affascinato', { n: 1, unita: 'round' }), rng); t('AB1-3 Affascinato: Percezione −4', vA(c).percezione.valore === 8 && vA(c).intuizione.valore === 8);
+  c = M.aggiungiMalus(g0, PA, cond('Paralizzato', { n: 1, unita: 'round' }), rng); t('AB1-3 Paralizzato: nota Des 0', vA(c).note.some(n => /Des 0, \+4 ai TpC/.test(n)) && vA(c).ca.valore === 19); }
+// ---- AB1-3 Confuso: d% all'inizio del turno
+t('AB1-3 tabella di Confuso uguale a condizioni.json', JSON.stringify(M.CONFUSO.map(([a, x]) => x)) === JSON.stringify(COND.confuso.map(x => x.testo)) && M.CONFUSO.map(([a]) => a).join() === COND.confuso.map(x => x.a).join());
+{ let c = avviaG(g0, [{ tipo: 'nemico', nome: 'Orco', bonus: 0, n: 1 }]); const orco = rigaN(c, 'Orco');
+  c = M.aggiungiMalus(c, PB, cond('Confuso', { n: 3, unita: 'round' }), rng); c = M.aggiungiMalus(c, { riga: orco }, cond('Confuso', { n: 3, unita: 'round' }), rng);
+  const vede = []; for (let i = 0; i < 3; i++) { c = av(c); vede.push((c.combattimento.avvisi || []).join(' | ')); }
+  t('AB1-3 Confuso: tiro nel turno di Bruno e dell\'orco, non in quello di Aria', vede.filter(v => /Confuso, d% \d+: /.test(v)).length === 2 && c.log.filter(e => /confuso, d% \d+/.test(e.testo)).length === 2, vede);
+  t('AB1-3 tiro di Confuso: tutte le fasce', [1, 25, 26, 50, 51, 75, 76, 100].map(n => M.tiroConfuso(facce([[n, 100]])).testo.slice(0, 6)).join('|') === 'Agisce|Agisce|Non fa|Non fa|Si inf|Si inf|Attacc|Attacc'); }
+// ---- AB2 Fallimenti critici: tutte le 45 righe, sotto-tiri, «già prono», condizioni, alleato
+{ const FC = FER.fallimenti.tabelle; let righe = 0, coerenti = 0;
+  for (const T of FC) for (const r of T.righe) for (let v = r.da; v <= r.a; v++) {
+    righe++;
+    const f = M.fallimentoCritico(g0, PA, FER, T.id, semi(v), v), tx = f.testo;
+    const attese = [/Sei infermo per/.test(tx), /(a terra|finisci) prono/.test(tx), /rendendoti barcollante/.test(tx), /nauseato/.test(tx), /rende barcollante per 1 round chi viene colpito/.test(tx)].filter(Boolean).length;
+    const danni = (tx.match(/danneggi|si danneggia/g) || []).length;
+    const ok = f.comps.filter(k => k.k === 'condizione').length === attese && (danni === 0) === !f.comps.some(k => k.k === 'danneggia') &&
+      f.alleato === /alleat[oi]¹/.test(tx) && f.fineTurno === /Il tuo turno termina/.test(tx) && (/caselle in una direzione casuale/.test(tx) === f.comps.some(k => k.k === 'caselle'));
+    if (ok) coerenti++; else console.log('  riga', T.id, v, JSON.stringify(f.comps));
+  }
+  t('AB2 tutte le righe dei Fallimenti critici: condizioni, danni, alleato, fine del turno', righe === 12 * 3 + 6 * 2 && coerenti === righe, [righe, coerenti]);
+  let f = M.fallimentoCritico(g0, PA, FER, 'mischia', facce([[2, 3], [3, 8]]), 3);
+  t('AB2 mischia 3: 1d3+1 caselle e direzione', f.comps[0].k === 'caselle' && f.comps[0].n === 3 && f.comps[0].direzione === 'est' && f.comps[0].tiro === '1d3+1 = 3, 1d8 = 3', f.comps);
+  f = M.fallimentoCritico(g0, PA, FER, 'mischia', facce([[5, 6], [2, 12]]), 8);
+  t('AB2 mischia 8: prono, oggetto² con lo slot 1d12 e l\'ordine', f.comps.some(k => k.nome === 'Prono') && f.comps.find(k => k.k === 'danneggia').oggetto.slot === 'gola' && f.comps.find(k => k.k === 'danneggia').oggetto.ordine[1] === 'testa' && f.fineTurno, f.comps);
+  const prono = M.aggiungiMalus(g0, PA, cond('Prono'), rng);
+  f = M.fallimentoCritico(prono, PA, FER, 'mischia', rng, 8);
+  t('AB2 già prono: la riga 8 conta come 9', f.passata && f.passata.a === 9 && f.riga.da === 9 && f.comps.some(k => k.nome === 'Barcollante') && f.comps.some(k => k.cosa === 'arma'));
+  f = M.fallimentoCritico(prono, PA, FER, 'spargimento', rng, 5); t('AB2 armi a spargimento: già prono 5 → 6', f.riga.da === 6 && f.comps.filter(k => k.k === 'danneggia' && k.su === 'colpito').length === 2);
+  f = M.fallimentoCritico(g0, PA, FER, 'contatto_distanza', facce([[4, 4]]), 2); t('AB2 sovraccarico: 1d4+1 giorni', f.comps[0].k === 'giorni' && f.comps[0].n === 5);
+  f = M.fallimentoCritico(g0, PA, FER, 'mischia', rng, 4); let c = M.applicaFallimento(g0, PA, f, null, rng);
+  t('AB2 applica: Infermo 5 round su chi sbaglia', malA(c).some(m => m.nome === 'Infermo' && m.durata.tipo === 'tempo' || m.nome === 'Infermo' && m.durata.tipo === 'round') && c.log.some(e => /Fallimento critico \(Armi da mischia, d12 = 4\)/.test(e.testo)));
+  f = M.fallimentoCritico(g0, PA, FER, 'contatto', rng, 12); c = M.applicaFallimento(g0, PA, f, PB, rng);
+  t('AB2 alleato colpito: barcollante a Bruno, non ad Aria', !malA(c).length && c.pg[1].stato.malus.some(m => m.nome === 'Barcollante') && c.log.some(e => /Aria colpisce Bruno/.test(e.testo)));
+  c = M.applicaFallimento(g0, PA, f, null, rng); t('AB2 nessun alleato: si colpisce da solo', malA(c).some(m => m.nome === 'Barcollante') && c.log.some(e => /si colpisce da solo/.test(e.testo)));
+  f = M.fallimentoCritico(g0, PA, FER, 'mischia', facce([[1, 6]]), 8); c = M.applicaFallimento(g0, PA, f, null, rng);
+  t('AB2 danneggiamento nel log', c.log.some(e => /\+1 livello di danneggiamento: scudo .*scheggiato → rotto → distrutto/.test(e.testo)));
+  lancia('AB2 tabella sconosciuta', () => M.fallimentoCritico(g0, PA, FER, 'boh', rng), 'sconosciuta'); }
+// ---- AB3 tipi di bonus, × livello, modelli
+{ const b = (nome, mods, tb) => ({ tipo: 'bonus', nome, mods, tb, durata: { n: 1, unita: 'minuti' } });
+  let c = M.aggiungiMalus(g0, PA, b('Scudo', { ca: 4 }, 'scudo'), rng); c = M.aggiungiMalus(c, PA, b('Scudo della fede', { ca: 2 }, 'scudo'), rng);
+  t('AB3 due bonus di scudo: vale il più alto (+4)', vA(c).ca.valore === 23 && vA(c).nonContano.length === 1 && malA(c).find(m => m.id === vA(c).nonContano[0]).nome === 'Scudo della fede');
+  t('AB3 motivo «non si somma»', /non si somma con Scudo/.test(M.motivoNonConta(malA(c), malA(c)[1])));
+  c = M.aggiungiMalus(c, PA, b('Schivata', { ca: 1 }, 'schivare'), rng); c = M.aggiungiMalus(c, PA, b('Danza', { ca: 2 }, 'schivare'), rng);
+  t('AB3 schivare si somma (+4 +1 +2)', vA(c).ca.valore === 26);
+  let z = M.aggiungiMalus(g0, PA, b('Fiancheggiare', { ca: 2 }, 'circostanza'), rng); z = M.aggiungiMalus(z, PA, b('Fiancheggiare', { ca: 3 }, 'circostanza'), rng); z = M.aggiungiMalus(z, PA, b('Altura', { ca: 1 }, 'circostanza'), rng);
+  t('AB3 circostanza: stessa fonte il più alto, fonti diverse si sommano (+3 +1)', vA(z).ca.valore === 23);
+  z = M.aggiungiMalus(g0, PA, b('Spirito', { tempra: 2 }, 'spiritico'), rng); z = M.aggiungiMalus(z, PA, b('Spirito', { tempra: 1 }, 'spiritico'), rng); z = M.aggiungiMalus(z, PA, b('Antenato', { tempra: 2 }, 'spiritico'), rng);
+  t('AB3 spiritico: stessa fonte si somma (3), fonti diverse vale il più alto', vA(z).tempra.valore === 8 && vA(z).nonContano.length === 1);
+  z = M.aggiungiMalus(g0, PA, b('Elisir', { volonta: 2 }, 'alchemico'), rng); z = M.aggiungiMalus(z, PA, b('Tonico', { volonta: 1 }, 'alchemico'), rng); z = M.aggiungiMalus(z, PA, b('Eroismo', { volonta: 2 }, 'morale'), rng);
+  t('AB3 alchemico il più alto, morale a parte', vA(z).volonta.valore === 7);
+  z = M.aggiungiMalus(g0, PA, b('Istinto', { ca: 2 }, 'istinto'), rng);
+  t('AB3 istinto: CA e contatto, non colto alla sprovvista', vA(z).ca.valore === 21 && vA(z).ca_contatto.valore === 16 && vA(z).ca_sprovvista.valore === 15);
+  z = M.aggiungiMalus(z, PA, cond('Impreparato', { unita: 'incontro' }), rng); t('AB3 istinto perso da colto alla sprovvista', vA(z).ca.valore === 15);
+  z = M.aggiungiMalus(g0, PA, b('Benedizione', { ca: 1 }), rng); z = M.aggiungiMalus(z, PA, b('Preghiera', { ca: 1 }, 'senza tipo'), rng);
+  t('AB3 senza tipo: si sommano', vA(z).ca.valore === 21 && !malA(z)[0].tb && !malA(z)[1].tb);
+  z = M.aggiungiMalus(g0, PA, { tipo: 'bonus', nome: 'Scudo', mods: { ca: 4 }, tb: 'scudo', durata: { n: 1, unita: 'minuti', liv: 7 } }, rng);
+  t('AB3-1 durata × livello: 1 minuto × 7', malA(z)[0].durata.fine === z.tempo.R + 70 && malA(z)[0].liv === 7);
+  lancia('AB3-1 livello non valido', () => M.aggiungiMalus(g0, PA, { tipo: 'bonus', nome: 'X', durata: { n: 1, unita: 'minuti', liv: 0 } }, rng));
+  let m = M.salvaModello(g0, 'Scudo', { tipo: 'bonus', nome: 'Scudo', mods: { ca: 4 }, tb: 'scudo', durata: { n: 1, unita: 'minuti', liv: 1 }, causa: 'r1', scadenza: 'causa' });
+  m = M.salvaModello(m, 'Benedizione', { tipo: 'bonus', nome: 'Benedizione', mods: { ts: 1 }, durata: { n: 1, unita: 'minuti' } });
+  m = M.salvaModello(m, 'scudo', { tipo: 'bonus', nome: 'Scudo', mods: { ca: 4 }, tb: 'scudo', durata: { n: 1, unita: 'minuti', liv: 1 }, etichetta: 'v2' });
+  t('AB3-2 modelli: ordinati, stesso nome sovrascrive, senza causa', m.modelli.map(x => x.nome).join() === 'Benedizione,Scudo' && m.modelli[1].dati.etichetta === 'v2' && m.modelli[1].dati.causa === undefined);
+  m = M.eliminaModello(m, m.modelli[0].id); t('AB3-2 elimina modello', m.modelli.length === 1);
+  lancia('AB3-2 modello senza nome', () => M.salvaModello(g0, ' ', {}), 'nome'); }
+// ---- AB4-1 dadi
+{ let r = M.tiraDadi(g0, '1d20+5', 'prova', {}, facce([[20, 20]])); t('AB4-1 prova: 20 naturale = 30', r.esito.valore === 35 && r.esito.nat === 20 && /\(20 naturale = 30\)/.test(M.testoTiro(r.esito)));
+  r = M.tiraDadi(g0, '1d20+5', 'prova', {}, facce([[1, 20]])); t('AB4-1 prova: 1 naturale = −10', r.esito.valore === -5);
+  r = M.tiraDadi(g0, 'd20+7', 'colpire', {}, facce([[1, 20]])); t('AB4-1 tiro per colpire: 1 = Fallimento critico', r.esito.fallimento && /Fallimento critico/.test(M.testoTiro(r.esito)));
+  r = M.tiraDadi(g0, '1d20+7', 'colpire', {}, facce([[20, 20]])); t('AB4-1 tiro per colpire: 20 = 30', r.esito.valore === 37);
+  r = M.tiraDadi(g0, '1d20+7', 'libero', {}, facce([[20, 20]])); t('AB4-1 libero: nessuna conversione', r.esito.valore === 27);
+  r = M.tiraDadi(g0, '1d20+2', 'prova', { vantaggio: true }, facce([[4, 20], [17, 20]])); t('AB4-1 vantaggio: il migliore', r.esito.nat === 17 && r.esito.valore === 19 && /con vantaggio \[4, 17 → 17\]/.test(M.testoTiro(r.esito)), M.testoTiro(r.esito));
+  r = M.tiraDadi(g0, '1d20+2', 'prova', { svantaggio: true }, facce([[4, 20], [17, 20]])); t('AB4-1 svantaggio: il peggiore', r.esito.nat === 4 && r.esito.valore === 6);
+  r = M.tiraDadi(g0, '1d20', 'prova', { vantaggio: true, svantaggio: true }, facce([[9, 20]])); t('AB4-1 vantaggio e svantaggio si annullano', r.esito.nat === 9 && !r.esito.vantaggio);
+  lancia('AB4-1 vantaggio senza d20', () => M.tiraDadi(g0, '2d6', 'libero', { vantaggio: true }, rng), 'd20');
+  r = M.tiraDadi(g0, '4d6kh3', 'libero', { log: true }, rng); t('AB4-1 storico e log', r.camp.tiri.length === 1 && r.camp.log.some(e => /^Dadi: 4d6kh3/.test(e.testo)));
+  let c = r.camp; for (let i = 0; i < 55; i++) c = M.tiraDadi(c, '1d6', 'libero', {}, rng).camp; t('AB4-1 storico: ultimi 50', c.tiri.length === 50);
+  const x = M.ripetiTiro(c, c.tiri[0].id, rng); t('AB4-1 ripeti una volta', x.camp.tiri[1].ripetuto && x.esito.ripete === c.tiri[0].id);
+  lancia('AB4-1 non due volte', () => M.ripetiTiro(x.camp, x.camp.tiri[1].id, rng), 'una sola volta');
+  lancia('AB4-1 la ripetizione non si ripete', () => M.ripetiTiro(x.camp, x.camp.tiri[0].id, rng), 'una sola volta'); }
+// ---- AB4-2 fonti di luce e Fiamme
+{ const conMeteo = (c, testo) => M.impostaMeteo(c, meteo, testo, semi(2));
+  let c = conMeteo(g0, 'Clima mite'); // primavera, zona 1
+  c = M.aggiungiLuce(c, STR, { tipo: 'torcia', chi: 'pg:' + GA }); const L = c.luci[0].id;
+  t('AB4-2 torcia di Aria: 1 ora, spenta', c.luci[0].resta === M.ROUND_ORA && !c.luci[0].accesa && M.nomeChiLuce(c, c.luci[0].chi) === 'Aria');
+  c = M.accendiLuce(c, meteo, STR, L); c = M.avanza(c, 50 * M.ROUND_MIN, meteo, rng);
+  t('AB4-2 50 minuti: avviso dei 10 minuti', c.luci[0].accesa && c.luci[0].resta === 10 * M.ROUND_MIN && c.coda.some(q => q.tipo === 'luce' && /restano 10 minuti/.test(q.testo)));
+  c = M.avanza(c, 20 * M.ROUND_MIN, meteo, rng);
+  t('AB4-2 consumata dopo 1 ora', !c.luci[0].accesa && c.luci[0].resta === 0 && c.coda.some(q => /si è consumata/.test(q.testo)));
+  lancia('AB4-2 consumata non si accende', () => M.accendiLuce(c, meteo, STR, L), 'sostituiscila');
+  c = M.ricaricaLuce(c, STR, L); t('AB4-2 sostituita', c.luci[0].resta === M.ROUND_ORA);
+  let p = conMeteo(c, 'Pioggia battente');
+  lancia('AB4-2 la Pioggia battente spegne la torcia', () => M.accendiLuce(p, meteo, STR, L), 'Pioggia battente');
+  p = M.riparoLuce(p, L, true); p = M.accendiLuce(p, meteo, STR, L); t('AB4-2 al riparo resta accesa', p.luci[0].accesa);
+  p = M.aggiungiLuce(p, STR, { tipo: 'lanterna', chi: 'gruppo' }); const LL = p.luci[1].id; p = M.accendiLuce(p, meteo, STR, LL);
+  t('AB4-2 la lanterna con la Pioggia battente resta accesa', p.luci[1].accesa && p.luci[1].resta === 3 * M.ROUND_ORA);
+  // Acquazzone con durata: la lanterna accesa prima si spegne quando comincia
+  let q = conMeteo(c, 'Acquazzone'); q = M.impostaInizioDurata(q, 12);
+  q = M.aggiungiLuce(q, STR, { tipo: 'lanterna', chi: 'gruppo' }); const L3 = q.luci[1].id; q = M.accendiLuce(q, meteo, STR, L3);
+  const prima = q.tempo.R, inizio = q.meteo.durata.da; q = M.vaiA(q, inizio + 30, meteo, rng);
+  t('AB4-2 l\'Acquazzone spegne la lanterna quando comincia (consumo fino a lì)', !q.luci[1].accesa && q.luci[1].resta === 3 * M.ROUND_ORA - (inizio - prima) && q.coda.some(x => /Lanterna \(gruppo\) si spegne: Acquazzone/.test(x.testo)), [q.luci[1], inizio - prima]);
+  // impermeabile con il Vento molto forte: 50% ogni 10 minuti
+  let w = conMeteo(c, 'Vento molto forte'); w = M.aggiungiLuce(w, STR, { tipo: 'lanterna_impermeabile', chi: 'pg:' + GB }); const L4 = w.luci[1].id; w = M.accendiLuce(w, meteo, STR, L4);
+  w = M.avanza(w, 30 * M.ROUND_MIN, meteo, facce([[90, 100], [20, 100]]));
+  t('AB4-2 impermeabile: spenta al secondo tiro del 50% (20 minuti)', !w.luci[1].accesa && w.luci[1].resta === 3 * M.ROUND_ORA - 20 * M.ROUND_MIN && w.coda.some(x => /50% ogni 10 minuti/.test(x.testo)), w.luci[1]);
+  lancia('AB4-2 la lanterna normale non resta accesa con il Vento molto forte', () => M.accendiLuce(M.aggiungiLuce(w, STR, { tipo: 'lanterna', chi: 'gruppo' }), meteo, STR, w.contatore ? 'l' + (w.contatore + 1) : 'x'), 'Vento molto forte');
+  // controllo dopo un cambio del meteo fatto dal GM
+  let g = M.accendiLuce(conMeteo(c, 'Clima mite'), meteo, STR, L); g = conMeteo(g, 'Vento forte'); g = M.controllaLuci(g, meteo, STR);
+  t('AB4-2 cambio del meteo: la torcia si spegne', !g.luci[0].accesa && g.coda.some(x => /Torcia \(Aria\) si spegne: Vento forte/.test(x.testo)));
+  // Sotterraneo: al riparo dal tempo, ma le Correnti d'aria spengono la torcia e l'Aria viziata la consuma il doppio
+  let s = M.cambiaZona(c, meteo, '16'); s = M.impostaMeteo(s, meteo, 'Aria viziata', semi(3)); s = M.accendiLuce(s, meteo, STR, L);
+  s = M.avanza(s, 10 * M.ROUND_MIN, meteo, rng); t('AB4-2 Aria viziata: 10 minuti consumano 20', s.luci[0].resta === M.ROUND_ORA - 20 * M.ROUND_MIN, s.luci[0]);
+  s = M.impostaMeteo(s, meteo, "Correnti d'aria", semi(3)); s = M.controllaLuci(s, meteo, STR); t('AB4-2 Correnti d\'aria: torcia spenta', !s.luci[0].accesa);
+  s = M.togliLuce(s, STR, L); t('AB4-2 togli', s.luci.length === 0); }
+// ---- AB4-3 promemoria
+{ let c = M.aggiungiPromemoria(g0, { testo: 'Arriva la carovana', tra: { n: 30, unita: 'minuti' } });
+  t('AB4-3 promemoria fra 30 minuti', c.promemoria.length === 1 && c.promemoria[0].R === g0.tempo.R + 300);
+  c = M.avanza(c, 299, meteo, rng); t('AB4-3 non ancora', !c.coda.some(q => q.tipo === 'promemoria'));
+  c = M.avanza(c, 1, meteo, rng); t('AB4-3 scatta in coda e nel log', c.coda.some(q => q.tipo === 'promemoria' && /carovana/.test(q.testo)) && !c.promemoria.length && c.log.some(e => /Promemoria: Arriva/.test(e.testo)));
+  c = M.aggiungiPromemoria(c, { testo: 'Mezzanotte', R: (M.scomponi(c).N + 1) * M.ROUND_GIORNO }); c = M.avanza(c, M.ROUND_GIORNO, meteo, rng);
+  t('AB4-3 a una data e ora (anche oltre il giorno)', c.coda.some(q => /Mezzanotte/.test(q.testo)));
+  lancia('AB4-3 nel passato', () => M.aggiungiPromemoria(g0, { testo: 'x', R: g0.tempo.R }), 'futuro');
+  lancia('AB4-3 round fuori combattimento', () => M.aggiungiPromemoria(g0, { testo: 'x', round: 2 }), 'combattimento');
+  let k = avviaG(g0, [{ tipo: 'nemico', nome: 'Orco', bonus: 0, n: 1 }]); k = M.aggiungiPromemoria(k, { testo: 'Crolla il ponte', round: 2 });
+  t('AB4-3 promemoria del round nel combattimento', k.combattimento.promemoria.some(p => p.round === 2 && /ponte/.test(p.testo)));
+  k = av(k, 3); t('AB4-3 al round 2 nella barra e nel log', M.promemoriaRound(k).includes('Crolla il ponte') && k.log.some(e => /Round 2: Crolla il ponte/.test(e.testo)));
+  k = M.togliPromemoriaRound(k, 0); t('AB4-3 togli promemoria del round', !k.combattimento.promemoria.length);
+  lancia('AB4-3 salva nell\'incontro: serve un incontro', () => M.salvaPromemoriaInIncontro(k), 'incontro'); }
+// ---- AB4-4 log per sessione e per tipo
+{ let c = M.avanza(g0, 600, meteo, rng, 'Attesa'); c = M.iniziaSessione(c);
+  c = M.aggiungiMalus(c, PA, cond('Scosso', { n: 1, unita: 'round' }), rng); c = M.tiraDadi(c, '1d6', 'libero', { log: true }, rng).camp; c = M.iniziaSessione(c);
+  c = M.modificaScorta(c, 'cibo', 2); c = M.tiraDadi(c, '1d8', 'libero', { log: true }, rng).camp;
+  const s = M.righeLog(c, { da: 'sessione' });
+  t('AB4-4 questa sessione: dal secondo segno', s[0].sessione === 2 && s.length === 3, s);
+  t('AB4-4 filtri: solo tiri', M.righeLog(c, { tipi: ['tiri'] }).filter(e => !e.sessione).every(e => /^Dadi:/.test(e.testo)) && M.righeLog(c, { tipi: ['tiri'] }).filter(e => !e.sessione).length === 2);
+  t('AB4-4 tipi', M.tipoLog('Round 3: crolla') === 'combattimento' && M.tipoLog('Scorta di cibo: +2 → 18') === 'scorte' && M.tipoLog('Meteo: Clima mite (d% 3)') === 'tempo' && M.tipoLog('Aria: 5 danni') === 'ferite' && M.tipoLog('Dadi: 1d6 [3] = 3') === 'tiri');
+  t('AB4-4 testo', /^\[.*\] — Inizio sessione 2 —\n/.test(M.testoLog(c, { da: 'sessione' }))); }
+// ---- migrazione: la campagna salvata con la Build 2c si apre e si usa
+{ const vecchia = fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build2c.json'), 'utf8'), imp = M.importa(vecchia), c = imp.campagne[0];
+  t('Build 2c: compagnia con nomi e animali, scorte', c.compagnia.persone.map(p => p.nome).join() === 'Mira,Tobia' && c.compagnia.animali.map(a => a.nome).join() === 'Fulmine,Zanna' && c.scorte.foraggio === 5 && c.scorte.cibo_avariato === 2);
+  t('Build 2c: meteo con durata e previsioni', c.meteo.durata && c.meteo.durata.voci[0] === 'Acquazzone' && c.previsioni.giorni.length === 2);
+  t('Build 2c: elenchi nuovi vuoti', ['modelli', 'luci', 'promemoria', 'tiri'].every(k => Array.isArray(c[k]) && !c[k].length));
+  const B2 = c.pg[1], v = M.valoriPG(c, B2);
+  t('Build 2c: Livelli negativi con la regola nuova (−2/−3 sui massimi)', v.fatica_max.valore === 46 && v.ferita_max.valore === 46, [v.fatica_max, v.ferita_max]);
+  const A2 = c.pg[0]; t('Build 2c: il bonus Scudo senza tipo vale ancora', M.valoriPG(c, A2).ca.valore === 23 && !A2.stato.malus[0].tb);
+  let x = M.aggiungiMalus(c, { pg: B2.id }, cond('Scosso', { n: 2, unita: 'round' }), rng);
+  t('Build 2c: Terrore crescente sullo Scosso salvato', x.pg[1].stato.malus.some(m => m.nome === 'Spaventato'));
+  x = M.comando(x, 'avanti', {}, meteo, rng, 0); x = M.aggiungiLuce(x, STR, { tipo: 'torcia', chi: 'acc:' + c.compagnia.persone[0].id });
+  t('Build 2c: torcia a un accompagnatore con nome', M.nomeChiLuce(x, x.luci[0].chi) === 'Mira'); }
 
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

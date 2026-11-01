@@ -1,300 +1,726 @@
 {
- "fonte": "Elenco del progetto (37 condizioni in rosso) + Morente, stati di Indifeso, livelli negativi. Testi: Vol. 1 2.5.2 senza immagini, «Nuove condizioni» (estratto in sorgenti/guida/vol1_condizioni.txt); i testi delle altre condizioni (golarion.altervista.org) arrivano con la sezione P (Build 3). «effetto» = ciò che l'app applica ai valori del riquadro (design doc, G2).",
+ "fonte": "golarion.altervista.org (Condizioni, letta il 01/11/2026), Vol. 1 2.5.2, Vol. 3 2.5.8, Guida del DM",
+ "gruppi": [
+  "Paura",
+  "Fatica",
+  "Indifeso",
+  "Oggetti",
+  "Nuove",
+  "Altre",
+  "Regole"
+ ],
  "condizioni": [
   {
    "nome": "Azzoppato",
-   "gruppo": "",
+   "gruppo": "Nuove",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": "Azzoppato: la creatura vede il proprio movimento dimezzato (per eccesso) e non può compiere passi di 1,5 m."
+   "sintesi": "Movimento dimezzato e non si può compiere passi di 1,5 m",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Azzoppato: la creatura vede il proprio movimento dimezzato (per eccesso) e non può compiere passi di 1,5 m."
+   ],
+   "sezioni": [],
+   "fonte": "Vol. 1 2.5.2, Nuove condizioni",
+   "adattato": ""
   },
   {
    "nome": "Colto alla sprovvista",
-   "gruppo": "",
+   "gruppo": "Nuove",
    "rossa": true,
    "effetto": "la CA mostrata è quella colto alla sprovvista",
-   "testo_vol1": "Colto alla sprovvista: avviene quando alla creatura viene negato il bonus di Destrezza alla CA."
+   "sintesi": "Bonus di Destrezza negato alla CA",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Colto alla sprovvista: avviene quando alla creatura viene negato il bonus di Destrezza alla CA."
+   ],
+   "sezioni": [],
+   "fonte": "Vol. 1 2.5.2, Nuove condizioni",
+   "adattato": ""
   },
   {
    "nome": "Offuscato",
-   "gruppo": "",
+   "gruppo": "Nuove",
    "rossa": true,
    "effetto": "vale solo la % più alta",
-   "testo_vol1": "Offuscato (%): la creatura ha una probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio diverso da sé stessa. Una creatura è sottoposta solo alla % più alta di offuscamento di cui è vittima. Le creature che non usano la vista per vedere non diventano offuscate."
+   "sintesi": "Probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio che sia diverso da sé stessa.",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Offuscato (%): la creatura ha una probabilità di mancare con ogni singolo attacco, incantesimo, capacità o azione che richieda un bersaglio diverso da sé stessa. Una creatura è sottoposta solo alla % più alta di offuscamento di cui è vittima. Le creature che non usano la vista per vedere non diventano offuscate."
+   ],
+   "sezioni": [],
+   "fonte": "Vol. 1 2.5.2, Nuove condizioni",
+   "adattato": ""
   },
   {
    "nome": "Sempre pronto",
-   "gruppo": "",
+   "gruppo": "Nuove",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": "Sempre pronto: la creatura non subisce la penalità di −6 alle prove di Iniziativa quando è impreparata. La creatura è comunque considerata impreparata per qualsiasi altro fine e subisce le consuete penalità nel primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.)."
+   "sintesi": "non subisce la penalità di -6 alle prove di Iniziativa quando viene colta di sorpresa. Subisce comunque le altre consuete penalità nel primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.).",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Sempre pronto: la creatura non subisce la penalità di −6 alle prove di Iniziativa quando è impreparata. La creatura è comunque considerata impreparata per qualsiasi altro fine e subisce le consuete penalità nel primo round di combattimento (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.)."
+   ],
+   "sezioni": [],
+   "fonte": "Vol. 1 2.5.2, Nuove condizioni",
+   "adattato": ""
   },
   {
    "nome": "Affaticato",
    "gruppo": "Fatica",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "su chi è già affaticato diventa Esausto; il Riposo 8 ore lo toglie (non se viene da fame o sete)",
+   "sintesi": "Non può correre o caricare, -2 For e Des; diventa esausta se compie azione affaticante",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio affaticato non può correre o Caricare e subisce una penalità –2 a Forza e Destrezza. Se compie qualsiasi cosa normalmente affaticante diventa Esausto. Ci vogliono 8 ore di riposo totale per rimuovere la condizione di affaticato.",
+    "Affaticato o esausto: una creatura affaticata o esausta a causa di fame o sete può rimuovere tali condizioni solamente rifocillandosi."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni + Vol. 1 2.5.2",
+   "adattato": "Aggiunta la regola del Vol. 1 su fame e sete."
   },
   {
    "nome": "Abbagliato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "Percezione −1",
-   "testo_vol1": ""
+   "sintesi": "-1 TpC e prove di Percezione",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "La creatura è incapace di vedere bene a causa di un’eccessiva stimolazione degli occhi. Una creatura abbagliata subisce penalità –1 al Tiro per Colpire e alle prove di Percezione basate sulla vista."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Accecato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "CA −2, Percezione −4",
-   "testo_vol1": ""
+   "sintesi": "-2 CA, no Des, -4 prove su For, Des e Percezione, prova di Acrobazia CD 10 per andare a più di velocità dimezzata o cade prona, considera gli avversari occultati al 50%",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Il personaggio non riesce a vedere nulla. Subisce penalità –2 alla Classe Armatura, perde il suo bonus di Destrezza alla CA (se presente), subisce penalità –4 alla maggior parte delle Abilità basate su Forza e Destrezza e alle prove contrapposte di Percezione. Tutte le prove o le attività basate sulla visione (come ad esempio leggere, o eventuali prove di Percezione basate sulla vista) falliscono automaticamente. Tutti gli avversari vengono considerati dotati di Occultamento Totale (probabilità del 50% di essere mancati) nei confronti del personaggio accecato. I personaggi accecati devono effettuare una prova di Acrobazia con CD 10 per muoversi più veloci della propria velocità dimezzata. Le creature che falliscono questa prova cadono a terra Prone. I personaggi che rimangono per lungo tempo accecati possono abituarsi ad alcune di queste penalità e iniziare a superarne alcune, a discrezione del GM."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Accovacciato",
    "gruppo": "Paura",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "CA −2; la CA mostrata è quella colto alla sprovvista",
+   "sintesi": "Non può compiere azioni, -2 CA, no Des",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Il personaggio è congelato dalla paura ed è incapace di compiere azioni. Un personaggio accovacciato subisce penalità –2 alla Classe Armatura e perde qualsiasi bonus di Destrezza (se posseduto)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Affascinato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "Percezione −4",
+   "sintesi": "Sta tranquilla senza compiere azioni; -4 Percezione; si libera se attaccata",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Una creatura affascinata è soggiogata da un effetto soprannaturale o di un incantesimo. La creatura rimane in piedi o si siede tranquilla, senza effettuare alcuna azione se non prestare attenzione alla fonte del fascino, fintanto che dura l’effetto. L’effetto provoca penalità –4 alle Prove di Abilità richieste come reazione, come ad esempio le prove di Percezione. Qualsiasi potenziale minaccia, come ad esempio una creatura ostile in avvicinamento, consente alla creatura affascinata un nuovo Tiro Salvezza contro l’effetto del fascino. Qualsiasi minaccia palese, come ad esempio qualcuno che estrae un’arma, lancia un incantesimo o punta un’arma a distanza verso la creatura affascinata, interrompe automaticamente l’effetto. Un alleato della creatura affascinata può scuoterla per liberarla dall’effetto come Azione Standard."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Assordato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "Iniziativa −4",
-   "testo_vol1": ""
+   "sintesi": "-4 Iniziativa, fallisce prove di percezione basate sull’udito; 20% di fallimento incantesimi vocali",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio assordato non può ascoltare. Subisce penalità –4 alle prove di Iniziativa, fallisce automaticamente tutte le prove di Percezione basate sul suono e ha una probabilità del 20% di fallire il lancio degli incantesimi con componenti verbali. I personaggi che rimangono assordati per lunghi periodi di tempo, possono abituarsi a queste penalità e superarne alcune, a discrezione del GM."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Barcollante",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "O azione di movimento o azione standard",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio barcollante può effettuare una singola Azione di Movimento o una Standard ad ogni round (ma non entrambe, e non può effettuare azioni di round completo). Una creatura barcollante può sempre compiere Azioni Gratuite, Veloci o Immediate. Una creatura i cui danni non letali eguagliano i Punti Ferita attuali ottiene la condizione barcollante."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Confuso",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "all’inizio del suo turno la barra del turno tira il d%",
+   "sintesi": "Tira d100: 1-25 agisce normalmente; 26-50: non agisce; 51-75: si infligge 1d8+For; 76-00: attacca il più vicino",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Una creatura confusa è mentalmente ottenebrata e non può agire normalmente. Una creatura confusa non riesce a distinguere un alleato da un nemico, e considera tutti come nemici. Gli alleati che vogliono lanciare un incantesimo a vantaggio della creatura confusa devono comunque toccarla con un attacco di contatto in mischia riuscito. Se una creatura confusa è attaccata, attacca sempre l’ultima creatura che la ha attaccata, finché quella creatura non muore o esce dalla sua visuale.",
+    "Tirate sulla tabella seguente all’inizio di ogni turno della creatura confusa ad ogni round per vedere quello che la creatura fa in quel round.",
+    "D% | COMPORTAMENTO",
+    "01-25 | Agisce normalmente",
+    "26-50 | Non fa altro che balbettare in modo incoerente",
+    "51-75 | Si infligge 1d8 + modificatore di Forza con l'arma che tiene in mano",
+    "76-100 | Attacca la creatura più vicina (a tale scopo, un Famiglio conta come parte del soggetto stesso)",
+    "Una creatura confusa che non è in grado di eseguire l’azione indicata non farà altro che balbettare in modo incoerente. Gli aggressori non hanno alcun vantaggio speciale quando attaccano una creatura confusa. Qualsiasi creatura confusa che venga attaccata, attacca automaticamente a sua volta il suo aggressore al suo turno successivo, fintanto che rimane confusa quando giunge il suo turno. Una creatura confusa non effettua Attacchi di Opportunità contro nessuno con cui non sia già impegnata a combattere (perché così richiedeva la sua azione più recente, o perché è stata appena attaccata)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Esausto",
    "gruppo": "Fatica",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "il Riposo 8 ore lo toglie (non se viene da fame o sete)",
+   "sintesi": "Come affaticato ma velocità dimezzata, -6 For e Des. Dopo 1 ora di riposo diventa affaticata.",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio esausto si muove a velocità dimezzata e subisce penalità –6 a Forza e Destrezza. Dopo 1 ora di completo riposo, un personaggio esausto diventa solo Affaticato. Un personaggio Affaticato diventa esausto compiendo un’azione che normalmente lo affaticherebbe.",
+    "Affaticato o esausto: una creatura affaticata o esausta a causa di fame o sete può rimuovere tali condizioni solamente rifocillandosi."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni + Vol. 1 2.5.2",
+   "adattato": "Aggiunta la regola del Vol. 1 su fame e sete."
   },
   {
    "nome": "Frastornato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Non può agire ma non ha penalità alla CA",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "La creatura è incapace di agire normalmente. Una creatura frastornata non può eseguire azioni, ma non subisce penalità alla CA. La condizione frastornato dura solitamente 1 round."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Immobilizzato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "la CA mostrata è quella colto alla sprovvista, −4",
+   "sintesi": "No azioni di movimento ed è impreparato. -4 CA, no Des alla CA e alla DMC, no AdO senza Riflessi in combattimento o Schivare prodigioso. No azioni immediate",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Una creatura immobilizzata è strettamente limitata nei movimenti e può compiere solo alcune azioni. Una creatura immobilizzata non può muoversi ed è Impreparata. Un personaggio immobilizzato inoltre subisce una ulteriore penalità –4 alla sua Classe Armatura. Una creatura immobilizzata è limitata nelle azioni che può compiere. Una creatura immobilizzata può tentare sempre di liberarsi, solitamente attraverso una prova di Manovra in Combattimento o una prova di Artista della Fuga. Una creatura immobilizzata può compiere azioni verbali e mentali, ma non può lanciare incantesimi che richiedono una componente somatica o materiale. Un personaggio immobilizzato che tenta di lanciare un incantesimo o usare una Capacità Magica deve effettuare una prova di Concentrazione (CD 10 + BMC dell’aggressore + livello dell’incantesimo) o perde l’incantesimo. Immobilizzato è una condizione più grave di In Lotta, ed i loro effetti non si cumulano."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Impreparato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "la CA mostrata è quella colto alla sprovvista",
-   "testo_vol1": ""
+   "sintesi": "No Des alla CA e alla DMC, non può effettuare AdO senza Riflessi in combattimento. Nessuna azione immediata",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio che non ha ancora agito durante un Combattimento è Impreparato, incapace di reagire normalmente alla situazione. Un personaggio Impreparato perde il suo bonus di Destrezza alla CA e alla DMC (se presente) e non può effettuare Attacchi di Opportunità, a meno che non abbia il Talento Riflessi in Combattimento o il privilegio di Classe Schivare Prodigioso.",
+    "I personaggi con Schivare Prodigioso mantengono il loro bonus di Destrezza alla CA e possono fare Attacchi di Opportunità prima di aver agito nel primo round di Combattimento.",
+    "Nota del redattore: non si possono intraprendere Azioni Immediate mentre si è Impreparati.",
+    "Essere impreparati (Vol. 1): I personaggi impreparati, anziché non poter agire nel primo round di combattimento, subiscono una penalità di −6 alla prova di Iniziativa. Per il resto, la sorpresa funziona come di consueto (bonus di Destrezza negato alla CA, possibilità di subire attacchi furtivi, etc.)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni + Vol. 1 2.5.2",
+   "adattato": "Aggiunta la regola del Vol. 1 «Essere impreparati»."
   },
   {
    "nome": "In Lotta",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "-4 Des, -2 ai TpC e alle manovre in combattimento e non possono usare azioni con due mani",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Una creatura in lotta è trattenuta da una creatura, da una trappola o da un effetto. Le creature in lotta non possono muoversi e subiscono penalità –4 a Destrezza. Una creatura in lotta subisce penalità –2 a tutti i Tiri per Colpire e alle prove di Manovra in Combattimento, tranne quelle effettuate per lottare o sfuggire ad una lotta. Inoltre, le creature in lotta non possono compiere azioni che richiedano due mani per essere effettuate. Un personaggio in lotta che tenta di lanciare un incantesimo o usare una Capacità Magica deve effettuare una prova di Concentrazione (CD 10 + BMC dell’aggressore + livello dell’incantesimo) o perde l’incantesimo. Le creature in lotta non possono effettuare Attacchi di Opportunità.",
+    "Una creatura in lotta non può usare Furtività per nascondersi dalla creatura con cui sta lottando, anche se una capacità speciale, come nascondersi in piena vista, lo permetterebbe. Se una creatura in lotta diventa Invisibile, con un incantesimo o un’altra capacità, guadagna Bonus di Circostanza +2 alla sua DMC per evitare di essere afferrata, ma non riceve altri benefici."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Inabile",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "O azione di movimento o azione standard; velocità dimezzata",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Un personaggio inabile può compiere solo un’Azione di Movimento o un’Azione Standard per round (ma non entrambe, e non può effettuare Azioni di Round Completo, ma può sempre compiere Azioni Veloci, Immediate e Gratuite). Si muove a velocità dimezzata."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni (adattato)",
+   "adattato": "Tenuti solo gli effetti: il testo di golarion parla di 0 PF, PF negativi e morente, che nella Collana non esistono."
   },
   {
    "nome": "Incorporeo",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Immune a qualsiasi azione fisica non magica, subisce metà danni da armi magiche, incantesimi, etc.",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Le creature di questo tipo non possiedono un corpo fisico. Le creature incorporee sono immuni a tutte le forme di attacco non magico e subiscono solo metà danni (50%) da armi magiche, incantesimi ed effetti di Capacità Magiche o Soprannaturali. Le creature incorporee subiscono danno pieno da altri soggetti ed effetti incorporei, così come tutti gli effetti di Forza."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Indifeso",
-   "gruppo": "",
+   "gruppo": "Indifeso",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "etichetta «Des 0, +4 ai TpC in mischia contro»",
+   "sintesi": "Des 0 (-5); gli avversari hanno +4 ai TpC; può subire un Colpo di grazia",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio addormentato, bloccato, legato, Paralizzato, Privo di Sensi o per qualche altro motivo completamente alla mercé dei suoi avversari, è considerato indifeso. Un personaggio indifeso viene considerato come se avesse Destrezza 0 (modificatore di –5). Gli attacchi in mischia contro un personaggio indifeso ottengono bonus +4 (equivalente ad attaccare un personaggio Prono). Gli attacchi a distanza, non ottengono alcun bonus particolare contro i bersagli indifesi. I Ladri possono effettuare Attacchi Furtivi contro un bersaglio indifeso."
+   ],
+   "sezioni": [
+    {
+     "titolo": "Colpo di grazia",
+     "testo": [
+      "Come azione di round completo, un nemico può utilizzare un'arma da mischia per infliggere un colpo di grazia ad un personaggio indifeso. Un nemico può anche usare un arco o una balestra, l’importante è che sia adiacente al bersaglio. L’attaccante colpisce automaticamente ed infligge un colpo critico. (Un Ladro aggiunge anche i danni addizionali del suo Attacco Furtivo contro un nemico indifeso, quando sferra un colpo di grazia.) Se il difensore sopravvive, deve superare un Tiro Salvezza su Tempra (CD 10 + danni inflitti) o muore. Infliggere un colpo di grazia provoca Attacchi di Opportunità.",
+      "Le creature immuni ai colpi critici, non subiscono danni critici, né devono superare un Tiro Salvezza su Tempra per evitare di essere uccisi da un colpo di grazia."
+     ]
+    }
+   ],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Infermo",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "TS e abilità −2",
-   "testo_vol1": ""
+   "sintesi": "-2 TpC, danni, TS e prove",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio infermo subisce una penalità –2 a tutti i Tiri per Colpire e per i danni delle armi, ai Tiri Salvezza, alle Prove di Abilità e di caratteristica."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Intralciato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Non può correre o caricare, Velocità dimezzata, -2 TpC e -4 Des; concentrazione per lanciare incantesimi",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Il personaggio rimane intrappolato. Un personaggio intralciato ha difficoltà di movimento, ma può comunque provare a muoversi, a meno che i legami che lo intralciano non siano ancorati a un oggetto immobile o impugnati da una forza contrapposta. Una creatura intralciata può muoversi a velocità dimezzata ma non può Correre o Caricare, e subisce penalità –2 ai Tiri per Colpire e penalità –4 alla Destrezza. Un personaggio intralciato che cerca di lanciare un incantesimo deve superare una prova di Concentrazione (CD 15 + il livello dell’incantesimo) o perde l’incantesimo."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Invisibile",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "+2 TpC contro creature visibili, nega Des, occultamento totale ma individuabile con Percezione CD 20",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Le creature invisibili non sono percepibili dalla vista, ricevono bonus +2 al Tiro per Colpire contro avversari visibili e negano il bonus di Destrezza alla CA dei loro avversari (se posseduto).",
+    "Ha occultamento totale (50% di probabilità di essere mancata), ma è individuabile con una prova di Percezione CD 20 (Guida del DM)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni + Guida del DM",
+   "adattato": "Tolto il rimando all’incantesimo Invisibilità (non esiste); aggiunta la riga della Guida."
   },
   {
    "nome": "Morto",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Fuori gioco; solo la magia può riportarlo in vita",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Il personaggio muore per una Ferita grave (riga «Sei morto», emorragie), quando i danni alla Costituzione ne eguagliano il punteggio, quando i livelli negativi eguagliano i Dadi Vita, o per un incantesimo o un effetto che uccide sul colpo. L’anima del personaggio abbandona permanentemente il suo corpo. I personaggi morti non possono beneficiare delle cure normali o magiche, ma possono essere riportati in vita dalla magia. Un corpo morto subisce un normale decadimento a meno che non sia conservato magicamente, ma la magia che riporta in vita un personaggio dalla morte, riporta anche il suo corpo in piena salute e alle condizioni in cui si trovava al momento della morte (in base all’incantesimo o al congegno). Ad ogni modo, i personaggi risorti non si devono preoccupare di rigor mortis, decomposizione ed altre condizioni che colpiscono i cadaveri.",
+    "Una creatura vivente che muore in combattimento ha il 20% di probabilità di restare invece morente per 1 minuto; il DM può anche deciderlo a sua discrezione. (Vol. 1)"
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni (adattato) + Vol. 1 2.5.2",
+   "adattato": "Prima frase riscritta: nella Collana si muore per le Ferite gravi, non per i PF negativi; aggiunta la riga del Vol. 1 sul Morente."
   },
   {
    "nome": "Nauseato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Solo un’azione di movimento per turno",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Le creature Nauseate soffrono di disturbi di stomaco. Le creature Nauseate non sono in grado di attaccare, lanciare Incantesimi, concentrarsi sugli Incantesimi o fare qualsiasi altra cosa che richieda attenzione. La sola azione che un tale personaggio può compiere è una singola Azione di Movimento per turno."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Paralizzato",
-   "gruppo": "",
+   "gruppo": "Indifeso",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "etichetta «Des 0, +4 ai TpC in mischia contro»",
+   "sintesi": "Ha For e Des 0 (-5); gli avversari hanno +4 ai TpC; può subire colpi di grazia",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Un personaggio paralizzato è bloccato sul posto ed è incapace di muoversi od agire. Ha punteggi effettivi di Forza e Destrezza pari a 0, è Indifeso e può compiere azioni esclusivamente mentali. Una creatura alata in volo, nel momento in cui viene paralizzata non può più battere le ali e precipita. Un nuotatore paralizzato non può più Nuotare e potrebbe annegare. Una creatura può attraversare un quadretto occupato da una creatura paralizzata, che sia un alleato o meno, ma ogni quadretto occupato da una creatura paralizzata conta come 2 quadretti di movimento."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Scosso",
    "gruppo": "Paura",
    "rossa": true,
-   "effetto": "TS e abilità −2",
-   "testo_vol1": ""
+   "effetto": "TS e abilità −2; su chi ha già paura vale il Terrore crescente",
+   "sintesi": "-2 TpC, TS e prove",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "I personaggi che sono Scossi subiscono penalità morale –2 ai Tiri per Colpire, ai Tiri Salvezza e alle prove."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Spaventato",
    "gruppo": "Paura",
    "rossa": true,
-   "effetto": "TS e abilità −2",
-   "testo_vol1": ""
+   "effetto": "TS e abilità −2; su chi ha già paura vale il Terrore crescente",
+   "sintesi": "Come scosso ma fugge dalla fonte della paura e rifugge se essa si ripresenta per la durata di quell’effetto di paura",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "I personaggi Spaventati sono anche Scossi, e inoltre fuggono dalla fonte della loro Paura il più velocemente possibile, anche se possono scegliere la direzione di fuga. A parte ciò, una volta che sono fuori vista (o udito) dalla fonte della loro Paura, possono agire normalmente. Se la durata della Paura non è ancora arrivata al termine, qualora dovessero incontrare di nuovo la fonte della loro Paura, cercherebbero nuovamente di fuggire. I personaggi che non sono in grado di fuggire possono combattere (anche se continuano ad essere Scossi)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "In Preda al Panico",
    "gruppo": "Paura",
    "rossa": true,
    "effetto": "TS e abilità −2",
-   "testo_vol1": ""
+   "sintesi": "Come spaventato ma fa cadere al 50% oggetti di mano; se non può fuggire diventa accovacciato",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "I personaggi In Preda al Panico sono Scossi e, inoltre, hanno una probabilità del 50% di far cadere a terra qualsiasi cosa stanno tenendo in mano, e di fuggire dalla fonte del loro terrore il più in fretta possibile seguendo un percorso di fuga completamente casuale. I personaggi In Preda al Panico fuggono davanti a qualsiasi altro pericolo che possano trovarsi di fronte. A parte ciò, una volta che sono fuori vista (o udito) dalla fonte della loro Paura, possono agire normalmente. I personaggi In Preda al Panico prendono anche la condizione Accovacciato se non possono fuggire."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Pietrificato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Trasformato in pietra; conta come privo di sensi",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Un personaggio pietrificato è stato trasformato in pietra ed è Privo di Sensi. Se un personaggio pietrificato si incrina o si rompe, ma i pezzi rotti sono uniti al corpo quando ritorna di carne, il personaggio non viene ferito o danneggiato. Se il corpo pietrificato del personaggio è incompleto quando viene ritrasformato in carne, il corpo rimane incompleto e potrebbe avere una qualche perdita permanente di punti ferita e/o altre menomazioni."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Privo di Sensi",
-   "gruppo": "",
+   "gruppo": "Indifeso",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "etichetta «Des 0, +4 ai TpC in mischia contro»",
+   "sintesi": "Des 0 (-5); gli avversari hanno +4 ai TpC; può subire un Colpo di grazia",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Le creature prive di sensi sono abbattute e Indifese. La condizione può risultare da una Ferita grave o dai Danni Non Letali che superano i Punti Ferita attuali."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni (adattato)",
+   "adattato": "Nella Collana i PF negativi non esistono: si perdono i sensi per una Ferita grave o per i danni non letali."
   },
   {
    "nome": "Prono",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "−4 CA in mischia / +4 a distanza",
-   "testo_vol1": ""
+   "sintesi": "-4 TpC e CA in mischia, nessun attacco a distanza (solo balestre), si rialza subendo AdO, +4 CA contro attacchi a distanza",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Il personaggio è a terra e subisce penalità –4 al Tiro per Colpire in mischia e non può usare armi a distanza (eccetto per la balestra). Un difensore prono ottiene bonus +4 alla Classe Armatura contro gli attacchi a distanza, ma subisce penalità –4 alla CA negli attacchi in mischia. Rialzarsi è un’azione di movimento che provoca Attacchi di Opportunità."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni",
+   "adattato": ""
   },
   {
    "nome": "Rotto",
    "gruppo": "Oggetti",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Armi −4 TpC e critico 20/×2; armature e scudi 1/3 del bonus, penalità di armatura doppia; oggetti vari senza beneficio",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Quando un oggetto si danneggia ottiene 1 livello di danneggiamento. I livelli di danneggiamento sono cumulabili e sono: scheggiato → rotto → distrutto.",
+    "Le armi rotte impongono penalità -4 ai tiri per colpire e hanno un critico fisso di 20/x2.",
+    "Le armature e gli scudi rotti forniscono un terzo del bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura.",
+    "Gli oggetti vari rotti non forniscono alcun beneficio.",
+    "Un oggetto rotto ha subito ingenti danni e può essere riparato solo utilizzando un bancone da artigiano ben fornito."
+   ],
+   "sezioni": [
+    {
+     "titolo": "Oggetti distrutti",
+     "testo": [
+      "Le armi, le armature, gli scudi e gli oggetti vari distrutti hanno subito danni critici, non sono più utilizzabili e non possono più essere riparati (salvo diversamente indicato dal DM)."
+     ]
+    }
+   ],
+   "fonte": "Vol. 3 2.5.8, Riparare oggetti rotti",
+   "adattato": ""
   },
   {
    "nome": "Sanguinante",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Subisce il danno indicato all’inizio del suo turno; si ferma con Professione (cerusico) CD 10, Sopravvivenza CD 15 o la magia",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Una creatura che sta subendo danni da sanguinamento subisce la quantità di danno indicata all'inizio del suo turno. Il sanguinamento può essere interrotto con una prova di Professione (cerusico) CD 10, con una prova di Sopravvivenza CD 15 o con la magia (Vol. 1). Alcuni effetti di sanguinamento causano un danno di caratteristica o persino un risucchio di caratteristica. Gli effetti di sanguinamento non si cumulano a meno che non causino tipi differenti di danno. Quando due o più effetti di sanguinamento causano lo stesso tipo di danno, si tenga l’effetto peggiore. In questo caso, il risucchio di caratteristica è peggiore del danno di caratteristica.",
+    "Le emorragie delle Ferite gravi si fermano invece con la tabella «Fermare le emorragie» (Vol. 3)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni (adattato) + Vol. 1 2.5.2",
+   "adattato": "Guarire non è un’abilità del sistema: vale la regola del Vol. 1 «Sanguinamento»."
   },
   {
    "nome": "Scheggiato",
    "gruppo": "Oggetti",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Armi −2 TpC e critico 20/×2; armature e scudi metà bonus, penalità di armatura doppia; oggetti vari senza beneficio",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Quando un oggetto si danneggia ottiene 1 livello di danneggiamento. I livelli di danneggiamento sono cumulabili e sono: scheggiato → rotto → distrutto.",
+    "Le armi scheggiate impongono penalità -2 ai tiri per colpire e hanno un critico fisso di 20/x2.",
+    "Le armature e gli scudi scheggiati forniscono metà bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura.",
+    "Gli oggetti vari scheggiati non forniscono alcun beneficio.",
+    "Un oggetto scheggiato ha subito danni minimi e può essere riparato utilizzando un bancone da artigiano ben fornito o dei semplici attrezzi da artigiano, anche mentre si è in viaggio."
+   ],
+   "sezioni": [],
+   "fonte": "Vol. 3 2.5.8, Riparare oggetti rotti",
+   "adattato": ""
   },
   {
    "nome": "Stabilizzato",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
    "effetto": "",
-   "testo_vol1": ""
+   "sintesi": "Emorragie fermate: non rischia più di morirne",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Una creatura le cui emorragie sono state fermate (Professione (cerusico) o magia) è stabilizzata: non rischia più di morire per quelle emorragie, ma le ferite gravi restano finché non sono curate."
+   ],
+   "sezioni": [],
+   "fonte": "Collana (Massy, 01/11/2026)",
+   "adattato": "Il testo di golarion descrive il morente di Pathfinder, che nella Collana non esiste: testo riscritto (Massy, 01/11/2026)."
   },
   {
    "nome": "Stordito",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": true,
-   "effetto": "",
-   "testo_vol1": ""
+   "effetto": "CA −2; la CA mostrata è quella colto alla sprovvista",
+   "sintesi": "Fa cadere oggetti di mano, non può agire, -2 CA e no Des",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Una creatura stordita lascia cadere a terra qualsiasi cosa abbia in mano, non può compiere azioni, subisce penalità –2 alla CA, e perde il suo bonus di Destrezza alla CA (se presente)."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni (adattato)",
+   "adattato": ""
   },
   {
    "nome": "Morente",
-   "gruppo": "",
+   "gruppo": "Nuove",
    "rossa": false,
    "effetto": "condizione narrativa degli ultimi istanti",
-   "testo_vol1": "Morente: la creatura sta vivendo gli ultimi istanti di vita e non può essere salvata in alcun modo, né con cure né con la magia. Non può compiere azioni, ma può parlare con un filo di voce per pronunciare le ultime parole, una confessione o un indizio. Al termine della condizione muore. Una creatura vivente che muore in combattimento ha il 20% di probabilità di restare invece morente per 1 minuto; il DM può anche deciderlo a sua discrezione."
+   "sintesi": "Una creatura vivente sconfitta durante un combattimento ha il 20% di essere morente per un minuto.",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "Morente: la creatura sta vivendo gli ultimi istanti di vita e non può essere salvata in alcun modo, né con cure né con la magia. Non può compiere azioni, ma può parlare con un filo di voce per pronunciare le ultime parole, una confessione o un indizio. Al termine della condizione muore. Una creatura vivente che muore in combattimento ha il 20% di probabilità di restare invece morente per 1 minuto; il DM può anche deciderlo a sua discrezione."
+   ],
+   "sezioni": [],
+   "fonte": "Vol. 1 2.5.2, Nuove condizioni",
+   "adattato": ""
   },
   {
    "nome": "Addormentato",
    "gruppo": "Indifeso",
    "rossa": false,
-   "effetto": "stato di Indifeso",
-   "testo_vol1": ""
+   "effetto": "",
+   "sintesi": "Des 0 (-5); gli avversari hanno +4 ai TpC; può subire un Colpo di grazia",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "È uno degli stati che rendono Indifeso: vedi Indifeso."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni, Indifeso",
+   "adattato": ""
   },
   {
    "nome": "Bloccato",
    "gruppo": "Indifeso",
    "rossa": false,
-   "effetto": "stato di Indifeso",
-   "testo_vol1": ""
+   "effetto": "",
+   "sintesi": "Des 0 (-5); gli avversari hanno +4 ai TpC; può subire un Colpo di grazia",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "È uno degli stati che rendono Indifeso: vedi Indifeso."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni, Indifeso",
+   "adattato": ""
   },
   {
    "nome": "Legato",
    "gruppo": "Indifeso",
    "rossa": false,
-   "effetto": "stato di Indifeso",
-   "testo_vol1": ""
+   "effetto": "",
+   "sintesi": "Des 0 (-5); gli avversari hanno +4 ai TpC; può subire un Colpo di grazia",
+   "sintesi_fonte": "Guida del DM",
+   "testo": [
+    "È uno degli stati che rendono Indifeso: vedi Indifeso."
+   ],
+   "sezioni": [],
+   "fonte": "golarion.altervista.org, Condizioni, Indifeso",
+   "adattato": ""
   },
   {
    "nome": "Livelli negativi",
-   "gruppo": "",
+   "gruppo": "Altre",
    "rossa": false,
-   "effetto": "TS, abilità e DMC −N; Punti Fatica max −5 per livello negativo",
-   "testo_vol1": "",
-   "n": true
+   "effetto": "TS, abilità e DMC −N; Fatica e Ferita (massimi e correnti) −5 per livello, metà e metà, il dispari ai Ferita",
+   "sintesi": "−1 a prove, TpC, TS, BMC e DMC per livello; −5 al totale di Fatica e Ferita per livello",
+   "sintesi_fonte": "app",
+   "testo": [
+    "Ci sono creature non morte con capacità soprannaturali ed incantesimi con effetti magici che possono risucchiare la vita e l'energia vitale; questo terrificante attacco è noto come Risucchio di Energia e comporta dei Livelli Negativi che infliggono delle penalità alle creature.",
+    "Per ogni livello negativo che grava su una creatura, subisce penalità cumulativa –1 a qualsiasi prova di abilità e di caratteristica, ai tiri per colpire e ai tiri salvezza, alle prove di manovra in combattimento (BMC) e alla Difesa da Manovra in Combattimento (DMC). Inoltre, la creatura riduce il totale dei suoi Punti Fatica e Punti Ferita, massimi e correnti, di 5 per ogni livello negativo (metà ai Fatica e metà ai Ferita, il punto dispari ai Ferita). La creatura è anche considerata come se avesse un livello in meno nei riguardi dei parametri dipendenti dal livello (come il lancio degli incantesimi o alcune capacità speciali dipendenti dal livello) per ogni livello negativo posseduto.",
+    "Gli incantatori non perdono gli incantesimi preparati o gli slot in conseguenza dei livelli negativi.",
+    "Se i livelli negativi di una creatura sono uguali o superiori ai suoi Dadi Vita totali, la creatura muore."
+   ],
+   "sezioni": [
+    {
+     "titolo": "Livelli negativi temporanei",
+     "testo": [
+      "Una creatura con livelli negativi temporanei ha diritto ogni giorno ad un nuovo Tiro Salvezza per rimuovere il livello negativo. La CD di questo Tiro Salvezza è la stessa dell'effetto che ha causato i livelli negativi."
+     ]
+    },
+    {
+     "titolo": "Livelli negativi permanenti",
+     "testo": [
+      "Alcune capacità e certi incantesimi, come Rianimare Morti, comportano un risucchio di livello permanente ad una creatura. Questi sono trattati come livelli negativi temporanei, ma non permettono di effettuare ogni giorno un nuovo tiro salvezza per rimuoverli. I livelli negativi permanenti che gravano su una creatura vivente che dovesse morire, permangono anche dopo che la creatura morta viene riportata in vita."
+     ]
+    },
+    {
+     "titolo": "Ristorare livelli negativi",
+     "testo": [
+      "Il risucchio di livello può essere eliminato con incantesimi come Ristorare. Se i livelli negativi permanenti sono pari ai Dadi Vita della creatura, questa non può essere riportata in vita con incantesimi come Rianimare Morti e Resurrezione salvo che si possa infonderle un incantesimo Ristorare, lanciato nel round immediatamente successivo a quello in cui viene riportata in vita."
+     ]
+    }
+   ],
+   "fonte": "golarion.altervista.org, Condizioni (adattato)",
+   "adattato": "Nella Collana i 5 PF per livello si tolgono dal totale di Punti Fatica e Punti Ferita (Massy, 01/11/2026)."
   }
+ ],
+ "regole": [
+  {
+   "nome": "Paura",
+   "gruppo": "Paura",
+   "testo": [
+    "Incantesimi, Oggetti Magici e certe creature possono influenzare i personaggi con Paura. In molti casi, il personaggio deve effettuare un Tiro Salvezza su Volontà per resistere agli effetti, e un Tiro Salvezza fallito indica che il personaggio è Scosso, Spaventato o In Preda al Panico."
+   ],
+   "sezioni": [
+    {
+     "titolo": "Terrore crescente",
+     "testo": [
+      "Gli effetti della Paura sono cumulativi. Un personaggio Scosso che viene nuovamente Scosso diventa Spaventato, mentre invece un personaggio Scosso che viene Spaventato cade In Preda Al Panico. Un personaggio Spaventato che viene Scosso o Spaventato cade In Preda al Panico."
+     ]
+    }
+   ],
+   "fonte": "golarion.altervista.org, Condizioni"
+  },
+  {
+   "nome": "Danni non letali",
+   "gruppo": "Regole",
+   "testo": [
+    "Quando i danni non letali sono pari ai propri Punti Ferita attuali, si acquisisce la condizione barcollante, e quando li superano si perdono i sensi.",
+    "Si può usare un'arma da mischia che infligge danni letali per infliggere danni non letali, ma con penalità –4 al tiro per colpire."
+   ],
+   "sezioni": [],
+   "fonte": "Guida del DM, Cure e recupero"
+  },
+  {
+   "nome": "Danni alle caratteristiche",
+   "gruppo": "Regole",
+   "testo": [
+    "Per ogni 2 danni inflitti ad una singola caratteristica, si applica penalità -1 alle Abilità ed alle statistiche indicate con la relativa caratteristica. Se la quantità di danno inflitto ad una caratteristica è pari o eccede il punteggio di caratteristica stesso, si perdono i sensi fino a che il danno non sia inferiore al punteggio di caratteristica. L'unica eccezione a questa regola è relativa al punteggio di Costituzione. Se il danno alla Costituzione è pari o maggiore al punteggio di Costituzione, si muore."
+   ],
+   "sezioni": [],
+   "fonte": "Guida del DM, Cure e recupero"
+  }
+ ],
+ "confuso": [
+  {
+   "da": 1,
+   "a": 25,
+   "testo": "Agisce normalmente"
+  },
+  {
+   "da": 26,
+   "a": 50,
+   "testo": "Non fa altro che balbettare in modo incoerente"
+  },
+  {
+   "da": 51,
+   "a": 75,
+   "testo": "Si infligge 1d8 + modificatore di Forza con l'arma che tiene in mano"
+  },
+  {
+   "da": 76,
+   "a": 100,
+   "testo": "Attacca la creatura più vicina (a tale scopo, un Famiglio conta come parte del soggetto stesso)"
+  }
+ ],
+ "note": [
+  "Guida, Danni non letali: «ma con di penalità» → «ma con penalità».",
+  "Guida, Indifeso: l’asterisco «*» dopo «Colpo di grazia» non ha una nota nel PDF; tolto nella sintesi."
  ]
 }

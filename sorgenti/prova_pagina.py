@@ -1,7 +1,7 @@
 """Prova della pagina con Playwright (Chromium) a 1366 e 390 px.
 Uso: python3 sorgenti/prova_pagina.py [cartella_screenshot]
 Serve www/ su un server locale, percorre creazione guidata, PG, tempo, scorte, combattimento,
-salvataggio (ricarica della pagina) e campagna d'esempio. Stampa solo errori e conteggi."""
+salvataggio (ricarica della pagina), campagna d'esempio e le parti di ogni build (2a, 2b, 2c, 3a). Stampa solo errori e conteggi."""
 import os, sys, threading, http.server, functools, re
 from playwright.sync_api import sync_playwright
 
@@ -552,10 +552,140 @@ def prova2c(browser, larghezza):
     t(f'{W} nessun errore in console', not errori, errori[:3])
     ctx.close()
 
+BUILD2C = os.path.join(R, 'prove', 'campagna_build2c.json')
+def prova3a(browser, larghezza):
+    """Build 3a: condizioni e Prontuario (AB1), Fallimenti critici (AB2), malus e bonus (AB3), dadi, luce, promemoria, log (AB4), campagna della 2c."""
+    ctx = browser.new_context(viewport={'width': larghezza, 'height': 900 if larghezza > 500 else 820})
+    pg = ctx.new_page(); errori = []
+    pg.on('console', lambda m: m.type == 'error' and errori.append(m.text))
+    pg.on('pageerror', lambda e: errori.append(str(e)))
+    pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna')
+    W = f'[{larghezza} 3a]'
+    def fin(): return pg.locator('.velo').last
+    def premi(testo): fin().locator('footer button', has_text=re.compile('^' + testo + '$')).click()
+    def largo(nome):
+        sw = pg.evaluate('document.documentElement.scrollWidth'); t(f'{W} niente scorrimento orizzontale: {nome}', sw <= larghezza, sw)
+    def terza(s): pg.click(f'[data-az="scheda"][data-s="{s}"]')
+    def card(nome): return pg.locator('.pg', has=pg.locator('.pg-nome', has_text=nome))
+    def coda_via():
+        for _ in range(30):
+            b = pg.locator('.coda [data-az="codaTutti"], .coda [data-az="codaFatto"], .coda [data-az="codaFattoId"]')
+            if not b.count(): break
+            b.first.click()
+    pg.click('text=Carica una campagna d\'esempio'); pg.wait_for_timeout(300)
+    pg.locator('.camp', has_text='esempio').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+    # --- AB1-4 Prontuario: Condizioni
+    terza('prontuario'); pg.wait_for_selector('#p-prontuario')
+    t(f'{W} AB1-4 Prontuario: 42 condizioni + 3 voci di regola', pg.locator('#p-prontuario .cond-card').count() == 45, pg.locator('#p-prontuario .cond-card').count())
+    t(f'{W} AB1-4 37 nomi in rosso', pg.locator('#p-prontuario .cond-card summary .cond-t').count() == 37, pg.locator('#p-prontuario .cond-card summary .cond-t').count())
+    pg.click('[data-az="prontGruppo"][data-g="Paura"]')
+    t(f'{W} AB1-4 gruppo Paura: 4 condizioni e la voce Paura', pg.locator('#p-prontuario .cond-card').count() == 5)
+    pg.click('[data-az="prontGruppo"][data-g=""]')
+    pg.locator('#pront-q').fill('stabilizz'); pg.wait_for_timeout(500)
+    t(f'{W} AB1-2 Stabilizzato: testo della Collana', 'emorragie sono state fermate' in pg.inner_text('#p-prontuario'))
+    pg.locator('#pront-q').fill('Guarire'); pg.wait_for_timeout(500)
+    t(f'{W} AB1-2 nessun «Guarire» nei testi', pg.locator('#p-prontuario .cond-card').count() == 0, pg.locator('#p-prontuario .cond-card').count())
+    pg.locator('#pront-q').fill('Accecato'); pg.wait_for_timeout(500)
+    acc = pg.locator('.cond-card[data-nome="Accecato"]')
+    t(f'{W} AB1-1 Accecato: sintesi della Guida e testo di golarion', acc.count() == 1 and 'considera gli avversari occultati al 50%' in acc.inner_text() and 'Occultamento Totale' in acc.inner_text())
+    acc.locator('.cond-t[data-az="vediCond"][data-n="Prono"]').first.click(); pg.wait_for_timeout(200)
+    t(f'{W} AB1-4 un tocco su una condizione apre la sua scheda', pg.locator('.cond-card[data-nome="Prono"][open]').count() == 1)
+    t(f'{W} AB1-4 sintesi al passaggio del mouse', 'Prono:' in (pg.locator('.cond-card[data-nome="Accecato"] .cond-t[data-n="Prono"]').first.get_attribute('title') or 'Prono:') )
+    largo('Prontuario')
+    pg.locator('.cond-card[data-nome="Prono"] [data-az="applicaCond"]').click()
+    fin().locator('[name="chi"]').select_option(label='Aria'); premi('Avanti')
+    t(f'{W} AB1-4 Applica a…: finestra Malus già impostata', fin().locator('[name="cond"]').input_value() == 'Prono'); premi('Applica')
+    t(f'{W} AB1-4 Prono su Aria', card('Aria').locator('.chip', has_text='Prono').count() == 1)
+    # --- AB1-3 Terrore crescente nella finestra Malus
+    def malus(nome_pg): card(nome_pg).locator('[data-az="malus"]').click()
+    malus('Bruno'); fin().locator('[name="cond"]').select_option('Scosso'); fin().locator('[name="dn"]').fill('3'); premi('Applica')
+    malus('Bruno'); fin().locator('[name="cond"]').select_option('Scosso')
+    t(f'{W} AB1-3 anteprima: diventa Spaventato', 'diventa Spaventato' in ' '.join(fin().locator('#mb-cresc').inner_text().split()))
+    premi('Applica'); t(f'{W} AB1-3 Scosso + Scosso → Spaventato', card('Bruno').locator('.chip', has_text='Spaventato').count() == 1 and card('Bruno').locator('.chip', has_text='Scosso').count() == 0)
+    malus('Cira'); fin().locator('[name="cond"]').select_option('Stordito'); premi('Applica')
+    t(f'{W} AB1-3 Stordito: CA colto alla sprovvista −2', 'CA' in card('Cira').inner_text())
+    # --- AB3 bonus con tipo, × livello, modelli
+    malus('Aria'); f = fin(); f.locator('[name="tipo"]').select_option('bonus'); f.locator('[name="nome"]').fill('Scudo'); f.locator('[name="tb"]').select_option('scudo')
+    f.locator('[name="m_ca"]').fill('4'); f.locator('[name="du"]').select_option('minuti'); f.locator('[name="livOn"]').check()
+    t(f'{W} AB3-1 livello del PG già scritto', f.locator('[name="liv"]').input_value() == '7')
+    premi('Salva come modello'); fin().locator('[name="nm"]').fill('Scudo'); premi('Salva')
+    premi('Applica')
+    t(f'{W} AB3-1 Scudo 1 minuto × 7', card('Aria').locator('.chip', has_text='Scudo').count() == 1 and '7 min' in card('Aria').locator('.chip', has_text='Scudo').inner_text(), card('Aria').locator('.chips').inner_text())
+    malus('Aria'); f = fin()
+    t(f'{W} AB3-2 menu dei modelli', f.locator('[name="modello"] option', has_text='Scudo').count() == 1)
+    f.locator('[name="modello"]').select_option(label='Scudo')
+    t(f'{W} AB3-2 il modello riempie i campi', f.locator('[name="nome"]').input_value() == 'Scudo' and f.locator('[name="m_ca"]').input_value() == '4' and f.locator('[name="tb"]').input_value() == 'scudo')
+    f.locator('[name="nome"]').fill('Scudo della fede'); f.locator('[name="m_ca"]').fill('2'); premi('Applica')
+    t(f'{W} AB3-3 bonus di scudo più basso barrato', card('Aria').locator('.chip.barrato', has_text='Scudo della fede').count() == 1)
+    # --- AB2 Fallimento critico dal riquadro
+    card('Bruno').locator('[data-az="fallimento"]').click(); f = fin()
+    f.locator('[name="t"]').select_option('mischia'); f.locator('[data-fc="tira"]').click()
+    t(f'{W} AB2 anteprima con il tiro', 'd12 =' in f.inner_text())
+    premi('Applica'); terza('log')
+    t(f'{W} AB2 Fallimento critico nel log', 'Fallimento critico (Armi da mischia, d12 =' in pg.inner_text('#col-terza'))
+    # --- AB2-3 consultazione degli Imprevisti
+    terza('prontuario'); pg.click('[data-az="prontSez"][data-s="imprevisti"]'); pg.locator('#pront-q').fill('')
+    t(f'{W} AB2-3 Imprevisti: 5 Fallimenti critici + 6 Ferite gravi + 2 tabelle', pg.locator('#p-prontuario details.cartella').count() == 13, pg.locator('#p-prontuario details.cartella').count())
+    pg.locator('#p-prontuario summary', has_text='Amputazioni').click()
+    t(f'{W} AB2-3 Amputazioni con gli spazi', 'mancante. -5 Scalare' in pg.inner_text('#p-prontuario') and 'nota mancante nel Vol. 3' in pg.inner_text('#p-prontuario'))
+    pg.locator('#p-prontuario summary', has_text='Armi a spargimento').click(); pg.locator('#p-prontuario [data-az="fallimento"][data-t="spargimento"]').click()
+    t(f'{W} AB2 Tira… dalla tabella: scelta di chi', fin().locator('[name="chi"]').count() == 1 and fin().locator('[name="t"]').input_value() == 'spargimento'); premi('Annulla')
+    largo('Imprevisti')
+    # --- AB4-1 dadi
+    pg.click('[data-az="dadi"]'); f = fin(); f.locator('[name="e"]').fill('1d20+5'); premi('Tira')
+    t(f'{W} AB4-1 tiro con il risultato', f.locator('#dd-ris .risultato').count() == 1 and f.locator('#dd-sto li').count() == 1)
+    f.locator('[data-dd="ripeti"]').click()
+    t(f'{W} AB4-1 ripeti una volta', f.locator('#dd-sto li').count() == 2 and '(ripetuto)' in f.inner_text() and f.locator('[data-dd="ripeti"]').count() == 0)
+    f.locator('[name="va"]').check(); f.locator('[name="lg"]').check(); premi('Tira')
+    t(f'{W} AB4-1 vantaggio', 'con vantaggio' in f.locator('#dd-sto').inner_text())
+    premi('Chiudi')
+    # --- AB4-2 luce
+    terza('viaggio')
+    pg.click('[data-az="impostaMeteo"]'); fin().locator('[name="r"]').select_option(index=0); premi('Imposta'); coda_via()
+    pg.click('[data-az="nuovaLuce"]'); f = fin(); f.locator('[name="t"]').select_option('torcia'); f.locator('[name="c"]').select_option(label='Aria')
+    t(f'{W} AB4-2 descrizione della Guida', 'Illumina in un raggio di 9 m' in f.inner_text()); premi('Aggiungi')
+    t(f'{W} AB4-2 torcia accesa', pg.locator('#p-luce .chip.ok', has_text='accesa').count() == 1 and '1 h' in pg.inner_text('#p-luce'))
+    pg.click('[data-az="tempo"][data-r="600"]')
+    t(f'{W} AB4-2 dopo 1 ora: consumata e avviso in coda', 'consumata' in pg.inner_text('#p-luce') and ('si è consumata' in pg.inner_text('.coda') or 'restano 10 minuti' in pg.inner_text('.coda')))
+    coda_via(); pg.click('[data-az="ricaricaLuce"]')
+    pg.click('[data-az="impostaMeteo"]'); fin().locator('[name="r"]').select_option('Pioggia battente'); premi('Imposta'); coda_via()
+    t(f'{W} AB4-2 la Pioggia battente non la lascia accendere', pg.locator('#p-luce [data-az="accendiLuce"][disabled]').count() == 1 and 'Pioggia battente' in pg.inner_text('#p-luce'))
+    pg.locator('#p-luce [data-az-cambio="riparoLuce"]').check()
+    pg.click('#p-luce [data-az="accendiLuce"]'); t(f'{W} AB4-2 al riparo si accende', pg.locator('#p-luce .chip.ok', has_text='accesa').count() == 1)
+    # --- AB4-3 promemoria
+    pg.click('[data-az="nuovoPromemoria"]'); f = fin(); f.locator('[name="t"]').fill('Arriva la carovana'); f.locator('[name="n"]').fill('10'); premi('Aggiungi')
+    t(f'{W} AB4-3 promemoria nel pannello', 'Arriva la carovana' in pg.inner_text('#p-promemoria'))
+    pg.click('[data-az="tempo"][data-r="100"]')
+    t(f'{W} AB4-3 scatta in coda', 'Promemoria: Arriva la carovana' in (pg.inner_text('.coda') if pg.locator('.coda').count() else '') or pg.locator('.coda').count() > 0, pg.inner_text('.coda') if pg.locator('.coda').count() else '')
+    coda_via(); largo('Viaggio con luce e promemoria')
+    # --- AB4-4 log
+    terza('log'); pg.click('[data-az="iniziaSessione"]')
+    t(f'{W} AB4-4 inizio della sessione', pg.locator('#col-terza .log li.sessione').count() == 1)
+    pg.click('[data-az="logTipo"][data-k="tiri"]')
+    righe = pg.locator('#col-terza .log li:not(.sessione)')
+    t(f'{W} AB4-4 filtro Tiri', righe.count() >= 1 and all(x.startswith('Dadi:') for x in [righe.nth(i).locator('span').nth(1).inner_text() for i in range(righe.count())]))
+    pg.click('[data-az="esportaLog"]'); t(f'{W} AB4-4 esporta questa sessione', fin().locator('[name="d"][value="sessione"]').count() == 1); premi('Annulla')
+    pg.click('[data-az="logTipo"][data-k=""]'); largo('Log')
+    # --- campagna salvata con la Build 2c
+    pg.click('[data-az="campagne"]'); pg.click('[data-az="importa"]'); fin().locator('[name="t"]').fill(open(BUILD2C, encoding='utf8').read()); premi('Importa'); pg.wait_for_timeout(400)
+    pg.locator('.camp', has_text='Campagna della Build 2c').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg'); terza('viaggio')
+    t(f'{W} Build 2c: compagnia e meteo con durata', pg.locator('#p-compagnia .membro', has_text='Zanna').count() == 1 and 'Acquazzone' in pg.inner_text('#p-meteo'))
+    t(f'{W} Build 2c: Livelli negativi con la regola nuova', '/46' in card('Bruno').inner_text().replace(' ', ''), card('Bruno').inner_text()[:200])
+    t(f'{W} Build 2c: combattimento in corso con Fallimento critico nella barra', pg.locator('.barra-turno [data-az="fallimento"]').count() == 1)
+    malus('Bruno'); fin().locator('[name="cond"]').select_option('Confuso'); fin().locator('[name="dn"]').fill('5'); premi('Applica')
+    visto = False
+    for _ in range(5):
+        pg.click('[data-az="cmd"][data-c="avanti"]')
+        if 'Confuso, d%' in pg.inner_text('.barra-turno'): visto = True; break
+    t(f'{W} AB1-3 Confuso: d% nella barra del turno', visto)
+    largo('Build 2c')
+    t(f'{W} nessun errore in console', not errori, errori[:3])
+    ctx.close()
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (1366, 390):
-        for f in (prova, prova2a, prova2b, prova2c):
+        for f in (prova, prova2a, prova2b, prova2c, prova3a):
             try: f(b, w)
             except Exception as e: ko += 1; print('ERRORE', w, f.__name__, 'interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
     b.close()

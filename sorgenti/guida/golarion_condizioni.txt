@@ -1,0 +1,141 @@
+H2 Abbagliato
+La creatura è incapace di vedere bene a causa di un’eccessiva stimolazione degli occhi. Una creatura abbagliata subisce penalità –1 al Tiro per Colpire e alle prove di Percezione basate sulla vista.
+
+H2 Accecato
+Il personaggio non riesce a vedere nulla. Subisce penalità –2 alla Classe Armatura, perde il suo bonus di Destrezza alla CA (se presente), subisce penalità –4 alla maggior parte delle Abilità basate su Forza e Destrezza e alle prove contrapposte di Percezione. Tutte le prove o le attività basate sulla visione (come ad esempio leggere, o eventuali prove di Percezione basate sulla vista) falliscono automaticamente. Tutti gli avversari vengono considerati dotati di Occultamento Totale (probabilità del 50% di essere mancati) nei confronti del personaggio accecato. I personaggi accecati devono effettuare una prova di Acrobazia con CD 10 per muoversi più veloci della propria velocità dimezzata. Le creature che falliscono questa prova cadono a terra Prone. I personaggi che rimangono per lungo tempo accecati possono abituarsi ad alcune di queste penalità e iniziare a superarne alcune, a discrezione del GM.
+
+H2 Accovacciato
+Il personaggio è congelato dalla paura ed è incapace di compiere azioni. Un personaggio accovacciato subisce penalità –2 alla Classe Armatura e perde qualsiasi bonus di Destrezza (se posseduto).
+
+H2 Affascinato
+Una creatura affascinata è soggiogata da un effetto soprannaturale o di un incantesimo. La creatura rimane in piedi o si siede tranquilla, senza effettuare alcuna azione se non prestare attenzione alla fonte del fascino, fintanto che dura l’effetto. L’effetto provoca penalità –4 alle Prove di Abilità richieste come reazione, come ad esempio le prove di Percezione. Qualsiasi potenziale minaccia, come ad esempio una creatura ostile in avvicinamento, consente alla creatura affascinata un nuovo Tiro Salvezza contro l’effetto del fascino. Qualsiasi minaccia palese, come ad esempio qualcuno che estrae un’arma, lancia un incantesimo o punta un’arma a distanza verso la creatura affascinata, interrompe automaticamente l’effetto. Un alleato della creatura affascinata può scuoterla per liberarla dall’effetto come Azione Standard.
+
+H2 Affaticato
+Un personaggio affaticato non può correre o Caricare e subisce una penalità –2 a Forza e Destrezza. Se compie qualsiasi cosa normalmente affaticante diventa Esausto. Ci vogliono 8 ore di riposo totale per rimuovere la condizione di affaticato.
+
+H2 Assordato
+Un personaggio assordato non può ascoltare. Subisce penalità –4 alle prove di Iniziativa, fallisce automaticamente tutte le prove di Percezione basate sul suono e ha una probabilità del 20% di fallire il lancio degli incantesimi con componenti verbali. I personaggi che rimangono assordati per lunghi periodi di tempo, possono abituarsi a queste penalità e superarne alcune, a discrezione del GM.
+
+H2 Barcollante
+Un personaggio barcollante può effettuare una singola Azione di Movimento o una Standard ad ogni round (ma non entrambe, e non può effettuare azioni di round completo). Una creatura barcollante può sempre compiere Azioni Gratuite, Veloci o Immediate. Una creatura i cui danni non letali eguagliano i Punti Ferita attuali ottiene la condizione barcollante.
+
+H2 Confuso
+Una creatura confusa è mentalmente ottenebrata e non può agire normalmente. Una creatura confusa non riesce a distinguere un alleato da un nemico, e considera tutti come nemici. Gli alleati che vogliono lanciare un incantesimo a vantaggio della creatura confusa devono comunque toccarla con un attacco di contatto in mischia riuscito. Se una creatura confusa è attaccata, attacca sempre l’ultima creatura che la ha attaccata, finché quella creatura non muore o esce dalla sua visuale.
+Tirate sulla tabella seguente all’inizio di ogni turno della creatura confusa ad ogni round per vedere quello che la creatura fa in quel round.
+D% | COMPORTAMENTO
+01-25 | Agisce normalmente
+26-50 | Non fa altro che balbettare in modo incoerente
+51-75 | Si infligge 1d8 + modificatore di Forza con l'arma che tiene in mano
+76-100 | Attacca la creatura più vicina (a tale scopo, un Famiglio conta come parte del soggetto stesso)
+Una creatura confusa che non è in grado di eseguire l’azione indicata non farà altro che balbettare in modo incoerente. Gli aggressori non hanno alcun vantaggio speciale quando attaccano una creatura confusa. Qualsiasi creatura confusa che venga attaccata, attacca automaticamente a sua volta il suo aggressore al suo turno successivo, fintanto che rimane confusa quando giunge il suo turno. Una creatura confusa non effettua Attacchi di Opportunità contro nessuno con cui non sia già impegnata a combattere (perché così richiedeva la sua azione più recente, o perché è stata appena attaccata).
+
+H2 Esausto
+Un personaggio esausto si muove a velocità dimezzata e subisce penalità –6 a Forza e Destrezza. Dopo 1 ora di completo riposo, un personaggio esausto diventa solo Affaticato. Un personaggio Affaticato diventa esausto compiendo un’azione che normalmente lo affaticherebbe.
+
+H2 Frastornato
+La creatura è incapace di agire normalmente. Una creatura frastornata non può eseguire azioni, ma non subisce penalità alla CA. La condizione frastornato dura solitamente 1 round.
+
+H2 Immobilizzato
+Una creatura immobilizzata è strettamente limitata nei movimenti e può compiere solo alcune azioni. Una creatura immobilizzata non può muoversi ed è Impreparata. Un personaggio immobilizzato inoltre subisce una ulteriore penalità –4 alla sua Classe Armatura. Una creatura immobilizzata è limitata nelle azioni che può compiere. Una creatura immobilizzata può tentare sempre di liberarsi, solitamente attraverso una prova di Manovra in Combattimento o una prova di Artista della Fuga. Una creatura immobilizzata può compiere azioni verbali e mentali, ma non può lanciare incantesimi che richiedono una componente somatica o materiale. Un personaggio immobilizzato che tenta di lanciare un incantesimo o usare una Capacità Magica deve effettuare una prova di Concentrazione (CD 10 + BMC dell’aggressore + livello dell’incantesimo) o perde l’incantesimo. Immobilizzato è una condizione più grave di In Lotta, ed i loro effetti non si cumulano.
+
+H2 Impreparato
+Un personaggio che non ha ancora agito durante un Combattimento è Impreparato, incapace di reagire normalmente alla situazione. Un personaggio Impreparato perde il suo bonus di Destrezza alla CA e alla DMC (se presente) e non può effettuare Attacchi di Opportunità, a meno che non abbia il Talento Riflessi in Combattimento o il privilegio di Classe Schivare Prodigioso.
+I personaggi con Schivare Prodigioso mantengono il loro bonus di Destrezza alla CA e possono fare Attacchi di Opportunità prima di aver agito nel primo round di Combattimento.
+Nota del redattore: non si possono intraprendere Azioni Immediate mentre si è Impreparati.
+
+H2 In Lotta
+Una creatura in lotta è trattenuta da una creatura, da una trappola o da un effetto. Le creature in lotta non possono muoversi e subiscono penalità –4 a Destrezza. Una creatura in lotta subisce penalità –2 a tutti i Tiri per Colpire e alle prove di Manovra in Combattimento, tranne quelle effettuate per lottare o sfuggire ad una lotta. Inoltre, le creature in lotta non possono compiere azioni che richiedano due mani per essere effettuate. Un personaggio in lotta che tenta di lanciare un incantesimo o usare una Capacità Magica deve effettuare una prova di Concentrazione (CD 10 + BMC dell’aggressore + livello dell’incantesimo) o perde l’incantesimo. Le creature in lotta non possono effettuare Attacchi di Opportunità.
+Una creatura in lotta non può usare Furtività per nascondersi dalla creatura con cui sta lottando, anche se una capacità speciale, come nascondersi in piena vista, lo permetterebbe. Se una creatura in lotta diventa Invisibile, con un incantesimo o un’altra capacità, guadagna Bonus di Circostanza +2 alla sua DMC per evitare di essere afferrata, ma non riceve altri benefici.
+
+H2 Inabile
+Un personaggio con 0 Punti Ferita, o che ha punti ferita negativi ma che è stabilizzato e cosciente, è inabile. Può compiere solo un’Azione di Movimento o un’Azione Standard per round (ma non entrambe, e non può effettuare Azioni di Round Completo, ma può sempre compiere Azioni Veloci, Immediate e Gratuite). Si muove a velocità dimezzata. Se effettua azioni di movimento non rischia alcun peggioramento, ma se esegue una qualsiasi azione standard (o qualsiasi altra azione che il GM consideri affaticante, comprese alcune azioni veloci, come ad esempio lanciare un incantesimo rapido), subisce 1 danno al termine dell’azione. A meno che l’attività faticosa non abbia aumentato i punti ferita del personaggio inabile, avrà di nuovo punti ferita negativi e sarà morente.
+Un personaggio inabile con punti ferita negativi recupera i punti ferita normalmente se viene aiutato. Altrimenti può tentare ogni giorno una prova di Costituzione con CD 10 dopo aver riposato per 8 ore, per iniziare a recuperare i punti ferita per via naturale. Il personaggio subisce una penalità alla prova pari ai punti ferita negativi totali. Se fallisce la prova, perde 1 punto ferita addizionale, ma ciò non gli fa Perdere i Sensi. Una volta che un personaggio supera la prova, continua a Guarire per via naturale, e non correrà più il rischio di perdere altri punti ferita in modo naturale.
+
+H2 Incorporeo
+Le creature di questo tipo non possiedono un corpo fisico. Le creature incorporee sono immuni a tutte le forme di attacco non magico e subiscono solo metà danni (50%) da armi magiche, incantesimi ed effetti di Capacità Magiche o Soprannaturali. Le creature incorporee subiscono danno pieno da altri soggetti ed effetti incorporei, così come tutti gli effetti di Forza.
+
+H2 Indifeso
+Un personaggio addormentato, bloccato, legato, Paralizzato, Privo di Sensi o per qualche altro motivo completamente alla mercé dei suoi avversari, è considerato indifeso. Un personaggio indifeso viene considerato come se avesse Destrezza 0 (modificatore di –5). Gli attacchi in mischia contro un personaggio indifeso ottengono bonus +4 (equivalente ad attaccare un personaggio Prono). Gli attacchi a distanza, non ottengono alcun bonus particolare contro i bersagli indifesi. I Ladri possono effettuare Attacchi Furtivi contro un bersaglio indifeso.
+
+H3 Colpo di Grazia
+Come azione di round completo, un nemico può utilizzare un'arma da mischia per infliggere un colpo di grazia ad un personaggio indifeso. Un nemico può anche usare un arco o una balestra, l’importante è che sia adiacente al bersaglio. L’attaccante colpisce automaticamente ed infligge un colpo critico. (Un Ladro aggiunge anche i danni addizionali del suo Attacco Furtivo contro un nemico indifeso, quando sferra un colpo di grazia.) Se il difensore sopravvive, deve superare un Tiro Salvezza su Tempra (CD 10 + danni inflitti) o muore. Infliggere un colpo di grazia provoca Attacchi di Opportunità.
+Le creature immuni ai colpi critici, non subiscono danni critici, né devono superare un Tiro Salvezza su Tempra per evitare di essere uccisi da un colpo di grazia.
+
+H2 Infermo
+Un personaggio infermo subisce una penalità –2 a tutti i Tiri per Colpire e per i danni delle armi, ai Tiri Salvezza, alle Prove di Abilità e di caratteristica.
+
+H2 Intralciato
+Il personaggio rimane intrappolato. Un personaggio intralciato ha difficoltà di movimento, ma può comunque provare a muoversi, a meno che i legami che lo intralciano non siano ancorati a un oggetto immobile o impugnati da una forza contrapposta. Una creatura intralciata può muoversi a velocità dimezzata ma non può Correre o Caricare, e subisce penalità –2 ai Tiri per Colpire e penalità –4 alla Destrezza. Un personaggio intralciato che cerca di lanciare un incantesimo deve superare una prova di Concentrazione (CD 15 + il livello dell’incantesimo) o perde l’incantesimo.
+
+H2 Invisibile
+Le creature invisibili non sono percepibili dalla vista, ricevono bonus +2 al Tiro per Colpire contro avversari visibili e negano il bonus di Destrezza alla CA dei loro avversari (se posseduto). Vedi Invisibilità.
+
+H2 Livelli Negativi
+Ci sono creature non morte con capacità soprannaturali ed incantesimi con effetti magici che possono risucchiare la vita e l'energia vitale; questo terrificante attacco è noto come Risucchio di Energia e comporta dei Livelli Negativi che infliggono delle penalità alle creature.
+Per ogni livello negativo che grava su una creatura, subisce penalità cumulativa –1 a qualsiasi prova di abilità e di caratteristica, ai tiri per colpire e ai tiri salvezza, alle prove di manovra in combattimento (BMC) e alla Difesa da Manovra in Combattimento (DMC). Inoltre, la creatura riduce i suoi Punti Ferita totali e correnti per una quantità di 5 PF per ogni livello negativo posseduto. La creatura è anche considerata come se avesse un livello in meno nei riguardi dei parametri dipendenti dal livello (come il lancio degli incantesimi o alcune capacità speciali dipendenti dal livello) per ogni livello negativo posseduto.
+Gli incantatori non perdono gli incantesimi preparati o gli slot in conseguenza dei livelli negativi.
+Se i livelli negativi di una creatura sono uguali o superiori ai suoi Dadi Vita totali, la creatura muore.
+
+H3 Livelli Negativi Temporanei
+Una creatura con livelli negativi temporanei ha diritto ogni giorno ad un nuovo Tiro Salvezza per rimuovere il livello negativo. La CD di questo Tiro Salvezza è la stessa dell'effetto che ha causato i livelli negativi.
+
+H3 Livelli Negativi Permanenti
+Alcune capacità e certi incantesimi, come Rianimare Morti, comportano un risucchio di livello permanente ad una creatura. Questi sono trattati come livelli negativi temporanei, ma non permettono di effettuare ogni giorno un nuovo tiro salvezza per rimuoverli. I livelli negativi permanenti che gravano su una creatura vivente che dovesse morire, permangono anche dopo che la creatura morta viene riportata in vita.
+
+H3 Ristorare Livelli Negativi
+Il risucchio di livello può essere eliminato con incantesimi come Ristorare. Se i livelli negativi permanenti sono pari ai Dadi Vita della creatura, questa non può essere riportata in vita con incantesimi come Rianimare Morti e Resurrezione salvo che si possa infonderle un incantesimo Ristorare, lanciato nel round immediatamente successivo a quello in cui viene riportata in vita.
+
+H2 Morente
+Un personaggio Morente è Privo di Sensi e prossimo alla Morte. Le creature che hanno Punti Ferita negativi e non si sono Stabilizzate sono Morenti. Una creatura Morente non può compiere azioni. Nel turno successivo a quello in cui è stato ridotto a Punti Ferita negativi (ma non è Morto), e in tutti i suoi turni seguenti, il personaggio deve effettuare una prova di Costituzione con CD 10 per vedere se si stabilizza. Il personaggio subisce una penalità alla prova pari ai suoi Punti Ferita negativi totali. Un personaggio Stabilizzato non deve effettuare questa prova. Un 20 naturale ottenuto con questa prova comporta un successo automatico. Se il personaggio fallisce la prova, perde 1 Punto Ferita. Se un personaggio Morente ha una quantità di Punti Ferita negativi pari al suo punteggio di Costituzione, muore.
+
+H2 Morto
+I punti ferita del personaggio sono ridotti ad una quantità pari alla sua Costituzione in negativo, la sua Costituzione scende a zero, o un incantesimo o un effetto lo uccidono sul colpo. L’anima del personaggio abbandona permanentemente il suo corpo. I personaggi morti non possono beneficiare delle cure normali o magiche, ma possono essere riportati in vita dalla magia. Un corpo morto subisce un normale decadimento a meno che non sia conservato magicamente, ma la magia che riporta in vita un personaggio dalla morte, riporta anche il suo corpo in piena salute e alle condizioni in cui si trovava al momento della morte (in base all’incantesimo o al congegno). Ad ogni modo, i personaggi risorti non si devono preoccupare di rigor mortis, decomposizione ed altre condizioni che colpiscono i cadaveri.
+
+H2 Nauseato
+Le creature Nauseate soffrono di disturbi di stomaco. Le creature Nauseate non sono in grado di attaccare, lanciare Incantesimi, concentrarsi sugli Incantesimi o fare qualsiasi altra cosa che richieda attenzione. La sola azione che un tale personaggio può compiere è una singola Azione di Movimento per turno.
+
+H2 Paralizzato
+Un personaggio paralizzato è bloccato sul posto ed è incapace di muoversi od agire. Ha punteggi effettivi di Forza e Destrezza pari a 0, è Indifeso e può compiere azioni esclusivamente mentali. Una creatura alata in volo, nel momento in cui viene paralizzata non può più battere le ali e precipita. Un nuotatore paralizzato non può più Nuotare e potrebbe annegare. Una creatura può attraversare un quadretto occupato da una creatura paralizzata, che sia un alleato o meno, ma ogni quadretto occupato da una creatura paralizzata conta come 2 quadretti di movimento.
+
+H2 Paura
+Incantesimi, Oggetti Magici e certe creature possono influenzare i personaggi con Paura. In molti casi, il personaggio deve effettuare un Tiro Salvezza su Volontà per resistere agli effetti, e un Tiro Salvezza fallito indica che il personaggio è Scosso, Spaventato o In Preda al Panico.
+
+H3 Scosso
+I personaggi che sono Scossi subiscono penalità morale –2 ai Tiri per Colpire, ai Tiri Salvezza e alle prove.
+
+H3 Spaventato
+I personaggi Spaventati sono anche Scossi, e inoltre fuggono dalla fonte della loro Paura il più velocemente possibile, anche se possono scegliere la direzione di fuga. A parte ciò, una volta che sono fuori vista (o udito) dalla fonte della loro Paura, possono agire normalmente. Se la durata della Paura non è ancora arrivata al termine, qualora dovessero incontrare di nuovo la fonte della loro Paura, cercherebbero nuovamente di fuggire. I personaggi che non sono in grado di fuggire possono combattere (anche se continuano ad essere Scossi).
+
+H3 In Preda al Panico
+I personaggi In Preda al Panico sono Scossi e, inoltre, hanno una probabilità del 50% di far cadere a terra qualsiasi cosa stanno tenendo in mano, e di fuggire dalla fonte del loro terrore il più in fretta possibile seguendo un percorso di fuga completamente casuale. I personaggi In Preda al Panico fuggono davanti a qualsiasi altro pericolo che possano trovarsi di fronte. A parte ciò, una volta che sono fuori vista (o udito) dalla fonte della loro Paura, possono agire normalmente. I personaggi In Preda al Panico prendono anche la condizione Accovacciato se non possono fuggire.
+
+H3 Terrore Crescente
+Gli effetti della Paura sono cumulativi. Un personaggio Scosso che viene nuovamente Scosso diventa Spaventato, mentre invece un personaggio Scosso che viene Spaventato cade In Preda Al Panico. Un personaggio Spaventato che viene Scosso o Spaventato cade In Preda al Panico.
+
+H2 Pietrificato
+Un personaggio pietrificato è stato trasformato in pietra ed è Privo di Sensi. Se un personaggio pietrificato si incrina o si rompe, ma i pezzi rotti sono uniti al corpo quando ritorna di carne, il personaggio non viene ferito o danneggiato. Se il corpo pietrificato del personaggio è incompleto quando viene ritrasformato in carne, il corpo rimane incompleto e potrebbe avere una qualche perdita permanente di punti ferita e/o altre menomazioni.
+
+H2 Privo di Sensi
+Le creature prive di sensi sono abbattute e Indifese. La condizione può risultare dall’avere Punti Ferita negativi (ma non superiori al punteggio di Costituzione della creatura), oppure nel caso in cui i Danni Non Letali superino i Punti Ferita attuali.
+
+H2 Prono
+Il personaggio è a terra e subisce penalità –4 al Tiro per Colpire in mischia e non può usare armi a distanza (eccetto per la balestra). Un difensore prono ottiene bonus +4 alla Classe Armatura contro gli attacchi a distanza, ma subisce penalità –4 alla CA negli attacchi in mischia. Rialzarsi è un’azione di movimento che provoca Attacchi di Opportunità.
+
+H2 Rotto
+Oggetti che hanno subito danni eccedenti la metà dei loro Punti Ferita totali ottengono la condizione rotto, il che significa che sono meno efficaci. La condizione rotto ha i seguenti effetti, a seconda dell’oggetto.
+• Se l’oggetto è un’arma, tutti gli attacchi effettuati con l’oggetto subiscono penalità –2 ai tiri per colpire e per i danni. Tali armi ottengono un Colpo Critico soltanto con un 20 naturale ed infliggono solo danno ×2 in caso di Colpo Critico confermato.
+• Se l’oggetto è un’armatura o uno scudo, il bonus che concede alla CA è dimezzato, arrotondando per difetto. L’armatura rotta raddoppia la penalità di armatura alla Prova sulle Abilità.
+• Se l’oggetto è un attrezzo necessario per un’Abilità, tutte le prove di Abilità effettuate con esso subiscono penalità –2.
+• Se l’oggetto è una Bacchetta o un Bastone, utilizzate il doppio delle cariche necessarie ogni volta che viene usato.
+• Se l’oggetto non rientra in nessuna delle precedenti categorie, la condizione rotto non ha effetto sul suo uso. Gli oggetti con condizione rotto, a prescindere dal tipo, valgono il 75% del loro costo normale. Se l’oggetto è magico, può essere riparato soltanto con gli incantesimi Rendere Integro o Riparare lanciati da un personaggio con un livello dell’incantatore uguale o superiore a quello dell’oggetto. Gli oggetti perdono la condizione rotto se l’incantesimo riporta l’oggetto alla metà o più dei sui Punti Ferita originali. Gli oggetti non magici possono essere riparati allo stesso modo, o con l’Abilità Artigianato usata per crearli. In linea generale, questo richiede una prova di Artigianato con CD 20 e 1 ora di lavoro per punto di danno da riparare. La maggior parte degli artigiani si prende un decimo del costo totale dell’oggetto per riparare tale danno (di più se l’oggetto è gravemente danneggiato o rovinato).
+
+H2 Sanguinante
+Una creatura che sta subendo danni da sanguinamento subisce la quantità di danno indicata all'inizio del suo turno. Il sanguinamento può essere interrotto superando una prova di Guarire con CD 15 o con un incantesimo che cura i Punti Ferita (anche se il sanguinamento è un danno di caratteristica). Alcuni effetti di sanguinamento causano un danno di caratteristica o persino un risucchio di caratteristica. Gli effetti di sanguinamento non si cumulano a meno che non causino tipi differenti di danno. Quando due o più effetti di sanguinamento causano lo stesso tipo di danno, si tenga l’effetto peggiore. In questo caso, il risucchio di caratteristica è peggiore del danno di caratteristica.
+
+H2 Stabilizzato
+Un personaggio che era Morente ma che ha fermato la perdita di Punti Ferita ad ogni round ed ha ancora Punti Ferita negativi è stabilizzato. Il personaggio non è più morente, ma è ancora Privo di Sensi. Se il personaggio si è stabilizzato grazie all’aiuto di un altro personaggio (come con una prova di Guarire o una cura magica), allora il personaggio smette di perdere altri Punti Ferita. Il personaggio può compiere una prova di Costituzione con CD 10 ogni ora per riprendere i sensi e diventare Inabile (anche se i suoi Punti Ferita sono ancora negativi). Il personaggio subisce una penalità a questa prova pari ai suoi Punti Ferita negativi totali.
+Se un personaggio si è stabilizzato da solo e non ha ricevuto alcun aiuto, è ancora a rischio di perdita di Punti Ferita. Ogni ora può effettuare una prova di Costituzione per stabilizzarsi (come un personaggio che ha ricevuto aiuto), ma ogni prova fallita gli fa perdere 1 Punto Ferita.
+
+H2 Stordito
+Una creatura stordita lascia cadere a terra qualsiasi cosa abbia in mano, non può compiere azioni, subisce penalità –2 alla CA, e perde il suo bonus di Destrezza alla CA (se presente).
+Fonte: http://www.d20pfsrd.com/gamemastering/conditions
