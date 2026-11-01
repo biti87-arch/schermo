@@ -33,18 +33,19 @@ lancia('data non valida', () => M.giornoAnnoDaData(camp.calendario, 1, 29), 'non
 t('durata in round', M.durataInRound(3, 'minuti') === 30 && M.durataInRound(2, 'ore') === 1200 && M.durataInRound(1, 'giorni') === 14400);
 t('formato durata', M.formatoDurata(5) === '5 round' && M.formatoDurata(35) === '3 min 5 r' && M.formatoDurata(1500) === '2 h 30 min' && M.formatoDurata(14400 + 600) === '1 g 1 h');
 
-// ---------------------------------------------------------------- stagioni (Guida, estate dal 22 giugno)
+// ---------------------------------------------------------------- stagioni (Tabelle del Tempo Atmosferico v1.0, Cap. 1)
 function stagioneIl(zona, mese, giorno) { const c = M.clona(camp); c.tempo.R = M.tempoAssoluto(c, 1462, mese - 1, giorno); return M.stagione(c, meteo, c.tempo.R, zona); }
-const casi = [['temperata', 3, 20, 'inverno'], ['temperata', 3, 21, 'primavera'], ['temperata', 6, 21, 'primavera'], ['temperata', 6, 22, 'estate'],
-  ['temperata', 9, 22, 'estate'], ['temperata', 9, 23, 'autunno'], ['temperata', 12, 21, 'autunno'], ['temperata', 12, 22, 'inverno'], ['temperata', 1, 1, 'inverno'],
-  ['desertica', 9, 22, 'primavera-estate'], ['desertica', 9, 23, 'autunno-inverno'], ['artica', 3, 21, 'primavera-estate'], ['artica', 2, 28, 'autunno-inverno']];
+const casi = [['1', 3, 20, 'inverno'], ['1', 3, 21, 'primavera'], ['1', 6, 21, 'primavera'], ['1', 6, 22, 'estate'],
+  ['1', 9, 22, 'estate'], ['1', 9, 23, 'autunno'], ['1', 12, 21, 'autunno'], ['1', 12, 22, 'inverno'], ['1', 1, 1, 'inverno'],
+  ['10', 9, 22, 'primavera-estate'], ['10', 9, 23, 'autunno-inverno'], ['9', 3, 21, 'primavera-estate'], ['9', 2, 28, 'autunno-inverno'],
+  ['12', 7, 1, 'piogge'], ['12', 12, 1, 'secca'], ['15', 4, 1, 'calma'], ['15', 10, 1, 'tempeste'], ['14', 1, 5, 'inverno'], ['16', 7, 1, null]];
 for (const [z, m, g, s] of casi) t(`stagione ${z} ${g}/${m}`, stagioneIl(z, m, g) === s, stagioneIl(z, m, g));
-{ // ogni giorno dell'anno ha una sola stagione in ogni zona
-  let buchi = 0; for (const z of ['temperata', 'desertica', 'artica']) for (let doy = 0; doy < 365; doy++) {
+{ // ogni giorno dell'anno ha una sola stagione in ogni zona (il Sotterraneo nessuna)
+  let buchi = 0; for (const z of meteo.zone.map(x => x.id)) for (let doy = 0; doy < 365; doy++) {
     const { mese, giorno } = M.dataDaGiornoAnno(camp.calendario, doy);
     const n = meteo.stagioni[z].filter(s => { const v = (mese + 1) * 100 + giorno, a = s.da[1] * 100 + s.da[0], b = s.a[1] * 100 + s.a[0]; return a <= b ? v >= a && v <= b : v >= a || v <= b; }).length;
-    if (n !== 1) buchi++; }
-  t('stagioni senza buchi né sovrapposizioni', buchi === 0, buchi); }
+    if (n !== (z === '16' ? 0 : 1)) buchi++; }
+  t('stagioni senza buchi né sovrapposizioni (17 zone)', buchi === 0, buchi); }
 
 // ---------------------------------------------------------------- calendario personalizzato
 const calP = { tipo: 'personalizzato', mesi: [{ nome: 'Brina', giorni: 30, stagione: 'inverno' }, { nome: 'Germoglio', giorni: 40, stagione: 'primavera' },
@@ -52,7 +53,10 @@ const calP = { tipo: 'personalizzato', mesi: [{ nome: 'Brina', giorni: 30, stagi
 const campP = M.creaCampagna({ ...base, calendario: calP, anno: { numero: 7, etichetta: '' }, partenza: { mese: 1, giorno: 40, ore: 23, min: 55, sett: 4 }, zona: 'desertica' }, meteo, semi(5));
 t('anno personalizzato', M.lunghezzaAnno(campP.calendario) === 130);
 t('data personalizzata', M.formatoData(campP) === 'Cinque 40 Germoglio 7, 23:55', M.formatoData(campP));
-t('stagione dal mese (desertica)', M.stagione(campP, meteo, campP.tempo.R) === 'primavera-estate');
+t('zona vecchia «desertica» → 10 Deserto sabbioso', campP.zona === '10');
+t('stagione dal mese (zona 10: primavera → Primavera-estate)', M.stagione(campP, meteo, campP.tempo.R) === 'primavera-estate');
+{ const c = M.clona(campP); c.tempo.R = M.tempoAssoluto(c, 7, 3, 3); t('stagione dal mese (autunno → Autunno-inverno)', M.stagione(c, meteo, c.tempo.R) === 'autunno-inverno');
+  t('stagione dal mese, zona a quattro stagioni', M.stagione(c, meteo, c.tempo.R, '14') === 'autunno' && M.stagione(c, meteo, c.tempo.R, '12') === 'secca'); }
 { const c2 = M.avanza(campP, 50, meteo, semi(9)); t('cambio di mese e settimana di 5 giorni', M.formatoData(c2) === 'Uno 1 Sole 7, 00:00', M.formatoData(c2));
   const c3 = M.avanza(campP, 130 * M.ROUND_GIORNO, meteo, semi(9)); t('anno dopo', M.scomponi(c3).anno === 8); }
 lancia('mese senza stagione', () => M.creaCampagna({ ...base, calendario: { tipo: 'personalizzato', mesi: [{ nome: 'X', giorni: 10 }] } }, meteo, rng), 'stagione');
@@ -61,24 +65,67 @@ lancia('zona sconosciuta', () => M.creaCampagna({ ...base, zona: 'polare' }, met
 { const senza = { tipo: 'personalizzato', mesi: calP.mesi, settimana: [] }; const c = M.creaCampagna({ ...base, calendario: senza, anno: { numero: 1 } }, meteo, rng);
   t('calendario senza settimana', M.scomponi(c).sett === null && !/^Uno/.test(M.formatoData(c))); }
 
-// ---------------------------------------------------------------- meteo
+// ---------------------------------------------------------------- meteo (AA1)
 { let righe = 0, sbagli = 0;
   for (const z in meteo.tabelle) for (const s in meteo.tabelle[z]) for (let tiro = 1; tiro <= 100; tiro++) {
     const e = M.esitoMeteo(meteo, z, s, tiro); righe++;
-    for (const o of e.opzioni) { const ef = M.effettiMeteo(meteo, o); if (ef.length !== o.length && !(o.length === 2 && o.every(v => meteo.voci[v] === meteo.voci[o[0]]))) sbagli++; if (!ef.every(x => x.testo)) sbagli++; } }
-  t('ogni tiro di ogni tabella ha i suoi effetti', sbagli === 0 && righe === 800, [righe, sbagli]); }
-{ const e = M.esitoMeteo(meteo, 'temperata', 'inverno', 80); t('Pioggia battente / Neve = due alternative', e.opzioni.length === 2 && e.opzioni[1][0] === 'Neve', e); }
-{ const e = M.esitoMeteo(meteo, 'artica', 'autunno-inverno', 100); const ef = M.effettiMeteo(meteo, e.opzioni[0]);
-  t('Gelo + Tempesta di grandine', ef.map(x => x.nome).join('|') === 'Arsura/gelo|Tempesta di grandine/polvere/sabbia', ef); }
-{ const e = M.esitoMeteo(meteo, 'desertica', 'primavera-estate', 100); t('Tempesta di polvere/sabbia non è un\'alternativa', e.opzioni.length === 1 && e.opzioni[0][1] === 'Tempesta di polvere/sabbia', e); }
-{ const c = M.tiraMeteo(camp, meteo, rng, 92); const m = M.meteoCorrente(c, meteo); t('tiro fisso primavera 92 = Acquazzone', m.testo === 'Acquazzone' && m.effetti[0].testo.startsWith('Visibilità'), m); }
-{ const c = M.scegliOpzioneMeteo(M.tiraMeteo(M.cambiaZona(M.clona(camp), meteo, 'temperata'), meteo, rng, 50), meteo === null ? 0 : 0); t('opzione unica', c.meteo.scelta === 0); }
-{ let c = M.clona(camp); c.tempo.R = M.tempoAssoluto(c, 1462, 0, 10); c = M.tiraMeteo(c, meteo, rng, 95); c = M.scegliOpzioneMeteo(c, 1);
-  t('scelta della neve fitta', M.meteoCorrente(c, meteo).effetti[0].nome === 'Neve fitta'); lancia('opzione inesistente', () => M.scegliOpzioneMeteo(c, 2)); }
-{ const c = M.impostaMeteo(camp, meteo, 'Nebbia'); t('meteo impostato a mano', c.meteo.manuale && c.meteo.testo === 'Nebbia'); lancia('meteo fuori tabella', () => M.impostaMeteo(camp, meteo, 'Monsone'), 'tabella'); }
+    if (e.opzioni.length !== 1) sbagli++;
+    for (const o of e.opzioni) { const ef = M.effettiMeteo(meteo, o); if (!ef.every(x => x.testo)) sbagli++; if (ef.length < 1) sbagli++; } }
+  t('ogni tiro di ogni tabella ha i suoi effetti (46 tabelle)', sbagli === 0 && righe === 4600, [righe, sbagli]); }
+{ const e = M.esitoMeteo(meteo, '9', 'autunno-inverno', 100); const ef = M.effettiMeteo(meteo, e.opzioni[0]);
+  t('Gelo + Tempesta di grandine', ef.map(x => x.nome).join('|') === 'Arsura / Gelo|Tempesta di grandine / polvere / sabbia / cenere', ef); }
+t('la campagna nasce con il meteo tirato (zona 1, primavera)', camp.zona === '1' && camp.meteo && camp.meteo.tiro >= 1 && camp.meteo.stagione === 'primavera');
+const alle = (c, h, m = 0) => { const x = M.clona(c); x.tempo.R = Math.floor(x.tempo.R / M.ROUND_GIORNO) * M.ROUND_GIORNO + h * M.ROUND_ORA + m * M.ROUND_MIN; return x; };
+const aZona = (c, z, mese, giorno) => { let x = M.cambiaZona(M.clona(c), meteo, z); x.tempo.R = M.tempoAssoluto(x, 1462, mese - 1, giorno, 8); x.log = []; return x; };
+{ const c = M.tiraMeteo(camp, meteo, facce([[2, 4], [3, 4]]), 92); const m = M.meteoCorrente(c, meteo);
+  t('tiro fisso primavera 92 = Acquazzone, 2d4 = 5 ore dalle 06:00', m.testo === 'Acquazzone' && m.durata.ore === 5 && m.durate === 'Acquazzone 5 ore, dalle 06:00 alle 11:00', m.durate);
+  t('alle 08:00 vale l\'Acquazzone', M.vociAllOra(alle(c, 8), meteo).join() === 'Acquazzone');
+  t('alle 12:00 il clima base (prima riga: Clima mite)', M.vociAllOra(alle(c, 12), meteo).join() === 'Clima mite');
+  t('prima dell\'alba il clima base', M.vociAllOra(alle(c, 3), meteo).join() === 'Clima mite');
+  const c2 = M.avanza(alle(c, 9), 3 * M.ROUND_ORA, meteo, rng); t('la fine della durata va nel log', c2.log.some(l => l.testo === 'Finisce Acquazzone: ora Clima mite'), c2.log.slice(-3));
+  const c3 = M.impostaInizioDurata(c, 14); t('inizio della durata scelto dal GM', M.vociAllOra(alle(c3, 15), meteo).join() === 'Acquazzone' && M.vociAllOra(alle(c3, 8), meteo).join() === 'Clima mite');
+  const c4 = M.impostaInizioDurata(c, 21); t('la durata non va oltre la mezzanotte', c4.meteo.durata.a === (c4.meteo.giorno + 1) * M.ROUND_GIORNO);
+  lancia('inizio della durata senza durata', () => M.impostaInizioDurata(M.tiraMeteo(camp, meteo, rng, 10), 8), 'durata'); }
+{ const c = M.tiraMeteo(camp, meteo, facce([[2, 4]]), 100);
+  t('Nebbia: si dirada 1d4 ore dopo l\'alba', c.meteo.nebbia.ore === 2 && M.vociAllOra(alle(c, 7), meteo).join() === 'Nebbia' && M.vociAllOra(alle(c, 8), meteo).join() === 'Clima mite');
+  t('Nebbia: riga nel log', M.avanza(alle(c, 7), M.ROUND_ORA * 2, meteo, rng).log.some(l => /La Nebbia si dirada/.test(l.testo))); }
+{ const c = M.tiraMeteo(aZona(camp, '1', 7, 10), meteo, rng, 90);
+  t('Arsura dalle 10 alle 18, prima e dopo Clima caldo', c.meteo.testo === 'Arsura' && M.vociAllOra(alle(c, 12), meteo).join() === 'Arsura' && M.vociAllOra(alle(c, 9), meteo).join() === 'Clima caldo' && M.vociAllOra(alle(c, 18), meteo).join() === 'Clima caldo'); }
+{ const c = M.tiraMeteo(aZona(camp, '10', 7, 10), meteo, rng, 65);
+  t('notti fredde: 23:00 Clima freddo, 08:00 Clima caldo, 12:00 Canicola', M.vociAllOra(alle(c, 23), meteo).join() === 'Clima freddo' && M.vociAllOra(alle(c, 8), meteo).join() === 'Clima caldo' && M.vociAllOra(alle(c, 12), meteo).join() === 'Canicola');
+  const d2 = M.tiraMeteo(aZona(camp, '10', 7, 10), meteo, rng, 72); t('notti fredde: le altre voci restano', M.vociAllOra(alle(d2, 2), meteo).join() === 'Clima freddo,Miraggi'); }
+{ let c = M.tiraMeteo(aZona(camp, '6', 1, 10), meteo, rng, 10); t('Montagne in inverno: Gelo', M.meteoCorrente(c, meteo).voci.join() === 'Gelo');
+  c = M.impostaVariante(c, meteo, 'oltre4500', true); t('oltre 4.500 m: Gelo → Gelo polare', M.meteoCorrente(c, meteo).voci.join() === 'Gelo polare' && M.vociAllOra(c, meteo).join() === 'Gelo polare');
+  lancia('variante di un\'altra zona', () => M.impostaVariante(c, meteo, 'steppa_fredda', true), 'variante'); }
+{ let c = M.tiraMeteo(aZona(camp, '12', 12, 1), meteo, rng, 60); c = M.impostaVariante(c, meteo, 'steppa_fredda', true);
+  t('steppa fredda nella stagione secca: Arsura → Gelo', M.meteoCorrente(c, meteo).voci.join() === 'Gelo');
+  let p = M.tiraMeteo(aZona(M.impostaVariante(aZona(camp, '12', 7, 1), meteo, 'steppa_fredda', true), '12', 7, 1), meteo, rng, 1); t('steppa fredda: niente nella stagione delle piogge', p.meteo.stagione === 'piogge' && !M.meteoCorrente(p, meteo).voci.includes('Clima freddo')); }
+{ let c = M.tiraMeteo(aZona(camp, '13', 7, 1), meteo, facce([[1, 4], [1, 4]]), 100); c = M.impostaVariante(c, meteo, 'lontano_costa', true);
+  t('lontano dalla costa: Uragano → Tempesta di vento + Monsone', M.meteoCorrente(c, meteo).voci.join() === 'Tempesta di vento,Monsone'); }
+{ const c = M.tiraMeteo(aZona(camp, '5', 4, 1), meteo, rng, 92); const m = M.meteoCorrente(c, meteo);
+  t('stato del mare: Vento forte → agitato, Nuotare CD 15', m.mare && m.mare.stato === 'Agitato' && m.mare.nuotare === 15, m.mare);
+  t('stato del mare: calmo', M.statoMare(M.tiraMeteo(aZona(camp, '5', 4, 1), meteo, rng, 1), meteo).stato === 'Calmo');
+  t('stato del mare: tempestoso', M.statoMare(M.tiraMeteo(aZona(camp, '5', 4, 1), meteo, facce([[4, 4], [4, 4]]), 100), meteo, ['Tempesta di vento']).stato === 'Tempestoso');
+  t('stato del mare solo sulle coste e in mare', M.statoMare(camp, meteo) === null); }
+{ let c = aZona(camp, '16', 7, 1); c = M.tiraMeteo(c, meteo, rng, 75);
+  t('Sotterraneo: Clima fresco + Stillicidio', c.meteo.stagione === null && M.vociAllOra(c, meteo).join() === 'Clima fresco,Stillicidio' && M.meteoCorrente(c, meteo).effetti[1].testo.includes('senza prova'));
+  c = M.nuovaZonaGallerie(c, meteo, rng, 100); t('Nuova zona di gallerie: Grotte gelate', M.vociAllOra(c, meteo).join() === 'Clima fresco,Grotte gelate');
+  const d2 = M.impostaMeteo(c, meteo, 'Aria viziata', rng); t('Sotterraneo: condizione a mano', d2.meteo.sotterraneo.nome === 'Aria viziata' && d2.meteo.manuale);
+  t('Sotterraneo: il cambio di giorno tira la condizione', M.avanza(c, M.ROUND_GIORNO, meteo, rng).meteo.sotterraneo.tiro >= 1);
+  lancia('Nuova zona di gallerie fuori dal Sotterraneo', () => M.nuovaZonaGallerie(camp, meteo, rng), 'Sotterraneo');
+  lancia('Predire il tempo nel Sotterraneo', () => M.prediciTempo(c, meteo, rng, 30), 'Sotterraneo'); }
+{ let c = M.prediciTempo(camp, meteo, rng, 14); t('Predire il tempo fallito', !c.previsioni && /fallito/.test(c.log[c.log.length - 1].testo));
+  c = M.prediciTempo(camp, meteo, semi(4), 25); t('Predire il tempo 25: 3 giorni', c.previsioni.giorni.length === 3 && c.previsioni.giorni[0].giorno === M.scomponi(c).N + 1, c.previsioni);
+  const p = c.previsioni.giorni[0], c2 = M.avanza(c, M.ROUND_GIORNO, meteo, semi(99));
+  t('il giorno previsto usa il tiro già fatto', c2.meteo.tiro === p.tiro && c2.previsioni.giorni.length === 2 && c2.log.some(l => /previsto/.test(l.testo)));
+  const c3 = M.cambiaZona(c2, meteo, '2'); t('cambiando zona le previsioni si cancellano', c3.previsioni === null && c3.log.some(l => /Previsioni del tempo cancellate/.test(l.testo))); }
+{ const c = M.impostaMeteo(camp, meteo, 'Nebbia', rng); t('meteo impostato a mano', c.meteo.manuale && c.meteo.testo === 'Nebbia' && c.meteo.nebbia); lancia('meteo fuori tabella', () => M.impostaMeteo(camp, meteo, 'Monsone', rng), 'tabella'); }
 { const conta = {}; let c = M.clona(camp); const r = semi(11); for (let i = 0; i < 4000; i++) { c = M.tiraMeteo(c, meteo, r); conta[c.meteo.testo] = (conta[c.meteo.testo] || 0) + 1; c.log = []; }
-  t('distribuzione primavera (85% mite)', conta['Clima mite'] / 4000 > 0.82 && conta['Clima mite'] / 4000 < 0.88, conta); }
-t('la campagna nasce con il meteo tirato', camp.meteo && camp.meteo.tiro >= 1 && camp.meteo.stagione === 'primavera');
+  t('distribuzione primavera della zona 1 (85% mite)', conta['Clima mite'] / 4000 > 0.82 && conta['Clima mite'] / 4000 < 0.88, conta); }
+{ const v = M.clona(camp); v.zona = 'temperata'; v.meteo = { giorno: v.meteo.giorno, zona: 'desertica', stagione: 'primavera-estate', tiro: 100, testo: 'Clima caldo + Tempesta di polvere/sabbia', opzioni: [['Clima caldo', 'Tempesta di polvere/sabbia']], scelta: 0, manuale: false };
+  const m = M.migra(v); t('migrazione del meteo: zone e voce vecchia', m.zona === '1' && m.meteo.zona === '10' && m.meteo.opzioni[0][1] === 'Tempesta di sabbia' && m.meteo.testo === 'Clima caldo + Tempesta di sabbia');
+  const w = M.clona(m); w.meteo = { ...w.meteo, zona: '1', stagione: 'inverno', opzioni: [['Pioggia battente'], ['Neve']], testo: 'Pioggia battente / Neve' };
+  const x = M.scegliOpzioneMeteo(w, 1); t('alternative delle campagne vecchie: si sceglie ancora', M.meteoCorrente(x, meteo).voci.join() === 'Neve'); lancia('opzione inesistente', () => M.scegliOpzioneMeteo(w, 2)); }
 
 // ---------------------------------------------------------------- PG e PF
 const aria = { nome: 'Aria', giocatore: 'Sara', razza: 'Elfo', classe: 'Ladro 7', livello: 7, fatica_max: 42, ferita_max: 40, rif_dadi: 7, rif_tipo: 8,
@@ -143,7 +190,7 @@ lancia('penalità da impreparato non ammessa', () => M.aggiungiPG(camp, { nome: 
   const c2 = M.modificaPG(M.danno(c1, A, 5).camp, A, { fatica_max: 30 }); t('modifica: valore corrente limitato', c2.pg[0].stato.fatica === 30); }
 
 // ---------------------------------------------------------------- scorte (Z1: se non basta, il GM sceglie chi la usa)
-{ let c = M.clona(c1); t('consumo = PG + accompagnatori', M.consumoGiornaliero(c) === 4); t('bastano per 5 giorni', M.bastanoPer(c, 'cibo') === 5);
+{ let c = M.clona(c1); c.scorte.recipienti = false; t('consumo = PG + accompagnatori', M.consumoGiornaliero(c) === 4); t('bastano per 5 giorni', M.bastanoPer(c, 'cibo') === 5);
   const g0 = M.scomponi(c).N;
   c = M.avanza(c, M.ROUND_GIORNO, meteo, semi(8)); t('un giorno: −4 e −4', c.scorte.cibo === 16 && c.scorte.acqua === 16, c.scorte);
   t('meteo del giorno nuovo', c.meteo.giorno === g0 + 1);
@@ -151,7 +198,7 @@ lancia('penalità da impreparato non ammessa', () => M.aggiungiPG(camp, { nome: 
   c = M.avanza(c, M.ROUND_GIORNO, meteo, semi(8));
   const z = M.razionamentoAperto(c);
   t('acqua insufficiente: giorno in sospeso, nulla consumato', z && z.scorta === 'acqua' && c.scorte.acqua === 3 && c.scorte.cibo === 12, [z, c.scorte]);
-  t('avviso di razionamento in coda', c.coda.length === 1 && c.coda[0].tipo === 'razionamento' && /3 razioni per 4 persone/.test(c.coda[0].testo), c.coda);
+  t('avviso di razionamento in coda', c.coda.length === 1 && c.coda[0].tipo === 'razionamento' && /3 razioni per un fabbisogno di 4/.test(c.coda[0].testo), c.coda);
   lancia('il razionamento non si chiude con «Fatto»', () => M.togliDallaCoda(c, 0), 'scegli');
   lancia('più razioni di quelle che ci sono', () => M.risolviRazionamento(c, z.id, [A, B], 2, meteo), 'solo 3');
   c = M.risolviRazionamento(c, z.id, [A], 1, meteo);
@@ -770,6 +817,161 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json']) {
     const r = M.fineCombattimento(x, 0, () => null); t('Build 2a: fine del combattimento sulla campagna migrata', !r.camp.combattimento && r.riepilogo.xp === undefined);
   }
 }
+
+// ================================================================ Build 2c: scorte e Foraggiare (AA2), compagnia (AA3)
+{ // campagna di base: Aria e Bruno + 2 accompagnatori senza nome, zona 1 primavera
+  const meteoA = (c, z, mese, giorno, tiro, h = 8) => { let x = M.cambiaZona(M.clona(c), meteo, z); x.tempo.R = M.tempoAssoluto(x, 1462, mese - 1, giorno, h); x = M.tiraMeteo(x, meteo, facce([[2, 4], [2, 4]]), tiro); x.log = []; x.coda = []; return x; };
+  t('compagnia nuova: gli accompagnatori sono «senza nome»', c1.compagnia.senza_nome === 2 && c1.scorte.accompagnatori === undefined && c1.scorte.foraggio === 0 && c1.scorte.recipienti === true);
+  t('impostazioni: «Usa le scorte» accesa', c1.impostazioni.scorte === true);
+  // AA2-1: acqua ×2 con l'Arsura, ×3 con la Canicola
+  let c = meteoA(c1, '1', 7, 10, 90); c.scorte.recipienti = false;
+  t('moltiplicatore: Arsura ×2', M.moltiplicatoreAcqua(c, meteo) === 2 && M.fabbisogno(c, 'acqua', 2) === 8);
+  let x = M.avanza(c, M.ROUND_GIORNO, meteo, rng); t('Arsura: −8 d\'acqua, −4 di cibo', x.scorte.acqua === 12 && x.scorte.cibo === 16 && x.log.some(l => /acqua ×2/.test(l.testo)), x.scorte);
+  c = meteoA(c1, '10', 7, 10, 65); c.scorte.recipienti = false; x = M.avanza(c, M.ROUND_GIORNO, meteo, rng); t('Canicola: ×3', x.scorte.acqua === 8, x.scorte);
+  // razionamento con l'acqua ×2: ogni persona scelta beve 2 razioni
+  c = meteoA(c1, '1', 7, 10, 90); c.scorte.recipienti = false; c.scorte.acqua = 5; x = M.avanza(c, M.ROUND_GIORNO, meteo, rng);
+  const z = M.razionamentoAperto(x); t('acqua ×2 insufficiente: in sospeso con k = 2', z && z.k === 2 && /fabbisogno di 8/.test(x.coda.find(q => q.tipo === 'razionamento').testo));
+  lancia('acqua ×2: 3 persone = 6 razioni, ce ne sono 5', () => M.risolviRazionamento(x, z.id, { buone: ['pg:' + A, 'pg:' + B], senza_buone: 1 }, meteo), 'solo 5');
+  x = M.risolviRazionamento(x, z.id, { buone: ['pg:' + A], senza_buone: 1 }, meteo);
+  t('acqua ×2: bevono Aria e un accompagnatore (−4)', x.scorte.acqua === 1 && x.pg[1].stato.sete.penalita === 1 && x.pg[0].stato.sete.penalita === 0);
+  // AA2-2: pioggia con i recipienti
+  c = meteoA(c1, '1', 4, 10, 88); x = M.avanza(c, M.ROUND_GIORNO, meteo, rng);
+  t('Pioggia battente con i recipienti: l\'acqua non scende', x.scorte.acqua === 20 && x.scorte.cibo === 16 && x.log.some(l => /Pioggia battente: acqua raccolta con i recipienti/.test(l.testo)));
+  c = M.impostaRecipienti(c, false); x = M.avanza(c, M.ROUND_GIORNO, meteo, rng); t('senza recipienti l\'acqua scende', x.scorte.acqua === 16);
+  c = meteoA(c1, '1', 4, 10, 92); x = M.avanza(c, M.ROUND_GIORNO, meteo, rng); t('Acquazzone di 4 ore: acqua raccolta lo stesso', x.scorte.acqua === 20);
+  c = meteoA(c1, '16', 4, 10, 75); x = M.avanza(c, M.ROUND_GIORNO, meteo, rng); t('Stillicidio: acqua senza prova', x.scorte.acqua === 20 && x.log.some(l => /Stillicidio/.test(l.testo)));
+  // AA2-7: scorte spente
+  c = M.clona(c1); c.impostazioni.scorte = false; x = M.avanza(c, 3 * M.ROUND_GIORNO, meteo, rng);
+  t('scorte spente: niente consumo né Fame e Sete', x.scorte.cibo === 20 && x.scorte.acqua === 20 && !x.razionamenti.length && x.pg.every(p => !p.stato.fame.penalita));
+  lancia('Foraggiare con le scorte spente', () => M.foraggia(c, meteo, rng, [{ pg: A, totale: 20 }]), 'spente');
+
+  // AA3: compagnia
+  let k = M.aggiungiAccompagnatore(c1, { nome: 'Hassim', ruolo: 'guida', rif: { fonte: 'png', id: 'p1' } });
+  const H = k.compagnia.persone[0].id;
+  k = M.aggiungiAnimale(k, { nome: 'Fulmine', tipo: 'cavalcatura', padrone: 'pg:' + A, mangia: 'foraggio', cibo: 2, acqua: 2 });
+  k = M.aggiungiAnimale(k, { nome: 'Zanna', tipo: 'compagno', padrone: 'acc:' + H, mangia: 'razioni', rif: { fonte: 'mostro', id: 'm1' } });
+  const [F, Zn] = k.compagnia.animali.map(a => a.id);
+  lancia('accompagnatore senza nome', () => M.aggiungiAccompagnatore(k, { nome: ' ' }), 'nome');
+  lancia('animale con padrone inesistente', () => M.aggiungiAnimale(k, { nome: 'X', padrone: 'pg:zz' }), 'padrone');
+  lancia('animale senza scelta del cibo', () => M.aggiungiAnimale(k, { nome: 'X', mangia: 'erba' }), 'foraggio o razioni');
+  t('persone: PG + accompagnatori con e senza nome', M.consumoGiornaliero(k) === 5 && M.numeroAccompagnatori(k) === 3 && M.nomePadrone(k, 'acc:' + H) === 'Hassim');
+  t('fabbisogni: cibo 6 (5 + lupo), acqua 8 (5 + 2 + 1), foraggio 2', M.fabbisogno(k, 'cibo') === 6 && M.fabbisogno(k, 'acqua') === 8 && M.fabbisogno(k, 'foraggio') === 2);
+  k = M.modificaScorta(k, 'foraggio', 5); k.scorte.recipienti = false;
+  x = M.avanza(k, M.ROUND_GIORNO, meteo, rng);
+  t('un giorno con la compagnia: cibo −6, acqua −8, foraggio −2', x.scorte.cibo === 14 && x.scorte.acqua === 12 && x.scorte.foraggio === 3, x.scorte);
+  let k2 = M.modificaAnimale(k, F, { trova_cibo: true }); k2 = M.modificaAnimale(k2, Zn, { trova_acqua: true });
+  t('«trova da sé»: Fulmine non mangia foraggio, Zanna non beve', M.fabbisogno(k2, 'foraggio') === 0 && M.fabbisogno(k2, 'acqua') === 7);
+  // foraggio insufficiente: si sceglie fra gli animali, Fame sull'animale
+  let k3 = M.modificaScorta(k, 'foraggio', -4); x = M.avanza(k3, M.ROUND_GIORNO, meteo, rng);
+  const zf = M.razionamentoAperto(x); t('foraggio insufficiente: scelta del GM', zf && zf.scorta === 'foraggio');
+  lancia('foraggio: 1 razione, Fulmine ne vuole 2', () => M.risolviRazionamento(x, zf.id, { buone: ['ani:' + F] }, meteo), 'solo 1');
+  x = M.risolviRazionamento(x, zf.id, { buone: [] }, meteo);
+  t('Fame sull\'animale rimasto senza', x.compagnia.animali[0].stato.fame.penalita === 1 && x.coda.some(q => /Fame: Fulmine 1/.test(q.testo)));
+  // Sete degli accompagnatori con nome; i senza nome restano senza penalità
+  let k4 = M.clona(k); k4.scorte.acqua = 3; x = M.avanza(k4, M.ROUND_GIORNO, meteo, rng);
+  const za = M.razionamentoAperto(x), d0 = M.datiRazionamento(x, za.id);
+  t('Scegli chi beve: PG, Hassim, senza nome e animali', d0.consumatori.map(v => v.tipo).join() === 'pg,pg,acc,senza,animale,animale' && d0.buone === 3);
+  x = M.risolviRazionamento(x, za.id, { buone: ['pg:' + A, 'pg:' + B, 'ani:' + Zn], senza_buone: 0 }, meteo);
+  t('Sete su Hassim e Fulmine, non sui senza nome', x.compagnia.persone[0].stato.sete.penalita === 1 && x.compagnia.animali[0].stato.sete.penalita === 1 && x.compagnia.animali[1].stato.sete.penalita === 0 && x.coda.some(q => /2 accompagnatori senza razione|Sete: Hassim 1, Fulmine 1/.test(q.testo)));
+  // giorni senza acqua: prova di Costituzione anche per gli accompagnatori con nome
+  let k5 = M.clona(k); k5.scorte.acqua = 0; k5.scorte.cibo = 100; k5.scorte.foraggio = 100; x = M.avanza(k5, 4 * M.ROUND_GIORNO, meteo, rng);
+  t('quarto giorno senz\'acqua: prova di Costituzione per Hassim', x.coda.some(q => /Costituzione CD 10 per .*Hassim \(giorno 4\)/.test(q.testo)));
+  // AA2-5: cibo avariato solo se le buone non bastano
+  let v = M.clona(c1); v.scorte.cibo = 10; v.scorte.cibo_avariato = 3; x = M.avanza(v, M.ROUND_GIORNO, meteo, rng);
+  t('avariato non usato se le buone bastano', x.scorte.cibo === 6 && x.scorte.cibo_avariato === 3 && !M.razionamentoAperto(x));
+  v.scorte.cibo = 0; v.scorte.cibo_avariato = 0; x = M.avanza(v, M.ROUND_GIORNO, meteo, rng); t('niente cibo né avariato: si va avanti da soli', !x.razionamenti.some(r => r.scorta === 'cibo') && x.pg[0].stato.fame.penalita === 1);
+  v.scorte.cibo = 1; v.scorte.cibo_avariato = 3; v.scorte.acqua = 100; x = M.avanza(v, M.ROUND_GIORNO, meteo, rng);
+  const zc = M.razionamentoAperto(x); t('buone 1 + avariate 3: scelta del GM', zc && zc.scorta === 'cibo' && /\+3 cibo avariato/.test(x.coda.find(q => q.tipo === 'razionamento').testo));
+  lancia('avariato oltre la scorta', () => M.risolviRazionamento(x, zc.id, { buone: ['pg:' + A], cattive: ['pg:' + B], senza_cattive: 2, senza_buone: 1 }, meteo), 'accompagnatori');
+  x = M.risolviRazionamento(x, zc.id, { buone: ['pg:' + A], cattive: ['pg:' + B], senza_cattive: 2 }, meteo);
+  const qa = x.coda.find(q => q.avariato);
+  t('Bruno mangia avariato: TS Tempra CD 12 in coda', x.scorte.cibo === 0 && x.scorte.cibo_avariato === 0 && qa && qa.tipo === 'ts' && /Tempra CD 12/.test(qa.testo) && x.pg[1].stato.fame.penalita === 0);
+  t('accompagnatori senza nome con l\'avariato: solo una nota', x.coda.some(q => /2 accompagnatori senza nome: cibo avariato/.test(q.testo)));
+  const xs = M.esitoPromemoria(x, qa.id, true, rng); t('TS superato: nulla', xs.pg[1].stato.fame.penalita === 0 && !xs.pg[1].stato.malus.length);
+  const xf = M.esitoPromemoria(x, qa.id, false, facce([[3, 4]]));
+  t('TS fallito: Nauseato 3 ore e il giorno conta senza', xf.pg[1].stato.fame.penalita === 1 && xf.pg[1].stato.fame.giorni_senza === 1 && xf.pg[1].stato.malus.some(m => m.nome === 'Nauseato' && m.durata.fine === xf.tempo.R + 3 * M.ROUND_ORA));
+  t('forma della Build 1 di risolviRazionamento ancora valida', typeof M.risolviRazionamento === 'function');
+
+  // AA2-4: Foraggiare
+  let f = meteoA(c1, '1', 4, 10, 10);
+  let inf = M.infoForaggiare(f, meteo); t('Foraggiare zona 1 in primavera, Clima mite: CD 12, +1 ogni 3', inf.cd === 12 && inf.ogni === 3 && inf.acqua.tipo === 'inclusa' && !inf.impossibile && !inf.pesca);
+  let e = M.esitoForaggiare(f, meteo, [{ pg: A, totale: 18 }, { pg: B, totale: 5 }]);
+  t('resa: Aria 18 → 3 persone, acqua inclusa 3; Bruno 5 → niente', e.righe[0].cibo === 3 && e.righe[0].acqua === 3 && e.righe[1].cibo === 0 && e.cibo === 3 && e.acqua === 3);
+  t('resa esatta alla CD = 1', M.esitoForaggiare(f, meteo, [{ pg: A, totale: 12 }]).cibo === 1 && M.esitoForaggiare(f, meteo, [{ pg: A, totale: 11 }]).cibo === 0);
+  x = M.foraggia(f, meteo, rng, [{ pg: A, totale: 18 }]);
+  t('Foraggiare: scorte e +2 ore', x.scorte.cibo === 23 && x.scorte.acqua === 23 && x.tempo.R === f.tempo.R + 2 * M.ROUND_ORA && M.haForaggiato(x, A) && !M.haForaggiato(x, B));
+  lancia('una sola prova al giorno', () => M.foraggia(x, meteo, rng, [{ pg: A, totale: 18 }]), 'già foraggiato');
+  t('il giorno dopo si può di nuovo', !M.haForaggiato(M.avanza(x, M.ROUND_GIORNO, meteo, rng), A));
+  t('senza +2 ore', M.foraggia(f, meteo, rng, [{ pg: A, totale: 18 }], { ore: false }).tempo.R === f.tempo.R);
+  // quota del foraggio
+  let fk = meteoA(k, '1', 4, 10, 10); e = M.esitoForaggiare(fk, meteo, [{ pg: A, totale: 18 }]);
+  t('divisione: al foraggio la quota di Fulmine (2)', M.quotaForaggio(fk) === 2 && e.alForaggio === 2);
+  x = M.foraggia(fk, meteo, rng, [{ pg: A, totale: 18 }], { foraggio: 1, ore: false }); t('divisione scelta dal GM', x.scorte.foraggio === fk.scorte.foraggio + 1 && x.scorte.cibo === fk.scorte.cibo + 2);
+  // modificatori della CD
+  f = meteoA(c1, '1', 1, 10, 85); inf = M.infoForaggiare(f, meteo);
+  t('inverno + Neve: CD 12 + 5 + 2 = 19', inf.cd === 19 && inf.mods.length === 2, inf.mods);
+  f = meteoA(c1, '1', 4, 10, 92); inf = M.infoForaggiare(alle(f, 7), meteo); t('Acquazzone in corso: +5', inf.cd === 17);
+  t('Acquazzone finito: CD normale', M.infoForaggiare(alle(f, 12), meteo).cd === 12);
+  f = meteoA(c1, '5', 4, 10, 100); t('Tempesta di vento in corso: impossibile', /Tempesta di vento/.test(M.infoForaggiare(alle(f, 7), meteo).impossibile));
+  lancia('Foraggiare impossibile', () => M.foraggia(alle(f, 7), meteo, rng, [{ pg: A, totale: 30 }]), 'impossibile');
+  t('finita la tempesta si può', !M.infoForaggiare(alle(f, 15), meteo).impossibile);
+  // acqua con seconda prova, pesca, stagione secca, neve, Stillicidio
+  f = meteoA(c1, '5', 4, 10, 1); inf = M.infoForaggiare(f, meteo); e = M.esitoForaggiare(f, meteo, [{ pg: A, totale: 14, totale_acqua: 17 }, { pg: B, abilita: 'pescatore', totale: 12 }]);
+  t('Coste: acqua CD 15 con seconda prova (17 → 2), pesca solo cibo', inf.pesca && inf.acqua.tipo === 'cd' && e.righe[0].cibo === 3 && e.righe[0].acqua === 2 && e.righe[1].cibo === 2 && e.righe[1].acqua === 0);
+  lancia('pescare dove non si può', () => M.esitoForaggiare(meteoA(c1, '1', 4, 10, 1), meteo, [{ pg: A, abilita: 'pescatore', totale: 20 }]), 'pescare');
+  f = M.impostaVariante(meteoA(c1, '1', 4, 10, 1), meteo, 'acqua_dolce', true); e = M.esitoForaggiare(f, meteo, [{ pg: A, abilita: 'pescatore', totale: 15 }]);
+  t('acqua dolce per pescare: pesca senz\'acqua', e.cibo === 2 && e.acqua === 0);
+  inf = M.infoForaggiare(meteoA(c1, '12', 12, 1, 1), meteo); t('Savana nella stagione secca: CD 13 + 5, acqua CD 20', inf.cd === 18 && inf.acqua.tipo === 'cd' && inf.acqua.cd === 20);
+  f = meteoA(c1, '9', 4, 10, 1); inf = M.infoForaggiare(f, meteo); t('Ghiacci: solo neve, CD 22', inf.acqua.tipo === 'neve' && inf.cd === 22 && M.motivoNeve(f, meteo));
+  t('Tundra in autunno-inverno: neve (nota ²)', M.infoForaggiare(meteoA(c1, '8', 11, 10, 1), meteo).acqua.tipo === 'neve' && M.infoForaggiare(meteoA(c1, '8', 5, 10, 1), meteo).acqua.tipo === 'inclusa');
+  t('Montagne oltre 4.500 m: neve (nota ¹)', M.infoForaggiare(M.impostaVariante(meteoA(c1, '6', 5, 10, 1), meteo, 'oltre4500', true), meteo).acqua.tipo === 'neve');
+  t('Stillicidio: acqua senza prova', M.infoForaggiare(meteoA(c1, '16', 5, 10, 75), meteo).acqua.tipo === 'libera');
+  x = M.sciogliNeve(f, meteo, rng, 3); t('Sciogli neve: +3 acqua e +3 ore', x.scorte.acqua === 23 && x.tempo.R === f.tempo.R + 3 * M.ROUND_ORA);
+  lancia('Sciogli neve senza neve', () => M.sciogliNeve(meteoA(c1, '1', 4, 10, 1), meteo, rng, 1), 'neve');
+  t('neve nel giorno: si può sciogliere', !!M.motivoNeve(meteoA(c1, '1', 1, 10, 85), meteo));
+  // AA2-5 e AA2-6: avariato e acqua da purificare
+  f = meteoA(c1, '4', 4, 10, 1); e = M.esitoForaggiare(f, meteo, [{ pg: A, totale: 7 }, { pg: B, totale: 8 }]);
+  t('palude ☠: fallito di 5 → 1 avariato; di 4 → niente', e.righe[0].avariato === 1 && e.righe[1].avariato === 0 && e.impura);
+  x = M.foraggia(f, meteo, rng, [{ pg: A, totale: 18 }, { pg: B, totale: 6 }], { ore: false });
+  t('palude: acqua da purificare e cibo avariato in scorta', x.scorte.acqua_impura === 3 && x.scorte.acqua === 20 && x.scorte.cibo_avariato === 1 && x.scorte.cibo === 23);
+  let b = M.bolliAcqua(x, meteo, rng, 2); t('Bolli: 2 razioni, 20 minuti', b.scorte.acqua === 22 && b.scorte.acqua_impura === 1 && b.tempo.R === x.tempo.R + 20 * M.ROUND_MIN);
+  lancia('bollire più di quella che c\'è', () => M.bolliAcqua(x, meteo, rng, 5), 'solo 3');
+  let vul = M.clona(x); vul = M.cambiaZona(vul, meteo, '17'); lancia('acqua sulfurea: la bollitura non basta', () => M.bolliAcqua(vul, meteo, rng, 1), 'bollitura');
+  b = M.purificaAcqua(vul, meteo, 'tavoletta', 1); t('Tavoletta purificante: 3 razioni', b.scorte.acqua_impura === 0 && b.scorte.acqua === 23);
+  b = M.purificaAcqua(vul, meteo, 'incantesimo', 2); t('Purificare cibo e bevande: le razioni scelte', b.scorte.acqua_impura === 1);
+  let iw = M.clona(c1); iw.scorte.acqua = 1; iw.scorte.acqua_impura = 5; iw.scorte.recipienti = false; x = M.avanza(iw, M.ROUND_GIORNO, meteo, rng);
+  const zw = M.razionamentoAperto(x); x = M.risolviRazionamento(x, zw.id, { buone: ['pg:' + A], cattive: ['pg:' + B], senza_cattive: 2 }, meteo);
+  t('acqua non purificata: TS come il cibo avariato', x.coda.some(q => q.avariato && /acqua non purificata/.test(q.testo)) && x.scorte.acqua_impura === 2);
+
+  // AA3: compagnia in combattimento e XP
+  const schede = { p1: { id: 'p1', nome: 'Hassim', iniziativa: 4, fatica: 10, ferita: 11, gs: '3', xp: 800 }, m1: { id: 'm1', nome: 'Lupo', iniziativa: 2, fatica: 6, ferita: 7, gs: '1', xp: 400 } };
+  const sd = r => schede[r.id];
+  const ph = M.partecipanteCompagnia(k, 'acc:' + H, sd, M.pfDaScheda);
+  t('Hassim al combattimento come alleato', ph.alleato && ph.bonus === 4 && ph.rif.id === 'p1' && ph.nome === 'Hassim');
+  let cb = M.clona(k); cb.impostazioni.xp = true;
+  cb = M.avviaCombattimento(cb, [{ tipo: 'pg', pgId: A, totale: 15 }, ph, M.partecipanteCompagnia(k, 'ani:' + Zn, sd, M.pfDaScheda), { tipo: 'nemico', nome: 'Orco', bonus: 0, n: 2, rif: { fonte: 'mostro', id: 'm1' } }], rng, 0);
+  for (const r of Object.values(cb.combattimento.righe)) if (r.tipo === 'nemico') cb = M.comando(cb, 'fuori', { id: r.id }, meteo, rng, 0);
+  const fine = M.fineCombattimento(cb, 0, sd);
+  t('XP: gli alleati della compagnia non contano, accompagnatori con e senza nome sì', fine.riepilogo.xp.sconfitti === 800 && fine.riepilogo.xp.perPG === 400 && fine.riepilogo.xp.perPGconAcc === 160, fine.riepilogo.xp);
+  // togliere
+  let kt = M.togliAccompagnatore(k, H, 'congedato'); t('togli Hassim: Zanna resta senza padrone', kt.compagnia.persone.length === 0 && kt.compagnia.animali[1].padrone === '' && kt.log.some(l => /Hassim lascia il gruppo \(congedato\)/.test(l.testo)));
+  kt = M.togliAnimale(kt, F); t('togli Fulmine', kt.compagnia.animali.length === 1);
+  // AA3-7: creazione con i nomi
+  const cn = M.creaCampagna({ ...base, zona: '2', persone: ['Mira', { nome: 'Tobia', ruolo: 'portatore' }], foraggio: 4 }, meteo, semi(3), 1000);
+  t('creazione: senza nome, persone e foraggio', cn.compagnia.senza_nome === 2 && cn.compagnia.persone.map(p => p.nome).join() === 'Mira,Tobia' && cn.compagnia.persone[1].ruolo === 'portatore' && cn.scorte.foraggio === 4);
+}
+// migrazione: la campagna salvata con la Build 2b (PNG generici, incontri, accompagnatori) si apre e si usa
+{ const vecchia = fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build2b.json'), 'utf8'), imp = M.importa(vecchia), c = imp.campagne[0], j = JSON.parse(vecchia).dati;
+  t('Build 2b: zona desertica → 10, voce della tempesta rinominata', c.zona === '10' && c.meteo.zona === '10' && c.meteo.opzioni[0].includes('Tempesta di sabbia'));
+  t('Build 2b: 3 accompagnatori → senza nome', c.compagnia.senza_nome === 3 && !c.compagnia.persone.length && c.scorte.accompagnatori === undefined && c.scorte.foraggio === 0);
+  t('Build 2b: PNG, incontri, generici e mostri condivisi', c.png.length === 1 && c.incontri.length === 2 && imp.generici.length === 1 && imp.mostri.length === 1);
+  t('Build 2b: combattimento in corso, righe senza alleati', Object.values(c.combattimento.righe).every(r => r.alleato === false) && c.combattimento.round === j.combattimento.round);
+  const me = M.meteoCorrente(c, meteo); t('Build 2b: effetti del meteo migrato', me.effetti.map(x => x.nome).join('|') === 'Clima caldo / Clima freddo|Tempesta di grandine / polvere / sabbia / cenere');
+  const best = { mostri: imp.mostri, generici: imp.generici }, sd = r => (r.fonte === 'png' ? c.png : r.fonte === 'generico' ? best.generici : best.mostri).find(s => s.id === r.id);
+  let x = M.comando(c, 'avanti', {}, meteo, rng, 0); x = M.fineCombattimento(x, 0, sd).camp;
+  x = M.avanza(x, M.ROUND_GIORNO, meteo, rng);
+  t('Build 2b: giorno nuovo con le zone nuove e la compagnia', x.meteo.zona === '10' && meteo.tabelle['10'][x.meteo.stagione] && (x.scorte.cibo < c.scorte.cibo || M.razionamentoAperto(x)));
+  x = M.aggiungiAccompagnatore(x, { nome: 'Hassim', rif: { fonte: 'png', id: c.png[0].id } }); t('Build 2b: accompagnatore con la scheda del PNG', x.compagnia.persone[0].rif.fonte === 'png'); }
 
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

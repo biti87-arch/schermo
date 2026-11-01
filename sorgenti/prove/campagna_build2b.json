@@ -1,0 +1,865 @@
+{
+ "formato": "schermo-v1",
+ "tipo": "campagna",
+ "dati": {
+  "formato": "schermo-v1",
+  "id": "mofmzsaozkfm92jp",
+  "nome": "Campagna della Build 2b",
+  "creata": 1777200000000,
+  "modificata": 1777200005000,
+  "calendario": {
+   "tipo": "reale",
+   "mesi": [
+    {
+     "nome": "gennaio",
+     "giorni": 31
+    },
+    {
+     "nome": "febbraio",
+     "giorni": 28
+    },
+    {
+     "nome": "marzo",
+     "giorni": 31
+    },
+    {
+     "nome": "aprile",
+     "giorni": 30
+    },
+    {
+     "nome": "maggio",
+     "giorni": 31
+    },
+    {
+     "nome": "giugno",
+     "giorni": 30
+    },
+    {
+     "nome": "luglio",
+     "giorni": 31
+    },
+    {
+     "nome": "agosto",
+     "giorni": 31
+    },
+    {
+     "nome": "settembre",
+     "giorni": 30
+    },
+    {
+     "nome": "ottobre",
+     "giorni": 31
+    },
+    {
+     "nome": "novembre",
+     "giorni": 30
+    },
+    {
+     "nome": "dicembre",
+     "giorni": 31
+    }
+   ],
+   "settimana": [
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
+   ],
+   "settimana0": 5
+  },
+  "anno": {
+   "base": 1462,
+   "etichetta": "dopo la Caduta"
+  },
+  "tempo": {
+   "R": 2813400
+  },
+  "zona": "desertica",
+  "meteo": {
+   "giorno": 195,
+   "zona": "desertica",
+   "stagione": "primavera-estate",
+   "tiro": 100,
+   "testo": "Clima caldo + Tempesta di polvere/sabbia",
+   "opzioni": [
+    [
+     "Clima caldo",
+     "Tempesta di polvere/sabbia"
+    ]
+   ],
+   "scelta": 0,
+   "manuale": false
+  },
+  "scorte": {
+   "cibo": 6,
+   "acqua": 5,
+   "accompagnatori": 3
+  },
+  "razionamenti": [],
+  "pg": [
+   {
+    "id": "p1",
+    "scheda": {
+     "nome": "Aria",
+     "giocatore": "",
+     "razza": "Elfa",
+     "classe": "Ladro 7",
+     "livello": 7,
+     "fatica_max": 42,
+     "ferita_max": 40,
+     "rif_dadi": 7,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 19,
+     "ca_contatto": 14,
+     "ca_sprovvista": 15,
+     "dmc": 21,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 5,
+     "riflessi": 9,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 12,
+     "intuizione": 8,
+     "furtivita": 14,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 6,
+     "imp_pen": 3,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 42,
+     "ferita": 40,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": []
+    }
+   },
+   {
+    "id": "p2",
+    "scheda": {
+     "nome": "Bruno",
+     "giocatore": "",
+     "razza": "Orco",
+     "classe": "Barbaro 7",
+     "livello": 7,
+     "fatica_max": 48,
+     "ferita_max": 49,
+     "rif_dadi": 7,
+     "rif_tipo": 12,
+     "rif_ripete": false,
+     "ca": 17,
+     "ca_contatto": 11,
+     "ca_sprovvista": 15,
+     "dmc": 24,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 9,
+     "riflessi": 4,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 9,
+     "intuizione": 2,
+     "furtivita": 1,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 2,
+     "imp_pen": 6,
+     "velocita": "",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 48,
+     "ferita": 49,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": []
+    }
+   }
+  ],
+  "combattimento": {
+   "round": 1,
+   "ordine": [
+    "r5",
+    "r8",
+    "r7",
+    "r9",
+    "r6"
+   ],
+   "righe": {
+    "r5": {
+     "id": "r5",
+     "tipo": "pg",
+     "pgId": "p1",
+     "nome": "Aria",
+     "bonus": 6,
+     "nat": null,
+     "totale": 17,
+     "n": 1,
+     "spareggio": 9,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r8": {
+     "id": "r8",
+     "tipo": "nemico",
+     "nome": "Sciacallo 1",
+     "bonus": 3,
+     "nat": 14,
+     "totale": 17,
+     "n": 1,
+     "spareggio": 20,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": [],
+     "rif": {
+      "fonte": "mostro",
+      "id": "mmofmzsaocleraqdz"
+     },
+     "pf": [
+      {
+       "fatica": 2,
+       "ferita": 3,
+       "fatica_max": 2,
+       "ferita_max": 3
+      }
+     ],
+     "faticaFinita": false
+    },
+    "r7": {
+     "id": "r7",
+     "tipo": "nemico",
+     "nome": "Predone delle dune",
+     "bonus": 2,
+     "nat": 13,
+     "totale": 15,
+     "n": 3,
+     "spareggio": 18,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": [],
+     "rif": {
+      "fonte": "generico",
+      "id": "gmofmzsaoeuc48rsd"
+     },
+     "pf": [
+      {
+       "fatica": 9,
+       "ferita": 10,
+       "fatica_max": 9,
+       "ferita_max": 10
+      },
+      {
+       "fatica": 9,
+       "ferita": 10,
+       "fatica_max": 9,
+       "ferita_max": 10
+      },
+      {
+       "fatica": 9,
+       "ferita": 10,
+       "fatica_max": 9,
+       "ferita_max": 10
+      }
+     ],
+     "faticaFinita": false
+    },
+    "r9": {
+     "id": "r9",
+     "tipo": "nemico",
+     "nome": "Sciacallo 2",
+     "bonus": 3,
+     "nat": 8,
+     "totale": 11,
+     "n": 1,
+     "spareggio": 4,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": [],
+     "rif": {
+      "fonte": "mostro",
+      "id": "mmofmzsaocleraqdz"
+     },
+     "pf": [
+      {
+       "fatica": 2,
+       "ferita": 3,
+       "fatica_max": 2,
+       "ferita_max": 3
+      }
+     ],
+     "faticaFinita": false
+    },
+    "r6": {
+     "id": "r6",
+     "tipo": "pg",
+     "pgId": "p2",
+     "nome": "Bruno",
+     "bonus": 2,
+     "nat": null,
+     "totale": 8,
+     "n": 1,
+     "spareggio": 17,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    }
+   },
+   "turno": 1,
+   "attesa": [],
+   "avvisi": [],
+   "inizioR": 2813400,
+   "storia": [
+    "{\"formato\":\"schermo-v1\",\"id\":\"mofmzsaozkfm92jp\",\"nome\":\"Campagna della Build 2b\",\"creata\":1777200000000,\"modificata\":1777200000000,\"calendario\":{\"tipo\":\"reale\",\"mesi\":[{\"nome\":\"gennaio\",\"giorni\":31},{\"nome\":\"febbraio\",\"giorni\":28},{\"nome\":\"marzo\",\"giorni\":31},{\"nome\":\"aprile\",\"giorni\":30},{\"nome\":\"maggio\",\"giorni\":31},{\"nome\":\"giugno\",\"giorni\":30},{\"nome\":\"luglio\",\"giorni\":31},{\"nome\":\"agosto\",\"giorni\":31},{\"nome\":\"settembre\",\"giorni\":30},{\"nome\":\"ottobre\",\"giorni\":31},{\"nome\":\"novembre\",\"giorni\":30},{\"nome\":\"dicembre\",\"giorni\":31}],\"settimana\":[\"lunedì\",\"martedì\",\"mercoledì\",\"giovedì\",\"venerdì\",\"sabato\",\"domenica\"],\"settimana0\":5},\"anno\":{\"base\":1462,\"etichetta\":\"dopo la Caduta\"},\"tempo\":{\"R\":2813400},\"zona\":\"desertica\",\"meteo\":{\"giorno\":195,\"zona\":\"desertica\",\"stagione\":\"primavera-estate\",\"tiro\":100,\"testo\":\"Clima caldo + Tempesta di polvere/sabbia\",\"opzioni\":[[\"Clima caldo\",\"Tempesta di polvere/sabbia\"]],\"scelta\":0,\"manuale\":false},\"scorte\":{\"cibo\":6,\"acqua\":5,\"accompagnatori\":3},\"razionamenti\":[],\"pg\":[{\"id\":\"p1\",\"scheda\":{\"nome\":\"Aria\",\"giocatore\":\"\",\"razza\":\"Elfa\",\"classe\":\"Ladro 7\",\"livello\":7,\"fatica_max\":42,\"ferita_max\":40,\"rif_dadi\":7,\"rif_tipo\":8,\"rif_ripete\":false,\"ca\":19,\"ca_contatto\":14,\"ca_sprovvista\":15,\"dmc\":21,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":5,\"riflessi\":9,\"volonta\":3,\"ts_note\":\"\",\"percezione\":12,\"intuizione\":8,\"furtivita\":14,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":6,\"imp_pen\":3,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":42,\"ferita\":40,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[]}},{\"id\":\"p2\",\"scheda\":{\"nome\":\"Bruno\",\"giocatore\":\"\",\"razza\":\"Orco\",\"classe\":\"Barbaro 7\",\"livello\":7,\"fatica_max\":48,\"ferita_max\":49,\"rif_dadi\":7,\"rif_tipo\":12,\"rif_ripete\":false,\"ca\":17,\"ca_contatto\":11,\"ca_sprovvista\":15,\"dmc\":24,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":9,\"riflessi\":4,\"volonta\":3,\"ts_note\":\"\",\"percezione\":9,\"intuizione\":2,\"furtivita\":1,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":2,\"imp_pen\":6,\"velocita\":\"\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":48,\"ferita\":49,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[]}}],\"combattimento\":{\"round\":1,\"ordine\":[\"r5\",\"r8\",\"r7\",\"r9\",\"r6\"],\"righe\":{\"r5\":{\"id\":\"r5\",\"tipo\":\"pg\",\"pgId\":\"p1\",\"nome\":\"Aria\",\"bonus\":6,\"nat\":null,\"totale\":17,\"n\":1,\"spareggio\":9,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r8\":{\"id\":\"r8\",\"tipo\":\"nemico\",\"nome\":\"Sciacallo 1\",\"bonus\":3,\"nat\":14,\"totale\":17,\"n\":1,\"spareggio\":20,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[],\"rif\":{\"fonte\":\"mostro\",\"id\":\"mmofmzsaocleraqdz\"},\"pf\":[{\"fatica\":2,\"ferita\":3,\"fatica_max\":2,\"ferita_max\":3}],\"faticaFinita\":false},\"r7\":{\"id\":\"r7\",\"tipo\":\"nemico\",\"nome\":\"Predone delle dune\",\"bonus\":2,\"nat\":13,\"totale\":15,\"n\":3,\"spareggio\":18,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[],\"rif\":{\"fonte\":\"generico\",\"id\":\"gmofmzsaoeuc48rsd\"},\"pf\":[{\"fatica\":9,\"ferita\":10,\"fatica_max\":9,\"ferita_max\":10},{\"fatica\":9,\"ferita\":10,\"fatica_max\":9,\"ferita_max\":10},{\"fatica\":9,\"ferita\":10,\"fatica_max\":9,\"ferita_max\":10}],\"faticaFinita\":false},\"r9\":{\"id\":\"r9\",\"tipo\":\"nemico\",\"nome\":\"Sciacallo 2\",\"bonus\":3,\"nat\":8,\"totale\":11,\"n\":1,\"spareggio\":4,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[],\"rif\":{\"fonte\":\"mostro\",\"id\":\"mmofmzsaocleraqdz\"},\"pf\":[{\"fatica\":2,\"ferita\":3,\"fatica_max\":2,\"ferita_max\":3}],\"faticaFinita\":false},\"r6\":{\"id\":\"r6\",\"tipo\":\"pg\",\"pgId\":\"p2\",\"nome\":\"Bruno\",\"bonus\":2,\"nat\":null,\"totale\":8,\"n\":1,\"spareggio\":17,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]}},\"turno\":0,\"attesa\":[],\"avvisi\":[],\"inizioR\":2813400,\"storia\":[],\"timer\":null,\"incontro\":\"i3\",\"promemoria\":[{\"round\":2,\"testo\":\"Il pozzo crolla\"}]},\"coda\":[],\"log\":[{\"R\":2813400,\"testo\":\"PG aggiunto: Aria\"},{\"R\":2813400,\"testo\":\"PG aggiunto: Bruno\"},{\"R\":2813400,\"testo\":\"Campagna creata: Campagna della Build 2b, venerdì 15 luglio 1462 dopo la Caduta, 09:00\"},{\"R\":2813400,\"testo\":\"Meteo: Arsura (d% 52, Desertica, Primavera – estate)\"},{\"R\":2813400,\"testo\":\"Meteo: Clima caldo + Tempesta di polvere/sabbia (d% 100, Desertica, Primavera – estate)\"},{\"R\":2813400,\"testo\":\"Inizio del combattimento (Predoni al pozzo): Aria 17, Sciacallo 1 17, Predone delle dune ×3 15, Sciacallo 2 11, Bruno 8\"}],\"impostazioni\":{\"xp\":true,\"pf_nemici\":true,\"timer\":false,\"timer_tv\":false,\"soglia_timer\":0,\"incontri_casuali\":false,\"tv_xn\":true,\"tv_fuori\":\"barrate\",\"tv_ora\":false,\"tv_meteo\":false,\"tv_solo_combattimento\":true,\"f10\":false,\"tema\":\"scuro\"},\"contatore\":9}"
+   ],
+   "timer": null,
+   "incontro": "i3",
+   "promemoria": [
+    {
+     "round": 2,
+     "testo": "Il pozzo crolla"
+    }
+   ]
+  },
+  "coda": [],
+  "log": [
+   {
+    "R": 2813400,
+    "testo": "PG aggiunto: Aria"
+   },
+   {
+    "R": 2813400,
+    "testo": "PG aggiunto: Bruno"
+   },
+   {
+    "R": 2813400,
+    "testo": "Campagna creata: Campagna della Build 2b, venerdì 15 luglio 1462 dopo la Caduta, 09:00"
+   },
+   {
+    "R": 2813400,
+    "testo": "Meteo: Arsura (d% 52, Desertica, Primavera – estate)"
+   },
+   {
+    "R": 2813400,
+    "testo": "Meteo: Clima caldo + Tempesta di polvere/sabbia (d% 100, Desertica, Primavera – estate)"
+   },
+   {
+    "R": 2813400,
+    "testo": "Inizio del combattimento (Predoni al pozzo): Aria 17, Sciacallo 1 17, Predone delle dune ×3 15, Sciacallo 2 11, Bruno 8"
+   }
+  ],
+  "impostazioni": {
+   "xp": true,
+   "pf_nemici": true,
+   "timer": false,
+   "timer_tv": false,
+   "soglia_timer": 0,
+   "incontri_casuali": false,
+   "tv_xn": true,
+   "tv_fuori": "barrate",
+   "tv_ora": false,
+   "tv_meteo": false,
+   "tv_solo_combattimento": true,
+   "f10": false,
+   "tema": "scuro"
+  },
+  "png": [
+   {
+    "id": "pmofmzsao729t8yli",
+    "tipo_scheda": "png",
+    "alleato": true,
+    "capacita_trama": false,
+    "gs": "3",
+    "n_suggerito": 1,
+    "solo_ferita": false,
+    "car": {
+     "For": 10,
+     "Des": 10,
+     "Cos": 10,
+     "Int": 10,
+     "Sag": 10,
+     "Car": 10
+    },
+    "tattiche": [],
+    "tesoro": null,
+    "extra": [],
+    "etichette": [],
+    "preferito": false,
+    "guida": {
+     "attiva": true,
+     "classi": [
+      {
+       "classe": "",
+       "livello": 1,
+       "archetipo": "",
+       "dv": 8
+      }
+     ],
+     "razza": "",
+     "tratto_bonus": "",
+     "taglia": "media",
+     "armatura": {
+      "nome": "",
+      "base": 0,
+      "sintonia": 0,
+      "des_max": null
+     },
+     "scudo": {
+      "nome": "",
+      "base": 0,
+      "sintonia": 0
+     },
+     "naturale": 0,
+     "deviazione": 0,
+     "schivare": 0,
+     "altri_ca": 0,
+     "robustezza": false,
+     "pf_extra": 0,
+     "bab": 0,
+     "ts_base": {
+      "tempra": 0,
+      "riflessi": 0,
+      "volonta": 0
+     },
+     "ts_extra": {
+      "tempra": 0,
+      "riflessi": 0,
+      "volonta": 0
+     },
+     "ts_condizionali": "",
+     "iniziativa_extra": 0,
+     "armi": [],
+     "attacco_poderoso": false,
+     "abilita": [],
+     "talenti": [],
+     "pf_bestiario": null,
+     "gs_bestiario": ""
+    },
+    "creata": 1777200000000,
+    "modificata": 1777200000000,
+    "nome": "Hassim",
+    "epiteto": "",
+    "classi_testo": "",
+    "note_testata": "",
+    "fonte": "",
+    "razza_riga": "",
+    "allineamento": "",
+    "ini_nota": "",
+    "sensi": "",
+    "perc_nota": "",
+    "aura": "",
+    "ca_scomp": "",
+    "pf_dadi": "",
+    "pf_nota": "",
+    "ts_note": "",
+    "difese": "",
+    "velocita": "",
+    "bab": "",
+    "bmc": "",
+    "dmc": "",
+    "mischia": "",
+    "distanza": "",
+    "speciali": "",
+    "incantesimi": "",
+    "talenti": "",
+    "abilita": "",
+    "lingue": "",
+    "tratti": "",
+    "sintonia": "",
+    "equip": "",
+    "statistiche_altro": "",
+    "altro": "",
+    "livello": null,
+    "iniziativa": 3,
+    "percezione": null,
+    "ca": null,
+    "ca_contatto": null,
+    "ca_sprovvista": null,
+    "pf": null,
+    "fatica": 14,
+    "ferita": 15,
+    "tempra": null,
+    "riflessi": null,
+    "volonta": null,
+    "xp": null
+   }
+  ],
+  "incontri": [
+   {
+    "id": "i3",
+    "titolo": "Predoni al pozzo",
+    "atto": "Atto I",
+    "capitolo": "Cap. 2",
+    "luogo": "",
+    "stato": "da giocare",
+    "giocato_R": null,
+    "note": "",
+    "tesoro": "",
+    "partecipanti": [
+     {
+      "nome": "Predone delle dune",
+      "n": 3,
+      "modo": "tipo",
+      "rif": {
+       "fonte": "generico",
+       "id": "gmofmzsaoeuc48rsd"
+      }
+     },
+     {
+      "nome": "Sciacallo",
+      "n": 2,
+      "modo": "singolo",
+      "rif": {
+       "fonte": "mostro",
+       "id": "mmofmzsaocleraqdz"
+      }
+     }
+    ],
+    "promemoria": [
+     {
+      "round": 2,
+      "testo": "Il pozzo crolla"
+     }
+    ]
+   },
+   {
+    "id": "i4",
+    "titolo": "La guida tradisce",
+    "atto": "Atto I",
+    "capitolo": "Cap. 3",
+    "luogo": "",
+    "stato": "da giocare",
+    "giocato_R": null,
+    "note": "",
+    "tesoro": "",
+    "partecipanti": [
+     {
+      "nome": "Hassim",
+      "n": 1,
+      "rif": {
+       "fonte": "png",
+       "id": "pmofmzsao729t8yli"
+      }
+     }
+    ],
+    "promemoria": []
+   }
+  ],
+  "contatore": 9
+ },
+ "mostri": [
+  {
+   "id": "mmofmzsaocleraqdz",
+   "tipo_scheda": "mostro_pf1",
+   "alleato": false,
+   "capacita_trama": false,
+   "gs": "1/3",
+   "n_suggerito": 1,
+   "solo_ferita": false,
+   "car": {
+    "For": 10,
+    "Des": 10,
+    "Cos": 10,
+    "Int": 10,
+    "Sag": 10,
+    "Car": 10
+   },
+   "tattiche": {
+    "prima": "",
+    "r1": "",
+    "r23": "",
+    "fatica": "",
+    "fuga": "",
+    "tratto": "",
+    "generale": ""
+   },
+   "tesoro": null,
+   "extra": [],
+   "etichette": [],
+   "preferito": false,
+   "guida": {
+    "attiva": false,
+    "classi": [
+     {
+      "classe": "",
+      "livello": 1,
+      "archetipo": "",
+      "dv": 8
+     }
+    ],
+    "razza": "",
+    "tratto_bonus": "",
+    "taglia": "media",
+    "armatura": {
+     "nome": "",
+     "base": 0,
+     "sintonia": 0,
+     "des_max": null
+    },
+    "scudo": {
+     "nome": "",
+     "base": 0,
+     "sintonia": 0
+    },
+    "naturale": 0,
+    "deviazione": 0,
+    "schivare": 0,
+    "altri_ca": 0,
+    "robustezza": false,
+    "pf_extra": 0,
+    "bab": 0,
+    "ts_base": {
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0
+    },
+    "ts_extra": {
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0
+    },
+    "ts_condizionali": "",
+    "iniziativa_extra": 0,
+    "armi": [],
+    "attacco_poderoso": false,
+    "abilita": [],
+    "talenti": [],
+    "pf_bestiario": null,
+    "gs_bestiario": ""
+   },
+   "creata": 1777200000000,
+   "modificata": 1777200000000,
+   "nome": "Sciacallo",
+   "epiteto": "",
+   "classi_testo": "",
+   "note_testata": "",
+   "fonte": "",
+   "razza_riga": "",
+   "allineamento": "",
+   "ini_nota": "",
+   "sensi": "",
+   "perc_nota": "",
+   "aura": "",
+   "ca_scomp": "",
+   "pf_dadi": "",
+   "pf_nota": "",
+   "ts_note": "",
+   "difese": "",
+   "velocita": "",
+   "bab": "",
+   "bmc": "",
+   "dmc": "",
+   "mischia": "",
+   "distanza": "",
+   "speciali": "",
+   "incantesimi": "",
+   "talenti": "",
+   "abilita": "",
+   "lingue": "",
+   "tratti": "",
+   "sintonia": "",
+   "equip": "",
+   "statistiche_altro": "",
+   "altro": "",
+   "livello": null,
+   "iniziativa": 3,
+   "percezione": null,
+   "ca": null,
+   "ca_contatto": null,
+   "ca_sprovvista": null,
+   "pf": null,
+   "fatica": 2,
+   "ferita": 3,
+   "tempra": null,
+   "riflessi": null,
+   "volonta": null,
+   "xp": 135
+  }
+ ],
+ "generici": [
+  {
+   "id": "gmofmzsaoeuc48rsd",
+   "tipo_scheda": "png",
+   "alleato": false,
+   "capacita_trama": false,
+   "gs": "2",
+   "n_suggerito": 1,
+   "solo_ferita": false,
+   "car": {
+    "For": 10,
+    "Des": 10,
+    "Cos": 10,
+    "Int": 10,
+    "Sag": 10,
+    "Car": 10
+   },
+   "tattiche": {
+    "prima": "",
+    "r1": "",
+    "r23": "",
+    "fatica": "",
+    "fuga": "",
+    "tratto": "",
+    "generale": ""
+   },
+   "tesoro": null,
+   "extra": [],
+   "etichette": [],
+   "preferito": false,
+   "guida": {
+    "attiva": true,
+    "classi": [
+     {
+      "classe": "",
+      "livello": 1,
+      "archetipo": "",
+      "dv": 8
+     }
+    ],
+    "razza": "",
+    "tratto_bonus": "",
+    "taglia": "media",
+    "armatura": {
+     "nome": "",
+     "base": 0,
+     "sintonia": 0,
+     "des_max": null
+    },
+    "scudo": {
+     "nome": "",
+     "base": 0,
+     "sintonia": 0
+    },
+    "naturale": 0,
+    "deviazione": 0,
+    "schivare": 0,
+    "altri_ca": 0,
+    "robustezza": false,
+    "pf_extra": 0,
+    "bab": 0,
+    "ts_base": {
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0
+    },
+    "ts_extra": {
+     "tempra": 0,
+     "riflessi": 0,
+     "volonta": 0
+    },
+    "ts_condizionali": "",
+    "iniziativa_extra": 0,
+    "armi": [],
+    "attacco_poderoso": false,
+    "abilita": [],
+    "talenti": [],
+    "pf_bestiario": null,
+    "gs_bestiario": ""
+   },
+   "creata": 1777200000000,
+   "modificata": 1777200000000,
+   "nome": "Predone delle dune",
+   "epiteto": "",
+   "classi_testo": "",
+   "note_testata": "",
+   "fonte": "",
+   "razza_riga": "",
+   "allineamento": "",
+   "ini_nota": "",
+   "sensi": "",
+   "perc_nota": "",
+   "aura": "",
+   "ca_scomp": "",
+   "pf_dadi": "",
+   "pf_nota": "",
+   "ts_note": "",
+   "difese": "",
+   "velocita": "",
+   "bab": "",
+   "bmc": "",
+   "dmc": "",
+   "mischia": "",
+   "distanza": "",
+   "speciali": "",
+   "incantesimi": "",
+   "talenti": "",
+   "abilita": "",
+   "lingue": "",
+   "tratti": "",
+   "sintonia": "",
+   "equip": "",
+   "statistiche_altro": "",
+   "altro": "",
+   "livello": null,
+   "iniziativa": 2,
+   "percezione": null,
+   "ca": null,
+   "ca_contatto": null,
+   "ca_sprovvista": null,
+   "pf": null,
+   "fatica": 9,
+   "ferita": 10,
+   "tempra": null,
+   "riflessi": null,
+   "volonta": null,
+   "xp": 600
+  }
+ ]
+}

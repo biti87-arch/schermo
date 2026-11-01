@@ -144,6 +144,14 @@ label.spunta{display:flex;gap:6px;align-items:center;cursor:pointer}
 .effetto b{color:var(--oro);font-weight:600}
 .scorta{display:grid;grid-template-columns:4.5em 1fr auto;gap:6px;align-items:center}
 .scorta .q{font-family:var(--f-num);font-size:1.3rem;color:var(--oro)}
+.membro{border-top:1px solid var(--riga);padding:5px 0}
+.membro .fila{gap:6px}
+.tabmeteo{overflow-x:auto;margin:4px 0}
+.tabmeteo table{border-collapse:collapse;font-size:.82rem;width:100%}
+.tabmeteo th{background:var(--oro-scuro);color:#fff;text-align:left;padding:3px 6px}
+.tabmeteo td{border-bottom:1px solid var(--riga);padding:3px 6px;vertical-align:top}
+.foragg{flex-wrap:wrap}
+.foragg select{width:auto;max-width:100%}
 .log{list-style:none;margin:0;padding:0;font-size:.85rem;max-height:60vh;overflow:auto}
 .log li{padding:4px 0;border-top:1px solid var(--riga);display:grid;grid-template-columns:7.5em 1fr;gap:8px}
 .log li .q{font-family:var(--f-num);color:var(--tenue);font-size:.76rem}
@@ -354,7 +362,7 @@ function disegnaTesta() {
       <div class="marchio"><b>${esc(c.nome)}</b></div>
       <div class="orologio"><span class="data">${esc(giorno)} ${esc(data)}</span>
         <span class="ora">${String(t.ore).padStart(2, '0')}:${String(t.min).padStart(2, '0')}<small>${comb ? `round ${comb.round}` : ''}</small></span></div>
-      <button class="meteo-chip" data-az="vediMeteo" title="Meteo del giorno">${m ? `<span>${esc(m.voci.join(' + '))}</span>` : '<span>—</span>'}<span class="z">${esc(M.nomeZona(MET, c.zona))}</span></button>
+      <button class="meteo-chip" data-az="vediMeteo" title="Tempo in vigore adesso (il giorno intero nel pannello Meteo)">${m ? `<span>${esc(m.ora.join(' + '))}</span>` : '<span>—</span>'}${m && m.mare ? `<span class="z">mare ${esc(m.mare.stato.toLowerCase())}</span>` : ''}<span class="z">${esc(M.nomeZona(MET, c.zona))}</span></button>
       <span class="spazio"></span>
       <div class="tasti-tempo" aria-label="Avanza il tempo">
         <button class="btn min" data-az="tempo" data-r="1">+1 round</button><button class="btn min" data-az="tempo" data-r="10">+1 min</button>
@@ -369,7 +377,7 @@ function disegnaTavolo() {
   const c = S.camp;
   const agente = c.combattimento && M.attuale(c.combattimento);
   const pg = c.pg.map(p => disegnaPG(p, agente && agente.pgId === p.id)).join('');
-  return `<div class="col-testa"><h2>Tavolo</h2><span class="tenue piccolo">${c.pg.length} PG · ${c.scorte.accompagnatori} accompagnatori</span><span class="spazio"></span>
+  return `<div class="col-testa"><h2>Tavolo</h2><span class="tenue piccolo">${c.pg.length} PG · ${M.numeroAccompagnatori(c)} accompagnatori</span><span class="spazio"></span>
       <button class="btn min" data-az="nuovoPG">+ PG</button></div>
     ${pg || '<div class="vuoto">Nessun PG. Aggiungi i personaggi con «+ PG».</div>'}`;
 }
@@ -463,7 +471,7 @@ function disegnaAvvio() {
       <input type="number" inputmode="numeric" data-bind="pg.${p.id}.valore" value="${esc(x.valore)}" placeholder="${av.usaD20 ? 'd20' : 'totale'}" aria-label="${av.usaD20 ? 'd20' : 'Totale'} di ${esc(p.scheda.nome)}">
       <label class="spunta piccolo" title="Impreparato: −${p.scheda.imp_pen}"><input type="checkbox" data-bind="pg.${p.id}.imp" ${x.imp ? 'checked' : ''}> impr.</label></div>`; }).join('');
   const nem = av.nemici.map((x, i) => `<div class="nemico">
-      <input type="text" data-bind="nemici.${i}.nome" value="${esc(x.nome)}" placeholder="Nome (es. Lupo)" aria-label="Nome"${x.rif ? ` title="Con la scheda: ${esc((schedaDi(x.rif) || { nome: 'non trovata' }).nome)}" style="border-color:var(--oro-scuro)"` : ''}>
+      <input type="text" data-bind="nemici.${i}.nome" value="${esc(x.nome)}" placeholder="Nome (es. Lupo)" aria-label="Nome"${x.rif ? ` title="Con la scheda: ${esc((schedaDi(x.rif) || { nome: 'non trovata' }).nome)}${x.alleato ? ' · alleato (niente XP)' : ''}" style="border-color:var(${x.alleato ? '--verde' : '--oro-scuro'})"` : ''}>
       <input type="number" data-bind="nemici.${i}.bonus" value="${esc(x.bonus)}" aria-label="Bonus di iniziativa" title="Bonus di iniziativa">
       <input type="number" min="1" data-bind="nemici.${i}.n" value="${esc(x.n)}" aria-label="Quantità" title="Quantità">
       <select data-bind="nemici.${i}.modo" aria-label="Tiro"><option value="tipo" ${x.modo === 'tipo' ? 'selected' : ''}>per tipo</option><option value="singolo" ${x.modo === 'singolo' ? 'selected' : ''}>per singolo</option></select>
@@ -489,23 +497,66 @@ function disegnaTerza() {
   return `<div class="schede" role="tablist">${tab('viaggio', 'Viaggio')}${tab('bestiario', 'Bestiario')}${tab('incontri', 'Incontri')}${tab('log', 'Log')}${S.ui.vista ? tab('vista', 'Scheda') : ''}</div>
     ${sch === 'log' ? disegnaLog() : sch === 'bestiario' ? disegnaBestiario() : sch === 'incontri' ? disegnaIncontri() : sch === 'vista' ? disegnaVista() : disegnaViaggio()}`;
 }
+function selectZona(id, attr, scelta) {
+  return `<select ${id ? `id="${id}"` : ''} ${attr}>${MET.gruppi.map(g => `<optgroup label="${g}">${MET.zone.filter(z => z.gruppo === g).map(z => `<option value="${z.id}" ${z.id === scelta ? 'selected' : ''}>${z.n}. ${esc(z.nome)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+}
+const chipFS = st => ['sete', 'fame'].map(k => st && st[k] && st[k].penalita ? `<span class="chip sv">${k === 'sete' ? 'Sete' : 'Fame'} ${st[k].penalita}</span>${st[k].giorni_senza ? ` <span class="tenue piccolo">${st[k].giorni_senza} ${st[k].giorni_senza === 1 ? 'giorno' : 'giorni'} senza</span>` : ''}` : '').join(' ').trim();
+function regoleHtml(parti) {
+  return parti.map(p => p.testo ? `<p class="piccolo">${coloraTutte(esc(p.testo))}</p>` : p.elenco ? `<ul class="voci piccolo">${p.elenco.map(x => `<li>${coloraTutte(esc(x))}</li>`).join('')}</ul>`
+    : `<div class="tabmeteo"><table>${p.tabella.map((r, i) => `<tr>${r.map(x => i ? `<td>${esc(x)}</td>` : `<th>${esc(x)}</th>`).join('')}</tr>`).join('')}</table></div>`).join('');
+}
 function disegnaViaggio() {
-  const c = S.camp, m = M.meteoCorrente(c, MET), sc = c.scorte, k = M.consumoGiornaliero(c);
-  const staz = M.stagione(c, MET, c.tempo.R);
+  const c = S.camp, m = M.meteoCorrente(c, MET), z = M.zonaDi(MET, c.zona), staz = M.stagione(c, MET, c.tempo.R);
   const opz = m && m.opzioni.length > 1 ? `<div class="fila">${m.opzioni.map((o, i) => `<button class="btn min ${i === m.scelta ? 'oro' : ''}" data-az="opzMeteo" data-i="${i}">${esc(o.join(' + '))}</button>`).join('')}</div>` : '';
-  const bast = chi => { const b = M.bastanoPer(c, chi); return b === Infinity ? '—' : `bastano per ${b} ${b === 1 ? 'giorno' : 'giorni'}`; };
-  const stato = (nome, x) => x && x.penalita ? `<span class="chip sv">${nome} ${x.penalita}</span>${x.giorni_senza ? ` <span class="tenue piccolo">${x.giorni_senza} ${x.giorni_senza === 1 ? 'giorno' : 'giorni'} senza</span>` : ''}` : '';
-  const perPG = c.pg.map(p => { const x = stato('Sete', p.stato.sete) + ' ' + stato('Fame', p.stato.fame); return x.trim() ? `<div class="fila"><span class="piccolo">${esc(p.scheda.nome)}</span> ${x}</div>` : ''; }).join('');
-  const z = M.razionamentoAperto(c);
-  return `<div class="pannello"><div class="fila"><h3>Meteo</h3><span class="tenue piccolo">${esc(M.nomeStagione(MET, c.zona, staz))}${m && m.tiro ? ` · d% ${m.tiro}` : m && m.manuale ? ' · a mano' : ''}</span></div>
-      ${m ? `<div class="risultato" style="font-size:1.15rem">${esc(m.testo)}</div>${opz}${m.effetti.map(e => `<div class="effetto"><b>${esc(e.nome)}</b> ${coloraCondizioni(esc(e.testo))}</div>`).join('')}` : '<span class="tenue">Nessun meteo.</span>'}
-      <div class="fila"><label class="campo" style="flex:1"><span>Zona climatica</span><select id="zona" data-az-cambio="zona">${MET.zone.map(z => `<option value="${z.id}" ${z.id === c.zona ? 'selected' : ''}>${z.nome}</option>`).join('')}</select></label>
-        <button class="btn" data-az="ritira">Ritira</button><button class="btn" data-az="impostaMeteo">Imposta</button></div></div>
-    <div class="pannello"><div class="fila"><h3>Scorte</h3><span class="tenue piccolo">consumo ${k} al giorno (${c.pg.length} PG + ${sc.accompagnatori} accompagnatori)</span></div>
-      ${['cibo', 'acqua'].map(chi => `<div class="scorta"><span class="q">${sc[chi]}</span><span>${chi === 'cibo' ? 'Cibo' : 'Acqua'} <span class="tenue piccolo">razioni · ${bast(chi)}</span></span>
-        <span class="fila"><button class="btn min" data-az="scorta" data-chi="${chi}" data-d="-1">−1</button><button class="btn min" data-az="scorta" data-chi="${chi}" data-d="1">+1</button><button class="btn min" data-az="scortaN" data-chi="${chi}">±…</button></span></div>`).join('')}
-      ${z ? `<div class="fila"><span class="chip sv">${z.scorta === 'acqua' ? 'Acqua' : 'Cibo'} da razionare</span><button class="btn min prim" data-az="razionamento" data-id="${z.id}">Scegli chi</button></div>` : ''}${perPG}
-      <div class="fila"><span class="spazio piccolo tenue">Accompagnatori</span><button class="btn min" data-az="accomp" data-d="-1">−</button><span class="num">${sc.accompagnatori}</span><button class="btn min" data-az="accomp" data-d="1">+</button></div></div>`;
+  const sott = m && m.sotterraneo;
+  const varianti = (z.varianti || []).map(v => `<label class="spunta piccolo"><input type="checkbox" data-az-cambio="variante" data-v="${v.id}" ${(c.varianti || {})[v.id] ? 'checked' : ''}> ${esc(v.nome)}</label>`).join('');
+  const prev = c.previsioni && c.previsioni.zona === c.zona && c.previsioni.giorni.length ? `<div class="piccolo"><b>Previsioni</b> ${c.previsioni.giorni.map(x => `<span class="chip">${esc(M.formatoData(c, x.giorno * M.ROUND_GIORNO, false))}: ${esc(x.testo)}</span>`).join(' ')}</div>` : '';
+  const oraDiversa = m && m.ora.join(' + ') !== m.voci.join(' + ');
+  const meteo = `<div class="pannello" id="p-meteo"><div class="fila"><h3>Meteo</h3><span class="tenue piccolo">${esc(M.nomeStagione(MET, c.zona, staz))}${m && m.tiro ? ` · d% ${m.tiro}` : m && m.manuale ? ' · a mano' : ''}${sott && sott.tiro ? ` · d% ${sott.tiro}` : ''}</span></div>
+      ${m ? `<div class="risultato" style="font-size:1.15rem">${esc(m.voci.join(' + '))}</div>${opz}
+        ${m.durate ? `<div class="fila piccolo"><span class="chip promem">${esc(m.durate)}</span>${m.durata ? '<button class="btn min" data-az="inizioDurata">Inizio…</button>' : ''}</div>` : ''}
+        ${oraDiversa ? `<div class="piccolo">Ora (${esc(M.formatoData(c).split(', ')[1])}): <b>${esc(m.ora.join(' + '))}</b></div>` : ''}
+        ${m.mare ? `<div class="piccolo"><span class="chip ${m.mare.stato === 'Calmo' ? 'ok' : 'sv'}">Mare ${m.mare.stato.toLowerCase()}</span> Nuotare CD ${m.mare.nuotare}</div>` : ''}
+        ${m.effetti.map(e => `<div class="effetto"><b>${esc(e.nome)}</b> ${coloraTutte(esc(e.testo)).replace(/\n/g, '<br>')}</div>`).join('')}` : '<span class="tenue">Nessun meteo.</span>'}
+      <div class="fila"><label class="campo" style="flex:1"><span>Zona climatica</span>${selectZona('zona', 'data-az-cambio="zona"', c.zona)}</label></div>
+      ${varianti ? `<div class="fila">${varianti}</div>` : ''}
+      <div class="fila"><button class="btn" data-az="ritira">${c.zona === MET.sotterraneo.zona ? 'Ritira la condizione' : 'Ritira'}</button><button class="btn" data-az="impostaMeteo">Imposta</button>
+        ${c.zona === MET.sotterraneo.zona ? '<button class="btn" data-az="nuoveGallerie">Nuova zona di gallerie</button>' : '<button class="btn" data-az="predire">Predire il tempo…</button>'}</div>
+      ${prev}
+      <details class="cartella"><summary>${esc(z.n + '. ' + z.nome)}: particolarità</summary><p class="piccolo tenue">${esc(z.descrizione)}</p>${z.particolarita.length ? `<ul class="voci piccolo">${z.particolarita.map(x => `<li>${coloraTutte(esc(x))}</li>`).join('')}</ul>` : ''}</details>
+      <details class="cartella"><summary>Fiamme</summary><p class="piccolo tenue">${esc(MET.fiamme.frase)}</p>${regoleHtml([{ tabella: [['Fonte', 'Si spegne con'], ...MET.fiamme.righe.map(r => [r.fonte, r.spegne])] }])}</details>
+      <details class="cartella"><summary>Regole generali</summary>${MET.regole.map(s => `<h4 class="sotto">${esc(s.titolo)}</h4>${regoleHtml(s.parti)}`).join('')}</details>
+      ${z.mare ? `<details class="cartella"><summary>Navigazione</summary>${regoleHtml(MET.navigazione)}</details>` : ''}</div>`;
+  return meteo + disegnaCompagnia() + (c.impostazioni.scorte !== false ? disegnaScorte() : '<div class="pannello"><span class="tenue piccolo">Scorte spente (⚙ Impostazioni): niente consumo né Fame e Sete automatiche.</span></div>');
+}
+function disegnaCompagnia() {
+  const c = S.camp, k = c.compagnia, sc = c.impostazioni.scorte !== false;
+  const az = (ch, x) => `${x.rif && schedaDi(x.rif) ? `<button class="btn min" data-az="vediSchedaComp" data-k="${ch}">Scheda</button><button class="btn min" data-az="combComp" data-k="${ch}" title="Al combattimento come alleato (niente XP)">+ Combattimento</button>` : ''}<button class="btn min" data-az="modComp" data-k="${ch}">Modifica</button><button class="btn min" data-az="togliComp" data-k="${ch}" aria-label="Togli ${esc(x.nome)}">✕</button>`;
+  const pers = k.persone.map(a => `<div class="membro"><div class="fila"><b>${esc(a.nome)}</b>${a.ruolo ? `<span class="tenue piccolo">${esc(a.ruolo)}</span>` : ''}${a.rif && !schedaDi(a.rif) ? '<span class="chip ver">scheda non trovata</span>' : ''} ${chipFS(a.stato)}<span class="spazio"></span>${az('acc:' + a.id, a)}</div></div>`).join('');
+  const ani = k.animali.map(a => `<div class="membro"><div class="fila"><b>${esc(a.nome)}</b><span class="tenue piccolo">${M.TIPI_ANIMALE[a.tipo]}${a.padrone && M.nomePadrone(c, a.padrone) ? ` di ${esc(M.nomePadrone(c, a.padrone))}` : ''}</span>
+      ${sc ? `<span class="piccolo num">${a.trova_cibo ? 'trova da sé il cibo' : `${a.cibo} ${a.mangia}`} · ${a.trova_acqua ? 'trova da sé l\'acqua' : `${a.acqua} acqua`}</span>` : ''} ${chipFS(a.stato)}<span class="spazio"></span>${az('ani:' + a.id, a)}</div></div>`).join('');
+  return `<div class="pannello" id="p-compagnia"><div class="fila"><h3>Compagnia</h3><span class="tenue piccolo">${M.numeroAccompagnatori(c)} accompagnatori · ${k.animali.length} animali</span><span class="spazio"></span>
+      <button class="btn min" data-az="nuovoAcc">+ Accompagnatore</button><button class="btn min" data-az="nuovoAni">+ Animale</button></div>
+    ${pers}<div class="fila"><span class="spazio piccolo tenue">Accompagnatori senza nome</span><button class="btn min" data-az="accomp" data-d="-1" aria-label="Uno in meno">−</button><span class="num" id="n-senza">${k.senza_nome}</span><button class="btn min" data-az="accomp" data-d="1" aria-label="Uno in più">+</button></div>
+    ${ani}</div>`;
+}
+function disegnaScorte() {
+  const c = S.camp, sc = c.scorte, kA = M.moltiplicatoreAcqua(c, MET), z = M.razionamentoAperto(c), zona = M.zonaDi(MET, c.zona);
+  const bast = (chi, k) => { const b = M.bastanoPer(c, chi, k); return b === Infinity ? '—' : `bastano per ${b} ${b === 1 ? 'giorno' : 'giorni'}`; };
+  const fab = { cibo: M.fabbisogno(c, 'cibo'), acqua: M.fabbisogno(c, 'acqua', kA), foraggio: M.fabbisogno(c, 'foraggio') };
+  const riga = (chi, nome, nota) => `<div class="scorta"><span class="q">${sc[chi] || 0}</span><span>${nome} <span class="tenue piccolo">${nota}</span></span>
+      <span class="fila"><button class="btn min" data-az="scorta" data-chi="${chi}" data-d="-1">−1</button><button class="btn min" data-az="scorta" data-chi="${chi}" data-d="1">+1</button><button class="btn min" data-az="scortaN" data-chi="${chi}">±…</button></span></div>`;
+  const perPG = c.pg.map(p => { const x = chipFS(p.stato); return x ? `<div class="fila"><span class="piccolo">${esc(p.scheda.nome)}</span> ${x}</div>` : ''; }).join('');
+  const neve = M.motivoNeve(c, MET), fi = M.infoForaggiare(c, MET);
+  return `<div class="pannello" id="p-scorte"><div class="fila"><h3>Scorte</h3><span class="tenue piccolo">al giorno: cibo ${fab.cibo}, acqua ${fab.acqua}${kA > 1 ? ` (×${kA} oggi)` : ''}${fab.foraggio ? `, foraggio ${fab.foraggio}` : ''}</span></div>
+      ${riga('cibo', 'Cibo', `razioni · ${bast('cibo')}`)}${riga('acqua', 'Acqua', `razioni da 4 litri · ${bast('acqua', kA)}`)}
+      ${c.compagnia.animali.length || sc.foraggio ? riga('foraggio', 'Foraggio', `animali · ${bast('foraggio')}`) : ''}
+      ${sc.cibo_avariato ? riga('cibo_avariato', 'Cibo avariato', 'si usa solo se le buone non bastano') : ''}${sc.acqua_impura ? riga('acqua_impura', 'Acqua da purificare', 'si usa solo se le buone non bastano') : ''}
+      <label class="spunta piccolo"><input type="checkbox" data-az-cambio="recipienti" ${sc.recipienti !== false ? 'checked' : ''}> Recipienti per la pioggia (con Pioggia battente, Acquazzone, Monsone o Temporale l'acqua del giorno non scende)</label>
+      <div class="fila"><button class="btn prim" data-az="foraggiare" ${fi.impossibile ? `disabled title="${esc(fi.impossibile)}"` : ''}>Foraggiare…</button>${fi.impossibile ? `<span class="tenue piccolo">impossibile: ${esc(fi.impossibile)}</span>` : `<span class="tenue piccolo">CD ${fi.cd}</span>`}
+        ${neve ? `<button class="btn" data-az="sciogliNeve" title="${esc(neve)}">Sciogli neve…</button>` : ''}
+        ${sc.acqua_impura && zona.foraggiare.acqua.purificare === 'bollire' ? '<button class="btn" data-az="bolli">Bolli…</button>' : ''}${sc.acqua_impura ? '<button class="btn" data-az="purifica">Purifica…</button>' : ''}</div>
+      ${z ? `<div class="fila"><span class="chip sv">${{ acqua: 'Acqua', cibo: 'Cibo', foraggio: 'Foraggio' }[z.scorta]} da razionare</span><button class="btn min prim" data-az="razionamento" data-id="${z.id}">Scegli chi</button></div>` : ''}${perPG}</div>`;
 }
 function coloraCondizioni(html) {
   return html.replace(/\b(affaticat[oaie]|esaust[oaie]|prive? di sensi|privo di sensi|prona|prono)\b/gi, m => `<span class="cond-t">${m}</span>`);
@@ -579,23 +630,66 @@ const AZ = {
   base(el) { avviso(el.dataset.b); },
   razionamento(el) { finestraRazionamento(el.dataset.id); },
   impostazioni() { finestraImpostazioni(); },
-  vediMeteo() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#zona'); if (z) z.scrollIntoView({ block: 'center' }); },
+  vediMeteo() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#p-meteo'); if (z) z.scrollIntoView({ block: 'start' }); },
   scheda(el) { S.ui.scheda = el.dataset.s; disegna(); },
   ritira() { applica(M.tiraMeteo(S.camp, MET, rng)); },
   impostaMeteo() {
-    const c = S.camp, staz = M.stagione(c, MET, c.tempo.R), righe = MET.tabelle[c.zona][staz];
-    apri({ titolo: 'Imposta il meteo', corpo: `<label class="campo"><span>${esc(M.nomeZona(MET, c.zona))} · ${esc(M.nomeStagione(MET, c.zona, staz))}</span>
-        <select name="r">${righe.map(r => `<option>${esc(r.testo)}</option>`).join('')}</select></label>`,
-      azioni: [{ testo: 'Annulla' }, { testo: 'Imposta', classe: 'prim', fn: f => applica(M.impostaMeteo(S.camp, MET, val(f, 'r').value)) }] });
+    const c = S.camp, staz = M.stagione(c, MET, c.tempo.R), sott = c.zona === MET.sotterraneo.zona;
+    const righe = sott ? MET.sotterraneo.righe.map(r => ({ testo: r.nome })) : MET.tabelle[c.zona][staz];
+    apri({ titolo: sott ? 'Condizione del sotterraneo' : 'Imposta il meteo', corpo: `<label class="campo"><span>${esc(M.nomeZona(MET, c.zona))} · ${esc(M.nomeStagione(MET, c.zona, staz))}</span>
+        <select name="r">${righe.map(r => `<option>${esc(r.testo)}</option>`).join('')}</select></label>${sott ? '' : '<p class="tenue piccolo">Tempeste e piogge forti: l\'app tira la durata (2d4 ore dall\'alba); la Nebbia si dirada 1d4 ore dopo l\'alba.</p>'}`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Imposta', classe: 'prim', fn: f => applica(M.impostaMeteo(S.camp, MET, val(f, 'r').value, rng)) }] });
   },
   opzMeteo(el) { applica(M.scegliOpzioneMeteo(S.camp, +el.dataset.i)); },
   scorta(el) { applica(M.modificaScorta(S.camp, el.dataset.chi, +el.dataset.d)); },
   scortaN(el) {
     const chi = el.dataset.chi;
-    apri({ titolo: `Scorta di ${chi}`, corpo: `<p class="piccolo tenue">Rifornimenti, caccia (+) o perdite (−), in razioni giornaliere.</p><label class="campo"><span>Razioni (+/−)</span><input type="number" name="n" value="0"></label>`,
+    apri({ titolo: `Scorta: ${M.NOMI_SCORTA[chi]}`, corpo: `<p class="piccolo tenue">Rifornimenti, caccia (+) o perdite (−), in razioni giornaliere.</p><label class="campo"><span>Razioni (+/−)</span><input type="number" name="n" value="0"></label>`,
       azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => applica(M.modificaScorta(S.camp, chi, intero(f, 'n'))) }] });
   },
-  accomp(el) { applica(M.impostaAccompagnatori(S.camp, Math.max(0, S.camp.scorte.accompagnatori + +el.dataset.d))); },
+  accomp(el) { applica(M.impostaAccompagnatori(S.camp, Math.max(0, S.camp.compagnia.senza_nome + +el.dataset.d))); },
+  // ---- meteo (AA1)
+  inizioDurata() { const d = S.camp.meteo.durata;
+    apri({ titolo: `Inizio: ${esc(d.voci.join(' + '))}`, corpo: `<p class="piccolo tenue">Dura ${d.ore} ore (2d4); per difetto comincia all'alba (06:00). Finita la durata vale il clima base della stagione.</p>
+        <label class="campo"><span>Comincia alle</span><select name="h">${Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${h === M.scomponi(S.camp, d.da).ore ? 'selected' : ''}>${String(h).padStart(2, '0')}:00</option>`).join('')}</select></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Imposta', classe: 'prim', fn: f => applica(M.impostaInizioDurata(S.camp, +val(f, 'h').value)) }] }); },
+  predire() {
+    apri({ titolo: 'Predire il tempo', corpo: `<p class="piccolo tenue">${esc(MET.predire.frase)}</p><label class="campo"><span>Totale della prova di Sopravvivenza</span><input type="number" name="t" inputmode="numeric"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Prevedi', classe: 'prim', fn: f => { const c = M.prediciTempo(S.camp, MET, rng, intero(f, 't')); applica(c);
+        avviso(c.previsioni && c.previsioni.giorni.length ? `Previsti ${c.previsioni.giorni.length} giorni` : 'Prova fallita: nessuna previsione'); } }] }); },
+  nuoveGallerie() { applica(M.nuovaZonaGallerie(S.camp, MET, rng)); },
+  // ---- compagnia (AA3)
+  nuovoAcc() { finestraAccompagnatore(null); },
+  nuovoAni() { finestraAnimale(null); },
+  modComp(el) { const k = el.dataset.k; if (k.startsWith('acc:')) finestraAccompagnatore(k.slice(4)); else finestraAnimale(k.slice(4)); },
+  togliComp(el) { const k = el.dataset.k, acc = k.startsWith('acc:'), x = (acc ? S.camp.compagnia.persone : S.camp.compagnia.animali).find(a => a.id === k.slice(4));
+    apri({ titolo: `Togli ${esc(x.nome)}`, corpo: `<label class="campo"><span>Motivo (facoltativo, va nel log)</span><input type="text" name="m" placeholder="es. congedato, morto"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Togli', classe: 'peric', fn: f => applica(acc ? M.togliAccompagnatore(S.camp, x.id, testo(f, 'm')) : M.togliAnimale(S.camp, x.id, testo(f, 'm'))) }] }); },
+  vediSchedaComp(el) { const k = el.dataset.k, x = (k.startsWith('acc:') ? S.camp.compagnia.persone : S.camp.compagnia.animali).find(a => a.id === k.slice(4));
+    S.ui.vista = { rif: x.rif }; S.ui.scheda = 'vista'; disegna(); },
+  combComp(el) {
+    const p = M.partecipanteCompagnia(S.camp, el.dataset.k, schedaDi, M.pfDaScheda);
+    if (S.camp.combattimento) { applica(M.comando(S.camp, 'rinforzi', { partecipanti: [p] }, MET, rng, Date.now())); avviso(`${p.nome} entra nel combattimento come alleato`); return; }
+    const c = S.camp; if (!S.ui.avvio || S.ui.avvio.campagna !== c.id) { S.ui.avvio = nuovoAvvio(); S.ui.avvio.campagna = c.id; }
+    const av = S.ui.avvio, x = { nome: p.nome, bonus: p.bonus, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '', rif: p.rif, alleato: true };
+    if (av.nemici.length === 1 && !String(av.nemici[0].nome).trim()) av.nemici[0] = x; else av.nemici.push(x);
+    disegna(); avviso(`${p.nome} aggiunto all'avvio del combattimento come alleato`);
+  },
+  // ---- scorte (AA2)
+  foraggiare() { finestraForaggiare(); },
+  sciogliNeve() {
+    apri({ titolo: 'Sciogli neve', corpo: `<p class="piccolo tenue">${esc(M.motivoNeve(S.camp, MET))}. Al fuoco: 1 razione d'acqua all'ora; l'orologio avanza. Nelle zone senza legna il combustibile va portato.</p>
+        <label class="campo"><span>Razioni da sciogliere</span><input type="number" name="n" min="1" max="24" value="${Math.max(1, M.fabbisogno(S.camp, 'acqua', M.moltiplicatoreAcqua(S.camp, MET)))}"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Sciogli', classe: 'prim', fn: f => applica(M.sciogliNeve(S.camp, MET, rng, intero(f, 'n'))) }] }); },
+  bolli() {
+    apri({ titolo: 'Bollire l\'acqua', corpo: `<p class="piccolo tenue">10 minuti al fuoco per razione: rende potabile l'acqua delle paludi. L'orologio avanza.</p>
+        <label class="campo"><span>Razioni (da purificare: ${S.camp.scorte.acqua_impura})</span><input type="number" name="n" min="1" max="${S.camp.scorte.acqua_impura}" value="${S.camp.scorte.acqua_impura}"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Bolli', classe: 'prim', fn: f => applica(M.bolliAcqua(S.camp, MET, rng, intero(f, 'n'))) }] }); },
+  purifica() {
+    apri({ titolo: 'Purificare l\'acqua', corpo: `<p class="piccolo tenue">Da purificare: ${S.camp.scorte.acqua_impura} razioni. La Tavoletta purificante (Vol. 3) purifica 12 litri, cioè 3 razioni.</p>
+        <label class="campo"><span>Con</span><select name="c"><option value="tavoletta">Tavolette purificanti</option><option value="incantesimo">Purificare cibo e bevande</option></select></label>
+        <label class="campo"><span>Quante (tavolette o razioni)</span><input type="number" name="n" min="1" value="1"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Purifica', classe: 'prim', fn: f => applica(M.purificaAcqua(S.camp, MET, val(f, 'c').value, intero(f, 'n'))) }] }); },
   esportaLog() {
     const c = S.camp;
     finestraEsporta(`${c.nome} - log.txt`, c.log.map(e => `[${M.formatoData(c, e.R)}] ${e.testo}`).join('\n'), 'text/plain');
@@ -656,7 +750,7 @@ const AZ = {
       const v = String(x.valore).trim(); if (v === '') throw new Error(`Manca ${av.usaD20 ? 'il d20' : 'il totale'} di ${p.scheda.nome}`);
       part.push({ tipo: 'pg', pgId: p.id, impreparato: x.imp, ...(av.usaD20 ? { d20: +v } : { totale: +v }) }); }
     for (const x of av.nemici) if (String(x.nome).trim()) part.push({ tipo: 'nemico', nome: x.nome.trim(), bonus: +x.bonus || 0, n: Math.max(1, +x.n || 1), modo: x.modo, impreparato: x.imp, nascosto: x.nascosto, nomeTv: x.nomeTv,
-      rif: x.rif || null, pf: x.rif ? M.pfDaScheda(schedaDi(x.rif)) : null });
+      rif: x.rif || null, pf: x.rif ? M.pfDaScheda(schedaDi(x.rif)) : null, alleato: !!x.alleato });
     applica(M.avviaCombattimento(c, part, rng, Date.now(), av.incontro ? { incontro: av.incontro, promemoria: av.promemoria, titolo: av.titolo } : {})); S.ui.sel = null; S.ui.avvio = null; S.ui.fuga = {}; disegna();
   },
   selRiga(el) { S.ui.sel = S.ui.sel === el.dataset.id ? null : el.dataset.id;
@@ -707,6 +801,8 @@ const AZ = {
 const CAMBI = {
   usaD20(el) { S.ui.avvio.usaD20 = el.checked; disegna(); },
   zona(el) { const c = M.cambiaZona(S.camp, MET, el.value); applica(c); avviso('Zona cambiata: il meteo del giorno resta, «Ritira» per tirarlo nella zona nuova'); },
+  variante(el) { applica(M.impostaVariante(S.camp, MET, el.dataset.v, el.checked)); },
+  recipienti(el) { applica(M.impostaRecipienti(S.camp, el.checked)); },
   aggScheda(el) { const r = rifDa(el.value), s = schedaDi(r); if (!s) return; const av = S.ui.avvio;
     const x = { nome: s.nome, bonus: s.iniziativa ?? 0, n: s.n_suggerito || 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '', rif: r };
     if (av.nemici.length === 1 && !String(av.nemici[0].nome).trim()) av.nemici[0] = x; else av.nemici.push(x); disegna(); },
@@ -917,20 +1013,84 @@ function barraMalus(a) {
 }
 
 // ================================================================= finestre di dettaglio
+// ---------- compagnia: accompagnatori con nome e animali (AA3)
+function opzSchedeDi(fonti, sel) {
+  const g = k => { const l = listaDi(k); return l.length ? `<optgroup label="${FONTI[k].nome}">${M.cercaSchede(l, {}).map(s => `<option value="${k}:${s.id}" ${sel === k + ':' + s.id ? 'selected' : ''}>${esc(s.nome)}${s.gs !== '' ? ' · GS ' + s.gs : ''}</option>`).join('')}</optgroup>` : ''; };
+  return `<option value="">— senza scheda —</option>${fonti.map(g).join('')}`;
+}
+function finestraAccompagnatore(id) {
+  const a = id ? S.camp.compagnia.persone.find(x => x.id === id) : { nome: '', ruolo: '', rif: null };
+  apri({ titolo: id ? `Accompagnatore: ${esc(a.nome)}` : 'Nuovo accompagnatore', corpo: `<label class="campo"><span>Nome</span><input type="text" name="n" value="${esc(a.nome)}"></label>
+      <label class="campo"><span>Ruolo o nota</span><input type="text" name="r" value="${esc(a.ruolo)}" placeholder="es. guida, portatore"></label>
+      <label class="campo"><span>Scheda (facoltativa: PNG della campagna o generico)</span><select name="s">${opzSchedeDi(['png', 'generico'], rifStr(a.rif))}</select></label>
+      <p class="tenue piccolo">Mangia e beve come i PG; Fame e Sete si contano anche per lui. Con la scheda: stat block e «+ Combattimento» come alleato (niente XP).</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => { const d = { nome: testo(f, 'n'), ruolo: testo(f, 'r'), rif: rifDa(val(f, 's').value) };
+      applica(id ? M.modificaAccompagnatore(S.camp, id, d) : M.aggiungiAccompagnatore(S.camp, d)); } }] });
+}
+function finestraAnimale(id) {
+  const c = S.camp, a = id ? c.compagnia.animali.find(x => x.id === id) : { nome: '', tipo: 'cavalcatura', padrone: '', rif: null, mangia: 'foraggio', cibo: 1, acqua: 1, trova_cibo: false, trova_acqua: false };
+  const pad = [['', '—'], ...c.pg.map(p => ['pg:' + p.id, p.scheda.nome]), ...c.compagnia.persone.map(x => ['acc:' + x.id, x.nome])];
+  const el = apri({ titolo: id ? `Animale: ${esc(a.nome)}` : 'Nuovo animale', corpo: `<div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" value="${esc(a.nome)}"></label>
+      <label class="campo"><span>Tipo</span><select name="t">${Object.entries(M.TIPI_ANIMALE).map(([k, v]) => `<option value="${k}" ${a.tipo === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label class="campo"><span>Padrone</span><select name="p">${pad.map(([k, v]) => `<option value="${k}" ${a.padrone === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+      <label class="campo"><span>Scheda (facoltativa)</span><select name="s">${opzSchedeDi(['mostro', 'generico', 'png'], rifStr(a.rif))}</select></label></div>
+      <fieldset><legend>Cibo e acqua</legend><div class="griglia">
+      <label class="campo"><span>Mangia</span><select name="m"><option value="foraggio" ${a.mangia === 'foraggio' ? 'selected' : ''}>foraggio (erbivori)</option><option value="razioni" ${a.mangia === 'razioni' ? 'selected' : ''}>razioni (carnivori)</option></select></label>
+      <label class="campo"><span>Cibo al giorno</span><input type="number" name="c" min="0" max="20" value="${a.cibo}"></label><label class="campo"><span>Acqua al giorno</span><input type="number" name="a" min="0" max="20" value="${a.acqua}"></label></div>
+      <label class="spunta"><input type="checkbox" name="tc" ${a.trova_cibo ? 'checked' : ''}> Trova da sé il cibo (non consuma)</label><label class="spunta"><input type="checkbox" name="ta" ${a.trova_acqua ? 'checked' : ''}> Trova da sé l'acqua (non consuma)</label>
+      <p class="tenue piccolo">L'acqua è ×2 con Arsura o Afa e ×3 con Canicola, anche per gli animali.</p></fieldset>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => { const d = { nome: testo(f, 'n'), tipo: val(f, 't').value, padrone: val(f, 'p').value, rif: rifDa(val(f, 's').value),
+      mangia: val(f, 'm').value, cibo: intero(f, 'c'), acqua: intero(f, 'a'), trova_cibo: spunta(f, 'tc'), trova_acqua: spunta(f, 'ta') };
+      applica(id ? M.modificaAnimale(S.camp, id, d) : M.aggiungiAnimale(S.camp, d)); } }] });
+  el.addEventListener('change', ev => { if (ev.target.name !== 's' || val(el, 'n').value.trim()) return; const s = schedaDi(rifDa(ev.target.value)); if (s) val(el, 'n').value = s.nome; });
+}
+// ---------- Foraggiare (AA2-4)
+function finestraForaggiare() {
+  const c = S.camp, fo = c.varianti || {};
+  const corpo = () => { const inf = M.infoForaggiare(S.camp, MET);
+    const acqua = { inclusa: 'inclusa nella stessa prova', cd: `seconda prova, CD ${inf.acqua.cd}`, no: 'no (solo pioggia, magia o scorte)', neve: 'solo neve da sciogliere', libera: 'si trova senza prova' }[inf.acqua.tipo];
+    return `<p class="piccolo"><b>CD ${inf.cd}</b> (zona ${inf.base}${inf.mods.map(m => ` +${m.cd} ${esc(m.motivo)}`).join('')}) · +1 persona ogni ${inf.ogni} punti oltre la CD · acqua: ${esc(acqua)}${inf.acqua.purificare ? ` (${inf.acqua.purificare === 'bollire' ? 'da bollire' : 'sulfurea: da purificare'})` : ''}${inf.avariato ? ' · ☠ cibo avariato a chi fallisce di 5 o più' : ''}</p>
+      ${inf.acqua.motivo ? `<p class="piccolo tenue">${esc(inf.acqua.motivo)}</p>` : ''}
+      <label class="spunta piccolo"><input type="checkbox" name="dolce" ${fo.acqua_dolce ? 'checked' : ''}> Acqua dolce per pescare (lago, fiume)</label>
+      ${S.camp.pg.map(p => { const gia = M.haForaggiato(S.camp, p.id); return `<div class="fila foragg"><label class="spunta" style="min-width:8em"><input type="checkbox" name="f_${p.id}" ${gia ? 'disabled' : ''}> ${esc(p.scheda.nome)}</label>
+        ${gia ? '<span class="tenue piccolo">ha già foraggiato oggi</span>' : `<select name="a_${p.id}" aria-label="Abilità di ${esc(p.scheda.nome)}"><option value="sopravvivenza">Sopravvivenza</option>${inf.pesca ? '<option value="pescatore">Professione (pescatore), solo cibo</option>' : ''}</select>
+        <input type="number" name="t_${p.id}" placeholder="totale" aria-label="Totale di ${esc(p.scheda.nome)}" style="width:6em">${inf.acqua.tipo === 'cd' ? `<input type="number" name="w_${p.id}" placeholder="acqua" aria-label="Seconda prova per l'acqua di ${esc(p.scheda.nome)}" style="width:6em">` : ''}`}</div>`; }).join('')}
+      ${M.quotaForaggio(S.camp) || S.camp.compagnia.animali.length ? `<label class="campo"><span>Razioni di cibo trovate che vanno al foraggio degli animali</span><input type="number" name="fg" min="0" placeholder="per difetto ${M.quotaForaggio(S.camp)}"></label>` : ''}
+      <label class="spunta"><input type="checkbox" name="ore" checked> +2 ore all'orologio (fuori dalla marcia)</label>
+      <p class="tenue piccolo">Una prova al giorno per PG; non nei giorni di marcia forzata. Prendere 10, aiuto e bonus razziali: mettili nel totale.</p><div id="f-esito" class="piccolo num"></div>`; };
+  const prove = el => S.camp.pg.filter(p => val(el, 'f_' + p.id) && spunta(el, 'f_' + p.id)).map(p => { const t = val(el, 't_' + p.id).value.trim(), w = val(el, 'w_' + p.id);
+    return { pg: p.id, abilita: val(el, 'a_' + p.id).value, totale: t === '' ? NaN : Number(t), totale_acqua: w && w.value.trim() !== '' ? Number(w.value) : undefined }; });
+  const opz = el => { const g = val(el, 'fg'); return { ore: spunta(el, 'ore'), ...(g && g.value.trim() !== '' ? { foraggio: Number(g.value) } : {}) }; };
+  const el = apri({ titolo: 'Foraggiare', larga: true, corpo: corpo(),
+    azioni: [{ testo: 'Annulla' }, { testo: 'Foraggia', classe: 'prim', fn: f => { const p = prove(f); if (!p.length) throw new Error('Spunta chi foraggia');
+      for (const x of p) if (!Number.isInteger(x.totale)) throw new Error(`Manca il totale di ${S.camp.pg.find(y => y.id === x.pg).scheda.nome}`);
+      const e = M.esitoForaggiare(S.camp, MET, p, opz(f)); applica(M.foraggia(S.camp, MET, rng, p, opz(f)));
+      avviso(`Trovati: cibo ${e.cibo}${e.alForaggio ? ` (${e.alForaggio} al foraggio)` : ''}, acqua ${e.acqua}${e.avariato ? `, ${e.avariato} avariato` : ''}`); } }] });
+  const aggiorna = ev => {
+    if (ev && ev.target.name === 'dolce') { S.camp = M.impostaVariante(S.camp, MET, 'acqua_dolce', ev.target.checked); S.camp.modificata = Date.now(); salvaPresto(); disegna(); el.querySelector('.corpo').innerHTML = corpo(); }
+    const out = el.querySelector('#f-esito'); try { const p = prove(el).filter(x => Number.isInteger(x.totale)); if (!p.length) { out.textContent = ''; return; }
+      const e = M.esitoForaggiare(S.camp, MET, p, opz(el)); out.innerHTML = e.righe.map(r => `${esc(r.nome)} ${r.totale} → cibo ${r.cibo}${r.acqua ? `, acqua ${r.acqua}` : ''}${r.avariato ? ', 1 avariato' : ''}`).join(' · ') + `<br><b>Totale: cibo ${e.cibo}${e.alForaggio ? ` (${e.alForaggio} al foraggio)` : ''}, acqua ${e.acqua}${e.impura ? ' da purificare' : ''}</b>`; } catch (e) { out.textContent = e.message; } };
+  el.addEventListener('input', aggiorna); el.addEventListener('change', aggiorna);
+}
+// ---------- Scegli chi usa la scorta (Z1 esteso: PG, accompagnatori con nome, animali, senza nome; buone e avariate)
 function finestraRazionamento(id) {
-  const c = S.camp, z = c.razionamenti.find(x => x.id === id); if (!z) return;
-  const q = c.scorte[z.scorta], verbo = z.scorta === 'acqua' ? 'beve' : 'mangia', mal = z.mal === 'sete' ? 'Sete' : 'Fame';
-  const el = apri({ titolo: `${z.scorta === 'acqua' ? 'Acqua' : 'Cibo'}: chi ${verbo}?`, corpo: `<p class="piccolo">${esc(M.formatoData(c, z.R, false))}: <b class="num">${q}</b> razioni per ${M.consumoGiornaliero(c)} persone.
-      Chi non ${verbo} prende ${mal} +1; chi ${verbo} scende di 1.</p>
-      ${c.pg.map(p => `<label class="spunta"><input type="checkbox" name="r_${p.id}"> ${esc(p.scheda.nome)} <span class="tenue piccolo">${p.stato[z.mal].penalita ? mal + ' ' + p.stato[z.mal].penalita : ''}</span></label>`).join('')}
-      ${c.scorte.accompagnatori ? `<label class="campo"><span>Accompagnatori che ${verbo === 'beve' ? 'bevono' : 'mangiano'} (su ${c.scorte.accompagnatori})</span><input type="number" name="acc" min="0" max="${c.scorte.accompagnatori}" value="0"></label>` : ''}
+  const c = S.camp, D = M.datiRazionamento(c, id), z = D.r, verbo = z.scorta === 'acqua' ? 'beve' : 'mangia', mal = z.mal === 'sete' ? 'Sete' : 'Fame';
+  const nomeS = { acqua: 'Acqua', cibo: 'Cibo', foraggio: 'Foraggio' }[z.scorta], cat = D.cattive > 0;
+  const voce = x => { const st = x.stato && x.stato[z.mal] && x.stato[z.mal].penalita ? `${mal} ${x.stato[z.mal].penalita}` : '';
+    return `<div class="fila"><span style="min-width:9em">${esc(x.nome)} <span class="tenue piccolo">${x.bisogno} ${x.bisogno === 1 ? 'razione' : 'razioni'}${st ? ' · ' + st : ''}</span></span>
+      <select name="v_${x.chiave}" aria-label="${esc(x.nome)}"><option value="">niente</option><option value="b">buona</option>${cat ? `<option value="c">${esc(D.nomeCattive)}</option>` : ''}</select></div>`; };
+  const senza = D.consumatori.find(x => x.tipo === 'senza');
+  const el = apri({ titolo: `${nomeS}: chi ${verbo}?`, corpo: `<p class="piccolo">${esc(M.formatoData(c, z.R, false))}: <b class="num">${D.buone}</b> razioni${cat ? ` e <b class="num">${D.cattive}</b> di ${esc(D.nomeCattive)}` : ''}${z.k > 1 ? ` · acqua ×${z.k} (ognuno beve ${z.k} razioni)` : ''}.
+      Chi non ${verbo} prende ${mal} +1; chi ${verbo} scende di 1.${cat ? ` Con ${esc(D.nomeCattive)} i PG tirano Tempra CD 12.` : ''}</p>
+      ${D.consumatori.filter(x => x.tipo !== 'senza').map(voce).join('')}
+      ${senza ? `<div class="griglia"><label class="campo"><span>Senza nome con razione buona (su ${senza.n})</span><input type="number" name="sb" min="0" max="${senza.n}" value="0"></label>${cat ? `<label class="campo"><span>Senza nome con ${esc(D.nomeCattive)}</span><input type="number" name="sc" min="0" max="${senza.n}" value="0"></label>` : ''}</div>` : ''}
       <p class="piccolo num" id="r-conto"></p>`,
-    azioni: [{ testo: 'Più tardi' }, { testo: 'Conferma', classe: 'prim', fn: f => {
-      const ids = c.pg.filter(p => spunta(f, 'r_' + p.id)).map(p => p.id), acc = val(f, 'acc') ? intero(f, 'acc', 0) : 0;
-      applica(M.risolviRazionamento(S.camp, id, ids, acc, MET));
-    } }] });
-  const conto = () => { const n = c.pg.filter(p => spunta(el, 'r_' + p.id)).length + (val(el, 'acc') ? Number(val(el, 'acc').value) || 0 : 0);
-    const out = el.querySelector('#r-conto'); out.textContent = `Razioni usate: ${n} su ${q}`; out.className = 'piccolo num' + (n > q ? ' mod' : ''); };
+    azioni: [{ testo: 'Più tardi' }, { testo: 'Conferma', classe: 'prim', fn: f => applica(M.risolviRazionamento(S.camp, id, scelta(f), MET)) }] });
+  function scelta(f) { const s = { buone: [], cattive: [], senza_buone: val(f, 'sb') ? intero(f, 'sb', 0) : 0, senza_cattive: val(f, 'sc') ? intero(f, 'sc', 0) : 0 };
+    for (const x of D.consumatori) { const v = val(f, 'v_' + x.chiave); if (!v) continue; if (v.value === 'b') s.buone.push(x.chiave); if (v.value === 'c') s.cattive.push(x.chiave); } return s; }
+  const conto = () => { let s; try { s = scelta(el); } catch (e) { return; } const b = ch => D.consumatori.find(x => x.chiave === ch).bisogno, kb = senza ? senza.bisogno : 0;
+    const B = s.buone.reduce((a, x) => a + b(x), 0) + s.senza_buone * kb, C = s.cattive.reduce((a, x) => a + b(x), 0) + s.senza_cattive * kb;
+    const out = el.querySelector('#r-conto'); out.textContent = `Razioni usate: ${B} su ${D.buone}` + (cat ? ` · ${D.nomeCattive}: ${C} su ${D.cattive}` : ''); out.className = 'piccolo num' + (B > D.buone || C > D.cattive ? ' mod' : ''); };
   el.addEventListener('input', conto); el.addEventListener('change', conto); conto();
 }
 function finestraEsporta(nome, contenuto, tipo = 'application/json') {
@@ -962,7 +1122,7 @@ function finestraImpostazioni() {
   apri({ titolo: 'Impostazioni della campagna', corpo: `<fieldset><legend>Campagna</legend>
       <label class="campo"><span>Nome</span><input type="text" name="nome" value="${esc(S.camp.nome)}"></label>
       <label class="campo"><span>Etichetta dell'anno</span><input type="text" name="etichetta" value="${esc(S.camp.anno.etichetta)}"></label>
-      ${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(dalla Build 3)')}</fieldset>
+      ${voce('scorte', 'Usa le scorte', '(consumo di cibo, acqua e foraggio, Fame e Sete automatiche, Foraggiare)')}${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(dalla Build 3)')}</fieldset>
     <fieldset><legend>Timer reale</legend>${voce('timer', 'Timer reale del turno e del combattimento')}
       <label class="campo"><span>Soglia di avviso del turno (secondi, 0 = nessuna)</span><input type="number" name="soglia_timer" min="0" value="${i.soglia_timer}"></label></fieldset>
     <fieldset><legend>Finestra TV (Build 4)</legend>${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento')}${voce('tv_ora', 'Ora del giorno')}${voce('tv_meteo', 'Meteo')}${voce('timer_tv', 'Timer sulla TV')}${voce('f10', 'Tasto F10: turno successivo')}
@@ -972,7 +1132,7 @@ function finestraImpostazioni() {
       const c = M.clona(S.camp), x = c.impostazioni;
       if (!testo(f, 'nome')) throw new Error('Nome della campagna mancante');
       c.nome = testo(f, 'nome'); c.anno.etichetta = testo(f, 'etichetta');
-      for (const k of ['xp', 'pf_nemici', 'incontri_casuali', 'timer', 'tv_xn', 'tv_solo_combattimento', 'tv_ora', 'tv_meteo', 'timer_tv', 'f10']) x[k] = spunta(f, k);
+      for (const k of ['scorte', 'xp', 'pf_nemici', 'incontri_casuali', 'timer', 'tv_xn', 'tv_solo_combattimento', 'tv_ora', 'tv_meteo', 'timer_tv', 'f10']) x[k] = spunta(f, k);
       x.soglia_timer = Math.max(0, intero(f, 'soglia_timer', 0)); x.tv_fuori = val(f, 'tv_fuori').value; x.tema = val(f, 'tema').value;
       let c2 = c; if (x.timer && c.combattimento && !c.combattimento.timer) c2 = M.attivaTimer(c, Date.now());
       if (!x.timer && c2.combattimento) c2.combattimento.timer = null;
@@ -1014,10 +1174,10 @@ function finestraPG(id, dopo) {
 }
 
 // ================================================================= «Crea Schermo campagna» (procedura guidata, B2)
-const PASSI = ['Nome', 'Calendario e anno', 'Data e ora', 'Zona climatica', 'PG', 'Accompagnatori', 'Cibo e acqua', 'Impostazioni'];
+const PASSI = ['Nome', 'Calendario e anno', 'Data e ora', 'Zona climatica', 'PG', 'Compagnia', 'Scorte', 'Impostazioni'];
 function procedura() {
   const W = { passo: 0, nome: '', tipo: 'reale', mesi: [{ nome: 'Primo mese', giorni: 30, stagione: 'inverno' }], settimana: 'lunedì, martedì, mercoledì, giovedì, venerdì, sabato, domenica', anno: 1, etichetta: '',
-    mese: 0, giorno: 1, ora: '08:00', sett: 0, zona: 'temperata', pg: [], accompagnatori: 0, cibo: 7, acqua: 7, imp: { ...M.IMPOSTAZIONI, tema: leggiPref('tema') || 'scuro' } };
+    mese: 0, giorno: 1, ora: '08:00', sett: 0, zona: '1', pg: [], accompagnatori: 0, persone: '', cibo: 7, acqua: 7, foraggio: 0, imp: { ...M.IMPOSTAZIONI, tema: leggiPref('tema') || 'scuro' } };
   let el = null;
   const cal = () => W.tipo === 'reale' ? M.calendarioReale() : { tipo: 'personalizzato', mesi: W.mesi, settimana: W.settimana.split(',').map(x => x.trim()).filter(Boolean) };
   function corpo() {
@@ -1037,13 +1197,15 @@ function procedura() {
           <label class="campo"><span>Mese</span><select id="w-m">${c.mesi.map((m, i) => `<option value="${i}" ${i === W.mese ? 'selected' : ''}>${esc(m.nome)}</option>`).join('')}</select></label>
           <label class="campo"><span>Ora</span><input type="text" id="w-ora" value="${esc(W.ora)}" placeholder="hh:mm"></label>
           ${c.settimana && c.settimana.length ? `<label class="campo"><span>Giorno della settimana</span><select id="w-s">${c.settimana.map((g, i) => `<option value="${i}" ${i === W.sett ? 'selected' : ''}>${esc(g)}</option>`).join('')}</select></label>` : ''}</div>`;
-      case 3: return passi + `<div class="fila">${MET.zone.map(z => `<label class="spunta"><input type="radio" name="w-zona" value="${z.id}" ${W.zona === z.id ? 'checked' : ''}> ${z.nome}</label>`).join('')}</div><p class="tenue piccolo">Si cambia mentre si viaggia. Il meteo si tira a ogni cambio di giorno, in base a zona e stagione.</p>`;
+      case 3: return passi + `<label class="campo"><span>Zona climatica di partenza</span>${selectZona('w-zona', 'aria-label="Zona climatica"', W.zona)}</label><p class="tenue piccolo">Le 17 zone delle Tabelle del Tempo Atmosferico. Si cambia mentre si viaggia; il meteo si tira a ogni cambio di giorno, in base a zona e stagione.</p>`;
       case 4: return passi + `<p class="tenue piccolo">Si possono aggiungere anche dopo.</p>${W.pg.map((s, i) => `<div class="fila"><span class="spazio">${esc(s.nome)} <span class="tenue piccolo">${esc(s.classe)}</span></span><button class="btn min" data-w="togliPG" data-i="${i}">Togli</button></div>`).join('') || '<span class="tenue">Nessun PG.</span>'}
         <div><button class="btn" data-w="aggPG">+ PG</button></div>`;
-      case 5: return passi + `<label class="campo"><span>Numero di accompagnatori (mangiano e bevono come i PG)</span><input type="number" id="w-acc" min="0" value="${W.accompagnatori}"></label>`;
-      case 6: return passi + `<div class="griglia"><label class="campo"><span>Cibo (razioni)</span><input type="number" id="w-cibo" min="0" value="${W.cibo}"></label><label class="campo"><span>Acqua (razioni)</span><input type="number" id="w-acqua" min="0" value="${W.acqua}"></label></div>
-        <p class="tenue piccolo">1 razione = 1 persona per 1 giorno. Consumo: ${W.pg.length} PG + ${W.accompagnatori} accompagnatori = ${W.pg.length + W.accompagnatori} al giorno.</p>`;
-      case 7: return passi + `${[['timer', 'Timer reale'], ['xp', 'Usa gli XP'], ['pf_nemici', 'Scala i PF dei nemici'], ['incontri_casuali', 'Incontri casuali']].map(([k, t]) => `<label class="spunta"><input type="checkbox" id="w-i-${k}" ${W.imp[k] ? 'checked' : ''}> ${t}</label>`).join('')}
+      case 5: return passi + `<label class="campo"><span>Accompagnatori con nome, uno per riga (facoltativo)</span><textarea id="w-pers" rows="3" placeholder="es. Hassim, guida">${esc(W.persone)}</textarea></label>
+        <label class="campo"><span>Accompagnatori senza nome (solo un numero)</span><input type="number" id="w-acc" min="0" value="${W.accompagnatori}"></label>
+        <p class="tenue piccolo">Mangiano e bevono come i PG. Animali e schede si aggiungono dopo, dal pannello Compagnia.</p>`;
+      case 6: { const np = W.persone.split('\n').filter(x => x.trim()).length; return passi + `<div class="griglia"><label class="campo"><span>Cibo (razioni)</span><input type="number" id="w-cibo" min="0" value="${W.cibo}"></label><label class="campo"><span>Acqua (razioni da 4 litri)</span><input type="number" id="w-acqua" min="0" value="${W.acqua}"></label><label class="campo"><span>Foraggio (animali)</span><input type="number" id="w-forag" min="0" value="${W.foraggio}"></label></div>
+        <p class="tenue piccolo">1 razione = 1 persona per 1 giorno (l'acqua ×2 con Arsura o Afa, ×3 con Canicola). Consumo: ${W.pg.length} PG + ${W.accompagnatori + np} accompagnatori = ${W.pg.length + W.accompagnatori + np} al giorno.</p>`; }
+      case 7: return passi + `${[['scorte', 'Usa le scorte (consumo, Fame e Sete, Foraggiare)'], ['timer', 'Timer reale'], ['xp', 'Usa gli XP'], ['pf_nemici', 'Scala i PF dei nemici'], ['incontri_casuali', 'Incontri casuali']].map(([k, t]) => `<label class="spunta"><input type="checkbox" id="w-i-${k}" ${W.imp[k] ? 'checked' : ''}> ${t}</label>`).join('')}
         <label class="campo"><span>Tema</span><select id="w-tema"><option value="scuro" ${W.imp.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${W.imp.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label>
         <p class="tenue piccolo">Le altre impostazioni (finestra TV, F10) sono in ⚙ dentro la campagna.</p>`;
     }
@@ -1059,10 +1221,10 @@ function procedura() {
         W.mese = Math.min(W.mese, cal().mesi.length - 1); break;
       case 2: { W.giorno = leggiNum('#w-g', 'Giorno'); W.mese = +$('#w-m').value; const g = cal().mesi[W.mese].giorni; if (W.giorno < 1 || W.giorno > g) throw new Error(`Il mese ha ${g} giorni`);
         const h = $('#w-ora').value.trim().match(/^(\d{1,2})(?::(\d{2}))?$/); if (!h || +h[1] > 23 || +(h[2] || 0) > 59) throw new Error('Ora non valida (hh:mm)'); W.ora = $('#w-ora').value.trim(); W.sett = $('#w-s') ? +$('#w-s').value : 0; break; }
-      case 3: W.zona = el.querySelector('[name="w-zona"]:checked').value; break;
-      case 5: W.accompagnatori = leggiNum('#w-acc', 'Accompagnatori'); if (W.accompagnatori < 0) throw new Error('Accompagnatori: almeno 0'); break;
-      case 6: W.cibo = leggiNum('#w-cibo', 'Cibo'); W.acqua = leggiNum('#w-acqua', 'Acqua'); if (W.cibo < 0 || W.acqua < 0) throw new Error('Le scorte non possono essere negative'); break;
-      case 7: for (const k of ['timer', 'xp', 'pf_nemici', 'incontri_casuali']) W.imp[k] = $('#w-i-' + k).checked; W.imp.tema = $('#w-tema').value; break;
+      case 3: W.zona = $('#w-zona').value; break;
+      case 5: W.persone = $('#w-pers').value; W.accompagnatori = leggiNum('#w-acc', 'Accompagnatori'); if (W.accompagnatori < 0) throw new Error('Accompagnatori: almeno 0'); break;
+      case 6: W.cibo = leggiNum('#w-cibo', 'Cibo'); W.acqua = leggiNum('#w-acqua', 'Acqua'); W.foraggio = leggiNum('#w-forag', 'Foraggio'); if (W.cibo < 0 || W.acqua < 0 || W.foraggio < 0) throw new Error('Le scorte non possono essere negative'); break;
+      case 7: for (const k of ['scorte', 'timer', 'xp', 'pf_nemici', 'incontri_casuali']) W.imp[k] = $('#w-i-' + k).checked; W.imp.tema = $('#w-tema').value; break;
     }
   }
   function ridisegna() { el.querySelector('.corpo').innerHTML = corpo(); const pr = el.querySelector('[data-fazione="2"]'); pr.textContent = W.passo === PASSI.length - 1 ? 'Crea' : 'Avanti'; el.querySelector('[data-fazione="1"]').disabled = W.passo === 0; const x = el.querySelector('.corpo input,.corpo select'); if (x) x.focus(); }
@@ -1073,7 +1235,8 @@ function procedura() {
       if (W.passo < PASSI.length - 1) { W.passo++; ridisegna(); return false; }
       const [hh, mm] = W.ora.split(':').map(Number);
       const c = M.creaCampagna({ nome: W.nome, calendario: cal(), anno: { numero: W.anno, etichetta: W.etichetta }, partenza: { mese: W.mese, giorno: W.giorno, ore: hh, min: mm || 0, sett: W.sett },
-        zona: W.zona, pg: W.pg, accompagnatori: W.accompagnatori, cibo: W.cibo, acqua: W.acqua, impostazioni: W.imp }, MET, rng, Date.now());
+        zona: W.zona, pg: W.pg, accompagnatori: W.accompagnatori, persone: W.persone.split('\n').map(x => x.trim()).filter(Boolean).map(x => { const [n, ...r] = x.split(','); return { nome: n.trim(), ruolo: r.join(',').trim() }; }),
+        cibo: W.cibo, acqua: W.acqua, foraggio: W.foraggio, impostazioni: W.imp }, MET, rng, Date.now());
       scriviPref('tema', W.imp.tema);
       await Archivio.scrivi(c); S.camp = c; S.schermata = 'campagna'; S.ui.avvio = null; disegna(); avviso('Campagna creata');
     } }] });
@@ -1561,7 +1724,9 @@ function campagnaEsempio() {
       tempra: 7, riflessi: 3, volonta: 9, percezione: 10, intuizione: 12, furtivita: 0, iniziativa: 1, imp_pen: 6, abilita_libere: [{ nome: 'Professione (cerusico)', valore: 12 }, { nome: '', valore: 0 }] },
   ];
   let c = M.creaCampagna({ nome: 'Campagna d\'esempio', anno: { numero: 1462, etichetta: 'dopo la Caduta' }, partenza: { mese: 9, giorno: 26, ore: 17, min: 30, sett: 0 },
-    zona: 'temperata', pg, accompagnatori: 2, cibo: 12, acqua: 9 }, MET, rng, Date.now());
+    zona: '1', pg, accompagnatori: 2, persone: [{ nome: 'Mira', ruolo: 'guida' }], cibo: 12, acqua: 9, foraggio: 6 }, MET, rng, Date.now());
+  // Build 2c: una cavalcatura per Aria
+  c = M.aggiungiAnimale(c, { nome: 'Fulmine', tipo: 'cavalcatura', padrone: 'pg:' + c.pg[0].id, mangia: 'foraggio', cibo: 1, acqua: 1 });
   // Build 2b: un PNG della campagna, un mostro condiviso e un incontro che li usa
   const [band, lupo] = M.leggiStatBlock(ESEMPIO_SB).map(b => b.scheda), ora = Date.now();
   const b = M.nuovaScheda(band, rng, ora, 'p'); c = M.salvaPNG(c, b, ora);

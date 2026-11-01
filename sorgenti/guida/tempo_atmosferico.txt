@@ -1,0 +1,633 @@
+Tabelle del Tempo Atmosferico
+Zone, effetti del tempo e sopravvivenza
+Manuale aggiuntivo · Versione 1.0
+Sommario
+Capitolo 1 – Come si usa1
+Capitolo 2 – Effetti del tempo atmosferico2
+Regole generali5
+Capitolo 3 – Le zone7
+1. Pianure e colline temperate7
+2. Foreste temperate8
+3. Brughiere e lande9
+4. Paludi e acquitrini10
+5. Coste temperate11
+6. Montagne12
+7. Foreste boreali13
+8. Tundra14
+9. Ghiacci artici15
+10. Deserto sabbioso16
+11. Deserto roccioso e calanchi17
+12. Savana e steppa18
+13. Foresta tropicale19
+14. Mare aperto20
+15. Oceano21
+16. Sotterraneo22
+17. Terre vulcaniche23
+Capitolo 4 – Sopravvivere24
+Appendice A – Equipaggiamento26
+Appendice B – Tabella riassuntiva degli effetti27
+Capitolo 1 – Come si usa
+Questo manuale amplia le tabelle del tempo atmosferico della Guida del DM: diciassette zone, gli effetti del tempo e le regole per sopravvivere in ogni ambiente. Prende il posto delle sezioni «Tabelle del tempo atmosferico» e «Fame e sete» della Guida; le altre regole della Guida (spostamenti, ambienti specifici, annegamento, alta quota) restano valide e vengono richiamate dove servono.
+Il tiro del giorno
+All'alba il DM tira d% sulla tabella della zona e della stagione in cui si trova il gruppo. Quando il gruppo passa da una zona all'altra, si tira sulla zona in cui trascorre la maggior parte della giornata.
+Ogni riga dice tutto quello che vale quel giorno. Se la riga non indica un clima (Clima caldo, Gelo e così via), la temperatura non ha effetti. Le righe con il segno «+» uniscono due effetti, che valgono entrambi.
+Le stagioni
+[TABELLA]
+| Stagione | Date |
+| Primavera | 21 marzo – 21 giugno |
+| Estate | 22 giugno – 22 settembre |
+| Autunno | 23 settembre – 21 dicembre |
+| Inverno | 22 dicembre – 20 marzo |
+[/TABELLA]
+Le zone con due sole stagioni dividono l'anno in due metà: dal 21 marzo al 22 settembre e dal 23 settembre al 20 marzo. Le metà si chiamano Primavera-estate e Autunno-inverno, oppure Stagione delle piogge e Stagione secca (Savana e steppa, Foresta tropicale), oppure Stagione calma e Stagione delle tempeste (Oceano). Il Sotterraneo non ha stagioni.
+Quanto dura il tempo
+Acquazzone, Monsone, Temporale, Grandine, Neve fitta, Tormenta, Tempesta di vento, Uragano e le tempeste di grandine, polvere, sabbia e cenere durano 2d4 ore; per il resto del giorno vale il clima base della stagione, cioè la prima riga della tabella. La Nebbia si dirada 1d4 ore dopo l'alba. Tutti gli altri effetti durano l'intera giornata.
+Con Predire il tempo (Sopravvivenza CD 15, altre 24 ore ogni 5 punti oltre la CD) un personaggio conosce il tempo dei giorni seguenti: per rispondergli, il DM tira in anticipo i giorni previsti.
+Visibilità
+La visibilità è indicata in caselle e in metri (1 casella = 1,5 m). Oltre la visibilità massima non si vede nulla.
+Stato del mare
+Sulle coste, in mare aperto e sull'oceano lo stato del mare dipende dal tempo del giorno:
+[TABELLA]
+| Stato del mare | Quando | Nuotare |
+| Calmo | In tutti gli altri casi | CD 10 |
+| Agitato | Vento forte, Acquazzone, Temporale | CD 15 |
+| Tempestoso | Vento molto forte, Tempesta di vento, Uragano | CD 20 |
+[/TABELLA]
+Capitolo 2 – Effetti del tempo atmosferico
+Fiamme
+Ogni effetto che spegne le fiamme rimanda a questa tabella, che vale per le fonti di luce della Guida del DM.
+[TABELLA]
+| Fonte | Si spegne con |
+| Candela | Qualsiasi pioggia, neve o vento |
+| Torcia, falò all'aperto | Pioggia battente, Neve, Vento forte e più forti |
+| Lanterna | Acquazzone, Monsone, Neve fitta, Vento molto forte e più forti |
+| Lanterna impermeabile o deluxe | Le tempeste (Tempesta di vento, Uragano, Tormenta, tempeste di grandine, polvere, sabbia e cenere); con il Vento molto forte, 50% di probabilità ogni 10 minuti |
+[/TABELLA]
+Scala del clima
+Alcune regole fanno contare il clima di un grado più mite o più severo. I gradi sono questi:
+• Caldo: Clima mite → Clima caldo → Arsura (o Afa) → Canicola.
+• Freddo: Clima fresco → Clima freddo → Gelo → Gelo polare.
+Effetti
+Acquazzone
+Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Fiamme: vedi la tabella. Seguire tracce: +1 alla CD per ogni ora di pioggia. Chi resta all'aperto si bagna. Chi ha recipienti raccoglie la razione d'acqua del giorno.
+Afa
+Caldo umido. Valgono gli effetti del Clima caldo, ma qualsiasi armatura, anche leggera, annulla gli abiti estivi e servono 2 razioni d'acqua al giorno.
+Arsura / Gelo
+Giornata di caldo / freddo intenso. Una creatura senza abiti estivi / invernali è esausta dopo 1 ora. Anche con gli abiti adatti è affaticata dopo 4 ore di marcia o di attività faticosa. Si recupera un grado ogni ora passata all'ombra (o al caldo, vicino a un fuoco) o con gli abiti adatti: da esausta ad affaticata, da affaticata a normale.
+• Arsura: vale dalle 10 alle 18, nelle altre ore vale il Clima caldo. Servono 2 razioni d'acqua al giorno. Un'armatura media o pesante annulla gli abiti estivi.
+• Gelo: chi dorme senza riparo né fuoco non recupera Punti Fatica con il riposo.
+Bonaccia
+Assenza totale di vento. Le navi a vela restano ferme e si avanza solo a remi. Se la stagione è calda vale anche l'Afa.
+Canicola
+Caldo estremo. Valgono gli effetti dell'Arsura. Anche con gli abiti estivi, ogni ora all'aperto fra le 10 e le 18 serve un Tiro Salvezza su Tempra CD 15 (+1 per ogni prova precedente): ogni fallimento peggiora di un grado (affaticata, poi esausta); una creatura già esausta subisce invece 1d4 danni non letali. Senza abiti estivi si subiscono anche 1d4 danni non letali ogni ora. Servono 3 razioni d'acqua al giorno.
+Clima caldo / Clima freddo
+Il tipico clima estivo / invernale. Una creatura senza abiti estivi / invernali è affaticata dopo 1 ora. La condizione termina dopo 1 ora all'ombra (o al caldo, vicino a un fuoco) o indossando gli abiti adatti. Con il Clima caldo un'armatura media o pesante annulla gli abiti estivi.
+Clima mite / Clima fresco
+Il tipico clima primaverile / autunnale. Nessun effetto particolare.
+Esalazioni
+Gas che ristagnano nelle zone basse (crateri, conche, gallerie); il DM sceglie la zona del percorso. Una prova di Percezione (olfatto) CD 15 li avverte prima di entrarci. Chi entra o resta nella zona effettua un Tiro Salvezza su Tempra CD 15 all'ingresso e poi ogni 10 minuti: se fallisce è infermo finché resta e per i 10 minuti successivi; con due fallimenti di fila è anche nauseato per 1d4 round e subisce 1d6 danni. È un effetto di [VELENO]. Le creature che non respirano sono immuni.
+Foschia
+Visibilità massima 20 caselle (30 m). Le creature oltre 9 m godono di Occultamento 20%. Penalità −2 alle prove di Percezione (vista).
+Gelo polare
+Freddo estremo. Valgono gli effetti del Gelo. Anche con gli abiti invernali, ogni ora all'aperto serve un Tiro Salvezza su Tempra CD 15 (+1 per ogni prova precedente), con gli stessi gradi della Canicola. Senza abiti invernali si subiscono 1d6 danni non letali da freddo ogni 10 minuti. Vicino a un fuoco o in un riparo riscaldato le prove si sospendono.
+Grandine
+Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Chi resta senza riparo subisce 1 danno non letale ogni 10 minuti. Fiamme: come la Pioggia battente.
+Miraggi
+Oltre 30 m le prove di Percezione (vista) subiscono penalità −4 e il DM può mostrare oasi, figure o carovane che non esistono; chi si avvicina entro 30 m riconosce il miraggio. Orientarsi: +5 alla CD.
+Monsone
+Visibilità massima 15 caselle (22,5 m). Penalità −4 ai tiri per colpire a distanza e alle prove di Percezione. Fiamme: vedi la tabella. Fuori dalle strade il fango rende il terreno difficile per quel giorno e per il seguente. Fiumi e torrenti sono in piena: acque agitate (Nuotare CD 15), rapide tempestose (CD 20), guadi impraticabili. Bagnato e acqua: come l'Acquazzone.
+Nebbia
+Le creature oltre 3 m godono di Occultamento 50%. Visibilità massima 6 caselle (9 m). Orientarsi: +5 alla CD.
+Neve
+Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Fiamme: vedi la tabella. La neve si deposita dopo 1 ora e rende il terreno difficile (×2); si scioglie in 1d3 giorni se il clima non è freddo e resta con il Clima freddo e il Gelo. Le tracce lasciate prima della nevicata: +2 alla CD per ogni ora di neve. Sciogliendo la neve sul fuoco si ottiene 1 razione d'acqua all'ora.
+Neve fitta
+Visibilità massima 10 caselle (15 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Le creature oltre 3 m godono di Occultamento 50%. Orientarsi: +5 alla CD. Fiamme: vedi la tabella. Se la neve si è già depositata il terreno è difficile (×4). Per tracce e acqua vale la Neve.
+Pioggia battente
+Penalità −2 alle prove di Percezione. Fiamme: vedi la tabella. Seguire tracce: +1 alla CD per ogni ora di pioggia. Chi resta all'aperto si bagna. Chi ha recipienti raccoglie la razione d'acqua del giorno.
+Pioggia di cenere
+Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione; le creature oltre 9 m godono di Occultamento 20%. Dopo 2 ore la cenere depositata rende il terreno difficile (×2). Chi non si copre naso e bocca con un panno bagnato subisce gli effetti del Fumo (Guida del DM), con una prova ogni ora invece che ogni round. Acqua e cibo lasciati all'aperto vanno purificati (bollitura, Tavoletta purificante o Purificare cibo e bevande). Fiamme: come la Neve.
+Pioggia gelata
+Pioggia che gela al suolo. Penalità −2 alle prove di Percezione. Per tutto il giorno ogni superficie all'aperto è un terreno scivoloso (Terreni scivolosi, Guida del DM). Scalare su rocce, alberi e funi ghiacciate: +5 alla CD. Bagnato e fiamme: come la Pioggia battente.
+Temporale
+Valgono gli effetti di Acquazzone e Vento forte. Ogni ora all'aperto il DM tira d%: con 01–03 un fulmine colpisce la creatura più esposta del gruppo (la più alta, chi impugna un'arma lunga di metallo o indossa un'armatura pesante) e le infligge 4d8 danni da elettricità (Riflessi CD 15 dimezza). Chi si ripara sotto un albero isolato rischia di più: 01–06.
+Tempesta di grandine / polvere / sabbia / cenere
+Visibilità massima 5 caselle (7,5 m). I tiri per colpire a distanza falliscono automaticamente. Penalità −8 alle prove di Percezione. Orientarsi: +10 alla CD. Si spengono tutte le fiamme. Le tracce si cancellano. Chi si muove avanza a un quarto della velocità. Ogni minuto si subiscono 1d4 danni letali per escoriazioni, cadute e asfissia; un riparo solido (grotta, edificio, tenda piantata sottovento) li evita. Con polvere, sabbia e cenere, chi non si copre naso e bocca con un panno subisce anche gli effetti del Fumo (Guida del DM).
+Tempesta di vento
+Gli attacchi a distanza sono impossibili, tranne con le armi d'assedio (−4). Penalità −8 alle prove di Percezione (udito). Le creature Medie o più piccole non possono volare. Le creature Piccole o più piccole effettuano ogni round una prova di Forza CD 15: se falliscono cadono prone e sono spinte di 1d4 × 3 m; le Medie dimezzano la velocità controvento. Tende e ripari leggeri crollano se non sono stati ancorati (Sopravvivenza CD 15). Si spengono tutte le fiamme.
+Tormenta
+Neve fitta e vento molto forte insieme. Visibilità massima 2 caselle (3 m); le creature oltre 1,5 m godono di Occultamento 50%. Gli attacchi a distanza falliscono automaticamente. Penalità −8 alle prove di Percezione. Orientarsi: +10 alla CD. Chi si muove avanza a un quarto della velocità. Chi resta senza riparo subisce 1d4 danni non letali da freddo ogni 10 minuti, anche con gli abiti invernali. La neve si deposita come per la Neve fitta. Fiamme: come con il Vento molto forte.
+Uragano
+Valgono gli effetti di Tempesta di vento e Monsone. Visibilità massima 5 caselle (7,5 m). Ogni round le creature Medie effettuano una prova di Forza CD 15, le Piccole o più piccole CD 20: se falliscono cadono prone e sono spinte di 1d4 × 3 m (le Piccole o più piccole subiscono anche 1d6 danni). Chi resta all'aperto subisce 1d6 danni letali ogni 10 minuti per i detriti. Tende e capanne vengono distrutte; riparano solo gli edifici in muratura e le grotte.
+Vento forte
+Penalità −2 ai tiri per colpire a distanza, alle prove di Percezione (udito) e alle prove di Volare. Fiamme: vedi la tabella.
+Vento molto forte
+Penalità −4 ai tiri per colpire a distanza, alle prove di Percezione (udito) e alle prove di Volare. Le creature Minuscole o più piccole dimezzano la velocità controvento. Fiamme: vedi la tabella.
+Le condizioni del Sotterraneo (Aria ferma, Correnti d'aria, Stillicidio, Aria viziata, Allagamento, Crolli, Grotte gelate) sono descritte nella zona 16.
+Regole generali
+Protezioni
+• Resistenze. RE (fuoco) di qualsiasi valore vale come gli abiti estivi, anche con l'Afa; RE (freddo) come gli abiti invernali. Con RE 10 o più la creatura è esente anche dai Tiri Salvezza e dai danni di Canicola e Gelo polare. L'immunità protegge da tutti gli effetti di quel clima.
+• Contrastare elementi annulla Clima caldo e freddo, Arsura, Gelo e Afa; contro Canicola e Gelo polare vale come gli abiti adatti, quindi i Tiri Salvezza restano.
+• Le creature immuni agli effetti di [AFFATICAMENTO] ignorano gli effetti di questo manuale che le renderebbero affaticate o esauste, ma non i danni non letali.
+• Le creature che non respirano sono immuni a Fumo, Esalazioni, Aria viziata e alta quota.
+• Le razze che «non subiscono gli effetti del clima» (Vol. 1) ignorano gli effetti di temperatura; visibilità, vento e terreno valgono anche per loro.
+• Acclimatarsi. Dopo un mese in una zona calda (o fredda) il Clima caldo (o freddo) non ha effetti anche senza abiti adatti; Arsura e Gelo restano. Dopo due mesi lontano dalla zona l'acclimatazione si perde.
+Bagnati
+Chi si bagna (pioggia senza riparo, guado, caduta in acqua) con il Clima fresco o più freddo conta il clima di un grado più severo finché non si asciuga: 1 ora vicino a un fuoco, 4 ore all'aria asciutta. Il Mantello da viaggio (Vol. 3), impermeabile, protegge dalla pioggia ma non dall'acqua in cui si finisce dentro.
+Ripari e fuoco
+• Fuoco. Chi sta entro 3 m da un fuoco conta il clima di un grado più mite. Nelle zone senza legna (Brughiere e lande, Tundra, Ghiacci artici, deserti, Oceano) il combustibile va portato con sé.
+• Tenda. Ripara da pioggia, neve e vento fino al Vento molto forte; con la Tempesta di vento crolla, se non è stata ancorata. Con un fuoco vicino, o con due o più occupanti, conta un grado più mite.
+• Riparo trovato (Sopravvivenza CD 15; CD 20 in Brughiere e lande e in Tundra): ripara come la tenda, ma senza il grado più mite.
+• Edifici in muratura. Il clima non ha effetti.
+Viaggi
+Questi moltiplicatori si aggiungono a quelli del terreno della Guida del DM.
+[TABELLA]
+| Condizione | Velocità di viaggio |
+| Neve depositata, Pioggia gelata, fango (Monsone, piene) | ×½ fuori strada |
+| Neve fitta depositata | ×¼ (×½ con le racchette da neve) |
+| Tempeste, Tormenta, Uragano | ×¼ |
+[/TABELLA]
+Orientarsi (Sopravvivenza CD 15, Guida del DM): una prova al giorno fuori dalle strade; la Bussola dà +3. Con un fallimento il gruppo si perde e quel giorno percorre metà della strada; con un fallimento di 5 o più cammina tutto il giorno nella direzione sbagliata, scelta dal DM. La prova si ripete il giorno dopo. Modificatori: Foschia +2; Nebbia, Neve fitta e Miraggi +5; tempeste e Tormenta +10.
+Navigazione
+Le velocità delle imbarcazioni sono quelle usate dal DM. Il vento conta a favore, salvo con un 6 su 1d6: allora è contrario e le navi a vela bordeggiano a metà velocità.
+[TABELLA]
+| Tempo | Navi a vela | Navi a remi | Pilotare imbarcazioni |
+| Nessun vento nella riga | Normale | Normale | — |
+| Bonaccia | Ferme | Normale | — |
+| Vento forte | +50% | −25% | CD 15 ogni 4 ore |
+| Vento molto forte | Normale (vele ridotte) | Metà | CD 20 ogni ora |
+| Tempesta di vento | Si corre col vento, la direzione non si controlla | Impossibile | CD 25 ogni ora |
+| Uragano | Come sopra | Impossibile | CD 30 ogni ora |
+[/TABELLA]
+Se la prova fallisce con il Vento forte o molto forte, la nave va alla deriva e perde 1d4 ore di viaggio. Con la Tempesta di vento o l'Uragano lo scafo subisce invece 1 livello di danneggiamento, come gli oggetti della Guida del DM:
+• Scheggiato: velocità −25%.
+• Rotto: imbarca acqua e procede a metà velocità; serve una prova di Pilotare imbarcazioni CD 15 ogni 4 ore per restare a galla.
+• Distrutto: naufragio.
+Lo scafo si ripara come in «Riparare oggetti rotti» della Guida del DM, con Professione (falegname).
+Capitolo 3 – Le zone
+Ogni zona ha una breve descrizione, la tabella del tempo per ogni stagione e le particolarità che valgono sempre in quella zona. Le regole per trovare cibo e acqua sono nel Capitolo 4.
+1. Pianure e colline temperate
+Campagne, colline e pianure coltivate delle terre temperate. È la zona della tabella della Guida del DM.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-85 | Clima mite | 01-75 | Clima caldo |
+| 86-90 | Pioggia battente | 76-88 | Pioggia battente |
+| 91-93 | Acquazzone | 89-92 | Arsura |
+| 94 | Temporale | 93-94 | Temporale |
+| 95-97 | Vento forte | 95 | Grandine |
+| 98-99 | Vento molto forte | 96 | Acquazzone |
+| 00 | Nebbia | 97-98 | Vento forte |
+|  |  | 99-00 | Vento molto forte |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-78 | Clima fresco | 01-75 | Clima freddo |
+| 79-87 | Pioggia battente | 76-82 | Pioggia battente |
+| 88-91 | Acquazzone | 83-90 | Clima freddo + Neve |
+| 92-93 | Foschia | 91-94 | Gelo |
+| 94-95 | Vento forte | 95 | Clima freddo + Pioggia gelata |
+| 96-97 | Vento molto forte | 96 | Clima freddo + Neve fitta |
+| 98-00 | Nebbia | 97-98 | Vento forte |
+|  |  | 99-00 | Vento molto forte |
+[/TABELLA]
+2. Foreste temperate
+Boschi di latifoglie e di conifere delle terre temperate. Sotto le fronde il vento è più debole e la nebbia più frequente.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-78 | Clima mite | 01-72 | Clima caldo |
+| 79-87 | Pioggia battente | 73-85 | Pioggia battente |
+| 88-90 | Acquazzone | 86-88 | Temporale |
+| 91 | Temporale | 89-90 | Acquazzone |
+| 92-94 | Foschia | 91-92 | Arsura |
+| 95-97 | Nebbia | 93-95 | Nebbia |
+| 98-00 | Vento forte | 96-00 | Vento forte |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-70 | Clima fresco | 01-70 | Clima freddo |
+| 71-81 | Pioggia battente | 71-77 | Pioggia battente |
+| 82-85 | Acquazzone | 78-86 | Clima freddo + Neve |
+| 86-91 | Nebbia | 87-90 | Gelo |
+| 92-95 | Foschia | 91-92 | Clima freddo + Pioggia gelata |
+| 96-99 | Vento forte | 93 | Clima freddo + Neve fitta |
+| 00 | Vento molto forte | 94-97 | Nebbia |
+|  |  | 98-00 | Vento forte |
+[/TABELLA]
+Particolarità
+• Sotto le fronde il vento conta un grado in meno: la tabella ne tiene già conto.
+• Si applicano gli Ambienti specifici «Boschivi» della Guida del DM.
+3. Brughiere e lande
+Distese di erica, torbiere e colline spoglie battute dal vento. La foschia è di casa e l'estate resta mite.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-60 | Clima mite | 01-65 | Clima mite |
+| 61-72 | Pioggia battente | 66-75 | Pioggia battente |
+| 73-82 | Foschia | 76-83 | Foschia |
+| 83-88 | Nebbia | 84-87 | Nebbia |
+| 89-95 | Vento forte | 88-94 | Vento forte |
+| 96-99 | Vento molto forte | 95-97 | Vento molto forte |
+| 00 | Grandine | 98-99 | Temporale |
+|  |  | 00 | Grandine |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-50 | Clima fresco | 01-55 | Clima freddo |
+| 51-64 | Pioggia battente | 56-65 | Pioggia battente |
+| 65-74 | Foschia | 66-72 | Clima freddo + Neve |
+| 75-84 | Nebbia | 73-77 | Gelo |
+| 85-87 | Acquazzone | 78-82 | Nebbia |
+| 88-94 | Vento forte | 83-87 | Foschia |
+| 95-98 | Vento molto forte | 88-93 | Clima freddo + Vento forte |
+| 99-00 | Tempesta di vento | 94-97 | Clima freddo + Vento molto forte |
+|  |  | 98-99 | Clima freddo + Pioggia gelata |
+|  |  | 00 | Tempesta di vento |
+[/TABELLA]
+Particolarità
+• Non ci sono ripari naturali: Trovare riparo (Sopravvivenza) ha CD 20 invece di 15.
+• Nelle torbiere valgono lo Stagno da 30 cm e le Sabbie mobili della Guida del DM.
+4. Paludi e acquitrini
+Acque basse, canneti e foreste allagate. Nebbie frequenti, afa d'estate e gas che ristagnano nelle conche.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-65 | Clima mite | 01-55 | Clima caldo |
+| 66-77 | Pioggia battente | 56-70 | Afa |
+| 78-80 | Acquazzone | 71-80 | Pioggia battente |
+| 81-88 | Nebbia | 81-84 | Temporale |
+| 89-95 | Foschia | 85-86 | Acquazzone |
+| 96-98 | Vento forte | 87-92 | Foschia |
+| 99-00 | Temporale | 93-96 | Nebbia |
+|  |  | 97-98 | Esalazioni |
+|  |  | 99-00 | Vento forte |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-60 | Clima fresco | 01-65 | Clima freddo |
+| 61-73 | Pioggia battente | 66-75 | Pioggia battente |
+| 74-77 | Acquazzone | 76-85 | Nebbia |
+| 78-89 | Nebbia | 86-89 | Clima freddo + Neve |
+| 90-95 | Foschia | 90-92 | Gelo |
+| 96-97 | Esalazioni | 93-94 | Clima freddo + Pioggia gelata |
+| 98-00 | Vento forte | 95-97 | Foschia |
+|  |  | 98-00 | Vento forte |
+[/TABELLA]
+Particolarità
+• Si applicano gli Ambienti specifici «Paludosi» della Guida del DM.
+• Le Esalazioni non riguardano tutta la palude, ma una zona del percorso scelta dal DM.
+• Con il Gelo gli stagni ghiacciano: valgono le regole del Ghiaccio della Guida del DM.
+5. Coste temperate
+Spiagge, scogliere e porti delle terre temperate, esposti al vento del mare.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-70 | Clima mite | 01-70 | Clima caldo |
+| 71-78 | Pioggia battente | 71-77 | Pioggia battente |
+| 79-81 | Acquazzone | 78-80 | Temporale |
+| 82-86 | Foschia | 81-83 | Foschia |
+| 87-89 | Nebbia | 84-85 | Nebbia |
+| 90-95 | Vento forte | 86-92 | Vento forte |
+| 96-98 | Vento molto forte | 93-95 | Vento molto forte |
+| 99 | Temporale | 96-97 | Bonaccia |
+| 00 | Tempesta di vento | 98-99 | Arsura |
+|  |  | 00 | Tempesta di vento |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-58 | Clima fresco | 01-60 | Clima freddo |
+| 59-70 | Pioggia battente | 61-72 | Pioggia battente |
+| 71-75 | Acquazzone | 73-76 | Clima freddo + Neve |
+| 76-80 | Foschia | 77-79 | Gelo |
+| 81-85 | Nebbia | 80-84 | Foschia |
+| 86-92 | Vento forte | 85-90 | Clima freddo + Vento forte |
+| 93-97 | Vento molto forte | 91-96 | Clima freddo + Vento molto forte |
+| 98-99 | Temporale | 97-98 | Acquazzone |
+| 00 | Tempesta di vento | 99-00 | Tempesta di vento |
+[/TABELLA]
+Particolarità
+• Lo stato del mare segue la regola del Capitolo 1; per le imbarcazioni vale la Navigazione del Capitolo 2.
+• Per le scogliere valgono Rupe e Parete rocciosa della Guida del DM.
+• Con la bassa marea, due volte al giorno, si aprono guadi e grotte che con l'alta marea si allagano.
+6. Montagne
+Pendici alte, passi e vette fra i 1.500 e i 4.500 metri.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-55 | Clima freddo | 01-60 | Clima fresco |
+| 56-65 | Clima freddo + Neve | 61-70 | Pioggia battente |
+| 66-72 | Pioggia battente | 71-78 | Temporale |
+| 73-77 | Nebbia | 79-82 | Grandine |
+| 78-85 | Vento forte | 83-86 | Nebbia |
+| 86-91 | Vento molto forte | 87-93 | Vento forte |
+| 92-94 | Grandine | 94-97 | Vento molto forte |
+| 95-97 | Temporale | 98-99 | Clima freddo + Neve |
+| 98-99 | Clima freddo + Neve fitta | 00 | Tempesta di vento |
+| 00 | Tormenta |  |  |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-50 | Clima freddo | 01-45 | Gelo |
+| 51-60 | Pioggia battente | 46-60 | Gelo + Neve |
+| 61-70 | Clima freddo + Neve | 61-70 | Gelo + Neve fitta |
+| 71-75 | Nebbia | 71-78 | Gelo + Vento forte |
+| 76-79 | Gelo | 79-85 | Gelo + Vento molto forte |
+| 80-86 | Clima freddo + Vento forte | 86-92 | Tormenta |
+| 87-91 | Clima freddo + Vento molto forte | 93-96 | Clima freddo |
+| 92-94 | Clima freddo + Pioggia gelata | 97-99 | Nebbia |
+| 95-97 | Clima freddo + Neve fitta | 00 | Tempesta di vento |
+| 98-99 | Tormenta |  |  |
+| 00 | Tempesta di vento |  |  |
+[/TABELLA]
+Particolarità
+• Sotto i 1.500 m si usa la tabella delle Pianure e colline temperate o delle Foreste temperate.
+• Oltre i 4.500 m il Clima freddo diventa Gelo e il Gelo diventa Gelo polare.
+• Valgono le regole d'alta quota e gli Ambienti specifici «Montuosi» della Guida del DM.
+• Dopo una giornata di Neve fitta o di Tormenta il DM può tirare il rischio di valanghe (Valanghe e frane, Guida del DM).
+7. Foreste boreali
+Le foreste di conifere del nord (taiga): estate breve e piovosa, inverno lungo di neve e gelo.
+[TABELLA]
+| d% | Primavera-estate (21 marzo – 22 settembre) | d% | Autunno-inverno (23 settembre – 20 marzo) |
+| 01-60 | Clima mite | 01-50 | Clima freddo |
+| 61-72 | Pioggia battente | 51-62 | Clima freddo + Neve |
+| 73-76 | Acquazzone | 63-72 | Gelo |
+| 77-80 | Temporale | 73-78 | Gelo + Neve |
+| 81-86 | Nebbia | 79-82 | Clima freddo + Neve fitta |
+| 87-90 | Foschia | 83-85 | Clima freddo + Pioggia gelata |
+| 91-95 | Clima freddo | 86-90 | Nebbia |
+| 96-98 | Vento forte | 91-95 | Vento forte |
+| 99-00 | Clima freddo + Neve | 96-98 | Gelo + Neve fitta |
+|  |  | 99-00 | Gelo polare |
+[/TABELLA]
+Particolarità
+• Si applicano gli Ambienti specifici «Boschivi» della Guida del DM.
+• In autunno-inverno la neve copre il suolo per tutta la stagione: fuori dai sentieri battuti il terreno è difficile (×2).
+8. Tundra
+Pianure nude del grande nord, senza alberi né ripari. D'estate il disgelo le trasforma in un mare di fango.
+[TABELLA]
+| d% | Primavera-estate (21 marzo – 22 settembre) | d% | Autunno-inverno (23 settembre – 20 marzo) |
+| 01-60 | Clima fresco | 01-55 | Gelo |
+| 61-72 | Clima freddo | 56-65 | Gelo + Neve |
+| 73-80 | Pioggia battente | 66-75 | Gelo + Vento forte |
+| 81-85 | Nebbia | 76-83 | Gelo + Vento molto forte |
+| 86-92 | Vento forte | 84-89 | Tormenta |
+| 93-96 | Vento molto forte | 90-94 | Gelo polare |
+| 97-98 | Clima freddo + Neve | 95-98 | Clima freddo |
+| 99 | Grandine | 99-00 | Gelo + Neve fitta |
+| 00 | Tempesta di vento |  |  |
+[/TABELLA]
+Particolarità
+• Non ci sono ripari naturali: Trovare riparo (Sopravvivenza) ha CD 20 invece di 15.
+• In primavera-estate il disgelo lascia pozze e fango: valgono gli Stagni da 30 cm della Guida del DM, sparsi.
+9. Ghiacci artici
+Calotte, banchise e ghiacciai perenni. È la zona della tabella delle zone artiche della Guida del DM.
+[TABELLA]
+| d% | Primavera-estate (21 marzo – 22 settembre) | d% | Autunno-inverno (23 settembre – 20 marzo) |
+| 01-75 | Clima freddo | 01-70 | Gelo |
+| 76-90 | Gelo | 71-80 | Gelo polare |
+| 91-94 | Clima freddo + Vento forte | 81-85 | Gelo + Vento forte |
+| 95-96 | Clima freddo + Vento molto forte | 86-89 | Gelo + Vento molto forte |
+| 97-98 | Clima freddo + Neve | 90-93 | Gelo + Neve |
+| 99 | Clima freddo + Neve fitta | 94-96 | Gelo + Neve fitta |
+| 00 | Tormenta | 97-99 | Tormenta |
+|  |  | 00 | Gelo + Tempesta di grandine |
+[/TABELLA]
+Particolarità
+• Molte superfici sono Ghiaccio (regole della Guida del DM).
+• L'acqua si ottiene solo sciogliendo neve o ghiaccio.
+10. Deserto sabbioso
+Mari di dune sotto un sole spietato. È la zona della tabella delle zone desertiche della Guida del DM.
+[TABELLA]
+| d% | Primavera-estate (21 marzo – 22 settembre) | d% | Autunno-inverno (23 settembre – 20 marzo) |
+| 01-60 | Arsura | 01-65 | Clima caldo |
+| 61-70 | Canicola | 66-80 | Arsura |
+| 71-76 | Arsura + Miraggi | 81-84 | Clima caldo + Miraggi |
+| 77-82 | Clima caldo | 85-88 | Clima caldo + Vento forte |
+| 83-87 | Clima caldo + Vento forte | 89-91 | Clima caldo + Vento molto forte |
+| 88-91 | Clima caldo + Vento molto forte | 92-93 | Clima caldo + Tempesta di sabbia |
+| 92-93 | Monsone | 94-96 | Acquazzone |
+| 94-97 | Clima caldo + Tempesta di sabbia | 97-98 | Monsone |
+| 98-00 | Arsura + Vento forte | 99-00 | Clima mite |
+[/TABELLA]
+Particolarità
+• Notti fredde: dalle 22 alle 6 vale il Clima freddo; dalle 6 alle 10 e dalle 18 alle 22 vale il Clima caldo. Chi viaggia di notte per evitare l'Arsura ha bisogno di abiti invernali.
+• Valgono le Dune di sabbia della Guida del DM.
+11. Deserto roccioso e calanchi
+Altopiani aridi, canaloni e pietraie. Meno sabbia, più vento e piene improvvise.
+[TABELLA]
+| d% | Primavera-estate (21 marzo – 22 settembre) | d% | Autunno-inverno (23 settembre – 20 marzo) |
+| 01-55 | Arsura | 01-50 | Clima caldo |
+| 56-62 | Canicola | 51-62 | Clima mite |
+| 63-67 | Arsura + Miraggi | 63-70 | Arsura |
+| 68-77 | Clima caldo | 71-77 | Clima caldo + Vento forte |
+| 78-84 | Clima caldo + Vento forte | 78-82 | Clima caldo + Vento molto forte |
+| 85-89 | Clima caldo + Vento molto forte | 83-87 | Acquazzone |
+| 90-92 | Temporale | 88-90 | Temporale |
+| 93-94 | Acquazzone | 91-93 | Clima caldo + Tempesta di polvere |
+| 95-97 | Clima caldo + Tempesta di polvere | 94-97 | Clima freddo |
+| 98-00 | Tempesta di vento | 98-00 | Grandine |
+[/TABELLA]
+Particolarità
+• Piene improvvise: con Acquazzone o Temporale i canaloni si allagano in 1d4 × 10 minuti e diventano acqua corrente con rapide (regole della Guida del DM).
+• Valgono Detriti grandi e Rupe della Guida del DM.
+• Le notti sono fredde come nel Deserto sabbioso.
+12. Savana e steppa
+Grandi praterie con alberi radi, verdi nella stagione delle piogge e riarse in quella secca.
+[TABELLA]
+| d% | Stagione delle piogge (21 marzo – 22 settembre) | d% | Stagione secca (23 settembre – 20 marzo) |
+| 01-45 | Clima caldo | 01-55 | Clima caldo |
+| 46-60 | Pioggia battente | 56-72 | Arsura |
+| 61-72 | Temporale | 73-80 | Clima caldo + Vento forte |
+| 73-80 | Acquazzone | 81-86 | Clima caldo + Vento molto forte |
+| 81-85 | Afa | 87-91 | Clima caldo + Tempesta di polvere |
+| 86-90 | Monsone | 92-95 | Clima mite |
+| 91-95 | Clima caldo + Vento forte | 96-98 | Arsura + Miraggi |
+| 96-98 | Grandine | 99-00 | Temporale |
+| 99-00 | Tempesta di vento |  |  |
+[/TABELLA]
+Particolarità
+• Steppa fredda: nella stagione secca il Clima caldo diventa Clima freddo e l'Arsura diventa Gelo.
+• Nella stagione delle piogge l'erba alta funziona come il Sottobosco rado della Guida del DM.
+• Con il Temporale della stagione secca il DM può far partire un incendio d'erba.
+13. Foresta tropicale
+Giungle fitte, calde e umide, dove piove quasi ogni giorno.
+[TABELLA]
+| d% | Stagione delle piogge (21 marzo – 22 settembre) | d% | Stagione secca (23 settembre – 20 marzo) |
+| 01-30 | Afa | 01-45 | Afa |
+| 31-50 | Pioggia battente | 46-60 | Clima caldo |
+| 51-65 | Acquazzone | 61-72 | Pioggia battente |
+| 66-78 | Temporale | 73-80 | Temporale |
+| 79-88 | Monsone | 81-85 | Acquazzone |
+| 89-93 | Nebbia | 86-92 | Nebbia |
+| 94-97 | Foschia | 93-97 | Foschia |
+| 98-99 | Vento forte | 98-99 | Arsura |
+| 00 | Uragano | 00 | Vento forte |
+[/TABELLA]
+Particolarità
+• Si applicano gli Ambienti specifici «Boschivi» della Guida del DM, con molto Sottobosco fitto.
+• Lontano dalla costa l'Uragano diventa Tempesta di vento + Monsone.
+14. Mare aperto
+Mari interni e acque al largo, a qualche giorno di navigazione dalla costa.
+[TABELLA]
+| d% | Primavera (21 marzo – 21 giugno) | d% | Estate (22 giugno – 22 settembre) |
+| 01-55 | Clima mite | 01-55 | Clima caldo |
+| 56-63 | Pioggia battente | 56-61 | Pioggia battente |
+| 64-67 | Acquazzone | 62-67 | Temporale |
+| 68-72 | Foschia | 68-70 | Foschia |
+| 73-75 | Nebbia | 71-80 | Vento forte |
+| 76-87 | Vento forte | 81-85 | Vento molto forte |
+| 88-93 | Vento molto forte | 86-94 | Bonaccia |
+| 94-96 | Bonaccia | 95-97 | Arsura |
+| 97-98 | Temporale | 98-99 | Acquazzone |
+| 99-00 | Tempesta di vento | 00 | Tempesta di vento |
+[/TABELLA]
+[TABELLA]
+| d% | Autunno (23 settembre – 21 dicembre) | d% | Inverno (22 dicembre – 20 marzo) |
+| 01-45 | Clima fresco | 01-45 | Clima freddo |
+| 46-55 | Pioggia battente | 46-56 | Pioggia battente |
+| 56-61 | Acquazzone | 57-60 | Clima freddo + Neve |
+| 62-66 | Foschia | 61-64 | Foschia |
+| 67-70 | Nebbia | 65-76 | Clima freddo + Vento forte |
+| 71-82 | Vento forte | 77-88 | Clima freddo + Vento molto forte |
+| 83-91 | Vento molto forte | 89-92 | Acquazzone |
+| 92-95 | Temporale | 93-94 | Clima freddo + Pioggia gelata |
+| 96-99 | Tempesta di vento | 95-99 | Tempesta di vento |
+| 00 | Bonaccia | 00 | Bonaccia |
+[/TABELLA]
+Particolarità
+• Lo stato del mare segue la regola del Capitolo 1; per le imbarcazioni vale la Navigazione del Capitolo 2.
+15. Oceano
+L'alto mare, lontano da ogni terra.
+[TABELLA]
+| d% | Stagione calma (21 marzo – 22 settembre) | d% | Stagione delle tempeste (23 settembre – 20 marzo) |
+| 01-45 | Clima mite | 01-35 | Clima fresco |
+| 46-55 | Clima caldo | 36-45 | Pioggia battente |
+| 56-62 | Pioggia battente | 46-52 | Acquazzone |
+| 63-66 | Acquazzone | 53-56 | Foschia |
+| 67-70 | Foschia | 57-68 | Vento forte |
+| 71-80 | Vento forte | 69-80 | Vento molto forte |
+| 81-85 | Vento molto forte | 81-86 | Temporale |
+| 86-93 | Bonaccia | 87-94 | Tempesta di vento |
+| 94-96 | Temporale | 95-97 | Uragano |
+| 97-98 | Tempesta di vento | 98-99 | Grandine |
+| 99 | Nebbia | 00 | Bonaccia |
+| 00 | Uragano |  |  |
+[/TABELLA]
+Particolarità
+• Lontano da terra non ci sono ripari né acqua dolce, salvo la pioggia.
+• Lo stato del mare segue la regola del Capitolo 1; per le imbarcazioni vale la Navigazione del Capitolo 2.
+16. Sotterraneo
+Caverne, gallerie e cunicoli. Il tempo atmosferico non c'è: al suo posto il DM tira sulla tabella delle condizioni, ogni giorno oppure a ogni nuova zona di gallerie. Il clima base è sempre il Clima fresco.
+Condizioni del sotterraneo
+[TABELLA]
+| d% | Condizione | Effetti |
+| 01-60 | Aria ferma | Nessun effetto. |
+| 61-70 | Correnti d'aria | Fiamme come con il Vento forte; penalità −2 alle prove di Percezione (udito). Chi segue la corrente con una prova di Sopravvivenza CD 15 trova la direzione di un'uscita o di una caverna ampia. |
+| 71-80 | Stillicidio | Penalità −2 alle prove di Percezione (udito). L'acqua si trova senza prova. Nei passaggi in pendenza valgono i Terreni scivolosi della Guida del DM. |
+| 81-87 | Aria viziata | Le fiamme durano metà del tempo. Chi compie attività faticose effettua un TS su Tempra CD 15 ogni ora: se fallisce è affaticato finché non torna in aria buona. |
+| 88-93 | Allagamento | Le gallerie basse sono allagate: valgono lo Stagno da 30 cm o da 120 cm della Guida del DM, a scelta del DM; dove la volta tocca l'acqua serve Nuotare. |
+| 94-97 | Esalazioni | Vedi Capitolo 2. |
+| 98-99 | Crolli | Cadono detriti: Riflessi CD 15 per evitare 2d6 danni. Un passaggio a scelta del DM resta ostruito; liberarlo richiede 1d4 ore di lavoro. |
+| 00 | Grotte gelate | Vale il Clima freddo e, nelle zone indicate dal DM, il Ghiaccio della Guida del DM. |
+[/TABELLA]
+Particolarità
+• Il buio segue le normali regole sulla luce.
+17. Terre vulcaniche
+Pendici di vulcani attivi, campi di lava e fumarole.
+[TABELLA]
+| d% | Primavera-estate (21 marzo – 22 settembre) | d% | Autunno-inverno (23 settembre – 20 marzo) |
+| 01-40 | Clima caldo | 01-45 | Clima mite |
+| 41-52 | Arsura | 46-55 | Clima caldo |
+| 53-58 | Canicola | 56-67 | Pioggia di cenere |
+| 59-70 | Pioggia di cenere | 68-75 | Esalazioni |
+| 71-78 | Esalazioni | 76-82 | Pioggia battente |
+| 79-84 | Clima caldo + Vento forte | 83-87 | Nebbia |
+| 85-89 | Temporale | 88-92 | Vento forte |
+| 90-94 | Pioggia battente | 93-95 | Temporale |
+| 95-97 | Nebbia | 96-98 | Clima freddo |
+| 98-00 | Clima caldo + Tempesta di cenere | 99-00 | Tempesta di cenere |
+[/TABELLA]
+Particolarità
+• Lava: 2d6 danni da fuoco per round di contatto, 20d6 per round di immersione; i danni continuano per 1d3 round dopo esserne usciti.
+• La Nebbia è il vapore delle fumarole. Le sorgenti termali sono spesso sulfuree (vedi Capitolo 4).
+• Vale Detriti grandi della Guida del DM.
+Capitolo 4 – Sopravvivere
+Foraggiare
+Foraggiare è un uso di Sopravvivenza: una prova al giorno per personaggio, che richiede 2 ore fuori dalla marcia (nei giorni di marcia forzata non si può). Si può prendere 10 e ricevere aiuto. Superando la CD della zona si trova cibo per sé, e anche acqua dove la zona lo permette; ogni N punti oltre la CD si nutre un'altra persona. Dove si può pescare (coste, mare, oceano, laghi) Professione (pescatore) sostituisce Sopravvivenza per il solo cibo, con una lenza o una rete.
+Cibo avariato (zone ☠). Chi fallisce la prova di 5 o più torna comunque con del cibo, ma avariato o velenoso: chi lo mangia effettua un Tiro Salvezza su Tempra CD 12; se fallisce è nauseato per 1d4 ore e per quel giorno conta come se non avesse mangiato.
+[TABELLA]
+| Zona | CD | +1 persona ogni | Acqua | ☠ |
+| 1. Pianure e colline temperate | 12 | 3 | Inclusa |  |
+| 2. Foreste temperate | 10 | 2 | Inclusa |  |
+| 3. Brughiere e lande | 15 | 4 | Inclusa |  |
+| 4. Paludi e acquitrini | 12 | 3 | Inclusa, da bollire | ☠ |
+| 5. Coste temperate | 10 | 2 | CD 15 |  |
+| 6. Montagne | 15 | 4 | Inclusa¹ |  |
+| 7. Foreste boreali | 13 | 3 | Inclusa |  |
+| 8. Tundra | 18 | 5 | Inclusa² |  |
+| 9. Ghiacci artici | 22 | 6 | Solo neve² |  |
+| 10. Deserto sabbioso | 25 | 8 | CD 25 |  |
+| 11. Deserto roccioso e calanchi | 20 | 6 | CD 20 |  |
+| 12. Savana e steppa | 13 | 3 | Inclusa³ |  |
+| 13. Foresta tropicale | 10 | 2 | Inclusa | ☠ |
+| 14. Mare aperto | 18 | 4 | No |  |
+| 15. Oceano | 20 | 5 | No |  |
+| 16. Sotterraneo | 18 | 5 | CD 15⁴ | ☠ |
+| 17. Terre vulcaniche | 22 | 6 | CD 20⁵ | ☠ |
+[/TABELLA]
+¹ Oltre i 4.500 m solo neve. ² In autunno-inverno si scioglie neve o ghiaccio sul fuoco: 1 razione all'ora. ³ CD 20 nella stagione secca. ⁴ Con lo Stillicidio si trova senza prova. ⁵ Sulfurea: va purificata con la Tavoletta purificante o con Purificare cibo e bevande; la bollitura non basta.
+Acqua: inclusa vuol dire che la stessa prova procura anche l'acqua; CD X che serve una seconda prova con quella CD, con la stessa resa; No che l'acqua si ottiene solo dalla pioggia, dalla magia o dalle scorte.
+Modificatori alla CD
+[TABELLA]
+| Condizione | CD |
+| Stagione povera: Inverno (zone a quattro stagioni), Autunno-inverno (Foreste boreali e Tundra), Stagione secca (Savana e steppa) | +5 |
+| Pioggia battente, Neve, Nebbia, Grandine, Pioggia gelata, Arsura, Canicola | +2 |
+| Acquazzone, Monsone, Neve fitta, Temporale, Vento molto forte | +5 |
+| Tempeste, Tormenta, Uragano | Impossibile |
+[/TABELLA]
+I bonus razziali del Vol. 1 (per esempio +2 Sopravvivenza negli ambienti boschivi o sotterranei) si applicano normalmente.
+Acqua
+• Razione d'acqua: 4 litri al giorno. Ne servono 2 con Arsura o Afa, 3 con Canicola.
+• Pioggia: con Pioggia battente, Acquazzone, Monsone o Temporale chi ha recipienti raccoglie la razione del giorno senza prova.
+• Bollire: 10 minuti al fuoco per razione; rende potabile l'acqua delle paludi. La Tavoletta purificante (Vol. 3) purifica 12 litri, cioè 3 razioni.
+• L'acqua non purificata segue la regola del cibo avariato.
+Fame e sete
+Sete
+Una creatura che non abbia bevuto nel giorno precedente subisce penalità −1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto. A partire dal quarto giorno, oltre alla penalità, la creatura deve superare una prova di Costituzione CD 10 all'inizio di ogni nuovo giorno: se fallisce, cade priva di sensi e muore nel giro di 1d12 ore.
+Chi beve meno razioni di quelle richieste dal tempo del giorno conta come se non avesse bevuto. Chi riceve acqua prima di morire si riprende dopo 1d4 ore.
+Fame
+Una creatura che non abbia mangiato nel giorno precedente subisce penalità −1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato. A partire dal settimo giorno, oltre alla penalità, la creatura deve superare una prova di Costituzione CD 10 all'inizio di ogni nuovo giorno: se fallisce, cade priva di sensi e muore nel giro di 1d12 ore.
+Chi riceve cibo prima di morire si riprende dopo 1d4 ore.
+Appendice A – Equipaggiamento
+Oggetti richiesti dalle regole di questo manuale, da aggiungere al Vol. 3 (Sartorie e mercerie, Oggetti vari).
+[TABELLA]
+| Oggetto | Costo | Regole | Descrizione | CD / h |
+| Abiti estivi | 8 mo | — | Tessuti leggeri e chiari, copricapo a tesa larga, velo per il viso. Proteggono dal Clima caldo e dall'Arsura. | 16 / 12 |
+| Abiti invernali | 8 mo | — | Lana, pellicce, stivali foderati. Proteggono dal Clima freddo e dal Gelo. | 16 / 12 |
+| Otre | 1 mo | Z | Sacca di pelle impermeabilizzata, contiene 1 razione d'acqua (4 litri). | 12 / 6 |
+| Racchette da neve | 5 mo | Z | La Neve non rallenta; la Neve fitta rallenta come la Neve. | 14 / 6 |
+[/TABELLA]
+Appendice B – Tabella riassuntiva degli effetti
+[TABELLA]
+| Effetto | Visibilità | Percezione | Distanza | Altro |
+| Acquazzone | 15 caselle | −4 | −2 | Fiamme fino alla lanterna; bagnati; acqua |
+| Afa | — | — | — | Come Clima caldo; ogni armatura annulla gli abiti; 2 razioni |
+| Arsura | — | — | — | Esausti dopo 1 h senza abiti; affaticati dopo 4 h; 2 razioni |
+| Bonaccia | — | — | — | Navi a vela ferme |
+| Canicola | — | — | — | Come Arsura; TS Tempra ogni ora; 3 razioni |
+| Clima caldo / freddo | — | — | — | Affaticati dopo 1 h senza abiti |
+| Esalazioni | — | — | — | TS Tempra ogni 10 min; infermi, nauseati |
+| Foschia | 20 caselle | −2 (vista) | — | Occultamento 20% oltre 9 m |
+| Gelo | — | — | — | Esausti dopo 1 h senza abiti; affaticati dopo 4 h |
+| Gelo polare | — | — | — | Come Gelo; TS Tempra ogni ora |
+| Grandine | 15 caselle | −4 | −2 | 1 danno non letale / 10 min senza riparo |
+| Miraggi | — | −4 (vista oltre 30 m) | — | Orientarsi +5 |
+| Monsone | 15 caselle | −4 | −4 | Fango; fiumi in piena |
+| Nebbia | 6 caselle | — | — | Occultamento 50% oltre 3 m; orientarsi +5 |
+| Neve | 15 caselle | −4 | −2 | Terreno ×2 dopo 1 h |
+| Neve fitta | 10 caselle | −4 | −2 | Occultamento 50% oltre 3 m; terreno ×4 |
+| Pioggia battente | — | −2 | — | Torce spente; bagnati; acqua |
+| Pioggia di cenere | 15 caselle | −4 | — | Occultamento 20% oltre 9 m; Fumo; terreno ×2 |
+| Pioggia gelata | — | −2 | — | Terreno scivoloso |
+| Temporale | 15 caselle | −4 | −4 | Acquazzone + Vento forte; fulmini |
+| Tempesta (grandine, polvere, sabbia, cenere) | 5 caselle | −8 | Impossibile | 1d4 danni al minuto; velocità ¼ |
+| Tempesta di vento | — | −8 (udito) | Impossibile | Creature piccole spinte; tende crollano |
+| Tormenta | 2 caselle | −8 | Impossibile | 1d4 danni non letali / 10 min; velocità ¼ |
+| Uragano | 5 caselle | −8 | Impossibile | Creature spinte; 1d6 danni / 10 min |
+| Vento forte | — | −2 (udito) | −2 | Volare −2; torce spente |
+| Vento molto forte | — | −4 (udito) | −4 | Volare −4; lanterne spente |
+[/TABELLA]

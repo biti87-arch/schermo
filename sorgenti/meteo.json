@@ -1,154 +1,4063 @@
 {
-  "fonte": "Guida del DM.pdf: «Tabelle del tempo atmosferico» e «Fame e sete» (estratto in sorgenti/guida/guida_meteo_fame_sete.txt)",
-  "correzioni": [
-    "Zona temperata, estate: «2 giugno – 22 settembre» letto 22 giugno (la primavera finisce il 21 giugno).",
-    "Sete: «non abbia mangiato nel giorno precedente» letto «non abbia bevuto»."
-  ],
-  "zone": [
-    {"id": "temperata", "nome": "Temperata"},
-    {"id": "desertica", "nome": "Desertica"},
-    {"id": "artica", "nome": "Artica"}
-  ],
-  "stagioni": {
-    "temperata": [
-      {"id": "primavera", "nome": "Primavera", "da": [21, 3], "a": [21, 6]},
-      {"id": "estate", "nome": "Estate", "da": [22, 6], "a": [22, 9]},
-      {"id": "autunno", "nome": "Autunno", "da": [23, 9], "a": [21, 12]},
-      {"id": "inverno", "nome": "Inverno", "da": [22, 12], "a": [20, 3]}
-    ],
-    "desertica": [
-      {"id": "primavera-estate", "nome": "Primavera – estate", "da": [21, 3], "a": [22, 9]},
-      {"id": "autunno-inverno", "nome": "Autunno – inverno", "da": [23, 9], "a": [20, 3]}
-    ],
-    "artica": [
-      {"id": "primavera-estate", "nome": "Primavera – estate", "da": [21, 3], "a": [22, 9]},
-      {"id": "autunno-inverno", "nome": "Autunno – inverno", "da": [23, 9], "a": [20, 3]}
-    ]
-  },
-  "stagione_del_mese": {
-    "temperata": {"primavera": "primavera", "estate": "estate", "autunno": "autunno", "inverno": "inverno"},
-    "desertica": {"primavera": "primavera-estate", "estate": "primavera-estate", "autunno": "autunno-inverno", "inverno": "autunno-inverno"},
-    "artica": {"primavera": "primavera-estate", "estate": "primavera-estate", "autunno": "autunno-inverno", "inverno": "autunno-inverno"}
-  },
-  "tabelle": {
-    "temperata": {
-      "primavera": [
-        {"da": 1, "a": 85, "testo": "Clima mite"},
-        {"da": 86, "a": 90, "testo": "Pioggia battente"},
-        {"da": 91, "a": 94, "testo": "Acquazzone"},
-        {"da": 95, "a": 97, "testo": "Vento forte"},
-        {"da": 98, "a": 99, "testo": "Vento molto forte"},
-        {"da": 100, "a": 100, "testo": "Nebbia"}
-      ],
-      "estate": [
-        {"da": 1, "a": 75, "testo": "Clima caldo"},
-        {"da": 76, "a": 90, "testo": "Pioggia battente"},
-        {"da": 91, "a": 94, "testo": "Arsura"},
-        {"da": 95, "a": 96, "testo": "Acquazzone"},
-        {"da": 97, "a": 98, "testo": "Vento forte"},
-        {"da": 99, "a": 100, "testo": "Vento molto forte"}
-      ],
-      "autunno": [
-        {"da": 1, "a": 80, "testo": "Clima fresco"},
-        {"da": 81, "a": 89, "testo": "Pioggia battente"},
-        {"da": 90, "a": 94, "testo": "Acquazzone"},
-        {"da": 95, "a": 96, "testo": "Vento forte"},
-        {"da": 97, "a": 98, "testo": "Vento molto forte"},
-        {"da": 99, "a": 100, "testo": "Nebbia"}
-      ],
-      "inverno": [
-        {"da": 1, "a": 75, "testo": "Clima freddo"},
-        {"da": 76, "a": 90, "testo": "Pioggia battente / Neve"},
-        {"da": 91, "a": 94, "testo": "Gelo"},
-        {"da": 95, "a": 96, "testo": "Acquazzone / Neve fitta"},
-        {"da": 97, "a": 98, "testo": "Vento forte"},
-        {"da": 99, "a": 100, "testo": "Vento molto forte"}
-      ]
+ "fonte": "Tabelle del Tempo Atmosferico v1.0 (Collana/Output/Tabelle_Tempo_Atmosferico_v1.0.docx; estratto in sorgenti/guida/tempo_atmosferico.txt)",
+ "versione": 2,
+ "gruppi": [
+  "Temperate",
+  "Fredde",
+  "Calde",
+  "Mare",
+  "Speciali"
+ ],
+ "zone": [
+  {
+   "id": "1",
+   "n": 1,
+   "nome": "Pianure e colline temperate",
+   "gruppo": "Temperate",
+   "descrizione": "Campagne, colline e pianure coltivate delle terre temperate. È la zona della tabella della Guida del DM.",
+   "particolarita": [],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 12,
+    "ogni": 3,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa",
+     "note": []
     },
-    "desertica": {
-      "primavera-estate": [
-        {"da": 1, "a": 85, "testo": "Arsura"},
-        {"da": 86, "a": 90, "testo": "Clima caldo"},
-        {"da": 91, "a": 94, "testo": "Clima caldo + Vento forte"},
-        {"da": 95, "a": 97, "testo": "Clima caldo + Vento molto forte"},
-        {"da": 98, "a": 99, "testo": "Monsone"},
-        {"da": 100, "a": 100, "testo": "Clima caldo + Tempesta di polvere/sabbia"}
-      ],
-      "autunno-inverno": [
-        {"da": 1, "a": 75, "testo": "Clima caldo"},
-        {"da": 76, "a": 90, "testo": "Arsura"},
-        {"da": 91, "a": 94, "testo": "Clima caldo + Vento forte"},
-        {"da": 95, "a": 96, "testo": "Clima caldo + Vento molto forte"},
-        {"da": 97, "a": 98, "testo": "Acquazzone"},
-        {"da": 99, "a": 100, "testo": "Monsone"}
-      ]
+    "avariato": false
+   }
+  },
+  {
+   "id": "2",
+   "n": 2,
+   "nome": "Foreste temperate",
+   "gruppo": "Temperate",
+   "descrizione": "Boschi di latifoglie e di conifere delle terre temperate. Sotto le fronde il vento è più debole e la nebbia più frequente.",
+   "particolarita": [
+    "Sotto le fronde il vento conta un grado in meno: la tabella ne tiene già conto.",
+    "Si applicano gli Ambienti specifici «Boschivi» della Guida del DM."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 10,
+    "ogni": 2,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa",
+     "note": []
     },
-    "artica": {
-      "primavera-estate": [
-        {"da": 1, "a": 75, "testo": "Clima freddo"},
-        {"da": 76, "a": 90, "testo": "Gelo"},
-        {"da": 91, "a": 94, "testo": "Clima freddo + Vento forte"},
-        {"da": 95, "a": 96, "testo": "Clima freddo + Vento molto forte"},
-        {"da": 97, "a": 98, "testo": "Clima freddo + Neve"},
-        {"da": 99, "a": 100, "testo": "Clima freddo + Neve fitta"}
+    "avariato": false
+   }
+  },
+  {
+   "id": "3",
+   "n": 3,
+   "nome": "Brughiere e lande",
+   "gruppo": "Temperate",
+   "descrizione": "Distese di erica, torbiere e colline spoglie battute dal vento. La foschia è di casa e l'estate resta mite.",
+   "particolarita": [
+    "Non ci sono ripari naturali: Trovare riparo (Sopravvivenza) ha CD 20 invece di 15.",
+    "Nelle torbiere valgono lo Stagno da 30 cm e le Sabbie mobili della Guida del DM."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": false,
+   "foraggiare": {
+    "cd": 15,
+    "ogni": 4,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa",
+     "note": []
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "4",
+   "n": 4,
+   "nome": "Paludi e acquitrini",
+   "gruppo": "Temperate",
+   "descrizione": "Acque basse, canneti e foreste allagate. Nebbie frequenti, afa d'estate e gas che ristagnano nelle conche.",
+   "particolarita": [
+    "Si applicano gli Ambienti specifici «Paludosi» della Guida del DM.",
+    "Le Esalazioni non riguardano tutta la palude, ma una zona del percorso scelta dal DM.",
+    "Con il Gelo gli stagni ghiacciano: valgono le regole del Ghiaccio della Guida del DM."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 12,
+    "ogni": 3,
+    "acqua": {
+     "tipo": "inclusa",
+     "purificare": "bollire",
+     "testo": "Inclusa, da bollire",
+     "note": []
+    },
+    "avariato": true
+   }
+  },
+  {
+   "id": "5",
+   "n": 5,
+   "nome": "Coste temperate",
+   "gruppo": "Temperate",
+   "descrizione": "Spiagge, scogliere e porti delle terre temperate, esposti al vento del mare.",
+   "particolarita": [
+    "Lo stato del mare segue la regola del Capitolo 1; per le imbarcazioni vale la Navigazione del Capitolo 2.",
+    "Per le scogliere valgono Rupe e Parete rocciosa della Guida del DM.",
+    "Con la bassa marea, due volte al giorno, si aprono guadi e grotte che con l'alta marea si allagano."
+   ],
+   "varianti": [],
+   "mare": true,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 10,
+    "ogni": 2,
+    "acqua": {
+     "tipo": "cd",
+     "cd": 15,
+     "testo": "CD 15",
+     "note": []
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "6",
+   "n": 6,
+   "nome": "Montagne",
+   "gruppo": "Temperate",
+   "descrizione": "Pendici alte, passi e vette fra i 1.500 e i 4.500 metri.",
+   "particolarita": [
+    "Sotto i 1.500 m si usa la tabella delle Pianure e colline temperate o delle Foreste temperate.",
+    "Oltre i 4.500 m il Clima freddo diventa Gelo e il Gelo diventa Gelo polare.",
+    "Valgono le regole d'alta quota e gli Ambienti specifici «Montuosi» della Guida del DM.",
+    "Dopo una giornata di Neve fitta o di Tormenta il DM può tirare il rischio di valanghe (Valanghe e frane, Guida del DM)."
+   ],
+   "varianti": [
+    {
+     "id": "oltre4500",
+     "nome": "oltre 4.500 m",
+     "frase": "Oltre i 4.500 m il Clima freddo diventa Gelo e il Gelo diventa Gelo polare.",
+     "sostituisci": {
+      "Clima freddo": [
+       "Gelo"
       ],
-      "autunno-inverno": [
-        {"da": 1, "a": 85, "testo": "Gelo"},
-        {"da": 86, "a": 90, "testo": "Gelo + Vento forte"},
-        {"da": 91, "a": 94, "testo": "Gelo + Vento molto forte"},
-        {"da": 95, "a": 97, "testo": "Gelo + Neve"},
-        {"da": 98, "a": 99, "testo": "Gelo + Neve fitta"},
-        {"da": 100, "a": 100, "testo": "Gelo + Tempesta di grandine"}
+      "Gelo": [
+       "Gelo polare"
       ]
+     }
     }
-  },
-  "voci": {
-    "Clima mite": "Clima mite/fresco",
-    "Clima fresco": "Clima mite/fresco",
-    "Clima caldo": "Clima caldo/freddo",
-    "Clima freddo": "Clima caldo/freddo",
-    "Arsura": "Arsura/gelo",
-    "Gelo": "Arsura/gelo",
-    "Pioggia battente": "Pioggia battente",
-    "Acquazzone": "Acquazzone",
-    "Monsone": "Monsone",
-    "Nebbia": "Nebbia",
-    "Neve": "Neve e nevischio",
-    "Neve fitta": "Neve fitta",
-    "Vento forte": "Vento forte",
-    "Vento molto forte": "Vento molto forte",
-    "Tempesta di polvere/sabbia": "Tempesta di grandine/polvere/sabbia",
-    "Tempesta di grandine": "Tempesta di grandine/polvere/sabbia"
-  },
-  "effetti": {
-    "Acquazzone": "Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.",
-    "Arsura/gelo": "Giornata di caldo/freddo intenso. Una creatura senza abiti estivi/invernali, dopo 1 ora è esausta.",
-    "Clima caldo/freddo": "Il tipico clima estivo/invernale. Una creatura senza abiti estivi/invernali, dopo 1 ora è affaticata.",
-    "Clima mite/fresco": "Il tipico clima primaverile/autunnale. Nessun effetto particolare.",
-    "Monsone": "Visibilità massima 15 caselle. Penalità -4 ai tiri per colpire a distanza e alle prove di Percezione. Si spengono automaticamente le fiamme non protette.",
-    "Nebbia": "Le creature oltre 3 metri godono di Occultamento 50%.",
-    "Neve e nevischio": "Visibilità massima 15 caselle. Penalità -4 alle prove di Percezione e -2 ai tiri per colpire a distanza. Se la neve si è già depositata il terreno è difficile (x2).",
-    "Neve fitta": "(solo in luoghi plausibili). Visibilità massima 10 caselle. Penalità -4 alle prove di Percezione e -2 ai Tiri per Colpire a distanza. Le creature oltre 3 metri godono di Occultamento 50%. Se la neve si è già depositata il terreno è difficile (x4).",
-    "Pioggia battente": "Penalità -2 alle prove di Percezione. Si spengono automaticamente le fiamme non protette.",
-    "Tempesta di grandine/polvere/sabbia": "Visibilità massima 5 caselle. I tiri per colpire a distanza falliscono automaticamente. Si spengono automaticamente le fiamme protette e non. Ogni minuto si subiscono 1d4 danni letali a causa delle escoriazioni, cadute, asfissia, etc.",
-    "Vento forte": "Penalità -2 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette.",
-    "Vento molto forte": "Penalità -4 ai Tiri per Colpire a distanza. Si spengono automaticamente le fiamme non protette e quelle protette hanno una probabilità del 50% di spegnersi ogni 10 minuti."
-  },
-  "fame_sete": {
-    "sete": {
-      "nome": "Sete",
-      "scorta": "acqua",
-      "giorno_prova": 4,
-      "cd": 10,
-      "testo": "1) Una creatura che non abbia bevuto nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto. 2) A partire dal quarto, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."
+   ],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 15,
+    "ogni": 4,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa¹",
+     "note": [
+      {
+       "segno": "¹",
+       "testo": "Oltre i 4.500 m solo neve."
+      }
+     ],
+     "neve_variante": "oltre4500"
     },
-    "fame": {
-      "nome": "Fame",
-      "scorta": "cibo",
-      "giorno_prova": 7,
-      "cd": 10,
-      "testo": "1) Una creatura che non abbia mangiato nel giorno precedente subisce penalità di -1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato. 2) A partire dal settimo, oltre alla penalità ai tiri di dado, la creatura deve superare una prova di Costituzione all’inizio di ogni nuovo giorno con CD pari a 10. Se fallisce il tiro, cade priva di sensi e muore nel giro di 1d12 ore."
+    "avariato": false
+   }
+  },
+  {
+   "id": "7",
+   "n": 7,
+   "nome": "Foreste boreali",
+   "gruppo": "Fredde",
+   "descrizione": "Le foreste di conifere del nord (taiga): estate breve e piovosa, inverno lungo di neve e gelo.",
+   "particolarita": [
+    "Si applicano gli Ambienti specifici «Boschivi» della Guida del DM.",
+    "In autunno-inverno la neve copre il suolo per tutta la stagione: fuori dai sentieri battuti il terreno è difficile (×2)."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 13,
+    "ogni": 3,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa",
+     "note": []
     },
-    "nota_vol1": "Affaticato o esausto dovuti a fame o sete si tolgono solo rifocillandosi (Vol. 1)."
+    "avariato": false
+   }
+  },
+  {
+   "id": "8",
+   "n": 8,
+   "nome": "Tundra",
+   "gruppo": "Fredde",
+   "descrizione": "Pianure nude del grande nord, senza alberi né ripari. D'estate il disgelo le trasforma in un mare di fango.",
+   "particolarita": [
+    "Non ci sono ripari naturali: Trovare riparo (Sopravvivenza) ha CD 20 invece di 15.",
+    "In primavera-estate il disgelo lascia pozze e fango: valgono gli Stagni da 30 cm della Guida del DM, sparsi."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": false,
+   "foraggiare": {
+    "cd": 18,
+    "ogni": 5,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa²",
+     "note": [
+      {
+       "segno": "²",
+       "testo": "In autunno-inverno si scioglie neve o ghiaccio sul fuoco: 1 razione all'ora."
+      }
+     ],
+     "neve_stagione": "autunno-inverno"
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "9",
+   "n": 9,
+   "nome": "Ghiacci artici",
+   "gruppo": "Fredde",
+   "descrizione": "Calotte, banchise e ghiacciai perenni. È la zona della tabella delle zone artiche della Guida del DM.",
+   "particolarita": [
+    "Molte superfici sono Ghiaccio (regole della Guida del DM).",
+    "L'acqua si ottiene solo sciogliendo neve o ghiaccio."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": false,
+   "foraggiare": {
+    "cd": 22,
+    "ogni": 6,
+    "acqua": {
+     "tipo": "neve",
+     "testo": "Solo neve²",
+     "note": [
+      {
+       "segno": "²",
+       "testo": "In autunno-inverno si scioglie neve o ghiaccio sul fuoco: 1 razione all'ora."
+      }
+     ],
+     "neve_stagione": "autunno-inverno"
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "10",
+   "n": 10,
+   "nome": "Deserto sabbioso",
+   "gruppo": "Calde",
+   "descrizione": "Mari di dune sotto un sole spietato. È la zona della tabella delle zone desertiche della Guida del DM.",
+   "particolarita": [
+    "Notti fredde: dalle 22 alle 6 vale il Clima freddo; dalle 6 alle 10 e dalle 18 alle 22 vale il Clima caldo. Chi viaggia di notte per evitare l'Arsura ha bisogno di abiti invernali.",
+    "Valgono le Dune di sabbia della Guida del DM."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": true,
+   "legna": false,
+   "foraggiare": {
+    "cd": 25,
+    "ogni": 8,
+    "acqua": {
+     "tipo": "cd",
+     "cd": 25,
+     "testo": "CD 25",
+     "note": []
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "11",
+   "n": 11,
+   "nome": "Deserto roccioso e calanchi",
+   "gruppo": "Calde",
+   "descrizione": "Altopiani aridi, canaloni e pietraie. Meno sabbia, più vento e piene improvvise.",
+   "particolarita": [
+    "Piene improvvise: con Acquazzone o Temporale i canaloni si allagano in 1d4 × 10 minuti e diventano acqua corrente con rapide (regole della Guida del DM).",
+    "Valgono Detriti grandi e Rupe della Guida del DM.",
+    "Le notti sono fredde come nel Deserto sabbioso."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": true,
+   "legna": false,
+   "foraggiare": {
+    "cd": 20,
+    "ogni": 6,
+    "acqua": {
+     "tipo": "cd",
+     "cd": 20,
+     "testo": "CD 20",
+     "note": []
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "12",
+   "n": 12,
+   "nome": "Savana e steppa",
+   "gruppo": "Calde",
+   "descrizione": "Grandi praterie con alberi radi, verdi nella stagione delle piogge e riarse in quella secca.",
+   "particolarita": [
+    "Steppa fredda: nella stagione secca il Clima caldo diventa Clima freddo e l'Arsura diventa Gelo.",
+    "Nella stagione delle piogge l'erba alta funziona come il Sottobosco rado della Guida del DM.",
+    "Con il Temporale della stagione secca il DM può far partire un incendio d'erba."
+   ],
+   "varianti": [
+    {
+     "id": "steppa_fredda",
+     "nome": "steppa fredda",
+     "stagione": "secca",
+     "frase": "Steppa fredda: nella stagione secca il Clima caldo diventa Clima freddo e l'Arsura diventa Gelo.",
+     "sostituisci": {
+      "Clima caldo": [
+       "Clima freddo"
+      ],
+      "Arsura": [
+       "Gelo"
+      ]
+     }
+    }
+   ],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 13,
+    "ogni": 3,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa³",
+     "note": [
+      {
+       "segno": "³",
+       "testo": "CD 20 nella stagione secca."
+      }
+     ],
+     "stagione_cd": {
+      "secca": 20
+     }
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "13",
+   "n": 13,
+   "nome": "Foresta tropicale",
+   "gruppo": "Calde",
+   "descrizione": "Giungle fitte, calde e umide, dove piove quasi ogni giorno.",
+   "particolarita": [
+    "Si applicano gli Ambienti specifici «Boschivi» della Guida del DM, con molto Sottobosco fitto.",
+    "Lontano dalla costa l'Uragano diventa Tempesta di vento + Monsone."
+   ],
+   "varianti": [
+    {
+     "id": "lontano_costa",
+     "nome": "lontano dalla costa",
+     "frase": "Lontano dalla costa l'Uragano diventa Tempesta di vento + Monsone.",
+     "sostituisci": {
+      "Uragano": [
+       "Tempesta di vento",
+       "Monsone"
+      ]
+     }
+    }
+   ],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 10,
+    "ogni": 2,
+    "acqua": {
+     "tipo": "inclusa",
+     "testo": "Inclusa",
+     "note": []
+    },
+    "avariato": true
+   }
+  },
+  {
+   "id": "14",
+   "n": 14,
+   "nome": "Mare aperto",
+   "gruppo": "Mare",
+   "descrizione": "Mari interni e acque al largo, a qualche giorno di navigazione dalla costa.",
+   "particolarita": [
+    "Lo stato del mare segue la regola del Capitolo 1; per le imbarcazioni vale la Navigazione del Capitolo 2."
+   ],
+   "varianti": [],
+   "mare": true,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 18,
+    "ogni": 4,
+    "acqua": {
+     "tipo": "no",
+     "testo": "No",
+     "note": []
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "15",
+   "n": 15,
+   "nome": "Oceano",
+   "gruppo": "Mare",
+   "descrizione": "L'alto mare, lontano da ogni terra.",
+   "particolarita": [
+    "Lontano da terra non ci sono ripari né acqua dolce, salvo la pioggia.",
+    "Lo stato del mare segue la regola del Capitolo 1; per le imbarcazioni vale la Navigazione del Capitolo 2."
+   ],
+   "varianti": [],
+   "mare": true,
+   "notti_fredde": false,
+   "legna": false,
+   "foraggiare": {
+    "cd": 20,
+    "ogni": 5,
+    "acqua": {
+     "tipo": "no",
+     "testo": "No",
+     "note": []
+    },
+    "avariato": false
+   }
+  },
+  {
+   "id": "16",
+   "n": 16,
+   "nome": "Sotterraneo",
+   "gruppo": "Speciali",
+   "descrizione": "Caverne, gallerie e cunicoli. Il tempo atmosferico non c'è: al suo posto il DM tira sulla tabella delle condizioni, ogni giorno oppure a ogni nuova zona di gallerie. Il clima base è sempre il Clima fresco.",
+   "particolarita": [
+    "Il buio segue le normali regole sulla luce."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 18,
+    "ogni": 5,
+    "acqua": {
+     "tipo": "cd",
+     "cd": 15,
+     "testo": "CD 15⁴",
+     "note": [
+      {
+       "segno": "⁴",
+       "testo": "Con lo Stillicidio si trova senza prova."
+      }
+     ],
+     "senza_prova": "Stillicidio"
+    },
+    "avariato": true
+   }
+  },
+  {
+   "id": "17",
+   "n": 17,
+   "nome": "Terre vulcaniche",
+   "gruppo": "Speciali",
+   "descrizione": "Pendici di vulcani attivi, campi di lava e fumarole.",
+   "particolarita": [
+    "Lava: 2d6 danni da fuoco per round di contatto, 20d6 per round di immersione; i danni continuano per 1d3 round dopo esserne usciti.",
+    "La Nebbia è il vapore delle fumarole. Le sorgenti termali sono spesso sulfuree (vedi Capitolo 4).",
+    "Vale Detriti grandi della Guida del DM."
+   ],
+   "varianti": [],
+   "mare": false,
+   "notti_fredde": false,
+   "legna": true,
+   "foraggiare": {
+    "cd": 22,
+    "ogni": 6,
+    "acqua": {
+     "tipo": "cd",
+     "cd": 20,
+     "testo": "CD 20⁵",
+     "note": [
+      {
+       "segno": "⁵",
+       "testo": "Sulfurea: va purificata con la Tavoletta purificante o con Purificare cibo e bevande; la bollitura non basta."
+      }
+     ],
+     "purificare": "sulfurea"
+    },
+    "avariato": true
+   }
   }
+ ],
+ "stagioni": {
+  "1": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "2": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "3": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "4": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "5": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "6": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "7": [
+   {
+    "id": "primavera-estate",
+    "nome": "Primavera-estate",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno-inverno",
+    "nome": "Autunno-inverno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "8": [
+   {
+    "id": "primavera-estate",
+    "nome": "Primavera-estate",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno-inverno",
+    "nome": "Autunno-inverno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "9": [
+   {
+    "id": "primavera-estate",
+    "nome": "Primavera-estate",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno-inverno",
+    "nome": "Autunno-inverno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "10": [
+   {
+    "id": "primavera-estate",
+    "nome": "Primavera-estate",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno-inverno",
+    "nome": "Autunno-inverno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "11": [
+   {
+    "id": "primavera-estate",
+    "nome": "Primavera-estate",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno-inverno",
+    "nome": "Autunno-inverno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "12": [
+   {
+    "id": "piogge",
+    "nome": "Stagione delle piogge",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "secca",
+    "nome": "Stagione secca",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "13": [
+   {
+    "id": "piogge",
+    "nome": "Stagione delle piogge",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "secca",
+    "nome": "Stagione secca",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "14": [
+   {
+    "id": "primavera",
+    "nome": "Primavera",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     21,
+     6
+    ]
+   },
+   {
+    "id": "estate",
+    "nome": "Estate",
+    "da": [
+     22,
+     6
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno",
+    "nome": "Autunno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     21,
+     12
+    ]
+   },
+   {
+    "id": "inverno",
+    "nome": "Inverno",
+    "da": [
+     22,
+     12
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "15": [
+   {
+    "id": "calma",
+    "nome": "Stagione calma",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "tempeste",
+    "nome": "Stagione delle tempeste",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ],
+  "16": [],
+  "17": [
+   {
+    "id": "primavera-estate",
+    "nome": "Primavera-estate",
+    "da": [
+     21,
+     3
+    ],
+    "a": [
+     22,
+     9
+    ]
+   },
+   {
+    "id": "autunno-inverno",
+    "nome": "Autunno-inverno",
+    "da": [
+     23,
+     9
+    ],
+    "a": [
+     20,
+     3
+    ]
+   }
+  ]
+ },
+ "stagione_del_mese": {
+  "1": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "2": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "3": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "4": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "5": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "6": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "7": {
+   "primavera": "primavera-estate",
+   "estate": "primavera-estate",
+   "autunno": "autunno-inverno",
+   "inverno": "autunno-inverno"
+  },
+  "8": {
+   "primavera": "primavera-estate",
+   "estate": "primavera-estate",
+   "autunno": "autunno-inverno",
+   "inverno": "autunno-inverno"
+  },
+  "9": {
+   "primavera": "primavera-estate",
+   "estate": "primavera-estate",
+   "autunno": "autunno-inverno",
+   "inverno": "autunno-inverno"
+  },
+  "10": {
+   "primavera": "primavera-estate",
+   "estate": "primavera-estate",
+   "autunno": "autunno-inverno",
+   "inverno": "autunno-inverno"
+  },
+  "11": {
+   "primavera": "primavera-estate",
+   "estate": "primavera-estate",
+   "autunno": "autunno-inverno",
+   "inverno": "autunno-inverno"
+  },
+  "12": {
+   "primavera": "piogge",
+   "estate": "piogge",
+   "autunno": "secca",
+   "inverno": "secca"
+  },
+  "13": {
+   "primavera": "piogge",
+   "estate": "piogge",
+   "autunno": "secca",
+   "inverno": "secca"
+  },
+  "14": {
+   "primavera": "primavera",
+   "estate": "estate",
+   "autunno": "autunno",
+   "inverno": "inverno"
+  },
+  "15": {
+   "primavera": "calma",
+   "estate": "calma",
+   "autunno": "tempeste",
+   "inverno": "tempeste"
+  },
+  "16": null,
+  "17": {
+   "primavera": "primavera-estate",
+   "estate": "primavera-estate",
+   "autunno": "autunno-inverno",
+   "inverno": "autunno-inverno"
+  }
+ },
+ "tabelle": {
+  "1": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 85,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 86,
+     "a": 90,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 91,
+     "a": 93,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 94,
+     "a": 94,
+     "testo": "Temporale"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Nebbia"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 75,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 76,
+     "a": 88,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 89,
+     "a": 92,
+     "testo": "Arsura"
+    },
+    {
+     "da": 93,
+     "a": 94,
+     "testo": "Temporale"
+    },
+    {
+     "da": 95,
+     "a": 95,
+     "testo": "Grandine"
+    },
+    {
+     "da": 96,
+     "a": 96,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Vento molto forte"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 78,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 79,
+     "a": 87,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 88,
+     "a": 91,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 92,
+     "a": 93,
+     "testo": "Foschia"
+    },
+    {
+     "da": 94,
+     "a": 95,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 96,
+     "a": 97,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Nebbia"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 75,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 76,
+     "a": 82,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 83,
+     "a": 90,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 91,
+     "a": 94,
+     "testo": "Gelo"
+    },
+    {
+     "da": 95,
+     "a": 95,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 96,
+     "a": 96,
+     "testo": "Clima freddo + Neve fitta"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Vento molto forte"
+    }
+   ]
+  },
+  "2": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 78,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 79,
+     "a": 87,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 88,
+     "a": 90,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 91,
+     "a": 91,
+     "testo": "Temporale"
+    },
+    {
+     "da": 92,
+     "a": 94,
+     "testo": "Foschia"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 72,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 73,
+     "a": 85,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 86,
+     "a": 88,
+     "testo": "Temporale"
+    },
+    {
+     "da": 89,
+     "a": 90,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 91,
+     "a": 92,
+     "testo": "Arsura"
+    },
+    {
+     "da": 93,
+     "a": 95,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 96,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 70,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 71,
+     "a": 81,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 82,
+     "a": 85,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 86,
+     "a": 91,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 92,
+     "a": 95,
+     "testo": "Foschia"
+    },
+    {
+     "da": 96,
+     "a": 99,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Vento molto forte"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 70,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 71,
+     "a": 77,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 78,
+     "a": 86,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 87,
+     "a": 90,
+     "testo": "Gelo"
+    },
+    {
+     "da": 91,
+     "a": 92,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 93,
+     "a": 93,
+     "testo": "Clima freddo + Neve fitta"
+    },
+    {
+     "da": 94,
+     "a": 97,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ]
+  },
+  "3": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 61,
+     "a": 72,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 73,
+     "a": 82,
+     "testo": "Foschia"
+    },
+    {
+     "da": 83,
+     "a": 88,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 89,
+     "a": 95,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 96,
+     "a": 99,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Grandine"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 65,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 66,
+     "a": 75,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 76,
+     "a": 83,
+     "testo": "Foschia"
+    },
+    {
+     "da": 84,
+     "a": 87,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 88,
+     "a": 94,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Temporale"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Grandine"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 50,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 51,
+     "a": 64,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 65,
+     "a": 74,
+     "testo": "Foschia"
+    },
+    {
+     "da": 75,
+     "a": 84,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 85,
+     "a": 87,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 88,
+     "a": 94,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 95,
+     "a": 98,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 56,
+     "a": 65,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 66,
+     "a": 72,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 73,
+     "a": 77,
+     "testo": "Gelo"
+    },
+    {
+     "da": 78,
+     "a": 82,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 83,
+     "a": 87,
+     "testo": "Foschia"
+    },
+    {
+     "da": 88,
+     "a": 93,
+     "testo": "Clima freddo + Vento forte"
+    },
+    {
+     "da": 94,
+     "a": 97,
+     "testo": "Clima freddo + Vento molto forte"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ]
+  },
+  "4": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 65,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 66,
+     "a": 77,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 78,
+     "a": 80,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 81,
+     "a": 88,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 89,
+     "a": 95,
+     "testo": "Foschia"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Temporale"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 56,
+     "a": 70,
+     "testo": "Afa"
+    },
+    {
+     "da": 71,
+     "a": 80,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 81,
+     "a": 84,
+     "testo": "Temporale"
+    },
+    {
+     "da": 85,
+     "a": 86,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 87,
+     "a": 92,
+     "testo": "Foschia"
+    },
+    {
+     "da": 93,
+     "a": 96,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Esalazioni"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 61,
+     "a": 73,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 74,
+     "a": 77,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 78,
+     "a": 89,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 90,
+     "a": 95,
+     "testo": "Foschia"
+    },
+    {
+     "da": 96,
+     "a": 97,
+     "testo": "Esalazioni"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 65,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 66,
+     "a": 75,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 76,
+     "a": 85,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 86,
+     "a": 89,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 90,
+     "a": 92,
+     "testo": "Gelo"
+    },
+    {
+     "da": 93,
+     "a": 94,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Foschia"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ]
+  },
+  "5": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 70,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 71,
+     "a": 78,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 79,
+     "a": 81,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 82,
+     "a": 86,
+     "testo": "Foschia"
+    },
+    {
+     "da": 87,
+     "a": 89,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 90,
+     "a": 95,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 99,
+     "a": 99,
+     "testo": "Temporale"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 70,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 71,
+     "a": 77,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 78,
+     "a": 80,
+     "testo": "Temporale"
+    },
+    {
+     "da": 81,
+     "a": 83,
+     "testo": "Foschia"
+    },
+    {
+     "da": 84,
+     "a": 85,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 86,
+     "a": 92,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 93,
+     "a": 95,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 96,
+     "a": 97,
+     "testo": "Bonaccia"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Arsura"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 58,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 59,
+     "a": 70,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 71,
+     "a": 75,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 76,
+     "a": 80,
+     "testo": "Foschia"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 86,
+     "a": 92,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 93,
+     "a": 97,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Temporale"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 61,
+     "a": 72,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 73,
+     "a": 76,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 77,
+     "a": 79,
+     "testo": "Gelo"
+    },
+    {
+     "da": 80,
+     "a": 84,
+     "testo": "Foschia"
+    },
+    {
+     "da": 85,
+     "a": 90,
+     "testo": "Clima freddo + Vento forte"
+    },
+    {
+     "da": 91,
+     "a": 96,
+     "testo": "Clima freddo + Vento molto forte"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ]
+  },
+  "6": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 56,
+     "a": 65,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 66,
+     "a": 72,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 73,
+     "a": 77,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 78,
+     "a": 85,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 86,
+     "a": 91,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 92,
+     "a": 94,
+     "testo": "Grandine"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Temporale"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Clima freddo + Neve fitta"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tormenta"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 61,
+     "a": 70,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 71,
+     "a": 78,
+     "testo": "Temporale"
+    },
+    {
+     "da": 79,
+     "a": 82,
+     "testo": "Grandine"
+    },
+    {
+     "da": 83,
+     "a": 86,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 87,
+     "a": 93,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 94,
+     "a": 97,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 50,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 51,
+     "a": 60,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 61,
+     "a": 70,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 71,
+     "a": 75,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 76,
+     "a": 79,
+     "testo": "Gelo"
+    },
+    {
+     "da": 80,
+     "a": 86,
+     "testo": "Clima freddo + Vento forte"
+    },
+    {
+     "da": 87,
+     "a": 91,
+     "testo": "Clima freddo + Vento molto forte"
+    },
+    {
+     "da": 92,
+     "a": 94,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Clima freddo + Neve fitta"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Tormenta"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Gelo"
+    },
+    {
+     "da": 46,
+     "a": 60,
+     "testo": "Gelo + Neve"
+    },
+    {
+     "da": 61,
+     "a": 70,
+     "testo": "Gelo + Neve fitta"
+    },
+    {
+     "da": 71,
+     "a": 78,
+     "testo": "Gelo + Vento forte"
+    },
+    {
+     "da": 79,
+     "a": 85,
+     "testo": "Gelo + Vento molto forte"
+    },
+    {
+     "da": 86,
+     "a": 92,
+     "testo": "Tormenta"
+    },
+    {
+     "da": 93,
+     "a": 96,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 97,
+     "a": 99,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ]
+  },
+  "7": {
+   "primavera-estate": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 61,
+     "a": 72,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 73,
+     "a": 76,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 77,
+     "a": 80,
+     "testo": "Temporale"
+    },
+    {
+     "da": 81,
+     "a": 86,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 87,
+     "a": 90,
+     "testo": "Foschia"
+    },
+    {
+     "da": 91,
+     "a": 95,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Clima freddo + Neve"
+    }
+   ],
+   "autunno-inverno": [
+    {
+     "da": 1,
+     "a": 50,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 51,
+     "a": 62,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 63,
+     "a": 72,
+     "testo": "Gelo"
+    },
+    {
+     "da": 73,
+     "a": 78,
+     "testo": "Gelo + Neve"
+    },
+    {
+     "da": 79,
+     "a": 82,
+     "testo": "Clima freddo + Neve fitta"
+    },
+    {
+     "da": 83,
+     "a": 85,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 86,
+     "a": 90,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 91,
+     "a": 95,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Gelo + Neve fitta"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Gelo polare"
+    }
+   ]
+  },
+  "8": {
+   "primavera-estate": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 61,
+     "a": 72,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 73,
+     "a": 80,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 86,
+     "a": 92,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 93,
+     "a": 96,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 99,
+     "a": 99,
+     "testo": "Grandine"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "autunno-inverno": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Gelo"
+    },
+    {
+     "da": 56,
+     "a": 65,
+     "testo": "Gelo + Neve"
+    },
+    {
+     "da": 66,
+     "a": 75,
+     "testo": "Gelo + Vento forte"
+    },
+    {
+     "da": 76,
+     "a": 83,
+     "testo": "Gelo + Vento molto forte"
+    },
+    {
+     "da": 84,
+     "a": 89,
+     "testo": "Tormenta"
+    },
+    {
+     "da": 90,
+     "a": 94,
+     "testo": "Gelo polare"
+    },
+    {
+     "da": 95,
+     "a": 98,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Gelo + Neve fitta"
+    }
+   ]
+  },
+  "9": {
+   "primavera-estate": [
+    {
+     "da": 1,
+     "a": 75,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 76,
+     "a": 90,
+     "testo": "Gelo"
+    },
+    {
+     "da": 91,
+     "a": 94,
+     "testo": "Clima freddo + Vento forte"
+    },
+    {
+     "da": 95,
+     "a": 96,
+     "testo": "Clima freddo + Vento molto forte"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 99,
+     "a": 99,
+     "testo": "Clima freddo + Neve fitta"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tormenta"
+    }
+   ],
+   "autunno-inverno": [
+    {
+     "da": 1,
+     "a": 70,
+     "testo": "Gelo"
+    },
+    {
+     "da": 71,
+     "a": 80,
+     "testo": "Gelo polare"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Gelo + Vento forte"
+    },
+    {
+     "da": 86,
+     "a": 89,
+     "testo": "Gelo + Vento molto forte"
+    },
+    {
+     "da": 90,
+     "a": 93,
+     "testo": "Gelo + Neve"
+    },
+    {
+     "da": 94,
+     "a": 96,
+     "testo": "Gelo + Neve fitta"
+    },
+    {
+     "da": 97,
+     "a": 99,
+     "testo": "Tormenta"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Gelo + Tempesta di grandine"
+    }
+   ]
+  },
+  "10": {
+   "primavera-estate": [
+    {
+     "da": 1,
+     "a": 60,
+     "testo": "Arsura"
+    },
+    {
+     "da": 61,
+     "a": 70,
+     "testo": "Canicola"
+    },
+    {
+     "da": 71,
+     "a": 76,
+     "testo": "Arsura + Miraggi"
+    },
+    {
+     "da": 77,
+     "a": 82,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 83,
+     "a": 87,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 88,
+     "a": 91,
+     "testo": "Clima caldo + Vento molto forte"
+    },
+    {
+     "da": 92,
+     "a": 93,
+     "testo": "Monsone"
+    },
+    {
+     "da": 94,
+     "a": 97,
+     "testo": "Clima caldo + Tempesta di sabbia"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Arsura + Vento forte"
+    }
+   ],
+   "autunno-inverno": [
+    {
+     "da": 1,
+     "a": 65,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 66,
+     "a": 80,
+     "testo": "Arsura"
+    },
+    {
+     "da": 81,
+     "a": 84,
+     "testo": "Clima caldo + Miraggi"
+    },
+    {
+     "da": 85,
+     "a": 88,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 89,
+     "a": 91,
+     "testo": "Clima caldo + Vento molto forte"
+    },
+    {
+     "da": 92,
+     "a": 93,
+     "testo": "Clima caldo + Tempesta di sabbia"
+    },
+    {
+     "da": 94,
+     "a": 96,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Monsone"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Clima mite"
+    }
+   ]
+  },
+  "11": {
+   "primavera-estate": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Arsura"
+    },
+    {
+     "da": 56,
+     "a": 62,
+     "testo": "Canicola"
+    },
+    {
+     "da": 63,
+     "a": 67,
+     "testo": "Arsura + Miraggi"
+    },
+    {
+     "da": 68,
+     "a": 77,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 78,
+     "a": 84,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 85,
+     "a": 89,
+     "testo": "Clima caldo + Vento molto forte"
+    },
+    {
+     "da": 90,
+     "a": 92,
+     "testo": "Temporale"
+    },
+    {
+     "da": 93,
+     "a": 94,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Clima caldo + Tempesta di polvere"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "autunno-inverno": [
+    {
+     "da": 1,
+     "a": 50,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 51,
+     "a": 62,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 63,
+     "a": 70,
+     "testo": "Arsura"
+    },
+    {
+     "da": 71,
+     "a": 77,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 78,
+     "a": 82,
+     "testo": "Clima caldo + Vento molto forte"
+    },
+    {
+     "da": 83,
+     "a": 87,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 88,
+     "a": 90,
+     "testo": "Temporale"
+    },
+    {
+     "da": 91,
+     "a": 93,
+     "testo": "Clima caldo + Tempesta di polvere"
+    },
+    {
+     "da": 94,
+     "a": 97,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Grandine"
+    }
+   ]
+  },
+  "12": {
+   "piogge": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 46,
+     "a": 60,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 61,
+     "a": 72,
+     "testo": "Temporale"
+    },
+    {
+     "da": 73,
+     "a": 80,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Afa"
+    },
+    {
+     "da": 86,
+     "a": 90,
+     "testo": "Monsone"
+    },
+    {
+     "da": 91,
+     "a": 95,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Grandine"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "secca": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 56,
+     "a": 72,
+     "testo": "Arsura"
+    },
+    {
+     "da": 73,
+     "a": 80,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 81,
+     "a": 86,
+     "testo": "Clima caldo + Vento molto forte"
+    },
+    {
+     "da": 87,
+     "a": 91,
+     "testo": "Clima caldo + Tempesta di polvere"
+    },
+    {
+     "da": 92,
+     "a": 95,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Arsura + Miraggi"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Temporale"
+    }
+   ]
+  },
+  "13": {
+   "piogge": [
+    {
+     "da": 1,
+     "a": 30,
+     "testo": "Afa"
+    },
+    {
+     "da": 31,
+     "a": 50,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 51,
+     "a": 65,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 66,
+     "a": 78,
+     "testo": "Temporale"
+    },
+    {
+     "da": 79,
+     "a": 88,
+     "testo": "Monsone"
+    },
+    {
+     "da": 89,
+     "a": 93,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 94,
+     "a": 97,
+     "testo": "Foschia"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Uragano"
+    }
+   ],
+   "secca": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Afa"
+    },
+    {
+     "da": 46,
+     "a": 60,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 61,
+     "a": 72,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 73,
+     "a": 80,
+     "testo": "Temporale"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 86,
+     "a": 92,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 93,
+     "a": 97,
+     "testo": "Foschia"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Arsura"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Vento forte"
+    }
+   ]
+  },
+  "14": {
+   "primavera": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 56,
+     "a": 63,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 64,
+     "a": 67,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 68,
+     "a": 72,
+     "testo": "Foschia"
+    },
+    {
+     "da": 73,
+     "a": 75,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 76,
+     "a": 87,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 88,
+     "a": 93,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 94,
+     "a": 96,
+     "testo": "Bonaccia"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Temporale"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "estate": [
+    {
+     "da": 1,
+     "a": 55,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 56,
+     "a": 61,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 62,
+     "a": 67,
+     "testo": "Temporale"
+    },
+    {
+     "da": 68,
+     "a": 70,
+     "testo": "Foschia"
+    },
+    {
+     "da": 71,
+     "a": 80,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 86,
+     "a": 94,
+     "testo": "Bonaccia"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Arsura"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Tempesta di vento"
+    }
+   ],
+   "autunno": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 46,
+     "a": 55,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 56,
+     "a": 61,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 62,
+     "a": 66,
+     "testo": "Foschia"
+    },
+    {
+     "da": 67,
+     "a": 70,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 71,
+     "a": 82,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 83,
+     "a": 91,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 92,
+     "a": 95,
+     "testo": "Temporale"
+    },
+    {
+     "da": 96,
+     "a": 99,
+     "testo": "Tempesta di vento"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Bonaccia"
+    }
+   ],
+   "inverno": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 46,
+     "a": 56,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 57,
+     "a": 60,
+     "testo": "Clima freddo + Neve"
+    },
+    {
+     "da": 61,
+     "a": 64,
+     "testo": "Foschia"
+    },
+    {
+     "da": 65,
+     "a": 76,
+     "testo": "Clima freddo + Vento forte"
+    },
+    {
+     "da": 77,
+     "a": 88,
+     "testo": "Clima freddo + Vento molto forte"
+    },
+    {
+     "da": 89,
+     "a": 92,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 93,
+     "a": 94,
+     "testo": "Clima freddo + Pioggia gelata"
+    },
+    {
+     "da": 95,
+     "a": 99,
+     "testo": "Tempesta di vento"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Bonaccia"
+    }
+   ]
+  },
+  "15": {
+   "calma": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 46,
+     "a": 55,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 56,
+     "a": 62,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 63,
+     "a": 66,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 67,
+     "a": 70,
+     "testo": "Foschia"
+    },
+    {
+     "da": 71,
+     "a": 80,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 81,
+     "a": 85,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 86,
+     "a": 93,
+     "testo": "Bonaccia"
+    },
+    {
+     "da": 94,
+     "a": 96,
+     "testo": "Temporale"
+    },
+    {
+     "da": 97,
+     "a": 98,
+     "testo": "Tempesta di vento"
+    },
+    {
+     "da": 99,
+     "a": 99,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Uragano"
+    }
+   ],
+   "tempeste": [
+    {
+     "da": 1,
+     "a": 35,
+     "testo": "Clima fresco"
+    },
+    {
+     "da": 36,
+     "a": 45,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 46,
+     "a": 52,
+     "testo": "Acquazzone"
+    },
+    {
+     "da": 53,
+     "a": 56,
+     "testo": "Foschia"
+    },
+    {
+     "da": 57,
+     "a": 68,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 69,
+     "a": 80,
+     "testo": "Vento molto forte"
+    },
+    {
+     "da": 81,
+     "a": 86,
+     "testo": "Temporale"
+    },
+    {
+     "da": 87,
+     "a": 94,
+     "testo": "Tempesta di vento"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Uragano"
+    },
+    {
+     "da": 98,
+     "a": 99,
+     "testo": "Grandine"
+    },
+    {
+     "da": 100,
+     "a": 100,
+     "testo": "Bonaccia"
+    }
+   ]
+  },
+  "16": {},
+  "17": {
+   "primavera-estate": [
+    {
+     "da": 1,
+     "a": 40,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 41,
+     "a": 52,
+     "testo": "Arsura"
+    },
+    {
+     "da": 53,
+     "a": 58,
+     "testo": "Canicola"
+    },
+    {
+     "da": 59,
+     "a": 70,
+     "testo": "Pioggia di cenere"
+    },
+    {
+     "da": 71,
+     "a": 78,
+     "testo": "Esalazioni"
+    },
+    {
+     "da": 79,
+     "a": 84,
+     "testo": "Clima caldo + Vento forte"
+    },
+    {
+     "da": 85,
+     "a": 89,
+     "testo": "Temporale"
+    },
+    {
+     "da": 90,
+     "a": 94,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 95,
+     "a": 97,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 98,
+     "a": 100,
+     "testo": "Clima caldo + Tempesta di cenere"
+    }
+   ],
+   "autunno-inverno": [
+    {
+     "da": 1,
+     "a": 45,
+     "testo": "Clima mite"
+    },
+    {
+     "da": 46,
+     "a": 55,
+     "testo": "Clima caldo"
+    },
+    {
+     "da": 56,
+     "a": 67,
+     "testo": "Pioggia di cenere"
+    },
+    {
+     "da": 68,
+     "a": 75,
+     "testo": "Esalazioni"
+    },
+    {
+     "da": 76,
+     "a": 82,
+     "testo": "Pioggia battente"
+    },
+    {
+     "da": 83,
+     "a": 87,
+     "testo": "Nebbia"
+    },
+    {
+     "da": 88,
+     "a": 92,
+     "testo": "Vento forte"
+    },
+    {
+     "da": 93,
+     "a": 95,
+     "testo": "Temporale"
+    },
+    {
+     "da": 96,
+     "a": 98,
+     "testo": "Clima freddo"
+    },
+    {
+     "da": 99,
+     "a": 100,
+     "testo": "Tempesta di cenere"
+    }
+   ]
+  }
+ },
+ "sotterraneo": {
+  "zona": "16",
+  "clima": "Clima fresco",
+  "righe": [
+   {
+    "da": 1,
+    "a": 60,
+    "nome": "Aria ferma",
+    "testo": "Nessun effetto."
+   },
+   {
+    "da": 61,
+    "a": 70,
+    "nome": "Correnti d'aria",
+    "testo": "Fiamme come con il Vento forte; penalità −2 alle prove di Percezione (udito). Chi segue la corrente con una prova di Sopravvivenza CD 15 trova la direzione di un'uscita o di una caverna ampia."
+   },
+   {
+    "da": 71,
+    "a": 80,
+    "nome": "Stillicidio",
+    "testo": "Penalità −2 alle prove di Percezione (udito). L'acqua si trova senza prova. Nei passaggi in pendenza valgono i Terreni scivolosi della Guida del DM."
+   },
+   {
+    "da": 81,
+    "a": 87,
+    "nome": "Aria viziata",
+    "testo": "Le fiamme durano metà del tempo. Chi compie attività faticose effettua un TS su Tempra CD 15 ogni ora: se fallisce è affaticato finché non torna in aria buona."
+   },
+   {
+    "da": 88,
+    "a": 93,
+    "nome": "Allagamento",
+    "testo": "Le gallerie basse sono allagate: valgono lo Stagno da 30 cm o da 120 cm della Guida del DM, a scelta del DM; dove la volta tocca l'acqua serve Nuotare."
+   },
+   {
+    "da": 94,
+    "a": 97,
+    "nome": "Esalazioni",
+    "testo": "Vedi Capitolo 2."
+   },
+   {
+    "da": 98,
+    "a": 99,
+    "nome": "Crolli",
+    "testo": "Cadono detriti: Riflessi CD 15 per evitare 2d6 danni. Un passaggio a scelta del DM resta ostruito; liberarlo richiede 1d4 ore di lavoro."
+   },
+   {
+    "da": 100,
+    "a": 100,
+    "nome": "Grotte gelate",
+    "testo": "Vale il Clima freddo e, nelle zone indicate dal DM, il Ghiaccio della Guida del DM."
+   }
+  ],
+  "nota": "Le condizioni del Sotterraneo (Aria ferma, Correnti d'aria, Stillicidio, Aria viziata, Allagamento, Crolli, Grotte gelate) sono descritte nella zona 16."
+ },
+ "voci": {
+  "Acquazzone": "Acquazzone",
+  "Afa": "Afa",
+  "Arsura": "Arsura / Gelo",
+  "Gelo": "Arsura / Gelo",
+  "Bonaccia": "Bonaccia",
+  "Canicola": "Canicola",
+  "Clima caldo": "Clima caldo / Clima freddo",
+  "Clima freddo": "Clima caldo / Clima freddo",
+  "Clima mite": "Clima mite / Clima fresco",
+  "Clima fresco": "Clima mite / Clima fresco",
+  "Esalazioni": "Esalazioni",
+  "Foschia": "Foschia",
+  "Gelo polare": "Gelo polare",
+  "Grandine": "Grandine",
+  "Miraggi": "Miraggi",
+  "Monsone": "Monsone",
+  "Nebbia": "Nebbia",
+  "Neve": "Neve",
+  "Neve fitta": "Neve fitta",
+  "Pioggia battente": "Pioggia battente",
+  "Pioggia di cenere": "Pioggia di cenere",
+  "Pioggia gelata": "Pioggia gelata",
+  "Temporale": "Temporale",
+  "Tempesta di grandine": "Tempesta di grandine / polvere / sabbia / cenere",
+  "Tempesta di polvere": "Tempesta di grandine / polvere / sabbia / cenere",
+  "Tempesta di sabbia": "Tempesta di grandine / polvere / sabbia / cenere",
+  "Tempesta di cenere": "Tempesta di grandine / polvere / sabbia / cenere",
+  "Tempesta di vento": "Tempesta di vento",
+  "Tormenta": "Tormenta",
+  "Uragano": "Uragano",
+  "Vento forte": "Vento forte",
+  "Vento molto forte": "Vento molto forte",
+  "Aria ferma": "Aria ferma",
+  "Correnti d'aria": "Correnti d'aria",
+  "Stillicidio": "Stillicidio",
+  "Aria viziata": "Aria viziata",
+  "Allagamento": "Allagamento",
+  "Crolli": "Crolli",
+  "Grotte gelate": "Grotte gelate"
+ },
+ "alias": {
+  "Tempesta di polvere/sabbia": "Tempesta di sabbia"
+ },
+ "effetti": {
+  "Acquazzone": "Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Fiamme: vedi la tabella. Seguire tracce: +1 alla CD per ogni ora di pioggia. Chi resta all'aperto si bagna. Chi ha recipienti raccoglie la razione d'acqua del giorno.",
+  "Afa": "Caldo umido. Valgono gli effetti del Clima caldo, ma qualsiasi armatura, anche leggera, annulla gli abiti estivi e servono 2 razioni d'acqua al giorno.",
+  "Arsura / Gelo": "Giornata di caldo / freddo intenso. Una creatura senza abiti estivi / invernali è esausta dopo 1 ora. Anche con gli abiti adatti è affaticata dopo 4 ore di marcia o di attività faticosa. Si recupera un grado ogni ora passata all'ombra (o al caldo, vicino a un fuoco) o con gli abiti adatti: da esausta ad affaticata, da affaticata a normale.\nArsura: vale dalle 10 alle 18, nelle altre ore vale il Clima caldo. Servono 2 razioni d'acqua al giorno. Un'armatura media o pesante annulla gli abiti estivi.\nGelo: chi dorme senza riparo né fuoco non recupera Punti Fatica con il riposo.",
+  "Bonaccia": "Assenza totale di vento. Le navi a vela restano ferme e si avanza solo a remi. Se la stagione è calda vale anche l'Afa.",
+  "Canicola": "Caldo estremo. Valgono gli effetti dell'Arsura. Anche con gli abiti estivi, ogni ora all'aperto fra le 10 e le 18 serve un Tiro Salvezza su Tempra CD 15 (+1 per ogni prova precedente): ogni fallimento peggiora di un grado (affaticata, poi esausta); una creatura già esausta subisce invece 1d4 danni non letali. Senza abiti estivi si subiscono anche 1d4 danni non letali ogni ora. Servono 3 razioni d'acqua al giorno.",
+  "Clima caldo / Clima freddo": "Il tipico clima estivo / invernale. Una creatura senza abiti estivi / invernali è affaticata dopo 1 ora. La condizione termina dopo 1 ora all'ombra (o al caldo, vicino a un fuoco) o indossando gli abiti adatti. Con il Clima caldo un'armatura media o pesante annulla gli abiti estivi.",
+  "Clima mite / Clima fresco": "Il tipico clima primaverile / autunnale. Nessun effetto particolare.",
+  "Esalazioni": "Gas che ristagnano nelle zone basse (crateri, conche, gallerie); il DM sceglie la zona del percorso. Una prova di Percezione (olfatto) CD 15 li avverte prima di entrarci. Chi entra o resta nella zona effettua un Tiro Salvezza su Tempra CD 15 all'ingresso e poi ogni 10 minuti: se fallisce è infermo finché resta e per i 10 minuti successivi; con due fallimenti di fila è anche nauseato per 1d4 round e subisce 1d6 danni. È un effetto di [VELENO]. Le creature che non respirano sono immuni.",
+  "Foschia": "Visibilità massima 20 caselle (30 m). Le creature oltre 9 m godono di Occultamento 20%. Penalità −2 alle prove di Percezione (vista).",
+  "Gelo polare": "Freddo estremo. Valgono gli effetti del Gelo. Anche con gli abiti invernali, ogni ora all'aperto serve un Tiro Salvezza su Tempra CD 15 (+1 per ogni prova precedente), con gli stessi gradi della Canicola. Senza abiti invernali si subiscono 1d6 danni non letali da freddo ogni 10 minuti. Vicino a un fuoco o in un riparo riscaldato le prove si sospendono.",
+  "Grandine": "Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Chi resta senza riparo subisce 1 danno non letale ogni 10 minuti. Fiamme: come la Pioggia battente.",
+  "Miraggi": "Oltre 30 m le prove di Percezione (vista) subiscono penalità −4 e il DM può mostrare oasi, figure o carovane che non esistono; chi si avvicina entro 30 m riconosce il miraggio. Orientarsi: +5 alla CD.",
+  "Monsone": "Visibilità massima 15 caselle (22,5 m). Penalità −4 ai tiri per colpire a distanza e alle prove di Percezione. Fiamme: vedi la tabella. Fuori dalle strade il fango rende il terreno difficile per quel giorno e per il seguente. Fiumi e torrenti sono in piena: acque agitate (Nuotare CD 15), rapide tempestose (CD 20), guadi impraticabili. Bagnato e acqua: come l'Acquazzone.",
+  "Nebbia": "Le creature oltre 3 m godono di Occultamento 50%. Visibilità massima 6 caselle (9 m). Orientarsi: +5 alla CD.",
+  "Neve": "Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Fiamme: vedi la tabella. La neve si deposita dopo 1 ora e rende il terreno difficile (×2); si scioglie in 1d3 giorni se il clima non è freddo e resta con il Clima freddo e il Gelo. Le tracce lasciate prima della nevicata: +2 alla CD per ogni ora di neve. Sciogliendo la neve sul fuoco si ottiene 1 razione d'acqua all'ora.",
+  "Neve fitta": "Visibilità massima 10 caselle (15 m). Penalità −4 alle prove di Percezione e −2 ai tiri per colpire a distanza. Le creature oltre 3 m godono di Occultamento 50%. Orientarsi: +5 alla CD. Fiamme: vedi la tabella. Se la neve si è già depositata il terreno è difficile (×4). Per tracce e acqua vale la Neve.",
+  "Pioggia battente": "Penalità −2 alle prove di Percezione. Fiamme: vedi la tabella. Seguire tracce: +1 alla CD per ogni ora di pioggia. Chi resta all'aperto si bagna. Chi ha recipienti raccoglie la razione d'acqua del giorno.",
+  "Pioggia di cenere": "Visibilità massima 15 caselle (22,5 m). Penalità −4 alle prove di Percezione; le creature oltre 9 m godono di Occultamento 20%. Dopo 2 ore la cenere depositata rende il terreno difficile (×2). Chi non si copre naso e bocca con un panno bagnato subisce gli effetti del Fumo (Guida del DM), con una prova ogni ora invece che ogni round. Acqua e cibo lasciati all'aperto vanno purificati (bollitura, Tavoletta purificante o Purificare cibo e bevande). Fiamme: come la Neve.",
+  "Pioggia gelata": "Pioggia che gela al suolo. Penalità −2 alle prove di Percezione. Per tutto il giorno ogni superficie all'aperto è un terreno scivoloso (Terreni scivolosi, Guida del DM). Scalare su rocce, alberi e funi ghiacciate: +5 alla CD. Bagnato e fiamme: come la Pioggia battente.",
+  "Temporale": "Valgono gli effetti di Acquazzone e Vento forte. Ogni ora all'aperto il DM tira d%: con 01–03 un fulmine colpisce la creatura più esposta del gruppo (la più alta, chi impugna un'arma lunga di metallo o indossa un'armatura pesante) e le infligge 4d8 danni da elettricità (Riflessi CD 15 dimezza). Chi si ripara sotto un albero isolato rischia di più: 01–06.",
+  "Tempesta di grandine / polvere / sabbia / cenere": "Visibilità massima 5 caselle (7,5 m). I tiri per colpire a distanza falliscono automaticamente. Penalità −8 alle prove di Percezione. Orientarsi: +10 alla CD. Si spengono tutte le fiamme. Le tracce si cancellano. Chi si muove avanza a un quarto della velocità. Ogni minuto si subiscono 1d4 danni letali per escoriazioni, cadute e asfissia; un riparo solido (grotta, edificio, tenda piantata sottovento) li evita. Con polvere, sabbia e cenere, chi non si copre naso e bocca con un panno subisce anche gli effetti del Fumo (Guida del DM).",
+  "Tempesta di vento": "Gli attacchi a distanza sono impossibili, tranne con le armi d'assedio (−4). Penalità −8 alle prove di Percezione (udito). Le creature Medie o più piccole non possono volare. Le creature Piccole o più piccole effettuano ogni round una prova di Forza CD 15: se falliscono cadono prone e sono spinte di 1d4 × 3 m; le Medie dimezzano la velocità controvento. Tende e ripari leggeri crollano se non sono stati ancorati (Sopravvivenza CD 15). Si spengono tutte le fiamme.",
+  "Tormenta": "Neve fitta e vento molto forte insieme. Visibilità massima 2 caselle (3 m); le creature oltre 1,5 m godono di Occultamento 50%. Gli attacchi a distanza falliscono automaticamente. Penalità −8 alle prove di Percezione. Orientarsi: +10 alla CD. Chi si muove avanza a un quarto della velocità. Chi resta senza riparo subisce 1d4 danni non letali da freddo ogni 10 minuti, anche con gli abiti invernali. La neve si deposita come per la Neve fitta. Fiamme: come con il Vento molto forte.",
+  "Uragano": "Valgono gli effetti di Tempesta di vento e Monsone. Visibilità massima 5 caselle (7,5 m). Ogni round le creature Medie effettuano una prova di Forza CD 15, le Piccole o più piccole CD 20: se falliscono cadono prone e sono spinte di 1d4 × 3 m (le Piccole o più piccole subiscono anche 1d6 danni). Chi resta all'aperto subisce 1d6 danni letali ogni 10 minuti per i detriti. Tende e capanne vengono distrutte; riparano solo gli edifici in muratura e le grotte.",
+  "Vento forte": "Penalità −2 ai tiri per colpire a distanza, alle prove di Percezione (udito) e alle prove di Volare. Fiamme: vedi la tabella.",
+  "Vento molto forte": "Penalità −4 ai tiri per colpire a distanza, alle prove di Percezione (udito) e alle prove di Volare. Le creature Minuscole o più piccole dimezzano la velocità controvento. Fiamme: vedi la tabella.",
+  "Aria ferma": "Nessun effetto.",
+  "Correnti d'aria": "Fiamme come con il Vento forte; penalità −2 alle prove di Percezione (udito). Chi segue la corrente con una prova di Sopravvivenza CD 15 trova la direzione di un'uscita o di una caverna ampia.",
+  "Stillicidio": "Penalità −2 alle prove di Percezione (udito). L'acqua si trova senza prova. Nei passaggi in pendenza valgono i Terreni scivolosi della Guida del DM.",
+  "Aria viziata": "Le fiamme durano metà del tempo. Chi compie attività faticose effettua un TS su Tempra CD 15 ogni ora: se fallisce è affaticato finché non torna in aria buona.",
+  "Allagamento": "Le gallerie basse sono allagate: valgono lo Stagno da 30 cm o da 120 cm della Guida del DM, a scelta del DM; dove la volta tocca l'acqua serve Nuotare.",
+  "Crolli": "Cadono detriti: Riflessi CD 15 per evitare 2d6 danni. Un passaggio a scelta del DM resta ostruito; liberarlo richiede 1d4 ore di lavoro.",
+  "Grotte gelate": "Vale il Clima freddo e, nelle zone indicate dal DM, il Ghiaccio della Guida del DM."
+ },
+ "tiro": [
+  "All'alba il DM tira d% sulla tabella della zona e della stagione in cui si trova il gruppo. Quando il gruppo passa da una zona all'altra, si tira sulla zona in cui trascorre la maggior parte della giornata.",
+  "Ogni riga dice tutto quello che vale quel giorno. Se la riga non indica un clima (Clima caldo, Gelo e così via), la temperatura non ha effetti. Le righe con il segno «+» uniscono due effetti, che valgono entrambi."
+ ],
+ "durate": {
+  "frase": "Acquazzone, Monsone, Temporale, Grandine, Neve fitta, Tormenta, Tempesta di vento, Uragano e le tempeste di grandine, polvere, sabbia e cenere durano 2d4 ore; per il resto del giorno vale il clima base della stagione, cioè la prima riga della tabella. La Nebbia si dirada 1d4 ore dopo l'alba. Tutti gli altri effetti durano l'intera giornata.",
+  "lunghe": [
+   "Acquazzone",
+   "Monsone",
+   "Temporale",
+   "Grandine",
+   "Neve fitta",
+   "Tormenta",
+   "Tempesta di vento",
+   "Uragano",
+   "Tempesta di grandine",
+   "Tempesta di polvere",
+   "Tempesta di sabbia",
+   "Tempesta di cenere"
+  ],
+  "dadi": "2d4",
+  "nebbia": {
+   "voce": "Nebbia",
+   "dadi": "1d4"
+  },
+  "arsura": {
+   "voce": "Arsura",
+   "da": 10,
+   "a": 18,
+   "altrimenti": "Clima caldo"
+  }
+ },
+ "predire": {
+  "frase": "Con Predire il tempo (Sopravvivenza CD 15, altre 24 ore ogni 5 punti oltre la CD) un personaggio conosce il tempo dei giorni seguenti: per rispondergli, il DM tira in anticipo i giorni previsti.",
+  "cd": 15,
+  "ogni": 5
+ },
+ "mare": [
+  {
+   "stato": "Calmo",
+   "quando": [],
+   "testo_quando": "In tutti gli altri casi",
+   "nuotare": 10
+  },
+  {
+   "stato": "Agitato",
+   "quando": [
+    "Vento forte",
+    "Acquazzone",
+    "Temporale"
+   ],
+   "testo_quando": "Vento forte, Acquazzone, Temporale",
+   "nuotare": 15
+  },
+  {
+   "stato": "Tempestoso",
+   "quando": [
+    "Vento molto forte",
+    "Tempesta di vento",
+    "Uragano"
+   ],
+   "testo_quando": "Vento molto forte, Tempesta di vento, Uragano",
+   "nuotare": 20
+  }
+ ],
+ "notti_fredde": {
+  "zone": [
+   "10",
+   "11"
+  ],
+  "frase": "Notti fredde: dalle 22 alle 6 vale il Clima freddo; dalle 6 alle 10 e dalle 18 alle 22 vale il Clima caldo.",
+  "notte": [
+   22,
+   6
+  ],
+  "tiepido": [
+   [
+    6,
+    10
+   ],
+   [
+    18,
+    22
+   ]
+  ]
+ },
+ "senza_legna": {
+  "3": "Brughiere e lande",
+  "8": "Tundra",
+  "9": "Ghiacci artici",
+  "10": "deserti",
+  "11": "deserti",
+  "15": "Oceano"
+ },
+ "fiamme": {
+  "frase": "Ogni effetto che spegne le fiamme rimanda a questa tabella, che vale per le fonti di luce della Guida del DM.",
+  "righe": [
+   {
+    "fonte": "Candela",
+    "spegne": "Qualsiasi pioggia, neve o vento"
+   },
+   {
+    "fonte": "Torcia, falò all'aperto",
+    "spegne": "Pioggia battente, Neve, Vento forte e più forti"
+   },
+   {
+    "fonte": "Lanterna",
+    "spegne": "Acquazzone, Monsone, Neve fitta, Vento molto forte e più forti"
+   },
+   {
+    "fonte": "Lanterna impermeabile o deluxe",
+    "spegne": "Le tempeste (Tempesta di vento, Uragano, Tormenta, tempeste di grandine, polvere, sabbia e cenere); con il Vento molto forte, 50% di probabilità ogni 10 minuti"
+   }
+  ]
+ },
+ "scala": {
+  "frase": "Alcune regole fanno contare il clima di un grado più mite o più severo. I gradi sono questi:",
+  "righe": [
+   "Caldo: Clima mite → Clima caldo → Arsura (o Afa) → Canicola.",
+   "Freddo: Clima fresco → Clima freddo → Gelo → Gelo polare."
+  ]
+ },
+ "regole": [
+  {
+   "titolo": "Protezioni",
+   "parti": [
+    {
+     "elenco": [
+      "Resistenze. RE (fuoco) di qualsiasi valore vale come gli abiti estivi, anche con l'Afa; RE (freddo) come gli abiti invernali. Con RE 10 o più la creatura è esente anche dai Tiri Salvezza e dai danni di Canicola e Gelo polare. L'immunità protegge da tutti gli effetti di quel clima.",
+      "Contrastare elementi annulla Clima caldo e freddo, Arsura, Gelo e Afa; contro Canicola e Gelo polare vale come gli abiti adatti, quindi i Tiri Salvezza restano.",
+      "Le creature immuni agli effetti di [AFFATICAMENTO] ignorano gli effetti di questo manuale che le renderebbero affaticate o esauste, ma non i danni non letali.",
+      "Le creature che non respirano sono immuni a Fumo, Esalazioni, Aria viziata e alta quota.",
+      "Le razze che «non subiscono gli effetti del clima» (Vol. 1) ignorano gli effetti di temperatura; visibilità, vento e terreno valgono anche per loro.",
+      "Acclimatarsi. Dopo un mese in una zona calda (o fredda) il Clima caldo (o freddo) non ha effetti anche senza abiti adatti; Arsura e Gelo restano. Dopo due mesi lontano dalla zona l'acclimatazione si perde."
+     ]
+    }
+   ]
+  },
+  {
+   "titolo": "Bagnati",
+   "parti": [
+    {
+     "testo": "Chi si bagna (pioggia senza riparo, guado, caduta in acqua) con il Clima fresco o più freddo conta il clima di un grado più severo finché non si asciuga: 1 ora vicino a un fuoco, 4 ore all'aria asciutta. Il Mantello da viaggio (Vol. 3), impermeabile, protegge dalla pioggia ma non dall'acqua in cui si finisce dentro."
+    }
+   ]
+  },
+  {
+   "titolo": "Ripari e fuoco",
+   "parti": [
+    {
+     "elenco": [
+      "Fuoco. Chi sta entro 3 m da un fuoco conta il clima di un grado più mite. Nelle zone senza legna (Brughiere e lande, Tundra, Ghiacci artici, deserti, Oceano) il combustibile va portato con sé.",
+      "Tenda. Ripara da pioggia, neve e vento fino al Vento molto forte; con la Tempesta di vento crolla, se non è stata ancorata. Con un fuoco vicino, o con due o più occupanti, conta un grado più mite.",
+      "Riparo trovato (Sopravvivenza CD 15; CD 20 in Brughiere e lande e in Tundra): ripara come la tenda, ma senza il grado più mite.",
+      "Edifici in muratura. Il clima non ha effetti."
+     ]
+    }
+   ]
+  },
+  {
+   "titolo": "Viaggi",
+   "parti": [
+    {
+     "testo": "Questi moltiplicatori si aggiungono a quelli del terreno della Guida del DM."
+    },
+    {
+     "tabella": [
+      [
+       "Condizione",
+       "Velocità di viaggio"
+      ],
+      [
+       "Neve depositata, Pioggia gelata, fango (Monsone, piene)",
+       "×½ fuori strada"
+      ],
+      [
+       "Neve fitta depositata",
+       "×¼ (×½ con le racchette da neve)"
+      ],
+      [
+       "Tempeste, Tormenta, Uragano",
+       "×¼"
+      ]
+     ]
+    },
+    {
+     "testo": "Orientarsi (Sopravvivenza CD 15, Guida del DM): una prova al giorno fuori dalle strade; la Bussola dà +3. Con un fallimento il gruppo si perde e quel giorno percorre metà della strada; con un fallimento di 5 o più cammina tutto il giorno nella direzione sbagliata, scelta dal DM. La prova si ripete il giorno dopo. Modificatori: Foschia +2; Nebbia, Neve fitta e Miraggi +5; tempeste e Tormenta +10."
+    }
+   ]
+  }
+ ],
+ "navigazione": [
+  {
+   "testo": "Le velocità delle imbarcazioni sono quelle usate dal DM. Il vento conta a favore, salvo con un 6 su 1d6: allora è contrario e le navi a vela bordeggiano a metà velocità."
+  },
+  {
+   "tabella": [
+    [
+     "Tempo",
+     "Navi a vela",
+     "Navi a remi",
+     "Pilotare imbarcazioni"
+    ],
+    [
+     "Nessun vento nella riga",
+     "Normale",
+     "Normale",
+     "—"
+    ],
+    [
+     "Bonaccia",
+     "Ferme",
+     "Normale",
+     "—"
+    ],
+    [
+     "Vento forte",
+     "+50%",
+     "−25%",
+     "CD 15 ogni 4 ore"
+    ],
+    [
+     "Vento molto forte",
+     "Normale (vele ridotte)",
+     "Metà",
+     "CD 20 ogni ora"
+    ],
+    [
+     "Tempesta di vento",
+     "Si corre col vento, la direzione non si controlla",
+     "Impossibile",
+     "CD 25 ogni ora"
+    ],
+    [
+     "Uragano",
+     "Come sopra",
+     "Impossibile",
+     "CD 30 ogni ora"
+    ]
+   ]
+  },
+  {
+   "testo": "Se la prova fallisce con il Vento forte o molto forte, la nave va alla deriva e perde 1d4 ore di viaggio. Con la Tempesta di vento o l'Uragano lo scafo subisce invece 1 livello di danneggiamento, come gli oggetti della Guida del DM:"
+  },
+  {
+   "elenco": [
+    "Scheggiato: velocità −25%.",
+    "Rotto: imbarca acqua e procede a metà velocità; serve una prova di Pilotare imbarcazioni CD 15 ogni 4 ore per restare a galla.",
+    "Distrutto: naufragio."
+   ]
+  },
+  {
+   "testo": "Lo scafo si ripara come in «Riparare oggetti rotti» della Guida del DM, con Professione (falegname)."
+  }
+ ],
+ "foraggiare": {
+  "frase": "Foraggiare è un uso di Sopravvivenza: una prova al giorno per personaggio, che richiede 2 ore fuori dalla marcia (nei giorni di marcia forzata non si può). Si può prendere 10 e ricevere aiuto. Superando la CD della zona si trova cibo per sé, e anche acqua dove la zona lo permette; ogni N punti oltre la CD si nutre un'altra persona. Dove si può pescare (coste, mare, oceano, laghi) Professione (pescatore) sostituisce Sopravvivenza per il solo cibo, con una lenza o una rete.",
+  "avariato_frase": "Cibo avariato (zone ☠). Chi fallisce la prova di 5 o più torna comunque con del cibo, ma avariato o velenoso: chi lo mangia effettua un Tiro Salvezza su Tempra CD 12; se fallisce è nauseato per 1d4 ore e per quel giorno conta come se non avesse mangiato.",
+  "avariato": {
+   "cd": 12,
+   "ts": "Tempra",
+   "fallimento": 5,
+   "condizione": "Nauseato",
+   "durata": "1d4 ore"
+  },
+  "note_frase": "¹ Oltre i 4.500 m solo neve. ² In autunno-inverno si scioglie neve o ghiaccio sul fuoco: 1 razione all'ora. ³ CD 20 nella stagione secca. ⁴ Con lo Stillicidio si trova senza prova. ⁵ Sulfurea: va purificata con la Tavoletta purificante o con Purificare cibo e bevande; la bollitura non basta.",
+  "acqua_frase": "Acqua: inclusa vuol dire che la stessa prova procura anche l'acqua; CD X che serve una seconda prova con quella CD, con la stessa resa; No che l'acqua si ottiene solo dalla pioggia, dalla magia o dalle scorte.",
+  "modificatori": {
+   "righe": [
+    {
+     "condizione": "Stagione povera: Inverno (zone a quattro stagioni), Autunno-inverno (Foreste boreali e Tundra), Stagione secca (Savana e steppa)",
+     "cd": "+5"
+    },
+    {
+     "condizione": "Pioggia battente, Neve, Nebbia, Grandine, Pioggia gelata, Arsura, Canicola",
+     "cd": "+2"
+    },
+    {
+     "condizione": "Acquazzone, Monsone, Neve fitta, Temporale, Vento molto forte",
+     "cd": "+5"
+    },
+    {
+     "condizione": "Tempeste, Tormenta, Uragano",
+     "cd": "Impossibile"
+    }
+   ],
+   "povera": {
+    "quattro_stagioni": "inverno",
+    "7": "autunno-inverno",
+    "8": "autunno-inverno",
+    "12": "secca"
+   },
+   "povera_cd": 5,
+   "piu2": [
+    "Pioggia battente",
+    "Neve",
+    "Nebbia",
+    "Grandine",
+    "Pioggia gelata",
+    "Arsura",
+    "Canicola"
+   ],
+   "piu5": [
+    "Acquazzone",
+    "Monsone",
+    "Neve fitta",
+    "Temporale",
+    "Vento molto forte"
+   ],
+   "impossibile": [
+    "Tempesta",
+    "Tormenta",
+    "Uragano"
+   ],
+   "nota": "I bonus razziali del Vol. 1 (per esempio +2 Sopravvivenza negli ambienti boschivi o sotterranei) si applicano normalmente."
+  },
+  "pesca": {
+   "zone": [
+    "5",
+    "14",
+    "15"
+   ],
+   "abilita": "Professione (pescatore)"
+  }
+ },
+ "acqua": {
+  "righe": [
+   "Razione d'acqua: 4 litri al giorno. Ne servono 2 con Arsura o Afa, 3 con Canicola.",
+   "Pioggia: con Pioggia battente, Acquazzone, Monsone o Temporale chi ha recipienti raccoglie la razione del giorno senza prova.",
+   "Bollire: 10 minuti al fuoco per razione; rende potabile l'acqua delle paludi. La Tavoletta purificante (Vol. 3) purifica 12 litri, cioè 3 razioni.",
+   "L'acqua non purificata segue la regola del cibo avariato."
+  ],
+  "litri": 4,
+  "moltiplicatori": {
+   "Arsura": 2,
+   "Afa": 2,
+   "Canicola": 3
+  },
+  "pioggia": [
+   "Pioggia battente",
+   "Acquazzone",
+   "Monsone",
+   "Temporale"
+  ],
+  "bollire_min": 10,
+  "tavoletta": 3,
+  "sciogliere_ore": 1
+ },
+ "fame_sete": {
+  "sete": {
+   "nome": "Sete",
+   "scorta": "acqua",
+   "giorno_prova": 4,
+   "cd": 10,
+   "testo": "Una creatura che non abbia bevuto nel giorno precedente subisce penalità −1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non beve). La penalità diminuisce di 1 il giorno seguente a quello in cui si è bevuto. A partire dal quarto giorno, oltre alla penalità, la creatura deve superare una prova di Costituzione CD 10 all'inizio di ogni nuovo giorno: se fallisce, cade priva di sensi e muore nel giro di 1d12 ore.\nChi beve meno razioni di quelle richieste dal tempo del giorno conta come se non avesse bevuto. Chi riceve acqua prima di morire si riprende dopo 1d4 ore."
+  },
+  "fame": {
+   "nome": "Fame",
+   "scorta": "cibo",
+   "giorno_prova": 7,
+   "cd": 10,
+   "testo": "Una creatura che non abbia mangiato nel giorno precedente subisce penalità −1 a tutti i tiri per colpire, Tiri Salvezza e prove (cumulativa per ogni giorno in cui non mangia). La penalità diminuisce di 1 il giorno seguente a quello in cui si è mangiato. A partire dal settimo giorno, oltre alla penalità, la creatura deve superare una prova di Costituzione CD 10 all'inizio di ogni nuovo giorno: se fallisce, cade priva di sensi e muore nel giro di 1d12 ore.\nChi riceve cibo prima di morire si riprende dopo 1d4 ore."
+  },
+  "nota_vol1": "Affaticato o esausto dovuti a fame o sete si tolgono solo rifocillandosi (Vol. 1)."
+ },
+ "riassunto": [
+  [
+   "Effetto",
+   "Visibilità",
+   "Percezione",
+   "Distanza",
+   "Altro"
+  ],
+  [
+   "Acquazzone",
+   "15 caselle",
+   "−4",
+   "−2",
+   "Fiamme fino alla lanterna; bagnati; acqua"
+  ],
+  [
+   "Afa",
+   "—",
+   "—",
+   "—",
+   "Come Clima caldo; ogni armatura annulla gli abiti; 2 razioni"
+  ],
+  [
+   "Arsura",
+   "—",
+   "—",
+   "—",
+   "Esausti dopo 1 h senza abiti; affaticati dopo 4 h; 2 razioni"
+  ],
+  [
+   "Bonaccia",
+   "—",
+   "—",
+   "—",
+   "Navi a vela ferme"
+  ],
+  [
+   "Canicola",
+   "—",
+   "—",
+   "—",
+   "Come Arsura; TS Tempra ogni ora; 3 razioni"
+  ],
+  [
+   "Clima caldo / freddo",
+   "—",
+   "—",
+   "—",
+   "Affaticati dopo 1 h senza abiti"
+  ],
+  [
+   "Esalazioni",
+   "—",
+   "—",
+   "—",
+   "TS Tempra ogni 10 min; infermi, nauseati"
+  ],
+  [
+   "Foschia",
+   "20 caselle",
+   "−2 (vista)",
+   "—",
+   "Occultamento 20% oltre 9 m"
+  ],
+  [
+   "Gelo",
+   "—",
+   "—",
+   "—",
+   "Esausti dopo 1 h senza abiti; affaticati dopo 4 h"
+  ],
+  [
+   "Gelo polare",
+   "—",
+   "—",
+   "—",
+   "Come Gelo; TS Tempra ogni ora"
+  ],
+  [
+   "Grandine",
+   "15 caselle",
+   "−4",
+   "−2",
+   "1 danno non letale / 10 min senza riparo"
+  ],
+  [
+   "Miraggi",
+   "—",
+   "−4 (vista oltre 30 m)",
+   "—",
+   "Orientarsi +5"
+  ],
+  [
+   "Monsone",
+   "15 caselle",
+   "−4",
+   "−4",
+   "Fango; fiumi in piena"
+  ],
+  [
+   "Nebbia",
+   "6 caselle",
+   "—",
+   "—",
+   "Occultamento 50% oltre 3 m; orientarsi +5"
+  ],
+  [
+   "Neve",
+   "15 caselle",
+   "−4",
+   "−2",
+   "Terreno ×2 dopo 1 h"
+  ],
+  [
+   "Neve fitta",
+   "10 caselle",
+   "−4",
+   "−2",
+   "Occultamento 50% oltre 3 m; terreno ×4"
+  ],
+  [
+   "Pioggia battente",
+   "—",
+   "−2",
+   "—",
+   "Torce spente; bagnati; acqua"
+  ],
+  [
+   "Pioggia di cenere",
+   "15 caselle",
+   "−4",
+   "—",
+   "Occultamento 20% oltre 9 m; Fumo; terreno ×2"
+  ],
+  [
+   "Pioggia gelata",
+   "—",
+   "−2",
+   "—",
+   "Terreno scivoloso"
+  ],
+  [
+   "Temporale",
+   "15 caselle",
+   "−4",
+   "−4",
+   "Acquazzone + Vento forte; fulmini"
+  ],
+  [
+   "Tempesta (grandine, polvere, sabbia, cenere)",
+   "5 caselle",
+   "−8",
+   "Impossibile",
+   "1d4 danni al minuto; velocità ¼"
+  ],
+  [
+   "Tempesta di vento",
+   "—",
+   "−8 (udito)",
+   "Impossibile",
+   "Creature piccole spinte; tende crollano"
+  ],
+  [
+   "Tormenta",
+   "2 caselle",
+   "−8",
+   "Impossibile",
+   "1d4 danni non letali / 10 min; velocità ¼"
+  ],
+  [
+   "Uragano",
+   "5 caselle",
+   "−8",
+   "Impossibile",
+   "Creature spinte; 1d6 danni / 10 min"
+  ],
+  [
+   "Vento forte",
+   "—",
+   "−2 (udito)",
+   "−2",
+   "Volare −2; torce spente"
+  ],
+  [
+   "Vento molto forte",
+   "—",
+   "−4 (udito)",
+   "−4",
+   "Volare −4; lanterne spente"
+  ]
+ ],
+ "migrazione": {
+  "temperata": "1",
+  "desertica": "10",
+  "artica": "9"
+ }
 }

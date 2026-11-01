@@ -101,50 +101,112 @@ function durataInRound(n, unita) {
   return Math.round(n * k);
 }
 
-// ------------------------------------------------------------------ stagioni e meteo
+// ------------------------------------------------------------------ stagioni e meteo (Tabelle del Tempo Atmosferico v1.0, AA1)
 function cadeIn(g, m, da, a) { // date [giorno, mese]; l'intervallo può scavalcare l'anno
   const v = m * 100 + g, vda = da[1] * 100 + da[0], va = a[1] * 100 + a[0];
   return vda <= va ? v >= vda && v <= va : v >= vda || v <= va;
 }
+const ALBA = 6; // ora dell'alba per le durate (inizio di tempeste e piogge forti, Nebbia)
+const ZONE_VECCHIE = { temperata: '1', desertica: '10', artica: '9' }; // Build 1–2b → Tabelle del Tempo Atmosferico
+const VOCI_VECCHIE = { 'Tempesta di polvere/sabbia': 'Tempesta di sabbia' };
+const zonaDi = (meteo, z) => meteo.zone.find(x => x.id === z) || null;
 function stagione(camp, meteo, R, zona) {
   zona = zona || camp.zona;
-  const t = scomponi(camp, R);
-  if (camp.calendario.tipo === 'reale') {
-    const s = meteo.stagioni[zona].find(s => cadeIn(t.giorno, t.mese + 1, s.da, s.a));
-    return s.id;
-  }
+  const st = meteo.stagioni[zona] || [];
+  if (!st.length) return null; // Sotterraneo: senza stagione
+  const t = scomponi(camp, R === undefined ? camp.tempo.R : R);
+  if (camp.calendario.tipo === 'reale') return st.find(s => cadeIn(t.giorno, t.mese + 1, s.da, s.a)).id;
   return meteo.stagione_del_mese[zona][camp.calendario.mesi[t.mese].stagione];
 }
 // risultato della tabella per un d100 (1–100): {testo, opzioni:[[voce…]…]}
+// "A + B" = effetti insieme; "A / B" = alternative a scelta (solo nelle campagne con il meteo della Guida del DM)
 function esitoMeteo(meteo, zona, staz, tiro) {
   const riga = meteo.tabelle[zona][staz].find(r => tiro >= r.da && tiro <= r.a);
-  // "A / B" (spazi intorno alla barra) = alternative a scelta; "A + B" = effetti insieme
-  const opzioni = riga.testo.split(' / ').map(alt => alt.split(' + '));
-  // nelle alternative "Pioggia battente / Neve" l'eventuale parte comune resta in ogni opzione
-  return { testo: riga.testo, opzioni };
+  return { testo: riga.testo, opzioni: riga.testo.split(' / ').map(alt => alt.split(' + ')) };
 }
 function effettiMeteo(meteo, voci) {
   const visti = new Set(), out = [];
   for (const v of voci) { const e = meteo.voci[v]; if (e && !visti.has(e)) { visti.add(e); out.push({ nome: e, voce: v, testo: meteo.effetti[e] }); } }
   return out;
 }
-function tiraMeteo(camp, meteo, rng, tiro) {
-  const c = clona(camp);
-  const staz = stagione(c, meteo, c.tempo.R);
+const eClima = v => /^(Clima |Arsura$|Afa$|Canicola$|Gelo$|Gelo polare$)/.test(v);
+const eCaldo = v => ['Clima caldo', 'Arsura', 'Afa', 'Canicola'].includes(v);
+const giornoDi = R => Math.floor(R / ROUND_GIORNO);
+// varianti di zona (caselle del pannello Viaggio): oltre 4.500 m, steppa fredda, lontano dalla costa
+function conVarianti(camp, meteo, voci, zona, staz) {
+  const z = zonaDi(meteo, zona); if (!z) return voci;
+  let out = voci.slice();
+  for (const v of z.varianti || []) {
+    if (!(camp.varianti || {})[v.id] || (v.stagione && v.stagione !== staz)) continue;
+    out = out.flatMap(x => v.sostituisci[x] || [x]);
+  }
+  return [...new Set(out)];
+}
+function vociScelte(m) { return (m.opzioni[m.scelta] || m.opzioni[0]).slice(); }
+// durate del giorno: tempeste e piogge forti 2d4 ore dall'alba; Nebbia che si dirada 1d4 ore dopo l'alba
+function durateDelGiorno(c, meteo, rng) {
+  const m = c.meteo, g0 = m.giorno * ROUND_GIORNO, voci = vociScelte(m);
+  delete m.durata; delete m.nebbia;
+  const lunghe = voci.filter(v => meteo.durate.lunghe.includes(v));
+  if (lunghe.length) { const ore = tira(meteo.durate.dadi, rng).totale, da = g0 + ALBA * ROUND_ORA;
+    m.durata = { voci: lunghe, ore, da, a: Math.min(da + ore * ROUND_ORA, g0 + ROUND_GIORNO) }; }
+  if (voci.includes(meteo.durate.nebbia.voce)) { const ore = tira(meteo.durate.nebbia.dadi, rng).totale; m.nebbia = { ore, fino: g0 + (ALBA + ore) * ROUND_ORA }; }
+}
+function testoDurate(c, m) {
+  const p = [];
+  if (m.durata) p.push(`${m.durata.voci.join(' + ')} ${m.durata.ore} ore, dalle ${formatoOra(c, m.durata.da)} alle ${formatoOra(c, m.durata.a)}`);
+  if (m.nebbia) p.push(`Nebbia fino alle ${formatoOra(c, m.nebbia.fino)}`);
+  return p.join('; ');
+}
+function formatoOra(c, R) { const t = scomponi(c, R); return `${String(t.ore).padStart(2, '0')}:${String(t.min).padStart(2, '0')}`; }
+function tiraSotterraneo(c, meteo, rng, tiro) {
+  const so = meteo.sotterraneo;
   if (tiro === undefined) tiro = d(100, rng);
-  const e = esitoMeteo(meteo, c.zona, staz, tiro);
-  c.meteo = { giorno: Math.floor(c.tempo.R / ROUND_GIORNO), zona: c.zona, stagione: staz, tiro, testo: e.testo, opzioni: e.opzioni, scelta: 0, manuale: false };
-  log(c, `Meteo: ${e.testo} (d% ${tiro}, ${nomeZona(meteo, c.zona)}, ${nomeStagione(meteo, c.zona, staz)})`);
+  const r = so.righe.find(x => tiro >= x.da && tiro <= x.a);
+  c.meteo = { giorno: giornoDi(c.tempo.R), zona: c.zona, stagione: null, tiro: null, testo: so.clima, opzioni: [[so.clima]], scelta: 0, manuale: false,
+    sotterraneo: { tiro, nome: r.nome } };
+  log(c, `Sotterraneo: ${r.nome} (d% ${tiro}); clima base ${so.clima}`);
   return c;
 }
-function impostaMeteo(camp, meteo, testoRiga) { // scelta a mano di una riga della tabella corrente
+function tiraMeteo(camp, meteo, rng, tiro) {
+  const c = clona(camp), g = giornoDi(c.tempo.R);
+  if (c.previsioni) c.previsioni.giorni = c.previsioni.giorni.filter(x => x.giorno > g || (tiro === undefined && x.giorno === g));
+  if (c.zona === meteo.sotterraneo.zona) return tiraSotterraneo(c, meteo, rng, tiro);
+  const staz = stagione(c, meteo, c.tempo.R);
+  let previsto = false;
+  if (tiro === undefined && c.previsioni && c.previsioni.zona === c.zona) { const p = c.previsioni.giorni.find(x => x.giorno === g); if (p) { tiro = p.tiro; previsto = true; } }
+  if (c.previsioni) c.previsioni.giorni = c.previsioni.giorni.filter(x => x.giorno > g);
+  if (tiro === undefined) tiro = d(100, rng);
+  const e = esitoMeteo(meteo, c.zona, staz, tiro);
+  c.meteo = { giorno: g, zona: c.zona, stagione: staz, tiro, testo: e.testo, opzioni: e.opzioni, scelta: 0, manuale: false };
+  durateDelGiorno(c, meteo, rng);
+  const dur = testoDurate(c, c.meteo);
+  log(c, `Meteo: ${e.testo} (d% ${tiro}, ${nomeZona(meteo, c.zona)}, ${nomeStagione(meteo, c.zona, staz)}${previsto ? ', previsto' : ''})` + (dur ? ` — ${dur}` : ''));
+  return c;
+}
+function impostaMeteo(camp, meteo, testoRiga, rng) { // scelta a mano di una riga della tabella corrente
   const c = clona(camp);
+  if (c.zona === meteo.sotterraneo.zona) { // nel Sotterraneo si sceglie la condizione
+    const r = meteo.sotterraneo.righe.find(x => x.nome === testoRiga); if (!r) throw new Error('condizione del sotterraneo sconosciuta');
+    const x = tiraSotterraneo(c, meteo, rng || Math.random, r.da); x.meteo.sotterraneo.tiro = null; x.meteo.manuale = true; return x;
+  }
   const staz = stagione(c, meteo, c.tempo.R);
   const riga = meteo.tabelle[c.zona][staz].find(r => r.testo === testoRiga);
   if (!riga) throw new Error('voce del meteo non presente nella tabella');
   const e = esitoMeteo(meteo, c.zona, staz, riga.da);
-  c.meteo = { giorno: Math.floor(c.tempo.R / ROUND_GIORNO), zona: c.zona, stagione: staz, tiro: null, testo: e.testo, opzioni: e.opzioni, scelta: 0, manuale: true };
-  log(c, `Meteo impostato: ${e.testo}`);
+  c.meteo = { giorno: giornoDi(c.tempo.R), zona: c.zona, stagione: staz, tiro: null, testo: e.testo, opzioni: e.opzioni, scelta: 0, manuale: true };
+  durateDelGiorno(c, meteo, rng || Math.random);
+  const dur = testoDurate(c, c.meteo);
+  log(c, `Meteo impostato: ${e.testo}` + (dur ? ` — ${dur}` : ''));
+  return c;
+}
+// inizio della durata (tempeste e piogge forti) scelto dal GM: ora intera del giorno
+function impostaInizioDurata(camp, ora) {
+  const c = clona(camp), m = c.meteo;
+  if (!m || !m.durata) throw new Error('oggi non c\'è un tempo con durata');
+  if (!(Number.isInteger(ora) && ora >= 0 && ora <= 23)) throw new Error('ora non valida');
+  const g0 = m.giorno * ROUND_GIORNO; m.durata.da = g0 + ora * ROUND_ORA; m.durata.a = Math.min(m.durata.da + m.durata.ore * ROUND_ORA, g0 + ROUND_GIORNO);
+  log(c, `${m.durata.voci.join(' + ')}: dalle ${formatoOra(c, m.durata.da)} alle ${formatoOra(c, m.durata.a)}`);
   return c;
 }
 function scegliOpzioneMeteo(camp, i) {
@@ -153,36 +215,119 @@ function scegliOpzioneMeteo(camp, i) {
   c.meteo.scelta = i; return c;
 }
 function cambiaZona(camp, meteo, zona) {
-  if (!meteo.tabelle[zona]) throw new Error('zona sconosciuta');
-  const c = clona(camp); c.zona = zona; log(c, `Zona climatica: ${nomeZona(meteo, zona)}`); return c;
+  if (!meteo.tabelle[zona] && zona !== meteo.sotterraneo.zona) throw new Error('zona sconosciuta');
+  const c = clona(camp); c.zona = zona; log(c, `Zona climatica: ${nomeZona(meteo, zona)}`);
+  if (c.previsioni && c.previsioni.giorni.length) log(c, 'Previsioni del tempo cancellate (zona cambiata)');
+  c.previsioni = null;
+  return c;
 }
-const nomeZona = (meteo, z) => (meteo.zone.find(x => x.id === z) || { nome: z }).nome;
-const nomeStagione = (meteo, z, s) => (meteo.stagioni[z].find(x => x.id === s) || { nome: s }).nome;
+function impostaVariante(camp, meteo, id, valore) {
+  const z = zonaDi(meteo, camp.zona), v = z && (z.varianti || []).find(x => x.id === id);
+  if (!v && id !== 'acqua_dolce') throw new Error('variante non valida per questa zona');
+  const c = clona(camp); c.varianti = { ...(c.varianti || {}), [id]: !!valore };
+  log(c, `${v ? v.nome : 'acqua dolce per pescare'}: ${valore ? 'sì' : 'no'}`);
+  return c;
+}
+// «Nuova zona di gallerie» (Sotterraneo): nuovo tiro della condizione
+function nuovaZonaGallerie(camp, meteo, rng, tiro) {
+  if (camp.zona !== meteo.sotterraneo.zona) throw new Error('solo nel Sotterraneo');
+  return tiraSotterraneo(clona(camp), meteo, rng, tiro);
+}
+const nomeZona = (meteo, z) => { const x = zonaDi(meteo, z); return x ? `${x.n}. ${x.nome}` : z; };
+const nomeStagione = (meteo, z, s) => s === null ? 'senza stagione' : ((meteo.stagioni[z] || []).find(x => x.id === s) || { nome: s }).nome;
+// voci in vigore a un'ora del giorno (R): durate finite (clima base = prima riga), Nebbia diradata, Arsura e Canicola
+// solo dalle 10 alle 18 (altrimenti Clima caldo), notti fredde dei deserti, varianti di zona
+function vociAllOra(camp, meteo, R) {
+  const m = camp.meteo; if (!m) return [];
+  if (R === undefined) R = camp.tempo.R;
+  if (m.sotterraneo) return [...vociScelte(m), m.sotterraneo.nome];
+  const tab = m.stagione && meteo.tabelle[m.zona] && meteo.tabelle[m.zona][m.stagione];
+  const base = tab ? tab[0].testo.split(' + ') : [];
+  let voci = vociScelte(m), via = [];
+  if (giornoDi(R) === m.giorno) {
+    if (m.durata && !(R >= m.durata.da && R < m.durata.a)) via.push(...m.durata.voci);
+    if (m.nebbia && R >= m.nebbia.fino) via.push('Nebbia');
+  }
+  if (via.length) { voci = voci.filter(v => !via.includes(v)); if (!voci.some(eClima)) voci = [...base.filter(b => !via.includes(b)), ...voci]; }
+  const h = scomponi(camp, R).ore, ar = meteo.durate.arsura;
+  voci = voci.map(v => (v === ar.voce || v === 'Canicola') && !(h >= ar.da && h < ar.a) ? ar.altrimenti : v);
+  const z = zonaDi(meteo, m.zona);
+  if (z && z.notti_fredde) {
+    const nf = meteo.notti_fredde, notte = h >= nf.notte[0] || h < nf.notte[1], tiepido = nf.tiepido.some(([a, b]) => h >= a && h < b);
+    const clima = voci.find(eClima), altri = voci.filter(v => !eClima(v));
+    if (notte) voci = ['Clima freddo', ...altri];
+    else if (tiepido && (!clima || eCaldo(clima))) voci = ['Clima caldo', ...altri];
+  }
+  return conVarianti(camp, meteo, [...new Set(voci)], m.zona, m.stagione);
+}
+function vociDelGiorno(camp, meteo) {
+  const m = camp.meteo; if (!m) return [];
+  return m.sotterraneo ? [...vociScelte(m), m.sotterraneo.nome] : conVarianti(camp, meteo, vociScelte(m), m.zona, m.stagione);
+}
+// stato del mare (coste, mare aperto, oceano) dal tempo in vigore
+function statoMare(camp, meteo, voci) {
+  const z = zonaDi(meteo, camp.zona); if (!z || !z.mare) return null;
+  voci = voci || vociAllOra(camp, meteo);
+  let s = meteo.mare.find(x => !x.quando.length);
+  for (const x of meteo.mare) if (x.quando.some(v => voci.includes(v))) s = x;
+  return s;
+}
 function meteoCorrente(camp, meteo) {
   if (!camp.meteo) return null;
-  const voci = camp.meteo.opzioni[camp.meteo.scelta] || camp.meteo.opzioni[0];
-  return { ...camp.meteo, voci, effetti: effettiMeteo(meteo, voci) };
+  const voci = vociDelGiorno(camp, meteo), ora = vociAllOra(camp, meteo);
+  return { ...camp.meteo, voci, effetti: effettiMeteo(meteo, [...voci, ...ora]), ora, effettiOra: effettiMeteo(meteo, ora), durate: testoDurate(camp, camp.meteo), mare: statoMare(camp, meteo, ora) };
+}
+// Predire il tempo (Sopravvivenza CD 15, +1 giorno ogni 5 punti oltre): i giorni seguenti si tirano subito
+function prediciTempo(camp, meteo, rng, totale) {
+  if (!Number.isInteger(totale)) throw new Error('totale non valido');
+  if (camp.zona === meteo.sotterraneo.zona) throw new Error('nel Sotterraneo il tempo atmosferico non c\'è');
+  const c = clona(camp), p = meteo.predire;
+  if (totale < p.cd) { log(c, `Predire il tempo: ${totale}, fallito (CD ${p.cd})`); return c; }
+  const n = 1 + Math.floor((totale - p.cd) / p.ogni), g = giornoDi(c.tempo.R);
+  const vecchi = c.previsioni && c.previsioni.zona === c.zona ? c.previsioni.giorni : [];
+  const giorni = [];
+  for (let k = 1; k <= n; k++) {
+    const gg = g + k, R = gg * ROUND_GIORNO, staz = stagione(c, meteo, R), es = vecchi.find(x => x.giorno === gg);
+    const tiro = es ? es.tiro : d(100, rng);
+    giorni.push({ giorno: gg, tiro, stagione: staz, testo: esitoMeteo(meteo, c.zona, staz, tiro).testo });
+  }
+  for (const v of vecchi) if (!giorni.some(x => x.giorno === v.giorno)) giorni.push(v);
+  giorni.sort((a, b) => a.giorno - b.giorno);
+  c.previsioni = { zona: c.zona, giorni };
+  log(c, `Predire il tempo: ${totale}, ${n} ${n === 1 ? 'giorno' : 'giorni'}: ` + giorni.slice(0, n).map(x => `${formatoData(c, x.giorno * ROUND_GIORNO, false)} ${x.testo}`).join('; '));
+  return c;
+}
+// righe del log quando il tempo cambia durante il giorno (fine della durata, Nebbia diradata)
+function cambiMeteoNelGiorno(c, meteo, da, a) {
+  const m = c.meteo; if (!m || m.sotterraneo) return;
+  if (m.durata && da < m.durata.da && a >= m.durata.da && m.durata.da > m.giorno * ROUND_GIORNO + 0) log(c, `Comincia: ${m.durata.voci.join(' + ')}`);
+  if (m.durata && da < m.durata.a && a >= m.durata.a && m.durata.a < (m.giorno + 1) * ROUND_GIORNO) log(c, `Finisce ${m.durata.voci.join(' + ')}: ora ${vociAllOra(c, meteo, m.durata.a).join(' + ')}`);
+  if (m.nebbia && da < m.nebbia.fino && a >= m.nebbia.fino) log(c, `La Nebbia si dirada: ora ${vociAllOra(c, meteo, m.nebbia.fino).join(' + ')}`);
 }
 
 // ------------------------------------------------------------------ campagne
-const IMPOSTAZIONI = { xp: false, pf_nemici: false, timer: false, timer_tv: false, soglia_timer: 0, incontri_casuali: false,
+const IMPOSTAZIONI = { scorte: true, xp: false, pf_nemici: false, timer: false, timer_tv: false, soglia_timer: 0, incontri_casuali: false,
   tv_xn: true, tv_fuori: 'barrate', tv_ora: false, tv_meteo: false, tv_solo_combattimento: true, f10: false, tema: 'scuro' };
-// dati: {nome, calendario, anno:{numero, etichetta}, partenza:{mese, giorno, ore, min, sett}, zona, pg:[schede], accompagnatori, cibo, acqua, impostazioni}
+// dati: {nome, calendario, anno:{numero, etichetta}, partenza:{mese, giorno, ore, min, sett}, zona, pg:[schede], accompagnatori (senza nome),
+//        persone:[nomi degli accompagnatori], cibo, acqua, foraggio, impostazioni}
 function creaCampagna(dati, meteo, rng, oraReale) {
   const err = [];
   if (!dati.nome || !String(dati.nome).trim()) err.push('nome della campagna mancante');
   const cal = dati.calendario && dati.calendario.tipo === 'personalizzato' ? clona(dati.calendario) : calendarioReale();
   err.push(...controllaCalendario(cal));
   if (!Number.isInteger(dati.anno && dati.anno.numero)) err.push('anno non valido');
-  if (!meteo.tabelle[dati.zona]) err.push('zona climatica non valida');
-  for (const k of ['accompagnatori', 'cibo', 'acqua']) if (!(Number.isInteger(dati[k]) && dati[k] >= 0)) err.push(`${k}: numero non valido`);
+  if (ZONE_VECCHIE[dati.zona]) dati = { ...dati, zona: ZONE_VECCHIE[dati.zona] };
+  if (!zonaDi(meteo, dati.zona)) err.push('zona climatica non valida');
+  if (dati.foraggio === undefined) dati = { ...dati, foraggio: 0 };
+  for (const k of ['accompagnatori', 'cibo', 'acqua', 'foraggio']) if (!(Number.isInteger(dati[k]) && dati[k] >= 0)) err.push(`${k}: numero non valido`);
   if (err.length) throw new Error(err.join('; '));
   const p = dati.partenza || {};
   const camp = {
     formato: FORMATO, id: (oraReale || 0).toString(36) + nuovoId(rng), nome: String(dati.nome).trim(), creata: oraReale || 0, modificata: oraReale || 0,
     calendario: cal, anno: { base: dati.anno.numero, etichetta: (dati.anno.etichetta || '').trim() },
-    tempo: { R: 0 }, zona: dati.zona, meteo: null,
-    scorte: { cibo: dati.cibo, acqua: dati.acqua, accompagnatori: dati.accompagnatori }, razionamenti: [],
+    tempo: { R: 0 }, zona: dati.zona, varianti: {}, meteo: null, previsioni: null,
+    scorte: { cibo: dati.cibo, acqua: dati.acqua, foraggio: dati.foraggio, cibo_avariato: 0, acqua_impura: 0, recipienti: true }, razionamenti: [], foraggiato: null,
+    compagnia: { senza_nome: dati.accompagnatori, persone: [], animali: [] },
     pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) }, png: [], incontri: [],
   };
   camp.tempo.R = tempoAssoluto(camp, dati.anno.numero, p.mese || 0, p.giorno || 1, p.ore || 0, p.min || 0);
@@ -190,6 +335,7 @@ function creaCampagna(dati, meteo, rng, oraReale) {
   if (L) { const N = Math.floor(camp.tempo.R / ROUND_GIORNO); camp.calendario.settimana0 = ((((p.sett || 0) - N) % L) + L) % L; }
   let c = camp;
   for (const s of dati.pg || []) c = aggiungiPG(c, s, rng);
+  for (const n of dati.persone || []) if (String(n.nome || n).trim()) c = aggiungiAccompagnatore(c, typeof n === 'string' ? { nome: n } : n);
   log(c, `Campagna creata: ${c.nome}, ${formatoData(c)}`);
   return tiraMeteo(c, meteo, rng);
 }
@@ -244,6 +390,18 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   if (x.combattimento) for (const r of Object.values(x.combattimento.righe)) (r.malus || []).forEach(accorda);
   if (x.combattimento) { const cb = x.combattimento; cb.promemoria = cb.promemoria || []; cb.incontro = cb.incontro || null;
     for (const r of Object.values(cb.righe)) { if (r.rif === undefined) r.rif = null; if (r.pf === undefined) r.pf = null; if (r.faticaFinita === undefined) r.faticaFinita = false; } }
+  // Build 2c: zone delle Tabelle del Tempo Atmosferico (temperata → 1, desertica → 10, artica → 9) e voci con il nome nuovo
+  if (ZONE_VECCHIE[x.zona]) x.zona = ZONE_VECCHIE[x.zona];
+  if (x.meteo) { if (ZONE_VECCHIE[x.meteo.zona]) x.meteo.zona = ZONE_VECCHIE[x.meteo.zona];
+    x.meteo.opzioni = x.meteo.opzioni.map(o => o.map(v => VOCI_VECCHIE[v] || v));
+    for (const [a, b] of Object.entries(VOCI_VECCHIE)) x.meteo.testo = x.meteo.testo.split(a).join(b); }
+  x.varianti = x.varianti || {}; if (x.previsioni === undefined) x.previsioni = null; if (x.foraggiato === undefined) x.foraggiato = null;
+  // Build 2c: compagnia (gli accompagnatori come numero diventano «senza nome») e scorte nuove
+  if (!x.compagnia) x.compagnia = { senza_nome: (x.scorte && x.scorte.accompagnatori) || 0, persone: [], animali: [] };
+  delete x.scorte.accompagnatori;
+  for (const [k, v] of [['foraggio', 0], ['cibo_avariato', 0], ['acqua_impura', 0], ['recipienti', true]]) if (x.scorte[k] === undefined) x.scorte[k] = v;
+  for (const r of x.razionamenti) { if (r.k === undefined) r.k = 1; if (r.gratis === undefined) r.gratis = null; }
+  if (x.combattimento) for (const r of Object.values(x.combattimento.righe)) if (r.alleato === undefined) r.alleato = false;
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -373,6 +531,7 @@ function avanza(camp, dR, meteo, rng, motivo, opz) {
     c.tempo.R = t;
     scadenzeTemp(c, prec, t);
     recuperoNonLetali(c, prec, t);
+    cambiMeteoNelGiorno(c, meteo, prec, t);
     tempoMalus(c, prec, t, rng, !!(opz && opz.daTurno));
     if (t % ROUND_GIORNO === 0 && t > prec) { c = cambioGiorno(c, meteo, rng); }
     prec = t;
@@ -427,93 +586,337 @@ function riposo(camp, meteo, rng, ids) {
   return c;
 }
 
-// ------------------------------------------------------------------ scorte (Guida: Fame e sete)
-function consumoGiornaliero(camp) { return camp.pg.length + camp.scorte.accompagnatori; }
-function bastanoPer(camp, chi) {
-  const k = consumoGiornaliero(camp); return k ? Math.floor(camp.scorte[chi] / k) : Infinity;
+// ------------------------------------------------------------------ scorte (Tabelle del Tempo Atmosferico, Cap. 4; AA2) e compagnia (AA3)
+const STATO_FS = () => ({ fame: { giorni_senza: 0, penalita: 0 }, sete: { giorni_senza: 0, penalita: 0 } });
+function compagnia(c) { return c.compagnia || { senza_nome: 0, persone: [], animali: [] }; }
+// accompagnatori (con e senza nome): mangiano e bevono come i PG; contano per gli XP «con gli accompagnatori»
+function numeroAccompagnatori(c) { const k = compagnia(c); return k.senza_nome + k.persone.length; }
+function consumoGiornaliero(camp) { return camp.pg.length + numeroAccompagnatori(camp); } // persone che mangiano (senza gli animali)
+// moltiplicatore dell'acqua del giorno (Arsura o Afa ×2, Canicola ×3)
+function moltiplicatoreAcqua(camp, meteo) {
+  const voci = vociDelGiorno(camp, meteo); let k = 1;
+  for (const v of voci) k = Math.max(k, meteo.acqua.moltiplicatori[v] || 1);
+  return k;
 }
+// chi consuma una scorta: [{chiave, nome, tipo, n, bisogno (per unità), stato}]
+function consumatori(c, scorta, k) {
+  const out = [], kc = compagnia(c);
+  if (scorta !== 'foraggio') {
+    const b = scorta === 'acqua' ? k : 1;
+    for (const p of c.pg) out.push({ chiave: 'pg:' + p.id, nome: p.scheda.nome, tipo: 'pg', n: 1, bisogno: b, stato: p.stato });
+    for (const a of kc.persone) out.push({ chiave: 'acc:' + a.id, nome: a.nome, tipo: 'acc', n: 1, bisogno: b, stato: a.stato });
+    if (kc.senza_nome) out.push({ chiave: 'senza', nome: 'accompagnatori senza nome', tipo: 'senza', n: kc.senza_nome, bisogno: b, stato: null });
+  }
+  for (const a of kc.animali) {
+    if (scorta === 'acqua' && !a.trova_acqua && a.acqua > 0) out.push({ chiave: 'ani:' + a.id, nome: a.nome, tipo: 'animale', n: 1, bisogno: a.acqua * k, stato: a.stato });
+    if (scorta !== 'acqua' && !a.trova_cibo && a.cibo > 0 && (a.mangia === 'razioni') === (scorta === 'cibo')) out.push({ chiave: 'ani:' + a.id, nome: a.nome, tipo: 'animale', n: 1, bisogno: a.cibo, stato: a.stato });
+  }
+  return out;
+}
+function fabbisogno(c, scorta, k) { return consumatori(c, scorta, k || 1).reduce((s, x) => s + x.bisogno * x.n, 0); }
+function bastanoPer(camp, chi, k) { const f = fabbisogno(camp, chi, k); return f ? Math.floor(camp.scorte[chi] / f) : Infinity; }
+const NOMI_SCORTA = { cibo: 'cibo', acqua: 'acqua', foraggio: 'foraggio', cibo_avariato: 'cibo avariato', acqua_impura: 'acqua da purificare' };
 function modificaScorta(camp, chi, delta) {
-  if (!['cibo', 'acqua'].includes(chi) || !Number.isInteger(delta)) throw new Error('scorta non valida');
-  const c = clona(camp); c.scorte[chi] = Math.max(0, c.scorte[chi] + delta);
-  log(c, `Scorta di ${chi}: ${delta > 0 ? '+' : ''}${delta} → ${c.scorte[chi]}`); return c;
+  if (!NOMI_SCORTA[chi] || !Number.isInteger(delta)) throw new Error('scorta non valida');
+  const c = clona(camp); c.scorte[chi] = Math.max(0, (c.scorte[chi] || 0) + delta);
+  log(c, `Scorta di ${NOMI_SCORTA[chi]}: ${delta > 0 ? '+' : ''}${delta} → ${c.scorte[chi]}`); return c;
 }
-function impostaAccompagnatori(camp, n) {
+function impostaAccompagnatori(camp, n) { // accompagnatori senza nome
   if (!(Number.isInteger(n) && n >= 0)) throw new Error('numero non valido');
-  const c = clona(camp); c.scorte.accompagnatori = n; return c;
+  const c = clona(camp); c.compagnia = compagnia(c); c.compagnia.senza_nome = n; return c;
 }
-// Al cambio di giorno ognuno consuma 1 razione di cibo e 1 d'acqua (PG + accompagnatori).
-// Se una scorta basta per tutti si consuma da sola; se è a 0 nessuno mangia (o beve).
-// Se ce n'è un po' ma non per tutti, il GM sceglie chi la usa (Z1): il giorno resta in sospeso
-// in camp.razionamenti (con un avviso in coda) finché non si chiama risolviRazionamento.
-const SCORTE = [['acqua', 'sete'], ['cibo', 'fame']];
+function impostaRecipienti(camp, si) { const c = clona(camp); c.scorte.recipienti = !!si; log(c, `Recipienti per la pioggia: ${si ? 'sì' : 'no'}`); return c; }
+// ---- compagnia: accompagnatori con nome e animali
+function pulisciRif(r) { return r && r.fonte && r.id ? { fonte: r.fonte, id: r.id } : null; }
+function aggiungiAccompagnatore(camp, d) {
+  if (!d || !String(d.nome || '').trim()) throw new Error('nome mancante');
+  const c = clona(camp); c.compagnia = compagnia(c);
+  const a = { id: prossimoId(c, 'a'), nome: String(d.nome).trim(), ruolo: String(d.ruolo || '').trim(), rif: pulisciRif(d.rif), stato: STATO_FS() };
+  c.compagnia.persone.push(a); log(c, `Compagnia: ${a.nome}${a.ruolo ? ` (${a.ruolo})` : ''} si unisce`); return c;
+}
+function modificaAccompagnatore(camp, id, d) {
+  const c = clona(camp), a = compagnia(c).persone.find(x => x.id === id); if (!a) throw new Error('accompagnatore non trovato');
+  if (d.nome !== undefined) { if (!String(d.nome).trim()) throw new Error('nome mancante'); a.nome = String(d.nome).trim(); }
+  if (d.ruolo !== undefined) a.ruolo = String(d.ruolo).trim();
+  if (d.rif !== undefined) a.rif = pulisciRif(d.rif);
+  return c;
+}
+function togliAccompagnatore(camp, id, motivo) {
+  const c = clona(camp), k = compagnia(c), a = k.persone.find(x => x.id === id); if (!a) throw new Error('accompagnatore non trovato');
+  k.persone = k.persone.filter(x => x !== a);
+  for (const an of k.animali) if (an.padrone === 'acc:' + id) an.padrone = '';
+  log(c, `Compagnia: ${a.nome} lascia il gruppo${motivo ? ` (${motivo})` : ''}`); return c;
+}
+const TIPI_ANIMALE = { cavalcatura: 'cavalcatura', compagno: 'compagno animale' };
+function controllaAnimale(c, d) {
+  if (!String(d.nome || '').trim()) throw new Error('nome mancante');
+  if (!TIPI_ANIMALE[d.tipo]) throw new Error('tipo non valido');
+  if (!['foraggio', 'razioni'].includes(d.mangia)) throw new Error('scegli se mangia foraggio o razioni');
+  for (const k of ['cibo', 'acqua']) if (!(Number.isInteger(d[k]) && d[k] >= 0 && d[k] <= 20)) throw new Error(`razioni di ${k} non valide`);
+  if (d.padrone && !(d.padrone.startsWith('pg:') ? c.pg.some(p => 'pg:' + p.id === d.padrone) : compagnia(c).persone.some(a => 'acc:' + a.id === d.padrone))) throw new Error('padrone non trovato');
+}
+function aggiungiAnimale(camp, d) {
+  const c = clona(camp); c.compagnia = compagnia(c);
+  const x = { tipo: 'cavalcatura', mangia: 'foraggio', cibo: 1, acqua: 1, trova_cibo: false, trova_acqua: false, padrone: '', ...d };
+  controllaAnimale(c, x);
+  const a = { id: prossimoId(c, 'b'), nome: String(x.nome).trim(), tipo: x.tipo, padrone: x.padrone || '', rif: pulisciRif(x.rif), mangia: x.mangia,
+    cibo: x.cibo, acqua: x.acqua, trova_cibo: !!x.trova_cibo, trova_acqua: !!x.trova_acqua, stato: STATO_FS() };
+  c.compagnia.animali.push(a); log(c, `Compagnia: ${a.nome} (${TIPI_ANIMALE[a.tipo]})`); return c;
+}
+function modificaAnimale(camp, id, d) {
+  const c = clona(camp), a = compagnia(c).animali.find(x => x.id === id); if (!a) throw new Error('animale non trovato');
+  const x = { ...a, ...d }; controllaAnimale(c, x);
+  for (const k of ['tipo', 'padrone', 'mangia', 'cibo', 'acqua']) a[k] = x[k];
+  a.nome = String(x.nome).trim(); a.rif = pulisciRif(x.rif); a.trova_cibo = !!x.trova_cibo; a.trova_acqua = !!x.trova_acqua;
+  return c;
+}
+function togliAnimale(camp, id, motivo) {
+  const c = clona(camp), k = compagnia(c), a = k.animali.find(x => x.id === id); if (!a) throw new Error('animale non trovato');
+  k.animali = k.animali.filter(x => x !== a); log(c, `Compagnia: ${a.nome} lascia il gruppo${motivo ? ` (${motivo})` : ''}`); return c;
+}
+function nomePadrone(c, chiave) {
+  if (!chiave) return '';
+  if (chiave.startsWith('pg:')) { const p = c.pg.find(x => 'pg:' + x.id === chiave); return p ? p.scheda.nome : ''; }
+  const a = compagnia(c).persone.find(x => 'acc:' + x.id === chiave); return a ? a.nome : '';
+}
+// partecipante all'iniziativa per un membro della compagnia con la scheda (alleato: niente XP)
+function partecipanteCompagnia(camp, chiave, schedaDi, pfDa) {
+  const k = compagnia(camp), id = chiave.slice(4);
+  const x = chiave.startsWith('acc:') ? k.persone.find(a => a.id === id) : k.animali.find(a => a.id === id);
+  if (!x) throw new Error('membro della compagnia non trovato');
+  const s = x.rif && schedaDi ? schedaDi(x.rif) : null;
+  const bonus = s && s.iniziativa !== null && s.iniziativa !== undefined ? (+s.iniziativa || 0) : 0;
+  return { tipo: 'nemico', nome: x.nome, bonus, n: 1, modo: 'tipo', rif: x.rif || null, pf: s && pfDa ? pfDa(s) : null, alleato: true };
+}
+
+// ---- consumo giornaliero
+// Al cambio di giorno ognuno consuma 1 razione di cibo e 1 d'acqua (×2 con Arsura o Afa, ×3 con Canicola, dal meteo
+// del giorno che finisce); gli animali le loro razioni (foraggio o razioni) se non trovano da sé cibo o acqua.
+// Pioggia con i recipienti (o Stillicidio nel Sotterraneo): l'acqua del giorno non si consuma.
+// Se una scorta basta per tutti si consuma da sola; se non c'è nulla (nemmeno avariato) nessuno la usa; altrimenti
+// il GM sceglie chi la usa (Z1, AA3-4): il giorno resta in sospeso in camp.razionamenti finché non si chiama risolviRazionamento.
+// Cibo avariato e acqua da purificare si usano solo se le buone non bastano (AA2-5, AA2-6).
+const SCORTE = [['acqua', 'sete'], ['cibo', 'fame'], ['foraggio', 'fame']];
+const CATTIVA = { cibo: 'cibo_avariato', acqua: 'acqua_impura' };
 function cambioGiorno(camp, meteo, rng) {
   const c = camp; // già clonata da avanza
-  const N = Math.floor(c.tempo.R / ROUND_GIORNO);
-  for (const [chi, mal] of SCORTE) {
-    if (consumoGiornaliero(c) === 0) continue;
-    const r = { id: prossimoId(c, 'z'), R: c.tempo.R, giorno: N, scorta: chi, mal };
-    c.razionamenti.push(r);
-    risolviAutomatici(c, chi, meteo);
+  const N = giornoDi(c.tempo.R);
+  if (c.impostazioni.scorte !== false) {
+    const k = moltiplicatoreAcqua(c, meteo), voci = vociDelGiorno(c, meteo);
+    const pioggia = c.scorte.recipienti !== false && voci.find(v => meteo.acqua.pioggia.includes(v));
+    const stilli = c.meteo && c.meteo.sotterraneo && c.meteo.sotterraneo.nome === 'Stillicidio';
+    for (const [chi, mal] of SCORTE) {
+      if (!consumatori(c, chi, k).length) continue;
+      const gratis = chi === 'acqua' ? (pioggia ? `${pioggia}: acqua raccolta con i recipienti` : stilli ? 'Stillicidio: acqua senza prova' : null) : null;
+      const r = { id: prossimoId(c, 'z'), R: c.tempo.R, giorno: N, scorta: chi, mal, k: chi === 'acqua' ? k : 1, gratis };
+      c.razionamenti.push(r);
+      risolviAutomatici(c, chi, meteo);
+    }
   }
   return tiraMeteo(c, meteo, rng);
 }
-// risolve in ordine i giorni in sospeso di una scorta finché non serve una scelta del GM
 function risolviAutomatici(c, chi, meteo) {
   for (;;) {
     const r = c.razionamenti.find(x => x.scorta === chi);
     if (!r) return;
-    const k = consumoGiornaliero(c), q = c.scorte[chi];
-    if (q >= k) applicaRazionamento(c, r, c.pg.map(p => p.id), c.scorte.accompagnatori, meteo);
-    else if (q === 0) applicaRazionamento(c, r, [], 0, meteo);
+    const cons = consumatori(c, chi, r.k), T = cons.reduce((s, x) => s + x.bisogno * x.n, 0), q = c.scorte[chi], qb = CATTIVA[chi] ? c.scorte[CATTIVA[chi]] || 0 : 0;
+    const tutti = { buone: cons.filter(x => x.tipo !== 'senza').map(x => x.chiave), cattive: [], senza_buone: compagnia(c).senza_nome, senza_cattive: 0 };
+    if (r.gratis) applicaRazionamento(c, r, tutti, meteo, true);
+    else if (q >= T) applicaRazionamento(c, r, tutti, meteo);
+    else if (q + qb === 0) applicaRazionamento(c, r, { buone: [], cattive: [], senza_buone: 0, senza_cattive: 0 }, meteo);
     else {
-      if (!c.coda.some(x => x.razionamento === r.id))
+      if (!c.coda.some(x => x.razionamento === r.id)) {
+        const nomi = { acqua: 'Acqua', cibo: 'Cibo', foraggio: 'Foraggio' }, verbo = chi === 'acqua' ? 'beve' : 'mangia';
         c.coda.push({ R: r.R, tipo: 'razionamento', razionamento: r.id,
-          testo: `${chi === 'acqua' ? 'Acqua' : 'Cibo'} insufficiente: ${q} razioni per ${k} persone (${formatoData(c, r.R, false)}). Scegli chi ${chi === 'acqua' ? 'beve' : 'mangia'}.` });
+          testo: `${nomi[chi]} insufficiente: ${q} razioni${qb ? ` (+${qb} ${NOMI_SCORTA[CATTIVA[chi]]})` : ''} per un fabbisogno di ${T} (${formatoData(c, r.R, false)}). Scegli chi ${verbo}.` });
+      }
       return;
     }
   }
 }
-function applicaRazionamento(c, r, ids, accompagnatori, meteo) {
-  const regola = meteo.fame_sete[r.mal], verbo = r.scorta === 'acqua' ? 'beve' : 'mangia';
-  c.scorte[r.scorta] -= ids.length + accompagnatori;
-  const senza = [], prove = [];
-  for (const p of c.pg) {
-    const m = p.stato[r.mal];
-    if (ids.includes(p.id)) {
-      if (m.penalita > 0) { m.penalita -= 1; log(c, `${p.scheda.nome} ${verbo}: ${regola.nome} ${m.penalita + 1} → ${m.penalita}`); }
+function applicaRazionamento(c, r, sc, meteo, gratis) {
+  const regola = meteo.fame_sete[r.mal], verbo = r.scorta === 'acqua' ? 'beve' : 'mangia', cons = consumatori(c, r.scorta, r.k), kc = compagnia(c);
+  let usateB = 0, usateC = 0;
+  const senza = [], prove = [], avariati = [];
+  for (const x of cons) {
+    if (x.tipo === 'senza') continue;
+    const buona = sc.buone.includes(x.chiave), cattiva = !buona && sc.cattive.includes(x.chiave);
+    if (!gratis) { if (buona) usateB += x.bisogno; if (cattiva) usateC += x.bisogno; }
+    const m = x.stato[r.mal];
+    if (buona || cattiva || gratis) {
+      const prima = { ...m };
+      if (m.penalita > 0) { m.penalita -= 1; log(c, `${x.nome} ${verbo}: ${regola.nome} ${m.penalita + 1} → ${m.penalita}`); }
       m.giorni_senza = 0;
+      if (cattiva) avariati.push({ x, prima });
     } else {
-      m.giorni_senza += 1; m.penalita += 1; senza.push(`${p.scheda.nome} ${m.penalita}`);
-      if (m.giorni_senza >= regola.giorno_prova) prove.push(`${p.scheda.nome} (giorno ${m.giorni_senza})`);
+      m.giorni_senza += 1; m.penalita += 1; senza.push(`${x.nome} ${m.penalita}`);
+      if (m.giorni_senza >= regola.giorno_prova) prove.push(`${x.nome} (giorno ${m.giorni_senza})`);
     }
   }
-  const restano = c.scorte.accompagnatori - accompagnatori;
-  if (ids.length + accompagnatori) log(c, `Scorta di ${r.scorta}: −${ids.length + accompagnatori} → ${c.scorte[r.scorta]}` + (restano > 0 ? `; ${restano} accompagnatori senza` : ''));
+  const ks = cons.find(x => x.tipo === 'senza');
+  if (ks && !gratis) { usateB += sc.senza_buone * ks.bisogno; usateC += sc.senza_cattive * ks.bisogno; }
+  c.scorte[r.scorta] -= usateB; if (usateC) c.scorte[CATTIVA[r.scorta]] -= usateC;
+  const restano = ks ? ks.n - sc.senza_buone - sc.senza_cattive : 0;
+  if (gratis) log(c, `${r.gratis}: la scorta d'acqua non scende`);
+  else if (usateB + usateC) log(c, `Scorta di ${NOMI_SCORTA[r.scorta]}: −${usateB} → ${c.scorte[r.scorta]}` + (usateC ? `; ${NOMI_SCORTA[CATTIVA[r.scorta]]} −${usateC} → ${c.scorte[CATTIVA[r.scorta]]}` : '') + (r.k > 1 ? ` (acqua ×${r.k})` : '') + (restano > 0 ? `; ${restano} accompagnatori senza` : ''));
   if (senza.length) {
     log(c, `${regola.nome}: ${senza.join(', ')}`);
     c.coda.push({ R: r.R, tipo: r.mal, testo: `${regola.nome}: ${senza.join(', ')} (−N ai tiri per colpire, ai TS e alle prove).` });
   }
   if (prove.length) c.coda.push({ R: r.R, tipo: r.mal, testo: `${regola.nome}: prova di Costituzione CD ${regola.cd} per ${prove.join(', ')}. Se fallisce: privo di sensi, morte entro 1d12 ore.` });
   if (!senza.length && restano > 0) c.coda.push({ R: r.R, tipo: r.mal, testo: `${regola.nome}: ${restano} accompagnatori senza razione.` });
+  const av = meteo.foraggiare.avariato, cosa = r.scorta === 'acqua' ? 'acqua non purificata' : 'cibo avariato';
+  for (const { x, prima } of avariati) {
+    if (x.tipo === 'pg') c.coda.push({ id: prossimoId(c, 'q'), R: r.R, tipo: 'ts', chi: { pg: x.chiave.slice(3) }, avariato: { mal: r.mal, prima },
+      testo: `${x.nome}: ${cosa}, tira ${av.ts} CD ${av.cd} (fallito: ${av.condizione} ${av.durata} e il giorno conta senza).` });
+    else c.coda.push({ R: r.R, tipo: r.mal, testo: `${x.nome}: ${cosa} — ${av.ts} CD ${av.cd} (lo tira il GM; fallito: ${av.condizione} ${av.durata}).` });
+  }
+  if (sc.senza_cattive) c.coda.push({ R: r.R, tipo: r.mal, testo: `${sc.senza_cattive} accompagnatori senza nome: ${cosa} — ${av.ts} CD ${av.cd} (lo tira il GM).` });
   c.razionamenti = c.razionamenti.filter(x => x.id !== r.id);
   c.coda = c.coda.filter(x => x.razionamento !== r.id);
 }
-// scelta del GM per un giorno in sospeso: i PG (id) e quanti accompagnatori usano la scorta
-function risolviRazionamento(camp, id, ids, accompagnatori, meteo) {
+// dati per la finestra «Scegli chi»
+function datiRazionamento(camp, id) {
+  const r = camp.razionamenti.find(x => x.id === id); if (!r) throw new Error('razionamento non trovato');
+  return { r, consumatori: consumatori(camp, r.scorta, r.k), buone: camp.scorte[r.scorta], cattive: CATTIVA[r.scorta] ? camp.scorte[CATTIVA[r.scorta]] || 0 : 0, nomeCattive: CATTIVA[r.scorta] ? NOMI_SCORTA[CATTIVA[r.scorta]] : '' };
+}
+// scelta del GM per un giorno in sospeso: {buone:[chiavi], cattive:[chiavi], senza_buone, senza_cattive}
+// (forma della Build 1: risolviRazionamento(camp, id, [id dei PG], accompagnatori, meteo))
+function risolviRazionamento(camp, id, scelta, acc, meteo) {
+  if (Array.isArray(scelta)) scelta = { buone: scelta.map(x => 'pg:' + x), cattive: [], senza_buone: acc, senza_cattive: 0 };
+  else meteo = acc;
   const c = clona(camp), r = c.razionamenti.find(x => x.id === id);
   if (!r) throw new Error('razionamento non trovato');
   if (c.razionamenti.find(x => x.scorta === r.scorta).id !== id) throw new Error('prima va deciso il giorno precedente');
-  ids = [...new Set(ids)];
-  if (ids.some(x => !c.pg.some(p => p.id === x))) throw new Error('PG non trovato');
-  if (!(Number.isInteger(accompagnatori) && accompagnatori >= 0 && accompagnatori <= c.scorte.accompagnatori)) throw new Error('numero di accompagnatori non valido');
-  if (ids.length + accompagnatori > c.scorte[r.scorta]) throw new Error(`ci sono solo ${c.scorte[r.scorta]} razioni`);
-  applicaRazionamento(c, r, ids, accompagnatori, meteo);
+  const sc = { buone: [...new Set(scelta.buone || [])], cattive: [...new Set(scelta.cattive || [])], senza_buone: scelta.senza_buone || 0, senza_cattive: scelta.senza_cattive || 0 };
+  const cons = consumatori(c, r.scorta, r.k), chiavi = cons.map(x => x.chiave);
+  for (const x of [...sc.buone, ...sc.cattive]) if (!chiavi.includes(x) || x === 'senza') throw new Error(x.startsWith('pg:') ? 'PG non trovato' : 'voce non trovata');
+  if (sc.buone.some(x => sc.cattive.includes(x))) throw new Error('una voce non può avere tutte e due');
+  const ks = cons.find(x => x.tipo === 'senza'), nS = ks ? ks.n : 0;
+  for (const k of ['senza_buone', 'senza_cattive']) if (!(Number.isInteger(sc[k]) && sc[k] >= 0)) throw new Error('numero di accompagnatori non valido');
+  if (sc.senza_buone + sc.senza_cattive > nS) throw new Error('numero di accompagnatori non valido');
+  const bis = ch => cons.find(x => x.chiave === ch).bisogno, kb = ks ? ks.bisogno : 0;
+  const B = sc.buone.reduce((s, x) => s + bis(x), 0) + sc.senza_buone * kb, C = sc.cattive.reduce((s, x) => s + bis(x), 0) + sc.senza_cattive * kb;
+  if (B > c.scorte[r.scorta]) throw new Error(`ci sono solo ${c.scorte[r.scorta]} razioni`);
+  if (C > (CATTIVA[r.scorta] ? c.scorte[CATTIVA[r.scorta]] || 0 : 0)) throw new Error(`ci sono solo ${c.scorte[CATTIVA[r.scorta]] || 0} razioni di ${NOMI_SCORTA[CATTIVA[r.scorta]] || 'scorta cattiva'}`);
+  applicaRazionamento(c, r, sc, meteo);
   risolviAutomatici(c, r.scorta, meteo);
   return c;
 }
 function razionamentoAperto(camp) {
   const z = camp.razionamenti || [];
   return z.length ? z.slice().sort((a, b) => a.R - b.R)[0] : null;
+}
+// esito del TS per il cibo avariato o l'acqua non purificata (AA2-5)
+function esitoAvariato(c, q, superato, rng) {
+  const p = trova(c, q.chi.pg), a = q.avariato, av = { ts: 'Tempra', cd: 12 };
+  if (superato) { log(c, `${p.scheda.nome}: ${av.ts} CD ${av.cd} superato (cibo avariato)`); return c; }
+  const m = p.stato[a.mal], regola = a.mal === 'sete' ? 'Sete' : 'Fame';
+  m.penalita = a.prima.penalita + 1; m.giorni_senza = a.prima.giorni_senza + 1;
+  const ore = d(4, rng);
+  log(c, `${p.scheda.nome}: ${av.ts} CD ${av.cd} fallito — Nauseato ${ore} ore e il giorno conta senza (${regola} ${m.penalita})`);
+  nuovoMalus(c, { pg: p.id }, { tipo: 'condizione', nome: 'Nauseato', durata: { n: ore, unita: 'ore' }, fonte: 'cibo avariato' }, rng);
+  if (m.giorni_senza >= (a.mal === 'sete' ? 4 : 7)) c.coda.push({ R: c.tempo.R, tipo: a.mal, testo: `${regola}: prova di Costituzione CD 10 per ${p.scheda.nome} (giorno ${m.giorni_senza}). Se fallisce: privo di sensi, morte entro 1d12 ore.` });
+  return c;
+}
+
+// ---- Foraggiare (AA2-4), neve, bollire, purificare
+function quattroStagioni(meteo, z) { return (meteo.stagioni[z] || []).length === 4; }
+function infoForaggiare(camp, meteo, R) {
+  if (R === undefined) R = camp.tempo.R;
+  const z = zonaDi(meteo, camp.zona), f = z.foraggiare, mod = meteo.foraggiare.modificatori;
+  const staz = stagione(camp, meteo, R), voci = vociAllOra(camp, meteo, R), mods = [];
+  const povera = quattroStagioni(meteo, z.id) ? mod.povera.quattro_stagioni : mod.povera[z.id];
+  if (povera && staz === povera) mods.push({ motivo: `stagione povera (${nomeStagione(meteo, z.id, staz)})`, cd: mod.povera_cd });
+  const p5 = voci.filter(v => mod.piu5.includes(v)), p2 = voci.filter(v => mod.piu2.includes(v));
+  if (p5.length) mods.push({ motivo: p5.join(', '), cd: 5 }); else if (p2.length) mods.push({ motivo: p2.join(', '), cd: 2 });
+  const imp = voci.find(v => v.startsWith('Tempesta') || v === 'Tormenta' || v === 'Uragano');
+  const a = f.acqua; let acqua = { tipo: a.tipo, cd: a.cd || null, purificare: a.purificare || null, testo: a.testo };
+  const sott = camp.meteo && camp.meteo.sotterraneo ? camp.meteo.sotterraneo.nome : null;
+  if (a.neve_variante && (camp.varianti || {})[a.neve_variante]) acqua = { tipo: 'neve', motivo: a.note[0].testo };
+  if (a.neve_stagione && staz === a.neve_stagione) acqua = { tipo: 'neve', motivo: a.note.find(n => n.segno === '²').testo };
+  if (a.stagione_cd && a.stagione_cd[staz]) acqua = { ...acqua, tipo: 'cd', cd: a.stagione_cd[staz], motivo: a.note.find(n => n.segno === '³').testo };
+  if (a.senza_prova && sott === a.senza_prova) acqua = { tipo: 'libera', motivo: a.note.find(n => n.segno === '⁴').testo };
+  const pesca = meteo.foraggiare.pesca.zone.includes(z.id) || !!(camp.varianti || {}).acqua_dolce;
+  return { zona: z.id, cd: f.cd + mods.reduce((s, m) => s + m.cd, 0), base: f.cd, ogni: f.ogni, mods, impossibile: imp ? `${imp} in corso` : null,
+    acqua, avariato: f.avariato, pesca, voci };
+}
+const resaForaggiare = (tot, cd, ogni) => tot >= cd ? 1 + Math.floor((tot - cd) / ogni) : 0;
+function haForaggiato(camp, id) { const f = camp.foraggiato; return !!(f && f.giorno === giornoDi(camp.tempo.R) && f.ids.includes(id)); }
+// quota di cibo trovato che va al foraggio per difetto: animali che mangiano foraggio e non lo trovano da sé
+function quotaForaggio(camp) { return compagnia(camp).animali.filter(a => a.mangia === 'foraggio' && !a.trova_cibo).reduce((s, a) => s + a.cibo, 0); }
+// prove: [{pg, abilita:'sopravvivenza'|'pescatore', totale, totale_acqua}]; opz: {ore: true (2 ore), foraggio: razioni di cibo al foraggio}
+function esitoForaggiare(camp, meteo, prove, opz = {}) {
+  const info = infoForaggiare(camp, meteo), righe = [];
+  let cibo = 0, acqua = 0, avariato = 0;
+  for (const x of prove) {
+    if (!Number.isInteger(x.totale)) throw new Error('totale della prova mancante');
+    const p = trova(camp, x.pg), pesca = x.abilita === 'pescatore';
+    if (pesca && !info.pesca) throw new Error('qui non si può pescare');
+    const rc = resaForaggiare(x.totale, info.cd, info.ogni);
+    let ra = 0;
+    if (!pesca && info.acqua.tipo === 'inclusa') ra = rc;
+    if (info.acqua.tipo === 'cd' && Number.isInteger(x.totale_acqua)) ra = resaForaggiare(x.totale_acqua, info.acqua.cd, info.ogni);
+    const av = info.avariato && !rc && x.totale <= info.cd - meteo.foraggiare.avariato.fallimento ? 1 : 0;
+    cibo += rc; acqua += ra; avariato += av;
+    righe.push({ pg: p.id, nome: p.scheda.nome, abilita: pesca ? 'Professione (pescatore)' : 'Sopravvivenza', totale: x.totale, cibo: rc, acqua: ra, avariato: av });
+  }
+  const alForaggio = Math.max(0, Math.min(cibo, opz.foraggio === undefined ? quotaForaggio(camp) : opz.foraggio));
+  return { info, righe, cibo, acqua, avariato, alForaggio, impura: !!info.acqua.purificare };
+}
+function foraggia(camp, meteo, rng, prove, opz = {}) {
+  if (camp.impostazioni.scorte === false) throw new Error('le scorte sono spente');
+  if (!prove.length) throw new Error('nessun PG foraggia');
+  const info = infoForaggiare(camp, meteo);
+  if (info.impossibile) throw new Error(`Foraggiare impossibile: ${info.impossibile}`);
+  for (const x of prove) if (haForaggiato(camp, x.pg)) throw new Error(`${trova(camp, x.pg).scheda.nome} ha già foraggiato oggi`);
+  const e = esitoForaggiare(camp, meteo, prove, opz);
+  let c = clona(camp);
+  const g = giornoDi(c.tempo.R);
+  c.foraggiato = c.foraggiato && c.foraggiato.giorno === g ? c.foraggiato : { giorno: g, ids: [] };
+  c.foraggiato.ids.push(...prove.map(x => x.pg));
+  c.scorte.cibo += e.cibo - e.alForaggio; c.scorte.foraggio = (c.scorte.foraggio || 0) + e.alForaggio;
+  if (e.impura) c.scorte.acqua_impura = (c.scorte.acqua_impura || 0) + e.acqua; else c.scorte.acqua += e.acqua;
+  c.scorte.cibo_avariato = (c.scorte.cibo_avariato || 0) + e.avariato;
+  log(c, `Foraggiare (CD ${info.cd}${info.mods.length ? ': ' + info.mods.map(m => `+${m.cd} ${m.motivo}`).join(', ') : ''}): ` +
+    e.righe.map(r => `${r.nome} ${r.totale} → cibo ${r.cibo}${r.acqua ? `, acqua ${r.acqua}` : ''}${r.avariato ? ', 1 avariato' : ''}`).join('; ') +
+    ` — cibo +${e.cibo - e.alForaggio}` + (e.alForaggio ? `, foraggio +${e.alForaggio}` : '') + (e.acqua ? `, ${e.impura ? 'acqua da purificare' : 'acqua'} +${e.acqua}` : '') + (e.avariato ? `, cibo avariato +${e.avariato}` : ''));
+  if (opz.ore !== false) c = avanza(c, 2 * ROUND_ORA, meteo, rng, 'Foraggiare');
+  return c;
+}
+// neve da sciogliere: zona «solo neve», oltre 4.500 m, autunno-inverno con la nota ², Neve/Neve fitta/Tormenta nel giorno, Grotte gelate
+function motivoNeve(camp, meteo) {
+  const z = zonaDi(meteo, camp.zona); if (!z) return null;
+  const a = z.foraggiare.acqua, staz = stagione(camp, meteo);
+  if (a.tipo === 'neve') return a.note.length ? a.note[0].testo : 'solo neve';
+  if (a.neve_variante && (camp.varianti || {})[a.neve_variante]) return a.note[0].testo;
+  if (a.neve_stagione && staz === a.neve_stagione) return a.note.find(n => n.segno === '²').testo;
+  const voci = vociDelGiorno(camp, meteo), v = voci.find(x => ['Neve', 'Neve fitta', 'Tormenta', 'Grotte gelate'].includes(x));
+  return v ? `${v} nel giorno` : null;
+}
+function sciogliNeve(camp, meteo, rng, n) {
+  if (!(Number.isInteger(n) && n > 0 && n <= 24)) throw new Error('numero di razioni non valido');
+  if (!motivoNeve(camp, meteo)) throw new Error('qui non c\'è neve da sciogliere');
+  let c = clona(camp); c.scorte.acqua += n;
+  log(c, `Sciogli neve: acqua +${n} → ${c.scorte.acqua} (1 razione all'ora, al fuoco)`);
+  return avanza(c, n * meteo.acqua.sciogliere_ore * ROUND_ORA, meteo, rng, 'Sciogli neve');
+}
+function bolliAcqua(camp, meteo, rng, n) {
+  if (!(Number.isInteger(n) && n > 0)) throw new Error('numero di razioni non valido');
+  const z = zonaDi(meteo, camp.zona); if (z.foraggiare.acqua.purificare !== 'bollire') throw new Error('qui la bollitura non basta: Tavoletta purificante o Purificare cibo e bevande');
+  if (n > (camp.scorte.acqua_impura || 0)) throw new Error(`ci sono solo ${camp.scorte.acqua_impura || 0} razioni da purificare`);
+  let c = clona(camp); c.scorte.acqua_impura -= n; c.scorte.acqua += n;
+  log(c, `Bollire: ${n} razioni d'acqua purificate (${meteo.acqua.bollire_min} minuti per razione)`);
+  return avanza(c, n * meteo.acqua.bollire_min * ROUND_MIN, meteo, rng, 'Bollire l\'acqua');
+}
+// Purifica: «tavoletta» (n tavolette, 3 razioni ciascuna) o «incantesimo» (n razioni)
+function purificaAcqua(camp, meteo, come, n) {
+  if (!(Number.isInteger(n) && n > 0)) throw new Error('numero non valido');
+  const q = camp.scorte.acqua_impura || 0; if (!q) throw new Error('non c\'è acqua da purificare');
+  const r = Math.min(q, come === 'tavoletta' ? n * meteo.acqua.tavoletta : n);
+  const c = clona(camp); c.scorte.acqua_impura -= r; c.scorte.acqua += r;
+  log(c, `Purificare (${come === 'tavoletta' ? `${n} Tavolett${n === 1 ? 'a' : 'e'} purificant${n === 1 ? 'e' : 'i'}` : 'Purificare cibo e bevande'}): ${r} razioni d'acqua`);
+  return c;
 }
 function togliDallaCoda(camp, i) {
   if (camp.coda[i] && camp.coda[i].tipo === 'razionamento') throw new Error('prima scegli chi usa la scorta');
@@ -552,7 +955,7 @@ function righeDa(c, x, rng) {
   if (!String(x.nome || '').trim()) throw new Error('nemico senza nome');
   const pf = x.pf && c.impostazioni.pf_nemici ? x.pf : null; // J9: PF dei nemici solo con l'impostazione accesa
   const riga = (nome, k) => { const nat = d(20, rng); return { id: prossimoId(c, 'r'), tipo: 'nemico', nome, bonus: x.bonus || 0, nat, totale: tiroIniziativa(nat, x.bonus || 0, pen), n: k, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: !!x.nascosto, nomeTv: x.nomeTv || '', malus: [],
-    rif: x.rif ? clona(x.rif) : null, pf: pf ? Array.from({ length: k }, () => clona(pf)) : null, faticaFinita: false }; };
+    rif: x.rif ? clona(x.rif) : null, pf: pf ? Array.from({ length: k }, () => clona(pf)) : null, faticaFinita: false, alleato: !!x.alleato }; };
   if (n === 1) out.push(riga(x.nome, 1));
   else if (x.modo === 'singolo') for (let i = 1; i <= n; i++) out.push(riga(`${x.nome} ${i}`, 1));
   else out.push(riga(x.nome, n));
@@ -681,9 +1084,9 @@ function fineCombattimento(camp, oraReale, schedaDi) {
     if (inc) { inc.stato = 'giocato'; inc.giocato_R = c.tempo.R; log(c, `Incontro «${inc.titolo}» giocato`); rie.incontro = inc.titolo; } }
   if (c.impostazioni.xp && schedaDi) { // J10: XP dei nemici sconfitti (fuori combattimento), divisi per i PG
     let sconfitti = 0, tutti = 0;
-    for (const r of Object.values(cb.righe)) { if (r.tipo === 'pg' || !r.rif) continue; const s = schedaDi(r.rif), x = s ? xpDi(s) : null; if (!x) continue;
+    for (const r of Object.values(cb.righe)) { if (r.tipo === 'pg' || !r.rif || r.alleato) continue; const s = schedaDi(r.rif), x = s ? xpDi(s) : null; if (!x) continue;
       tutti += x * r.n; if (r.stato === 'fuori') sconfitti += x * r.n; }
-    const pg = Math.max(1, c.pg.length), conAcc = Math.max(1, c.pg.length + c.scorte.accompagnatori);
+    const pg = Math.max(1, c.pg.length), conAcc = Math.max(1, c.pg.length + numeroAccompagnatori(c));
     rie.xp = { sconfitti, tutti, perPG: Math.floor(sconfitti / pg), perPGconAcc: Math.floor(sconfitti / conAcc) };
     log(c, `XP dei nemici sconfitti: ${migliaia(sconfitti)} (${migliaia(rie.xp.perPG)} a PG; ${migliaia(rie.xp.perPGconAcc)} contando gli accompagnatori)`);
   }
@@ -976,6 +1379,7 @@ function esitoPromemoria(camp, qid, superato, rng) {
   const c = clona(camp), i = c.coda.findIndex(q => q.id === qid);
   if (i < 0 || !['ts', 'veleno'].includes(c.coda[i].tipo)) throw new Error('promemoria non trovato');
   const q = c.coda[i]; c.coda.splice(i, 1);
+  if (q.avariato) return esitoAvariato(c, q, superato, rng);
   const x = creaturaDi(c, q.chi), m = x && x.elenco.find(y => y.id === q.malus);
   if (!m) return c;
   m.per.attesa = false;
@@ -1969,10 +2373,13 @@ function promemoriaRound(c) { const cb = c.combattimento; return cb && cb.promem
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
-  meteoCorrente, nomeZona, nomeStagione, creaCampagna, duplicaCampagna, esporta, importa, migra, mostriUsati, condiviseUsate,
+  meteoCorrente, nomeZona, nomeStagione, vociAllOra, vociDelGiorno, statoMare, prediciTempo, impostaInizioDurata, impostaVariante, nuovaZonaGallerie, zonaDi, ZONE_VECCHIE,
+  creaCampagna, duplicaCampagna, esporta, importa, migra, mostriUsati, condiviseUsate,
   aggiungiPG, modificaPG, rimuoviPG, controllaScheda, danno, dannoNonLetale, statoNonLetali, cura, pfTemporanei, rifiatare, puntoEroe, valoriPG,
   avanza, vaiA, riposo, consumoGiornaliero, bastanoPer, modificaScorta, impostaAccompagnatori, togliDallaCoda,
-  risolviRazionamento, razionamentoAperto, puoRiposare,
+  risolviRazionamento, razionamentoAperto, puoRiposare, datiRazionamento, consumatori, fabbisogno, moltiplicatoreAcqua, numeroAccompagnatori, impostaRecipienti,
+  aggiungiAccompagnatore, modificaAccompagnatore, togliAccompagnatore, aggiungiAnimale, modificaAnimale, togliAnimale, nomePadrone, partecipanteCompagnia, TIPI_ANIMALE,
+  infoForaggiare, esitoForaggiare, foraggia, haForaggiato, quotaForaggio, motivoNeve, sciogliNeve, bolliAcqua, purificaAcqua, NOMI_SCORTA,
   tiroIniziativa, avviaCombattimento, comando, indietro, fineCombattimento, attuale, etichetta, attivaTimer, timerLetture, mmss,
   UNITA_ROUND, EFFETTI_COND, aggiungiMalus, togliMalus, descriviMalus, descriviDurata, nomeEsteso, esitoPromemoria, doseAggiuntiva, togliDallaCodaId, risolviMorte,
   scomponiFerita, descriviComponente, attaccaFerita, feritaDaTabella, mettiUltimo, curaDiretta, cerusico, spendiRoundCompleto, rigaFermare, conStoria, massimi, divisoreOrgano, amputazioniAttive, tiraEffetto, normalizza,
