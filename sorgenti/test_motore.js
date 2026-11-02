@@ -1416,5 +1416,90 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_buil
   const A = c.pg[0]; t('Build 3a: bonus con il tipo, uno non si somma', A.stato.malus.filter(m => m.tb === 'deviazione').length === 2 && M.valoriPG(c, A).ca.valore === 19 + 4 + 2);
   t('Build 3a: combattimento in corso con il promemoria del round', c.combattimento && c.combattimento.promemoria.some(p => p.round === 3)); }
 
+// ================================================================ Build 4: finestra TV (sezione AD)
+{ const c3 = M.importa(fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build3b.json'), 'utf8')).campagne[0];
+  t('Build 3b: marcia in corso fermata da Orientarsi, area con tabella', c3.viaggio.attivo && c3.viaggio.attivo.evento.tipo === 'orientarsi' && c3.aree.length === 7 && c3.aree[6].righe.length === 2);
+  t('Build 3b: medicinali ed erbe accesi, mistura e Trattenere il fiato', c3.medicinali.attivo && c3.medicinali.n === 4 && c3.erbe.attivo && c3.erbe.n === 5 && c3.pg[0].stato.malus.some(m => m.nome === 'Trattenere il fiato' && m.apnea));
+  t('Build 3b: promemoria con l\'incontro casuale', c3.promemoria.length === 1 && c3.promemoria[0].incontro && c3.promemoria[0].incontro.partecipanti.length === 1);
+  const r = M.rispondiMarcia(c3, meteo, rng, { orientarsi: 20 }); t('Build 3b: la marcia riprende', !r.viaggio.attivo || r.viaggio.attivo.evento.tipo !== 'orientarsi');
+  t('AD le impostazioni TV della Build 1 ci sono già', c3.impostazioni.tv_solo_combattimento === true && c3.impostazioni.f10 === false && c3.impostazioni.tv_fuori === 'barrate'); }
+{ // contenuto in combattimento (AD1)
+  let c = M.clona(c1); c.impostazioni = { ...c.impostazioni, tv_ora: false, tv_meteo: false };
+  const fuori = M.statoTV(c, meteo, 0);
+  t('AD1 fuori combattimento con ora e meteo spenti: vuota', !fuori.combattimento && fuori.vuota && !M.tvVisibile(fuori, c, null));
+  t('AD3 F9 la mostra comunque', M.tvVisibile(fuori, c, true));
+  c.impostazioni.tv_ora = true; c.impostazioni.tv_meteo = true;
+  const f2 = M.statoTV(c, meteo, 0);
+  t('AD1 fuori combattimento: data e ora e meteo', f2.data === M.formatoData(c) && typeof f2.meteo === 'string' && f2.meteo.length > 0 && !f2.vuota, f2);
+  t('AD1 «Solo durante il combattimento» acceso: chiusa fuori dal combattimento', !M.tvVisibile(f2, c, null));
+  c.impostazioni.tv_solo_combattimento = false; t('AD1 spento: visibile con ora e meteo', M.tvVisibile(f2, c, null));
+  c.impostazioni.tv_solo_combattimento = true; c.impostazioni.tv_ora = false; c.impostazioni.tv_meteo = false;
+  let k = M.avviaCombattimento(c, [{ tipo: 'pg', pgId: A, totale: 20 }, { tipo: 'pg', pgId: B, totale: 15 },
+    { tipo: 'nemico', nome: 'Lupo', bonus: 0, n: 3, modo: 'tipo', nomeTv: 'Bestie' }, { tipo: 'nemico', nome: 'Ombra', bonus: 0, n: 1, nascosto: true },
+    { tipo: 'nemico', nome: 'Bandito', bonus: 0, n: 2, modo: 'singolo', nomeTv: 'Figura incappucciata' }],
+  facce([[17, 20], [12, 20], [10, 20], [5, 20], [3, 20]], semi(4)), 0);
+  const nomi = s => s.ordine.filter(x => !x.separatore).map(x => x.nome);
+  let s = M.statoTV(k, meteo, 0);
+  t('AD1 in combattimento: visibile e round 1', s.combattimento && s.round === 1 && M.tvVisibile(s, k, null));
+  t('AD1 ora agisce in grande, i 2 prossimi', s.agisce.nome === 'Aria' && s.ordine.filter(x => x.livello === 'prossimo').map(x => x.nome).join() === 'Bruno,Bestie ×3', nomi(s));
+  t('AD2 nome per i giocatori al posto del nome vero, ×N', nomi(s).includes('Bestie ×3') && !nomi(s).some(n => /Lupo|Bandito|Ombra/.test(n)), nomi(s));
+  t('AD2 per singolo: nomi TV numerati', nomi(s).includes('Figura incappucciata 1') && nomi(s).includes('Figura incappucciata 2'), nomi(s));
+  t('AD1 la nascosta non compare', !nomi(s).includes('Ombra') && s.ordine.filter(x => !x.separatore).length === 5);
+  t('AD1 mai PF né malus nello stato', !JSON.stringify(s).match(/fatica|ferita|malus|tattic/i));
+  k.impostazioni.tv_xn = false; t('AD1 «×N» spento', nomi(M.statoTV(k, meteo, 0)).includes('Bestie')); k.impostazioni.tv_xn = true;
+  // turno della nascosta: in grande c'è già il prossimo visibile
+  const ombra = Object.values(k.combattimento.righe).find(r => r.nome === 'Ombra');
+  let g = k; while (M.attuale(g.combattimento).id !== ombra.id) g = M.comando(g, 'avanti', {}, meteo, rng, 0);
+  const iOmbra = g.combattimento.turno, dopo = M.etichetta(g.combattimento.righe[g.combattimento.ordine[(iOmbra + 1) % g.combattimento.ordine.length]]);
+  s = M.statoTV(g, meteo, 0);
+  t('AD1 turno di una nascosta: non si vede, in grande il prossimo visibile', s.agisce && !/Ombra/.test(s.agisce.nome) && s.ordine[0].livello === 'agisce', [s.agisce, dopo]);
+  // ultima della fila nascosta: il prossimo visibile è nel round dopo
+  let u = M.clona(k); const cbU = u.combattimento; cbU.ordine = cbU.ordine.filter(id => id !== ombra.id).concat(ombra.id);
+  cbU.turno = cbU.ordine.length - 1; s = M.statoTV(u, meteo, 0);
+  t('AD1 nascosta ultima: in grande il primo del round dopo', s.round === 2 && s.agisce.nome === 'Aria');
+  t('AD1 separatore «Round N+1» dopo l\'ultimo', M.statoTV(k, meteo, 0).ordine.at(-1).separatore === undefined && M.statoTV(M.comando(k, 'avanti', {}, meteo, rng, 0), meteo, 0).ordine.some(x => x.separatore && x.round === 2));
+  // fuori combattimento barrate o tolte
+  const lupi = Object.values(k.combattimento.righe).find(r => r.nome === 'Lupo');
+  let fz = M.comando(k, 'fuori', { id: lupi.id }, meteo, rng, 0); s = M.statoTV(fz, meteo, 0);
+  t('AD1 fuori combattimento barrate (non tra i prossimi)', s.ordine.some(x => x.nome === 'Bestie ×3' && x.fuori && x.livello === 'resto'));
+  fz.impostazioni.tv_fuori = 'tolte'; t('AD1 fuori combattimento tolte', !nomi(M.statoTV(fz, meteo, 0)).includes('Bestie ×3'));
+  // in attesa
+  const w = M.comando(k, 'ritardare', {}, meteo, rng, 0); s = M.statoTV(w, meteo, 0);
+  t('AD1 chi ritarda: «In attesa»', s.attesa.join() === 'Aria' && s.agisce.nome === 'Bruno');
+  // AD2 comando Nome TV… e Rivela
+  let n2 = M.comando(k, 'nomeTv', { id: lupi.id, nomeTv: '  Ombre nel bosco ' }, meteo, rng, 0);
+  t('AD2 Nome TV… a combattimento iniziato, nel log', nomi(M.statoTV(n2, meteo, 0)).includes('Ombre nel bosco ×3') && n2.log.some(e => /sulla TV «Ombre nel bosco»/.test(e.testo)));
+  n2 = M.comando(n2, 'nomeTv', { id: lupi.id, nomeTv: '' }, meteo, rng, 0); t('AD2 vuoto = nome vero', nomi(M.statoTV(n2, meteo, 0)).includes('Lupo ×3'));
+  const pgRiga = Object.values(k.combattimento.righe).find(r => r.tipo === 'pg');
+  lancia('AD2 i PG non hanno il nome TV', () => M.comando(k, 'nomeTv', { id: pgRiga.id, nomeTv: 'X' }, meteo, rng, 0), 'PG');
+  const rv = M.comando(k, 'nascondi', { id: ombra.id, nascosta: false }, meteo, rng, 0);
+  t('AD2 Rivela: compare al suo posto, nel log', nomi(M.statoTV(rv, meteo, 0)).includes('Ombra') && rv.log.some(e => /Ombra rivelata sulla TV/.test(e.testo)));
+  // AD2 rinforzi con nome per i giocatori e nascosti; separa eredita
+  let rf = M.comando(k, 'rinforzi', { partecipanti: [{ tipo: 'nemico', nome: 'Orco', bonus: 1, n: 2, modo: 'tipo', nomeTv: 'Sagome', nascosto: true }] }, meteo, semi(3), 0);
+  const orchi = Object.values(rf.combattimento.righe).find(r => r.nome === 'Orco');
+  t('AD2 rinforzi nascosti con il nome per i giocatori', orchi.nascosta && orchi.nomeTv === 'Sagome' && !nomi(M.statoTV(rf, meteo, 0)).some(x => /Sagome|Orco/.test(x)));
+  rf = M.comando(rf, 'nascondi', { id: orchi.id, nascosta: false }, meteo, rng, 0);
+  t('AD2 rinforzi rivelati: «Sagome ×2»', nomi(M.statoTV(rf, meteo, 0)).includes('Sagome ×2'));
+  const sp = M.comando(k, 'separa', { id: lupi.id }, meteo, rng, 0), sep = Object.values(sp.combattimento.righe).find(r => /separato/.test(r.nome));
+  t('AD2 Separa eredita il nome TV', sep && sep.nomeTv === 'Bestie' && nomi(M.statoTV(sp, meteo, 0)).includes('Bestie ×2'));
+  // AD4 timer sulla TV
+  let tm = M.clona(k); tm.impostazioni.timer = true; tm.impostazioni.timer_tv = true; tm.impostazioni.soglia_timer = 30; tm = M.attivaTimer(tm, 1000);
+  s = M.statoTV(tm, meteo, 1000 + 12000); t('AD4 timer del turno del PG', s.timer && s.timer.testo === '0:12' && !s.timer.oltre && !s.timer.pausa, s.timer);
+  s = M.statoTV(tm, meteo, 1000 + 45000); t('AD4 oltre la soglia', s.timer.oltre);
+  const pz = M.comando(tm, 'pausa', {}, meteo, rng, 1000 + 5000); s = M.statoTV(pz, meteo, 1000 + 60000);
+  t('AD4 in pausa: fermo', s.timer.pausa && s.timer.testo === '0:05', s.timer);
+  tm.impostazioni.timer_tv = false; t('AD4 Timer sulla TV spento', M.statoTV(tm, meteo, 5000).timer === null); tm.impostazioni.timer_tv = true;
+  const tmOff = M.clona(tm); tmOff.impostazioni.timer = false; t('AD4 senza Timer reale niente timer', M.statoTV(tmOff, meteo, 5000).timer === null);
+  let tn = tm; while (M.attuale(tn.combattimento).tipo === 'pg') tn = M.comando(tn, 'avanti', {}, meteo, rng, 2000);
+  s = M.statoTV(tn, meteo, 9000); t('AD4 turno di un nemico visibile: niente timer', s.agisce.tipo === 'nemico' ? s.timer === null : true, s.agisce);
+  // nascosta prima di un PG: 0:00 fermo
+  let h = M.clona(tm); const cbH = h.combattimento, idA = cbH.ordine.find(id => cbH.righe[id].tipo === 'pg');
+  cbH.ordine = [ombra.id, ...cbH.ordine.filter(id => id !== ombra.id)]; cbH.turno = 0;
+  s = M.statoTV(h, meteo, 50000); t('AD4 turno nascosto prima di un PG: «0:00» fermo', s.agisce.tipo === 'pg' && s.timer.testo === '0:00' && !s.timer.oltre, s.timer);
+  // AD3 F10 solo in combattimento con l'impostazione accesa
+  t('AD3 F10 spento di default', !M.f10Attivo(k)); k.impostazioni.f10 = true; t('AD3 F10 acceso in combattimento', M.f10Attivo(k));
+  t('AD3 F10 fuori dal combattimento non fa nulla', !M.f10Attivo({ ...c, impostazioni: { ...c.impostazioni, f10: true } }));
+  t('AD1 nessuna campagna: niente da mostrare', M.statoTV(null).vuota && !M.tvVisibile(M.statoTV(null), null, null)); }
+
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

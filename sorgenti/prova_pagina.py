@@ -1,7 +1,7 @@
 """Prova della pagina con Playwright (Chromium) a 1366 e 390 px.
 Uso: python3 sorgenti/prova_pagina.py [cartella_screenshot]
 Serve www/ su un server locale, percorre creazione guidata, PG, tempo, scorte, combattimento,
-salvataggio (ricarica della pagina), campagna d'esempio e le parti di ogni build (2a, 2b, 2c, 3a, 3b). Stampa solo errori e conteggi."""
+salvataggio (ricarica della pagina), campagna d'esempio e le parti di ogni build (2a, 2b, 2c, 3a, 3b, 4 con la finestra TV come riquadro). Stampa solo errori e conteggi."""
 import os, sys, threading, http.server, functools, re
 from playwright.sync_api import sync_playwright
 
@@ -850,12 +850,148 @@ def prova3b(browser, larghezza):
     t(f'{W} nessun errore in console', not errori, errori[:3])
     ctx.close()
 
+BUILD3B = os.path.join(R, 'prove', 'campagna_build3b.json')
+def prova4(browser, larghezza):
+    ctx = browser.new_context(viewport={'width': larghezza, 'height': 900 if larghezza > 500 else 820})
+    ctx.add_init_script("try { localStorage.setItem('schermo-tv-usa-riquadro', '1'); } catch (e) {}")
+    pg = ctx.new_page(); errori = []
+    pg.on('console', lambda m: m.type == 'error' and errori.append(m.text))
+    pg.on('pageerror', lambda e: errori.append(str(e)))
+    pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna')
+    W = f'[{larghezza} 4]'
+    def fin(): return pg.locator('.velo').last
+    def premi(testo): fin().locator('footer button', has_text=re.compile('^' + testo + '$')).click()
+    def largo(nome):
+        sw = pg.evaluate('document.documentElement.scrollWidth'); t(f'{W} niente scorrimento orizzontale: {nome}', sw <= larghezza, sw)
+    riq = pg.locator('#tv-riquadro')
+    def tv_vis(): return riq.count() == 1 and riq.is_visible()
+    def tv(): return riq.inner_text() if tv_vis() else ''
+    def imposta(**v):
+        pg.click('[data-az="impostazioni"]'); f = fin()
+        for k, x in v.items():
+            el = f.locator(f'[name="{k}"]')
+            if isinstance(x, bool): el.set_checked(x)
+            else: el.select_option(x)
+        premi('Salva')
+    pg.click('text=Carica una campagna d\'esempio'); pg.wait_for_timeout(300)
+    pg.locator('.camp', has_text='esempio').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+    t(f'{W} AD3 pulsante TV nella testata', pg.locator('#btn-tv').count() == 1)
+    t(f'{W} AD1 fuori combattimento con «Solo durante…» acceso: chiusa', not tv_vis())
+    # impostazioni TV
+    pg.click('[data-az="impostazioni"]'); f = fin()
+    t(f'{W} AD4 Timer sulla TV grigio senza Timer reale', f.locator('[name="timer_tv"]').is_disabled() == (not f.locator('[name="timer"]').is_checked()))
+    f.locator('[name="timer"]').set_checked(True); t(f'{W} AD4 col Timer reale si attiva', f.locator('[name="timer_tv"]').is_enabled())
+    t(f'{W} AD7 riga della versione (win-1.0.N nell\'app Windows, «di prova» nella pagina web)', f.locator('#versione-app').count() == 1)
+    largo('impostazioni TV'); premi('Annulla')
+    # F9 fuori dal combattimento
+    pg.keyboard.press('F9'); pg.wait_for_timeout(150)
+    t(f'{W} AD3 F9 la mostra: «Nessun combattimento»', tv_vis() and 'Nessun combattimento' in tv(), tv())
+    bb = riq.bounding_box(); t(f'{W} AD5 riquadro dentro lo schermo', bb and bb['x'] >= 0 and bb['x'] + bb['width'] <= larghezza + 1, bb)
+    pg.keyboard.press('F9'); pg.wait_for_timeout(150); t(f'{W} AD3 F9 la nasconde', not tv_vis())
+    # avvio con nome TV e nascosto
+    for i in range(pg.locator('.pgini input[type="number"]').count()): pg.locator('.pgini input[type="number"]').nth(i).fill(str(25 - i))
+    pg.locator('[data-bind="nemici.0.nome"]').fill('Lupo'); pg.locator('[data-bind="nemici.0.n"]').fill('3'); pg.locator('[data-bind="nemici.0.nomeTv"]').fill('Bestie')
+    pg.click('[data-az="aggNemico"]'); pg.locator('[data-bind="nemici.1.nome"]').fill('Ombra'); pg.locator('[data-bind="nemici.1.nascosto"]').check()
+    pg.click('[data-az="aggNemico"]'); pg.locator('[data-bind="nemici.2.nome"]').fill('Bandito'); pg.locator('[data-bind="nemici.2.n"]').fill('2'); pg.locator('[data-bind="nemici.2.modo"]').select_option('singolo'); pg.locator('[data-bind="nemici.2.nomeTv"]').fill('Figura incappucciata')
+    largo('avvio con il nome TV')
+    pg.click('[data-az="avvia"]'); pg.wait_for_timeout(200)
+    x = tv()
+    t(f'{W} AD1 all\'avvio la TV si apre da sola', tv_vis() and 'Round 1' in x and 'ora agisce' in x.lower(), x[:120])
+    t(f'{W} AD2 nome per i giocatori e numerati', 'Bestie ×3' in x and 'Figura incappucciata 1' in x and 'Figura incappucciata 2' in x, x)
+    t(f'{W} AD1 né nomi veri né nascoste né PF', not re.search(r'Lupo|Bandito|Ombra|Fatica|Ferita|PF', x), x)
+    t(f'{W} AD2 «(TV: …)» nell\'iniziativa', pg.locator('.ordine', has_text='(TV: Bestie)').count() == 1)
+    # Nome TV… a combattimento iniziato
+    pg.locator('.ordine li', has_text='Lupo ×3').click(); pg.click('.azioni-riga [data-az="nomeTv"]'); fin().locator('[name="n"]').fill('Ombre nel bosco'); premi('Salva'); pg.wait_for_timeout(150)
+    t(f'{W} AD2 Nome TV… cambia la TV', 'Ombre nel bosco ×3' in tv() and 'Bestie' not in tv())
+    # rinforzi nascosti con il nome, poi Rivela
+    pg.click('[data-az="rinforzi"]'); f = fin(); f.locator('[name="n"]').fill('Orco'); f.locator('[name="q"]').fill('2'); f.locator('[name="tv"]').fill('Sagome'); f.locator('[name="nasc"]').check()
+    largo('rinforzi con il nome TV'); premi('Tira ed entra'); pg.wait_for_timeout(150)
+    t(f'{W} AD2 rinforzi nascosti: non sulla TV', 'Sagome' not in tv() and 'Orco' not in tv() and pg.locator('.ordine li', has_text='Orco ×2').count() == 1)
+    pg.locator('.ordine li', has_text='Orco ×2').click(); pg.click('.azioni-riga [data-az="cmd"][data-c="nascondi"]'); pg.wait_for_timeout(150)
+    t(f'{W} AD2 Rivela: «Sagome ×2» sulla TV', 'Sagome ×2' in tv())
+    # timer sulla TV
+    imposta(timer=True, timer_tv=True); pg.wait_for_timeout(1200)
+    tipo = pg.evaluate("M.statoTV(S.camp, MET, Date.now()).agisce.tipo")
+    t(f'{W} AD4 timer solo nei turni dei PG e degli alleati', (riq.locator('.tv-timer').count() == 1) == (tipo != 'nemico'), tipo)
+    # F10: spento non fa nulla, acceso = Avanti
+    prima = pg.evaluate("[S.camp.combattimento.round, S.camp.combattimento.turno]")
+    pg.keyboard.press('F10'); pg.wait_for_timeout(100)
+    t(f'{W} AD3 F10 spento: niente', pg.evaluate("[S.camp.combattimento.round, S.camp.combattimento.turno]") == prima)
+    imposta(f10=True); pg.keyboard.press('F10'); pg.wait_for_timeout(150)
+    t(f'{W} AD3 F10 acceso = Avanti', pg.evaluate("[S.camp.combattimento.round, S.camp.combattimento.turno]") != prima)
+    # menu TV: stato, Sposta grigio, Blocca, Ripristina
+    pg.click('#btn-tv'); f = fin()
+    t(f'{W} AD3 menu: stato e Sposta grigio nella versione web', 'TV visibile' in f.inner_text() and f.locator('[data-tv="sposta"]').is_disabled() and f.locator('[name="riq"]').is_checked())
+    largo('menu TV')
+    f.locator('[name="blocca"]').check(); t(f'{W} AD3 Blocca posizione', 'bloccata' in (riq.get_attribute('class') or ''))
+    premi('Chiudi')
+    bb0 = riq.bounding_box(); b = pg.locator('.tv-riq-barra').bounding_box()
+    pg.mouse.move(b['x'] + 30, b['y'] + 8); pg.mouse.down(); pg.mouse.move(b['x'] + 10, b['y'] + 60); pg.mouse.up()
+    t(f'{W} AD3 bloccata: non si trascina', riq.bounding_box()['y'] == bb0['y'])
+    pg.click('#btn-tv'); fin().locator('[name="blocca"]').uncheck(); premi('Chiudi')
+    pg.mouse.move(b['x'] + 30, b['y'] + 8); pg.mouse.down(); pg.mouse.move(b['x'] + 10, b['y'] + 60, steps=4); pg.mouse.up()
+    spostata = riq.bounding_box()['y']
+    t(f'{W} AD5 si trascina e la posizione si salva', spostata != bb0['y'] and pg.evaluate("JSON.parse(localStorage.getItem('schermo-tv-riquadro')).pos !== null"))
+    pg.click('#btn-tv'); fin().locator('[data-tv="ripristina"]').click(); pg.wait_for_timeout(100)
+    t(f'{W} AD3 Ripristina: posizione predefinita', abs(riq.bounding_box()['y'] - bb0['y']) < 2 if larghezza > 600 else riq.bounding_box()['y'] != spostata, [riq.bounding_box()['y'], bb0['y']])
+    largo('combattimento con la TV')
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'tv_{larghezza}.png'), full_page=False)
+    # fine del combattimento: la TV si chiude
+    pg.click('[data-az="fineComb"]'); premi('Chiudi il combattimento'); premi('Chiudi'); pg.wait_for_timeout(150)
+    t(f'{W} AD1 a fine combattimento si chiude', not tv_vis())
+    imposta(tv_solo_combattimento=False, tv_ora=True, tv_meteo=True); pg.wait_for_timeout(150)
+    x = tv(); t(f'{W} AD1 «Solo durante…» spento: data e ora e meteo', tv_vis() and pg.evaluate("M.formatoData(S.camp)") in x, x)
+    imposta(tv_ora=False, tv_meteo=False); pg.wait_for_timeout(150)
+    t(f'{W} AD1 niente da mostrare: si nasconde da sola', not tv_vis())
+    # campagna salvata con la Build 3b
+    pg.click('[data-az="campagne"]'); t(f'{W} AD1 elenco delle campagne: TV chiusa', not tv_vis())
+    pg.click('[data-az="importa"]'); fin().locator('[name="t"]').fill(open(BUILD3B, encoding='utf8').read()); premi('Importa'); pg.wait_for_timeout(400)
+    pg.locator('.camp', has_text='Build 3b').first.locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+    pg.click('[data-az="scheda"][data-s="viaggio"]')
+    t(f'{W} Build 3b: si apre con la marcia ferma su Orientarsi', 'Orientarsi' in pg.inner_text('#col-terza') and pg.locator('.pg').count() == 2)
+    t(f'{W} Build 3b: medicinali ed erbe accesi', pg.locator('#p-compagnia [data-az-cambio="contatore"]:checked').count() == 2)
+    largo('Build 3b')
+    t(f'{W} nessun errore in console', not errori, errori[:3])
+    ctx.close()
+
+def prova4web(browser):
+    """AD5: catena Picture-in-Picture → finestra del browser → riquadro, e app Android senza TV."""
+    W = '[web 4]'
+    for caso in ('auto', 'bloccati', 'android'):
+        ctx = browser.new_context(viewport={'width': 1366, 'height': 900})
+        if caso == 'bloccati': ctx.add_init_script("delete window.documentPictureInPicture; window.open = () => null;")
+        if caso == 'android': ctx.add_init_script("window.Capacitor = { isNativePlatform: () => true };")
+        pg = ctx.new_page(); errori = []
+        pg.on('pageerror', lambda e: errori.append(str(e)))
+        pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna')
+        pg.click('text=Carica una campagna d\'esempio'); pg.wait_for_timeout(300)
+        pg.locator('.camp', has_text='esempio').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+        if caso == 'android':
+            t(f'{W} AD5 Android: niente pulsante TV', pg.locator('#btn-tv').count() == 0)
+            pg.keyboard.press('F9'); pg.wait_for_timeout(150); t(f'{W} AD5 Android: F9 non fa nulla', pg.locator('#tv-riquadro').count() == 0)
+            pg.click('[data-az="impostazioni"]'); t(f'{W} AD5 Android: nota «solo nell\'app Windows»', "Solo nell'app Windows" in pg.locator('.velo').last.inner_text()); pg.locator('.velo').last.locator('footer button', has_text='Annulla').click()
+        else:
+            for i in range(pg.locator('.pgini input[type="number"]').count()): pg.locator('.pgini input[type="number"]').nth(i).fill(str(20 - i))
+            pg.locator('[data-bind="nemici.0.nome"]').fill('Lupo'); pg.click('[data-az="avvia"]'); pg.wait_for_timeout(800)
+            modo = pg.evaluate('TV.modo')
+            if caso == 'bloccati':
+                t(f'{W} AD5 PiP e finestra bloccati: riquadro con l\'avviso', modo == 'riquadro' and pg.locator('#tv-riquadro').is_visible() and 'nel riquadro' in pg.inner_text('#avviso'), modo)
+            else:
+                t(f'{W} AD5 la TV si apre in uno dei tre modi', modo in ('pip', 'popup', 'riquadro'), modo)
+                if modo in ('pip', 'popup'):
+                    t(f'{W} AD5 {modo}: stesso contenuto', 'Round 1' in pg.evaluate("TV.win.document.body.innerText"))
+                    pg.keyboard.press('F9'); pg.wait_for_timeout(300); t(f'{W} AD3 F9 chiude la finestra {modo}', pg.evaluate('TV.modo') is None)
+        t(f'{W} {caso}: nessun errore', not errori, errori[:3])
+        ctx.close()
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (1366, 390):
-        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b):
+        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4):
             try: f(b, w)
             except Exception as e: ko += 1; print('ERRORE', w, f.__name__, 'interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
+    try: prova4web(b)
+    except Exception as e: ko += 1; print('ERRORE prova4web interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
     b.close()
 srv.shutdown()
 print(f'prova della pagina: {ok} superati, {ko} falliti')

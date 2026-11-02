@@ -1,6 +1,6 @@
 # Schermo del Narratore
 
-Schermo del GM della Collana: campagne, PG, iniziativa, orologio e meteo (Tabelle del Tempo Atmosferico v1.0: 17 zone), scorte e Foraggiare, compagnia (accompagnatori e animali), malus e bonus (con i tipi di bonus e i modelli), veleni e malattie, ferite gravi ed emorragie, condizioni con i testi completi, Fallimenti critici, bestiario e PNG (con «Incolla» degli stat block), incontri, tattiche nella barra del turno, dadi, fonti di luce, promemoria, log per sessione. Pensato soprattutto per il PC (Windows) accanto a Foundry sulla TV; anche Android.
+Schermo del GM della Collana: campagne, PG, iniziativa, orologio e meteo (Tabelle del Tempo Atmosferico v1.0: 17 zone), scorte e Foraggiare, compagnia (accompagnatori e animali), malus e bonus (con i tipi di bonus e i modelli), veleni e malattie, ferite gravi ed emorragie, condizioni con i testi completi, Fallimenti critici, bestiario e PNG (con «Incolla» degli stat block), incontri, tattiche nella barra del turno, dadi, fonti di luce, promemoria, log per sessione, Prontuario, marcia e incontri casuali, **finestra TV** con l'iniziativa per i giocatori (F9 mostra/nasconde da qualsiasi programma, F10 turno successivo facoltativo). Pensato soprattutto per il PC (Windows) accanto a Foundry sulla TV; anche Android (senza la finestra TV).
 
 ## Scaricare l'app
 Nella pagina **Releases** del repository:
@@ -25,17 +25,25 @@ Prima di ogni `node`: `export NODE_PATH=$(npm root -g)`.
    `python3 sorgenti/crea_strumenti.py` → `sorgenti/strumenti.json` (fonti di luce della Guida, livelli delle Fiamme, tipi di bonus); `python3 sorgenti/controlla_strumenti.py` lo controlla sulla Guida e su `meteo.json`
    `python3 sorgenti/crea_razze.py` → `sorgenti/razze.json` dall'estratto delle razze (`sorgenti/guida/razze.md`, copia di `Razze.md`)
    `python3 sorgenti/controlla_razze.py` → controlla `razze.json` sull'estratto e `divieti.json` sulle fonti (`guida/struttura_scheda_png.md`, `guida/regole_collana.md`)
-2. `node sorgenti/test_motore.js` → test del motore (campagne, calendario, meteo con durate e varianti, scorte, Foraggiare, compagnia, PF, iniziativa, timer, malus, veleni, ferite gravi, stat block, scheda guidata, segnalazioni, incontri, tattiche; condizioni, Terrore crescente, Fallimenti critici, tipi di bonus, modelli, dadi, luce, promemoria, log; le campagne di `sorgenti/prove/` controllano la migrazione dalla Build 1, dalla 2a, dalla 2b e dalla 2c, gli stat block di `sorgenti/prove/statblock/` sono quelli dei documenti d'avventura così come stanno)
-3. `node sorgenti/test_archivio.js` → test dei salvataggi su file dell'app Windows
+2. `node sorgenti/test_motore.js` → test del motore (campagne, calendario, meteo con durate e varianti, scorte, Foraggiare, compagnia, PF, iniziativa, timer, malus, veleni, ferite gravi, stat block, scheda guidata, segnalazioni, incontri, tattiche; condizioni, Terrore crescente, Fallimenti critici, tipi di bonus, modelli, dadi, luce, promemoria, log; le campagne di `sorgenti/prove/` controllano la migrazione dalla Build 1, dalla 2a, dalla 2b, dalla 2c, dalla 3a e dalla 3b (`crea_campagna_build3b.js` con il codice del commit `c8e3204`); stato della finestra TV (`statoTV`, nome per i giocatori, nascoste, timer, F10), gli stat block di `sorgenti/prove/statblock/` sono quelli dei documenti d'avventura così come stanno)
+3. `node sorgenti/test_archivio.js` → test dei salvataggi su file dell'app Windows e della posizione della finestra TV (`desktop/tv_posizione.js`)
 4. `python3 sorgenti/build.py [pagina_web.html]` → `www/index.html` (e, se indicata, la versione web di prova)
-5. `python3 sorgenti/prova_pagina.py [cartella_screenshot]` → prova della pagina con Playwright a 1366 e 390 px
+5. `python3 sorgenti/prova_pagina.py [cartella_screenshot]` → prova della pagina con Playwright a 1366 e 390 px (con la finestra TV come riquadro nella pagina, la catena Picture-in-Picture → finestra → riquadro e l'app Android simulata)
+6. Facoltativo, app Windows: `electron desktop/` (con `www/` copiata in `desktop/www/`) sotto Xvfb con `--remote-debugging-port=9333` e `XDG_CONFIG_HOME`, poi `python3 sorgenti/prova_electron.py <XDG_CONFIG_HOME>` → finestra TV, comandi, `tv.json`, versione
 
-Le icone si rigenerano con `python3 sorgenti/icone.py` (Build 4).
+Le icone (schermo del GM a tre ante e d20 su fondo marrone brace) si rigenerano con `python3 sorgenti/icone.py`.
 
 ## Salvataggi
 - Windows: un file JSON per campagna nella cartella dati dell'app (`%APPDATA%/Schermo del Narratore/dati/campagne/`) e `dati/bestiario.json` con i mostri condivisi fra le campagne, scritti 1 secondo dopo ogni modifica; copia di sicurezza giornaliera in `dati/backup/` (ultime 10). Una campagna eliminata diventa `<id>.json.eliminato`.
-- Android e browser: IndexedDB (archivi `campagne` e `bestiario`).
+- Windows: posizione, dimensione, schermo e blocco della finestra TV in `tv.json` nella stessa cartella dell'app (per PC, non per campagna). Portatile e installata usano la stessa cartella.
+- Android e browser: IndexedDB (archivi `campagne` e `bestiario`); nel browser la posizione del riquadro TV resta nella pagina.
 - Esporta/Importa JSON (una campagna con i mostri dei suoi incontri, tutte con il bestiario, solo il bestiario), log in .txt.
 
+## Finestra TV
+- **Windows**: seconda finestra senza bordi, sempre in primo piano anche sopra Foundry a schermo intero, fuori dalla barra delle applicazioni. Pulsante **TV** nella testata: Mostra/Nascondi (**F9** da qualsiasi programma), Sposta sulla TV, Blocca posizione, Ripristina. Con «Solo durante il combattimento» si apre all'avvio e si chiude alla fine. **F10** = Avanti, se acceso nelle impostazioni, solo durante un combattimento.
+- **Pagina web**: Picture-in-Picture (Chrome/Edge, pagina di primo livello) → finestra del browser → riquadro nella pagina; «Usa il riquadro» nel menu TV.
+- **Android**: niente finestra TV.
+- La TV non mostra mai PF, malus, condizioni, tattiche, né i nomi veri delle creature con il nome per i giocatori; le nascoste non compaiono, nemmeno nel loro turno.
+
 ## Decisioni di design
-Vedi `Schermo_app_design_v18.md` (nel progetto della Collana; nel repo dal primo rilascio).
+Vedi `Schermo_app_design_v19.md` (nel repo e nel progetto della Collana).

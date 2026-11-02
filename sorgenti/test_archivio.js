@@ -25,4 +25,18 @@ t('bestiario scritto e riletto', A.scriviBestiario(B, new Date(2026, 11, 1)) && 
 A.scriviBestiario(B, new Date(2026, 11, 2)); t('bestiario nel backup del giorno dopo (com\'era a inizio giornata)', fs.existsSync(path.join(dir, 'backup', '2026-12-02', 'bestiario.json')));
 err = ''; try { A.scriviBestiario({ formato: 'schermo-v1', tipo: 'campagna' }); } catch (e) { err = e.message; } t('bestiario non valido rifiutato', /non valido/.test(err));
 fs.rmSync(dir, { recursive: true, force: true });
+// Build 4 (AD3): posizione della finestra TV (desktop/tv_posizione.js)
+const P = require('../desktop/tv_posizione.js');
+const PC = { id: 1, area: { x: 0, y: 0, width: 1920, height: 1040 } }, TVs = { id: 2, area: { x: 1920, y: 0, width: 3840, height: 2160 } };
+const d = P.predefinita(PC.area); t('TV predefinita 640 × 360 in alto a destra', d.width === 640 && d.height === 360 && d.x === 1920 - 660 && d.y === 20);
+t('TV: posizione salvata con lo schermo collegato', JSON.stringify(P.iniziale({ x: 2000, y: 100, width: 800, height: 450 }, [PC, TVs], PC.area)) === JSON.stringify({ x: 2000, y: 100, width: 800, height: 450 }));
+t('TV: schermo spento → predefinita sullo schermo principale', JSON.stringify(P.iniziale({ x: 2000, y: 100, width: 800, height: 450 }, [PC], PC.area)) === JSON.stringify(d));
+t('TV: niente salvato → predefinita', JSON.stringify(P.iniziale(null, [PC, TVs], PC.area)) === JSON.stringify(d));
+t('TV: un solo schermo, niente spostamento', P.sposta(d, [PC], 1) === null);
+let sp = P.sposta(d, [PC, TVs], 1);
+t('TV: sposta sull\'altro schermo, stesso angolo e dimensione', sp.indice === 1 && sp.bounds.width === 640 && sp.bounds.x === 1920 + 3840 - 640 - 20 && sp.bounds.y === 20);
+sp = P.sposta(sp.bounds, [PC, TVs], 2); t('TV: e ritorno', sp.indice === 0 && JSON.stringify(sp.bounds) === JSON.stringify(d));
+const piccola = { id: 3, area: { x: -800, y: 0, width: 800, height: 600 } };
+sp = P.sposta({ x: 1920 - 1000 - 20, y: 1040 - 700 - 20, width: 1000, height: 700 }, [PC, piccola], 1);
+t('TV: schermo più piccolo, dimensione ridotta, in basso a destra', sp.bounds.width === 800 && sp.bounds.height === 600 && sp.bounds.x === -800 && sp.bounds.y === 0);
 console.log(`test archivio: ${ok} superati, ${ko} falliti`); process.exit(ko ? 1 : 0);

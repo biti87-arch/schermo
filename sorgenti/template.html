@@ -230,6 +230,12 @@ details.cartella>summary{cursor:pointer;font-family:var(--f-titolo);color:var(--
 .voce-inc{border:1px solid var(--riga);border-radius:6px;padding:6px 8px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
 .voce-inc select{width:auto}
 @media (prefers-reduced-motion:no-preference){.btn,.ordine li{transition:background .15s,border-color .15s}}
+/* Build 4: finestra TV come riquadro nella pagina (versione web) */
+.tv-riq{position:fixed;z-index:40;display:flex;flex-direction:column;background:#15120E;border:1px solid var(--oro-scuro);border-radius:8px;box-shadow:var(--ombra);resize:both;overflow:hidden;min-width:200px;min-height:120px}
+.tv-riq[hidden]{display:none}.tv-riq.bloccata{resize:none}
+.tv-riq-barra{display:flex;gap:10px;align-items:center;padding:3px 10px;background:#28211A;cursor:move;user-select:none;touch-action:none;font-size:.8rem;color:var(--oro)}
+.tv-riq.bloccata .tv-riq-barra{cursor:default}.tv-riq-corpo{flex:1;min-height:0}
+.nemico .nome-tv{grid-column:1/-1}
 </style>
 <div class="wrap" id="app"></div>
 <div id="finestre"></div>
@@ -337,13 +343,14 @@ const spunta = (el, n) => val(el, n).checked;
 function disegna() {
   tema();
   const app = $('#app');
-  if (S.schermata === 'campagne' || !S.camp) { app.innerHTML = disegnaElenco(); return; }
+  if (S.schermata === 'campagne' || !S.camp) { app.innerHTML = disegnaElenco(); disegnaFine(); return; }
   app.innerHTML = disegnaTesta() + `<div class="colonne">
     <section class="col" aria-label="Tavolo">${disegnaTavolo()}</section>
     <section class="col" aria-label="Iniziativa">${disegnaIniziativa()}</section>
     <section class="col" id="col-terza" aria-label="Viaggio, bestiario, incontri e log">${disegnaTerza()}</section></div>`;
-  aggiornaTimer();
+  aggiornaTimer(); disegnaFine();
 }
+function disegnaFine() { aggiornaTV(); }
 
 // ---------- elenco campagne
 function disegnaElenco() {
@@ -386,7 +393,7 @@ function disegnaTesta() {
         <button class="btn min" data-az="tempo" data-r="1">+1 round</button><button class="btn min" data-az="tempo" data-r="10">+1 min</button>
         <button class="btn min" data-az="tempo" data-r="100">+10 min</button><button class="btn min" data-az="tempo" data-r="600">+1 ora</button>
         <button class="btn min oro" data-az="riposo">Riposo…</button><button class="btn min" data-az="salto">Salto…</button>
-        <button class="btn min" data-az="dadi" title="Dadi">🎲</button><button class="btn min prim" data-az="aggiungiScheda" title="Aggiungi una scheda al bestiario">+ Scheda</button><button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
+        <button class="btn min" data-az="dadi" title="Dadi">🎲</button><button class="btn min prim" data-az="aggiungiScheda" title="Aggiungi una scheda al bestiario">+ Scheda</button>${ANDROID ? '' : `<button class="btn min${TV.visibile ? ' oro' : ''}" id="btn-tv" data-az="menuTV" title="Finestra TV (F9)">TV</button>`}<button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
     </div>${coda}</header>`;
 }
 
@@ -454,7 +461,7 @@ function disegnaIniziativa() {
       ${cb.timer ? `<button class="btn" data-az="cmd" data-c="pausa">${cb.timer.pausa !== null ? 'Riprendi' : 'Pausa'}</button>` : ''}</div>
     <ol class="ordine">${righe}</ol>
     ${attesa ? `<div class="pannello"><h3>In attesa</h3>${attesa}</div>` : ''}
-    ${S.ui.sel && cb.righe[S.ui.sel] ? disegnaAzioniRiga(cb.righe[S.ui.sel]) : '<p class="tenue piccolo">Tocca una riga per le sue azioni (Preparare, Punto eroe, Separa, Fuori combattimento, Nascondi, Correggi) e, se ha una scheda, per lo stat block di lato.</p>'}
+    ${S.ui.sel && cb.righe[S.ui.sel] ? disegnaAzioniRiga(cb.righe[S.ui.sel]) : '<p class="tenue piccolo">Tocca una riga per le sue azioni (Preparare, Punto eroe, Separa, Fuori combattimento, Nascondi, Nome TV, Correggi) e, se ha una scheda, per lo stat block di lato.</p>'}
     <div class="comandi"><button class="btn" data-az="rinforzi">+ Rinforzi</button><span class="spazio"></span><button class="btn peric" data-az="fineComb">Fine combattimento</button></div>`;
 }
 function disegnaAzioniRiga(r) {
@@ -467,6 +474,7 @@ function disegnaAzioniRiga(r) {
       ${r.n > 1 ? `<button class="btn min" data-az="separa" data-id="${r.id}">Separa</button>` : ''}
       ${inOrdine ? `<button class="btn min" data-az="cmd" data-c="fuori" data-id="${r.id}" data-ritorna="${r.stato === 'fuori' ? 1 : ''}">${r.stato === 'fuori' ? 'Rientra' : 'Fuori combattimento'}</button>` : ''}
       <button class="btn min" data-az="cmd" data-c="nascondi" data-id="${r.id}" data-nascosta="${r.nascosta ? '' : 1}">${r.nascosta ? 'Rivela' : 'Nascondi'}</button>
+      ${r.tipo !== 'pg' ? `<button class="btn min" data-az="nomeTv" data-id="${r.id}" title="Nome per i giocatori sulla TV">Nome TV…</button>` : ''}
       <button class="btn min oro" data-az="malus" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Malus/Bonus</button>
       <button class="btn min" data-az="fallimento" data-chi="${r.tipo === 'pg' ? 'pg:' + r.pgId : 'riga:' + r.id}">Fallimento critico</button>
       <button class="btn min" data-az="correggi" data-id="${r.id}">Correggi</button>
@@ -497,7 +505,8 @@ function disegnaAvvio() {
       <select data-bind="nemici.${i}.modo" aria-label="Tiro"><option value="tipo" ${x.modo === 'tipo' ? 'selected' : ''}>per tipo</option><option value="singolo" ${x.modo === 'singolo' ? 'selected' : ''}>per singolo</option></select>
       <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-bind="nemici.${i}.imp" ${x.imp ? 'checked' : ''}> impr.</label>
         <label class="spunta piccolo"><input type="checkbox" data-bind="nemici.${i}.nascosto" ${x.nascosto ? 'checked' : ''}> nascosto</label>
-        <button class="btn min" data-az="togliNemico" data-i="${i}" aria-label="Togli">✕</button></div></div>`).join('');
+        <button class="btn min" data-az="togliNemico" data-i="${i}" aria-label="Togli">✕</button></div>
+      <input type="text" class="nome-tv" data-bind="nemici.${i}.nomeTv" value="${esc(x.nomeTv || '')}" placeholder="Nome TV (facoltativo, es. Figura incappucciata)" aria-label="Nome per i giocatori"></div>`).join('');
   const inc = av.incontro && c.incontri.find(x => x.id === av.incontro);
   return `<div class="pannello" id="avvio"><h3>Avvio del combattimento</h3>
       ${inc ? `<div class="fila"><span class="chip ok">Incontro: ${esc(inc.titolo)}</span>${(av.promemoria || []).length ? `<span class="tenue piccolo">${av.promemoria.length} promemoria per round</span>` : ''}<button class="btn min" data-az="staccaIncontro" title="Avvia senza l'incontro">✕</button></div>` : ''}
@@ -805,10 +814,13 @@ const AZ = {
     const f0 = apri({ titolo: 'Rinforzi', corpo: `${S.camp.png.length || Best.mostri.length || Best.generici.length ? `<label class="campo"><span>Scheda (facoltativa)</span><select name="s">${opzSchede(rifStr(rif))}</select></label>` : ''}
         <div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" placeholder="es. Goblin" value="${esc(s0 ? s0.nome : '')}"></label>
         <label class="campo"><span>Bonus</span><input type="number" name="b" value="${s0 && s0.iniziativa !== null ? s0.iniziativa : 0}"></label><label class="campo"><span>Quantità</span><input type="number" name="q" min="1" value="${s0 ? s0.n_suggerito || 1 : 1}"></label>
-        <label class="campo"><span>Tiro</span><select name="m"><option value="tipo">per tipo</option><option value="singolo">per singolo</option></select></label></div>`,
+        <label class="campo"><span>Tiro</span><select name="m"><option value="tipo">per tipo</option><option value="singolo">per singolo</option></select></label></div>
+        ${ANDROID ? '' : `<label class="campo"><span>Nome per i giocatori (facoltativo)</span><input type="text" name="tv" placeholder="es. Figura incappucciata"></label>
+        <label class="spunta"><input type="checkbox" name="nasc"> nascosti <span class="tenue piccolo">(non compaiono sulla TV finché non li riveli)</span></label>`}`,
       azioni: [{ testo: 'Annulla' }, { testo: 'Tira ed entra', classe: 'prim', fn: f => { if (!testo(f, 'n')) throw new Error('Nome mancante');
         const r = val(f, 's') ? rifDa(val(f, 's').value) : null;
-        applica(M.comando(S.camp, 'rinforzi', { partecipanti: [{ tipo: 'nemico', nome: testo(f, 'n'), bonus: intero(f, 'b', 0), n: Math.max(1, intero(f, 'q', 1)), modo: val(f, 'm').value, rif: r, pf: r ? M.pfDaScheda(schedaDi(r)) : null }] }, MET, rng, Date.now())); } }] });
+        applica(M.comando(S.camp, 'rinforzi', { partecipanti: [{ tipo: 'nemico', nome: testo(f, 'n'), bonus: intero(f, 'b', 0), n: Math.max(1, intero(f, 'q', 1)), modo: val(f, 'm').value, rif: r, pf: r ? M.pfDaScheda(schedaDi(r)) : null,
+          nomeTv: val(f, 'tv') ? testo(f, 'tv') : '', nascosto: val(f, 'nasc') ? spunta(f, 'nasc') : false }] }, MET, rng, Date.now())); } }] });
     f0.addEventListener('change', ev => { if (ev.target.name !== 's') return; const s = schedaDi(rifDa(ev.target.value)); if (!s) return;
       val(f0, 'n').value = s.nome; val(f0, 'b').value = s.iniziativa ?? 0; val(f0, 'q').value = s.n_suggerito || 1; });
   },
@@ -1188,9 +1200,13 @@ function finestraImpostazioni() {
       ${voce('scorte', 'Usa le scorte', '(consumo di cibo, acqua e foraggio, Fame e Sete automatiche, Foraggiare)')}${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(ogni 6 ore di marcia; aree e tabelle col pulsante qui sotto)')}</fieldset>
     <fieldset><legend>Timer reale</legend>${voce('timer', 'Timer reale del turno e del combattimento')}
       <label class="campo"><span>Soglia di avviso del turno (secondi, 0 = nessuna)</span><input type="number" name="soglia_timer" min="0" value="${i.soglia_timer}"></label></fieldset>
-    <fieldset><legend>Finestra TV (Build 4)</legend>${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento')}${voce('tv_ora', 'Ora del giorno')}${voce('tv_meteo', 'Meteo')}${voce('timer_tv', 'Timer sulla TV')}${voce('f10', 'Tasto F10: turno successivo')}
+    <fieldset><legend>Finestra TV</legend>${ANDROID ? '<p class="tenue piccolo">Solo nell\'app Windows (e nella versione web): qui le impostazioni restano nella campagna.</p>' : ''}${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento', '(si apre all\'avvio e si chiude alla fine)')}${voce('tv_ora', 'Data e ora')}${voce('tv_meteo', 'Meteo')}
+      <label class="spunta"><input type="checkbox" name="timer_tv" ${i.timer_tv ? 'checked' : ''} ${i.timer ? '' : 'disabled'}> Timer sulla TV <span class="tenue piccolo" id="nota-timer-tv">${i.timer ? '(solo nei turni dei PG e degli alleati)' : '(serve il Timer reale)'}</span></label>${voce('f10', 'Tasto F10: turno successivo', '(solo durante il combattimento)')}
       <label class="campo"><span>Creature fuori combattimento</span><select name="tv_fuori"><option value="barrate" ${i.tv_fuori === 'barrate' ? 'selected' : ''}>barrate</option><option value="tolte" ${i.tv_fuori === 'tolte' ? 'selected' : ''}>tolte</option></select></label></fieldset>
-    <fieldset><legend>Aspetto</legend><label class="campo"><span>Tema</span><select name="tema"><option value="scuro" ${i.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${i.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label></fieldset>`,
+    <fieldset><legend>Aspetto</legend><label class="campo"><span>Tema</span><select name="tema"><option value="scuro" ${i.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${i.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label></fieldset>
+    <p class="tenue piccolo" id="versione-app">${TVDESK && window.schermoDesktop.versione ? 'Versione win-' + esc(window.schermoDesktop.versione) : WEB ? 'Versione di prova (pagina web)' : ''}</p>`,
+    dopo: el => el.addEventListener('change', ev => { if (ev.target.name !== 'timer') return; const tv = val(el, 'timer_tv'); tv.disabled = !ev.target.checked;
+      el.querySelector('#nota-timer-tv').textContent = ev.target.checked ? '(solo nei turni dei PG e degli alleati)' : '(serve il Timer reale)'; }),
     azioni: [{ testo: 'Annulla' }, { testo: 'Aree degli incontri casuali…', fn: () => { finestraAree(); return false; } }, { testo: 'Salva', classe: 'prim', fn: f => {
       const c = M.clona(S.camp), x = c.impostazioni;
       if (!testo(f, 'nome')) throw new Error('Nome della campagna mancante');
@@ -2383,11 +2399,187 @@ function disegnaProntuario() {
     ${corpo}</div>`;
 }
 
+
+// ================================================================= Build 4: finestra TV (sezione AD)
+// Un solo disegno per tutti i casi (finestra Electron, Picture-in-Picture, finestra del browser, riquadro): htmlTV(statoTV)
+const TVDESK = typeof window !== 'undefined' && window.schermoDesktop && window.schermoDesktop.tv;
+const ANDROID = !!(typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const CSS_TV = `.tv{container-type:size;width:100%;height:100%;box-sizing:border-box;background:#15120E;color:#ECE3D1;font-family:'IBM Plex Sans',system-ui,sans-serif;overflow:hidden}
+.tv-c{display:flex;flex-direction:column;gap:1.6cqmin;height:100%;box-sizing:border-box;padding:4cqmin 5cqmin;overflow:hidden}
+.tv-round{font-family:'Spectral SC',Georgia,serif;font-size:6.5cqmin;color:#D4A84B;letter-spacing:.04em}
+.tv-lab{font-size:3.6cqmin;color:#A5977F;text-transform:uppercase;letter-spacing:.12em;margin-top:.6cqmin}
+.tv-agisce{display:flex;align-items:baseline;gap:3cqmin;flex-wrap:wrap;font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:13cqmin;line-height:1.05;color:#D4A84B}
+.tv-timer{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:7cqmin;color:#ECE3D1}
+.tv-timer.oltre{color:#C00000;font-weight:700}.tv-timer .p{font-size:3.6cqmin;color:#A5977F;margin-left:1.5cqmin}
+.tv-pross{display:flex;flex-direction:column;gap:.4cqmin;font-size:7cqmin;line-height:1.15}
+.tv-resto{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:3cqmin;row-gap:.3cqmin;font-size:4.6cqmin;line-height:1.35}
+.tv-sep{color:#D4A84B;font-size:3.6cqmin;letter-spacing:.06em;text-transform:uppercase}
+.tv-pross .tv-sep{display:block;margin-top:.6cqmin}
+.tv .fuori{text-decoration:line-through;opacity:.5}
+.tv .t-pg{color:#ECE3D1}.tv .t-alleato{color:#BFD8B0}.tv .t-nemico{color:#F0B48A}
+.tv-agisce .t-pg,.tv-agisce .t-alleato,.tv-agisce .t-nemico{color:#D4A84B}
+.tv-attesa{font-size:4.2cqmin;color:#A5977F}
+.tv-piede{margin-top:auto;font-size:4.4cqmin;color:#A5977F;display:flex;gap:3cqmin;flex-wrap:wrap}
+.tv-quieto{margin:auto 0;display:flex;flex-direction:column;gap:3cqmin;text-align:center}
+.tv-data{font-family:'Spectral SC',Georgia,serif;font-size:9cqmin;color:#D4A84B;line-height:1.15}
+.tv-meteo{font-size:7cqmin}
+.tv-nulla{margin:auto;font-size:5cqmin;color:#6E624F}`;
+function htmlTV(st) {
+  const h = s => esc(s);
+  if (!st || !st.campagna) return '<div class="tv"><div class="tv-c"><div class="tv-nulla">Nessuna campagna aperta</div></div></div>';
+  if (!st.combattimento) {
+    if (st.vuota) return '<div class="tv"><div class="tv-c"><div class="tv-nulla">Nessun combattimento</div></div></div>';
+    return `<div class="tv"><div class="tv-c"><div class="tv-quieto">${st.data ? `<div class="tv-data">${h(st.data)}</div>` : ''}${st.meteo ? `<div class="tv-meteo">${h(st.meteo)}</div>` : ''}</div></div></div>`;
+  }
+  const v = x => `<span class="t-${x.tipo}${x.fuori ? ' fuori' : ''}">${h(x.nome)}</span>`;
+  let sep = null; const pross = [], resto = [];
+  for (const x of st.ordine) {
+    if (x.separatore) { sep = x.round; continue; }
+    if (x.livello === 'agisce') continue;
+    const s = sep !== null ? `<span class="tv-sep">Round ${sep}</span>` : ''; sep = null;
+    if (x.livello === 'prossimo') pross.push(s + v(x)); else { if (s) resto.push(s); resto.push(v(x)); }
+  }
+  const tm = st.timer ? `<span class="tv-timer${st.timer.oltre ? ' oltre' : ''}">${h(st.timer.testo)}${st.timer.pausa ? '<span class="p">⏸ in pausa</span>' : ''}</span>` : '';
+  const piede = [st.data, st.meteo].filter(Boolean).map(x => `<span>${h(x)}</span>`).join('');
+  return `<div class="tv"><div class="tv-c"><div class="tv-round">Round ${st.round}</div>
+    <div class="tv-lab">Ora agisce</div><div class="tv-agisce">${st.agisce ? v(st.agisce) : '<span>—</span>'}${tm}</div>
+    ${pross.length ? `<div class="tv-lab">Prossimi</div><div class="tv-pross">${pross.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
+    ${resto.length ? `<div class="tv-resto">${resto.join('')}</div>` : ''}
+    ${st.attesa && st.attesa.length ? `<div class="tv-attesa">In attesa: ${st.attesa.map(h).join(', ')}</div>` : ''}
+    ${piede ? `<div class="tv-piede">${piede}</div>` : ''}</div></div>`;
+}
+// stato della TV nella pagina: manuale = F9 o menu, valido fino al prossimo evento automatico (inizio o fine del combattimento, altra campagna)
+const TV = { manuale: null, campId: undefined, comb: null, visibile: false, modo: null, win: null, apertura: null, ultimo: '', ultimoDesk: '', chiudoIo: false };
+const RIQ_DEF = () => window.innerWidth < 600 ? { x: 8, y: window.innerHeight - 228, w: window.innerWidth - 16, h: 220 } : { x: window.innerWidth - 492, y: 72, w: 480, h: 270 };
+const Riq = (() => { let p = null; try { p = JSON.parse(leggiPref('tv-riquadro') || 'null'); } catch (e) { p = null; } return { pos: p && p.pos || null, bloccata: !!(p && p.bloccata), usa: leggiPref('tv-usa-riquadro') === '1' }; })();
+function salvaRiq() { scriviPref('tv-riquadro', JSON.stringify({ pos: Riq.pos, bloccata: Riq.bloccata })); }
+function campTV() { return S.schermata === 'campagne' ? null : S.camp; }
+function aggiornaTV() {
+  if (ANDROID) return;
+  const c = campTV(), id = c ? c.id : null, comb = !!(c && c.combattimento);
+  if (TV.campId !== id || TV.comb !== comb) { TV.manuale = null; TV.campId = id; TV.comb = comb; }
+  const st = M.statoTV(c, MET, Date.now()), vis = M.tvVisibile(st, c, TV.manuale), html = htmlTV(st);
+  TV.visibile = vis;
+  const b = $('#btn-tv'); if (b) b.classList.toggle('oro', vis);
+  if (TVDESK) { const k = JSON.stringify([vis, html, M.f10Attivo(c)]); if (k !== TV.ultimoDesk) { TV.ultimoDesk = k; TVDESK.stato({ visibile: vis, html, css: CSS_TV, f10: M.f10Attivo(c) }); } return; }
+  if (vis) mostraWeb(html); else nascondiWeb();
+}
+function corpoWeb() {
+  if (TV.modo === 'riquadro') return $('#tv-riquadro .tv-riq-corpo');
+  if ((TV.modo === 'pip' || TV.modo === 'popup') && TV.win && !TV.win.closed) return TV.win.document.getElementById('tv-corpo');
+  return null;
+}
+function mostraWeb(html) {
+  const cor = corpoWeb();
+  if (cor) { if (TV.ultimo !== html) { cor.innerHTML = html; TV.ultimo = html; } return; }
+  if (TV.apertura) return;
+  TV.apertura = apriWeb().then(() => { TV.apertura = null; TV.ultimo = ''; aggiornaTV(); }, () => { TV.apertura = null; });
+}
+function nascondiWeb() {
+  if (TV.modo === 'riquadro') { const r = $('#tv-riquadro'); if (r) r.hidden = true; }
+  else if (TV.win && !TV.win.closed) { TV.chiudoIo = true; try { TV.win.close(); } catch (e) { /* già chiusa */ } TV.chiudoIo = false; }
+  TV.modo = null; TV.win = null; TV.ultimo = '';
+}
+function preparaDocTV(w) {
+  const d = w.document; d.title = 'Schermo del Narratore — TV';
+  for (const l of document.querySelectorAll('link[rel="stylesheet"]')) d.head.appendChild(l.cloneNode());
+  const s = d.createElement('style'); s.textContent = CSS_TV + 'html,body{margin:0;height:100%;background:#15120E}#tv-corpo{height:100%}'; d.head.appendChild(s);
+  d.body.innerHTML = '<div id="tv-corpo"></div>';
+  d.addEventListener('keydown', tastoTV);
+}
+async function apriWeb() {
+  if (Riq.usa) return apriRiquadro();
+  if (window.documentPictureInPicture) {
+    try {
+      const w = await window.documentPictureInPicture.requestWindow({ width: 640, height: 360 });
+      preparaDocTV(w); TV.win = w; TV.modo = 'pip';
+      w.addEventListener('pagehide', () => { if (TV.win !== w) return; TV.win = null; TV.modo = null; TV.ultimo = ''; if (!TV.chiudoIo) { TV.manuale = false; aggiornaTV(); } });
+      return;
+    } catch (e) { /* non disponibile qui (pagina incorporata, nessun gesto): si prova la finestra del browser */ }
+  }
+  let w = null; try { w = window.open('', 'schermo-tv', 'popup,width=640,height=360'); } catch (e) { w = null; }
+  if (w) { try { preparaDocTV(w); TV.win = w; TV.modo = 'popup'; avviso('Picture-in-Picture non disponibile qui: TV in una finestra del browser'); return; } catch (e) { try { w.close(); } catch (e2) { /* niente */ } } }
+  apriRiquadro(); avviso('Picture-in-Picture non disponibile qui: TV nel riquadro');
+}
+function apriRiquadro() {
+  let r = $('#tv-riquadro');
+  if (!r) {
+    document.body.insertAdjacentHTML('beforeend', '<div id="tv-riquadro" class="tv-riq" role="region" aria-label="Finestra TV" hidden><div class="tv-riq-barra"><b>TV</b><span class="tenue piccolo">trascina da qui</span></div><div class="tv-riq-corpo"></div></div>');
+    r = $('#tv-riquadro'); attivaRiquadro(r);
+  }
+  posizionaRiq(r); r.hidden = false; TV.modo = 'riquadro'; TV.ultimo = '';
+}
+function posizionaRiq(r) {
+  const p = Riq.pos || RIQ_DEF(), W = window.innerWidth, H = window.innerHeight;
+  const w = Math.min(Math.max(200, p.w), W), h = Math.min(Math.max(120, p.h), H);
+  r.style.width = w + 'px'; r.style.height = h + 'px';
+  r.style.left = Math.min(Math.max(0, p.x), W - Math.min(w, W)) + 'px'; r.style.top = Math.min(Math.max(0, p.y), H - 40) + 'px';
+  r.classList.toggle('bloccata', Riq.bloccata);
+}
+function attivaRiquadro(r) {
+  const barra = r.querySelector('.tv-riq-barra'); let tr = null;
+  barra.addEventListener('pointerdown', ev => { if (Riq.bloccata) return; tr = { x: ev.clientX, y: ev.clientY, l: r.offsetLeft, t: r.offsetTop }; barra.setPointerCapture(ev.pointerId); });
+  barra.addEventListener('pointermove', ev => { if (!tr) return; r.style.left = Math.max(0, tr.l + ev.clientX - tr.x) + 'px'; r.style.top = Math.max(0, tr.t + ev.clientY - tr.y) + 'px'; });
+  barra.addEventListener('pointerup', () => { if (!tr) return; tr = null; ricordaRiq(r); });
+  if (window.ResizeObserver) new ResizeObserver(() => { if (!r.hidden && TV.modo === 'riquadro') ricordaRiq(r); }).observe(r);
+}
+function ricordaRiq(r) { const p = { x: r.offsetLeft, y: r.offsetTop, w: r.offsetWidth, h: r.offsetHeight }; if (p.w && p.h) { Riq.pos = p; salvaRiq(); } }
+function tastoTV(ev) {
+  if (ANDROID) return;
+  if (ev.key === 'F9') { ev.preventDefault(); mostraNascondiTV(); }
+  else if (ev.key === 'F10' && M.f10Attivo(campTV())) { ev.preventDefault(); prova(() => AZ.cmd({ dataset: { c: 'avanti' } })); }
+}
+function mostraNascondiTV() { TV.manuale = !TV.visibile; aggiornaTV(); }
+document.addEventListener('keydown', tastoTV);
+if (TVDESK) {
+  TVDESK.suTasto(k => { if (k === 'F9') mostraNascondiTV(); else if (k === 'F10' && M.f10Attivo(campTV())) prova(() => AZ.cmd({ dataset: { c: 'avanti' } })); });
+  TVDESK.suAvviso(t => avviso(t, true));
+}
+setInterval(() => { if (TV.win && TV.win.closed && TV.modo === 'popup') { TV.win = null; TV.modo = null; TV.manuale = false; } aggiornaTV(); }, 1000);
+window.addEventListener('resize', () => { const r = $('#tv-riquadro'); if (r && !r.hidden) posizionaRiq(r); });
+// menu TV della testata (AD3, AD5)
+async function finestraTV() {
+  const info = TVDESK ? await TVDESK.info() : { schermi: 1, bloccata: Riq.bloccata };
+  const dove = TVDESK ? 'finestra sopra gli altri programmi' : TV.modo === 'pip' ? 'Picture-in-Picture' : TV.modo === 'popup' ? 'finestra del browser' : TV.modo === 'riquadro' ? 'riquadro nella pagina' : '';
+  const f10 = S.camp && S.camp.impostazioni.f10;
+  apri({ titolo: 'Finestra TV', corpo: `<p>${TV.visibile ? '<span class="chip ok">TV visibile</span>' : '<span class="chip">TV nascosta</span>'}${TV.visibile && dove ? ` <span class="tenue piccolo">${dove}</span>` : ''}</p>
+      <p class="tenue piccolo">F9 mostra o nasconde la TV ${TVDESK ? 'da qualsiasi programma, Foundry compreso' : 'con il fuoco sulla pagina (i tasti globali ci sono solo nell\'app Windows)'}.${f10 ? ` F10: turno successivo durante il combattimento.` : ''}${S.camp && S.camp.impostazioni.tv_solo_combattimento ? ' La TV si apre da sola all\'avvio del combattimento e si chiude alla fine.' : ''}</p>
+      <div class="fila"><button class="btn prim" type="button" data-tv="mostra">${TV.visibile ? 'Nascondi' : 'Mostra'} (F9)</button>
+        <button class="btn" type="button" data-tv="sposta" ${TVDESK && info.schermi > 1 ? '' : 'disabled'}>Sposta sulla TV</button>
+        <button class="btn" type="button" data-tv="ripristina">Ripristina</button></div>
+      ${!TVDESK ? '<p class="tenue piccolo">«Sposta sulla TV» c\'è solo nell\'app Windows.</p>' : info.schermi < 2 ? '<p class="tenue piccolo">Un solo schermo collegato.</p>' : ''}
+      <label class="spunta"><input type="checkbox" name="blocca" ${info.bloccata ? 'checked' : ''}> Blocca posizione</label>
+      ${TVDESK ? '' : `<label class="spunta"><input type="checkbox" name="riq" ${Riq.usa ? 'checked' : ''}> Usa il riquadro <span class="tenue piccolo">(al posto del Picture-in-Picture)</span></label>`}`,
+    dopo: el => {
+      el.addEventListener('click', async ev => { const b = ev.target.closest('[data-tv]'); if (!b) return;
+        const k = b.dataset.tv, id = el.dataset.fin;
+        try {
+          if (k === 'mostra') mostraNascondiTV();
+          else if (k === 'sposta') { const r = await TVDESK.comando('sposta'); if (r && r.errore) throw new Error(r.errore); avviso('TV spostata sullo schermo ' + r.schermo); }
+          else if (k === 'ripristina') { if (TVDESK) await TVDESK.comando('ripristina'); else { Riq.pos = null; Riq.bloccata = false; salvaRiq(); const r = $('#tv-riquadro'); if (r) posizionaRiq(r); } avviso('Posizione e dimensione predefinite'); }
+          chiudi(id);
+        } catch (e) { avviso(e.message, true); } });
+      el.addEventListener('change', async ev => {
+        if (ev.target.name === 'blocca') { if (TVDESK) await TVDESK.comando(ev.target.checked ? 'blocca' : 'sblocca'); else { Riq.bloccata = ev.target.checked; salvaRiq(); const r = $('#tv-riquadro'); if (r) r.classList.toggle('bloccata', Riq.bloccata); } }
+        if (ev.target.name === 'riq') { Riq.usa = ev.target.checked; scriviPref('tv-usa-riquadro', Riq.usa ? '1' : ''); if (TV.visibile) { nascondiWeb(); aggiornaTV(); } }
+      });
+    } });
+}
+// nome per i giocatori a combattimento iniziato (AD2)
+function finestraNomeTv(id) {
+  const r = S.camp.combattimento.righe[id]; if (!r) return;
+  apri({ titolo: 'Nome per i giocatori', corpo: `<p class="tenue piccolo">${esc(M.etichetta(r))}: sulla TV compare questo nome al posto di quello vero. Vuoto = nome vero.</p>
+      <label class="campo"><span>Nome TV</span><input type="text" name="n" value="${esc(r.nomeTv || '')}" placeholder="es. Figura incappucciata"></label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => applica(M.comando(S.camp, 'nomeTv', { id, nomeTv: testo(f, 'n') }, MET, rng, Date.now())) }] });
+}
+Object.assign(AZ, { menuTV() { return finestraTV(); }, nomeTv(el) { finestraNomeTv(el.dataset.id); } });
+
 // ================================================================= avvio
 async function ricaricaElenco() {
   try { S.elenco = (await Archivio.lista()).sort((a, b) => (b.modificata || 0) - (a.modificata || 0)); }
   catch (e) { S.elenco = []; avviso('Archivio non leggibile: ' + e.message, true); }
   disegna();
 }
+if (!ANDROID) document.head.insertAdjacentHTML('beforeend', `<style id="css-tv">${CSS_TV}</style>`);
 (async () => { try { const b = await Archivio.leggiBestiario(); Best.mostri = (b && b.mostri) || []; Best.generici = (b && b.generici) || []; } catch (e) { avviso('Bestiario non leggibile: ' + e.message, true); } ricaricaElenco(); })();
 </script>

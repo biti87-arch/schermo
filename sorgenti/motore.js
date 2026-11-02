@@ -1010,7 +1010,7 @@ function righeDa(c, x, rng) {
   const riga = (nome, k) => { const nat = d(20, rng); return { id: prossimoId(c, 'r'), tipo: 'nemico', nome, bonus: x.bonus || 0, nat, totale: tiroIniziativa(nat, x.bonus || 0, pen), n: k, spareggio: d(20, rng), stato: 'attivo', prepara: null, nascosta: !!x.nascosto, nomeTv: x.nomeTv || '', malus: [],
     rif: x.rif ? clona(x.rif) : null, pf: pf ? Array.from({ length: k }, () => clona(pf)) : null, faticaFinita: false, alleato: !!x.alleato }; };
   if (n === 1) out.push(riga(x.nome, 1));
-  else if (x.modo === 'singolo') for (let i = 1; i <= n; i++) out.push(riga(`${x.nome} ${i}`, 1));
+  else if (x.modo === 'singolo') for (let i = 1; i <= n; i++) { const r = riga(`${x.nome} ${i}`, 1); if (r.nomeTv) r.nomeTv = `${r.nomeTv} ${i}`; out.push(r); }
   else out.push(riga(x.nome, n));
   return out;
 }
@@ -1117,7 +1117,12 @@ const COMANDI = {
     if (i >= 0) { cb.ordine.splice(i, 1); if (i < cb.turno) cb.turno--; if (cb.turno >= cb.ordine.length) cb.turno = 0; }
     cb.attesa = cb.attesa.filter(x => x !== a.id); log(c, `${etichetta(cb.righe[a.id])} tolto dall'iniziativa`); delete cb.righe[a.id]; return c;
   },
-  nascondi(c, a) { const r = c.combattimento.righe[a.id]; r.nascosta = !!a.nascosta; return c; },
+  nascondi(c, a) { const r = c.combattimento.righe[a.id]; r.nascosta = !!a.nascosta; log(c, `${etichetta(r)} ${r.nascosta ? 'nascosta sulla TV' : 'rivelata sulla TV'}`); return c; },
+  nomeTv(c, a) { // AD2: nome per i giocatori a combattimento iniziato (vuoto = nome vero)
+    const r = c.combattimento.righe[a.id]; if (!r) throw new Error('riga non trovata'); if (r.tipo === 'pg') throw new Error('i PG compaiono con il loro nome');
+    const prima = r.nomeTv || ''; r.nomeTv = String(a.nomeTv || '').trim();
+    if (prima !== r.nomeTv) log(c, `${etichetta(r)}: sulla TV ${r.nomeTv ? `«${r.nomeTv}»` : 'con il nome vero'}`); return c;
+  },
   correggi(c, a) { // correzione a mano del totale: la creatura viene ricollocata
     const cb = c.combattimento, r = cb.righe[a.id]; if (!Number.isInteger(a.totale)) throw new Error('totale non valido');
     const corrente = cb.ordine[cb.turno]; r.totale = a.totale;
@@ -3305,6 +3310,57 @@ function stallaggio(camp, ids) {
   log(c, `Stallaggio (${moneta(S3.mr * an.length)}): ${an.map(a => a.nome).join(', ')} — oggi non consumano foraggio né acqua`); return c;
 }
 
+// ================================================================== Build 4: finestra TV (sezione AD)
+// AD1, AD2: nome sulla TV (nome per i giocatori, «×N» se l'impostazione è accesa)
+function nomeTvDi(r, imp) { const base = r.nomeTv || r.nome; return r.n > 1 && (!imp || imp.tv_xn !== false) ? `${base} ×${r.n}` : base; }
+// AD1, AD4: tutto ciò che la TV mostra (mai PF, malus, condizioni, tattiche, nomi veri)
+function statoTV(camp, meteo, oraReale) {
+  if (!camp) return { campagna: null, combattimento: false, data: null, meteo: null, vuota: true };
+  const imp = { ...IMPOSTAZIONI, ...(camp.impostazioni || {}) }, cb = camp.combattimento;
+  let met = null;
+  if (imp.tv_meteo && meteo) { try { const m = meteoCorrente(camp, meteo); if (m) met = (m.ora && m.ora.length ? m.ora : m.voci).join(' + '); } catch (e) { met = null; } }
+  const st = { campagna: camp.nome, combattimento: !!cb, data: imp.tv_ora ? formatoData(camp) : null, meteo: met, vuota: false };
+  if (!cb) { st.vuota = !st.data && !st.meteo; return st; }
+  const n = cb.ordine.length, visibile = r => r && !r.nascosta && !(r.stato === 'fuori' && imp.tv_fuori === 'tolte');
+  const agibile = r => visibile(r) && r.stato !== 'fuori';
+  const tipo = r => r.tipo === 'pg' ? 'pg' : r.alleato ? 'alleato' : 'nemico';
+  // chi agisce: il corrente o, se è nascosto, il prossimo visibile (il turno nascosto non si vede)
+  let k0 = -1;
+  for (let k = 0; k < n; k++) { const i = (cb.turno + k) % n; if (agibile(cb.righe[cb.ordine[i]])) { k0 = i; break; } }
+  const anticipato = k0 >= 0 && k0 !== cb.turno;
+  const round = cb.round + (k0 >= 0 && k0 < cb.turno ? 1 : 0);
+  st.round = round; st.ordine = []; st.agisce = null;
+  if (k0 >= 0) {
+    let prossimi = 0;
+    for (let k = 0; k < n; k++) {
+      const i = (k0 + k) % n, r = cb.righe[cb.ordine[i]];
+      if (k > 0 && i === 0) st.ordine.push({ separatore: true, round: round + 1 });
+      if (!visibile(r)) continue;
+      let livello = 'resto';
+      if (k === 0) livello = 'agisce'; else if (r.stato !== 'fuori' && prossimi < 2) { livello = 'prossimo'; prossimi++; }
+      const v = { nome: nomeTvDi(r, imp), tipo: tipo(r), fuori: r.stato === 'fuori', livello };
+      st.ordine.push(v); if (k === 0) st.agisce = v;
+    }
+  } else for (const id of cb.ordine) { const r = cb.righe[id]; if (visibile(r)) st.ordine.push({ nome: nomeTvDi(r, imp), tipo: tipo(r), fuori: r.stato === 'fuori', livello: 'resto' }); }
+  st.attesa = cb.attesa.map(id => cb.righe[id]).filter(agibile).map(r => nomeTvDi(r, imp));
+  st.timer = null;
+  if (imp.timer && imp.timer_tv && cb.timer && st.agisce && st.agisce.tipo !== 'nemico') {
+    if (anticipato) st.timer = { testo: '0:00', oltre: false, pausa: false };
+    else { const L = timerLetture(cb, oraReale || 0); st.timer = { testo: mmss(L.turno), oltre: imp.soglia_timer > 0 && L.turno > imp.soglia_timer * 1000, pausa: L.inPausa }; }
+  }
+  return st;
+}
+// AD1, AD3: la finestra è visibile? (manuale = F9 o menu fino al prossimo evento automatico; null = automatico)
+function tvVisibile(st, camp, manuale) {
+  if (manuale === true || manuale === false) return manuale;
+  if (!st || !camp) return false;
+  if (st.combattimento) return true;
+  const imp = { ...IMPOSTAZIONI, ...(camp.impostazioni || {}) };
+  return !imp.tv_solo_combattimento && !st.vuota;
+}
+// AD3: F10 attivo solo con l'impostazione accesa e un combattimento in corso
+function f10Attivo(camp) { return !!(camp && camp.combattimento && camp.impostazioni && camp.impostazioni.f10); }
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -3328,6 +3384,7 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   usaProntuario, AREE_GUIDA, areeGuida, impostaContatore, usaMedicinali, puoProntoSoccorso, prontoSoccorso, fermaSanguinamento, trattaVeleno, trattaMalattia,
   risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
   avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
-  trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio };
+  trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
+  nomeTvDi, statoTV, tvVisibile, f10Attivo };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

@@ -1,0 +1,551 @@
+{
+ "formato": "schermo-v1",
+ "tipo": "campagna",
+ "dati": {
+  "formato": "schermo-v1",
+  "id": "mokllts0jaf1ru35",
+  "nome": "Campagna della Build 3b",
+  "creata": 1777500000000,
+  "modificata": 1777500005000,
+  "calendario": {
+   "tipo": "reale",
+   "mesi": [
+    {
+     "nome": "gennaio",
+     "giorni": 31
+    },
+    {
+     "nome": "febbraio",
+     "giorni": 28
+    },
+    {
+     "nome": "marzo",
+     "giorni": 31
+    },
+    {
+     "nome": "aprile",
+     "giorni": 30
+    },
+    {
+     "nome": "maggio",
+     "giorni": 31
+    },
+    {
+     "nome": "giugno",
+     "giorni": 30
+    },
+    {
+     "nome": "luglio",
+     "giorni": 31
+    },
+    {
+     "nome": "agosto",
+     "giorni": 31
+    },
+    {
+     "nome": "settembre",
+     "giorni": 30
+    },
+    {
+     "nome": "ottobre",
+     "giorni": 31
+    },
+    {
+     "nome": "novembre",
+     "giorni": 30
+    },
+    {
+     "nome": "dicembre",
+     "giorni": 31
+    }
+   ],
+   "settimana": [
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
+   ],
+   "settimana0": 3
+  },
+  "anno": {
+   "base": 1462,
+   "etichetta": "dopo la Caduta"
+  },
+  "tempo": {
+   "R": 2308210
+  },
+  "zona": "1",
+  "varianti": {},
+  "meteo": {
+   "giorno": 160,
+   "zona": "1",
+   "stagione": "primavera",
+   "tiro": null,
+   "testo": "Clima mite",
+   "opzioni": [
+    [
+     "Clima mite"
+    ]
+   ],
+   "scelta": 0,
+   "manuale": true
+  },
+  "previsioni": null,
+  "scorte": {
+   "cibo": 12,
+   "acqua": 12,
+   "foraggio": 4,
+   "cibo_avariato": 0,
+   "acqua_impura": 0,
+   "recipienti": true
+  },
+  "razionamenti": [],
+  "foraggiato": null,
+  "compagnia": {
+   "senza_nome": 1,
+   "persone": [
+    {
+     "id": "a3",
+     "nome": "Mira",
+     "ruolo": "",
+     "rif": null,
+     "stato": {
+      "fame": {
+       "giorni_senza": 0,
+       "penalita": 0
+      },
+      "sete": {
+       "giorni_senza": 0,
+       "penalita": 0
+      }
+     }
+    }
+   ],
+   "animali": []
+  },
+  "pg": [
+   {
+    "id": "p1",
+    "scheda": {
+     "nome": "Aria",
+     "giocatore": "",
+     "razza": "Elfa",
+     "classe": "Ladro 7",
+     "livello": 7,
+     "fatica_max": 42,
+     "ferita_max": 40,
+     "rif_dadi": 1,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 19,
+     "ca_contatto": 10,
+     "ca_sprovvista": 10,
+     "dmc": 10,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 5,
+     "riflessi": 9,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 12,
+     "intuizione": 0,
+     "furtivita": 0,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 6,
+     "imp_pen": 3,
+     "velocita": "9 m",
+     "sensi": "",
+     "note": "",
+     "cerusico": 0,
+     "erborista": false,
+     "erborista_gradi": 0
+    },
+    "stato": {
+     "fatica": 42,
+     "ferita": 40,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 1,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m4",
+       "tipo": "bonus",
+       "nome": "Unguento (Clima)",
+       "R": 2308210,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {
+        "altro": "Per 24 ore, si è considerati indossare abiti estivi o invernali (non si diventa cioè affaticati dopo 1 ora in ambienti caldi o freddi)."
+       },
+       "etichetta": "",
+       "fonte": "Professione (erborista)",
+       "tb": "alchemico",
+       "durata": {
+        "tipo": "tempo",
+        "fine": 2322610,
+        "n": 24,
+        "unita": "ore"
+       },
+       "unguento": true
+      },
+      {
+       "id": "m7",
+       "tipo": "altro",
+       "nome": "Trattenere il fiato",
+       "R": 2308210,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "annegamento",
+       "durata": {
+        "tipo": "round",
+        "fine": 2308234,
+        "n": 24
+       },
+       "apnea": {
+        "fase": "fiato",
+        "cd": 10
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "p2",
+    "scheda": {
+     "nome": "Bruno",
+     "giocatore": "",
+     "razza": "Nano",
+     "classe": "Guerriero 7",
+     "livello": 7,
+     "fatica_max": 48,
+     "ferita_max": 49,
+     "rif_dadi": 1,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 21,
+     "ca_contatto": 10,
+     "ca_sprovvista": 10,
+     "dmc": 10,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 9,
+     "riflessi": 4,
+     "volonta": 4,
+     "ts_note": "",
+     "percezione": 7,
+     "intuizione": 0,
+     "furtivita": 0,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 2,
+     "imp_pen": 6,
+     "velocita": "6 m",
+     "sensi": "",
+     "note": "",
+     "cerusico": 0,
+     "erborista": false,
+     "erborista_gradi": 0
+    },
+    "stato": {
+     "fatica": 48,
+     "ferita": 49,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 1,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": []
+    }
+   }
+  ],
+  "combattimento": null,
+  "coda": [],
+  "log": [
+   {
+    "R": 2308200,
+    "testo": "PG aggiunto: Aria"
+   },
+   {
+    "R": 2308200,
+    "testo": "PG aggiunto: Bruno"
+   },
+   {
+    "R": 2308200,
+    "testo": "Compagnia: Mira si unisce"
+   },
+   {
+    "R": 2308200,
+    "testo": "Campagna creata: Campagna della Build 3b, mercoledì 10 giugno 1462 dopo la Caduta, 07:00"
+   },
+   {
+    "R": 2308200,
+    "testo": "Meteo: Clima mite (d% 51, 1. Pianure e colline temperate, Primavera)"
+   },
+   {
+    "R": 2308200,
+    "testo": "Meteo impostato: Clima mite"
+   },
+   {
+    "R": 2308200,
+    "testo": "— Inizio sessione 1 —",
+    "sessione": 1
+   },
+   {
+    "R": 2308200,
+    "testo": "Medicinali: contatore acceso"
+   },
+   {
+    "R": 2308200,
+    "testo": "Unità di medicinali: 4/10"
+   },
+   {
+    "R": 2308200,
+    "testo": "Erbe miste: contatore acceso"
+   },
+   {
+    "R": 2308200,
+    "testo": "Erbe miste: 6/10"
+   },
+   {
+    "R": 2308210,
+    "testo": "Preparazione della mistura (1 minuti): +1 min → mercoledì 10 giugno 1462 dopo la Caduta, 07:01"
+   },
+   {
+    "R": 2308210,
+    "testo": "Bruno: Unguento (Clima) CD 15, Professione (erborista) 22 riuscita (restano 5 erbe miste)"
+   },
+   {
+    "R": 2308210,
+    "testo": "Aria: bonus Unguento (Clima) (1 g)"
+   },
+   {
+    "R": 2308210,
+    "testo": "Incontri casuali: area «Bosco dei briganti» salvata (30%, 2 righe)"
+   },
+   {
+    "R": 2308210,
+    "testo": "Incontri casuali (Bosco dei briganti): d% 2 su 30% → incontro alle 13:00 (2d12 = 13), mercoledì 10 giugno 1462 dopo la Caduta, 13:00: d% 70: 5 Lupo (2d4) — ululati al tramonto"
+   },
+   {
+    "R": 2308210,
+    "testo": "Aria: malus Trattenere il fiato (24 r)"
+   },
+   {
+    "R": 2308210,
+    "testo": "Marcia: Creatura umanoide a piedi (3.2 km/h), Pianura fuori strada, 3 ore"
+   }
+  ],
+  "impostazioni": {
+   "scorte": true,
+   "xp": false,
+   "pf_nemici": false,
+   "timer": false,
+   "timer_tv": false,
+   "soglia_timer": 0,
+   "incontri_casuali": true,
+   "tv_xn": true,
+   "tv_fuori": "barrate",
+   "tv_ora": false,
+   "tv_meteo": false,
+   "tv_solo_combattimento": true,
+   "f10": false,
+   "tema": "scuro"
+  },
+  "png": [],
+  "incontri": [],
+  "modelli": [],
+  "luci": [],
+  "promemoria": [
+   {
+    "id": "pr6",
+    "testo": "Incontro casuale (Bosco dei briganti): d% 70: 5 Lupo (2d4) — ululati al tramonto",
+    "R": 2311800,
+    "incontro": {
+     "area": "Bosco dei briganti",
+     "tiro": 70,
+     "riga": "61-100",
+     "partecipanti": [
+      {
+       "nome": "Lupo",
+       "n": 5,
+       "dadi": "2d4",
+       "rif": null
+      }
+     ],
+     "testo": "d% 70: 5 Lupo (2d4) — ululati al tramonto"
+    }
+   }
+  ],
+  "tiri": [],
+  "medicinali": {
+   "attivo": true,
+   "n": 4
+  },
+  "erbe": {
+   "attivo": true,
+   "n": 5,
+   "med_giorno": null,
+   "enigma_R": null
+  },
+  "n_comb": 0,
+  "viaggio": {
+   "oggi": {
+    "giorno": 160,
+    "min": 0,
+    "forzata": false,
+    "prove_forzata": 0,
+    "orientarsi": null
+   },
+   "accumulo": 0,
+   "tirato": false,
+   "incontro_in": null,
+   "area": "area5",
+   "speciale": false,
+   "attivo": {
+    "mezzo": "piedi",
+    "kmh": 3.2,
+    "terreno": "pianura",
+    "fuori_strada": true,
+    "racchette": false,
+    "suolo": "nessuno",
+    "resta_min": 180,
+    "resta_km": null,
+    "min": 0,
+    "km": 0,
+    "R0": 2308210,
+    "evento": {
+     "tipo": "orientarsi",
+     "cd": 15,
+     "motivi": []
+    },
+    "sospesa": false,
+    "lasciati": []
+   },
+   "ultima": null
+  },
+  "aree": [
+   {
+    "id": "ar1",
+    "nome": "Terre selvagge",
+    "perc": 20,
+    "speciale": null,
+    "righe": []
+   },
+   {
+    "id": "ar2",
+    "nome": "Caverne e sotterranei",
+    "perc": 15,
+    "speciale": null,
+    "righe": []
+   },
+   {
+    "id": "ar3",
+    "nome": "Montagna",
+    "perc": 10,
+    "speciale": {
+     "nome": "nelle grotte",
+     "perc": 20
+    },
+    "righe": []
+   },
+   {
+    "id": "ar4",
+    "nome": "Bosco",
+    "perc": 10,
+    "speciale": null,
+    "righe": []
+   },
+   {
+    "id": "ar5",
+    "nome": "Campagna e colline; strade di collegamento",
+    "perc": 5,
+    "speciale": null,
+    "righe": []
+   },
+   {
+    "id": "ar6",
+    "nome": "Deserto o desolazione",
+    "perc": 5,
+    "speciale": {
+     "nome": "in oasi e rovine",
+     "perc": 30
+    },
+    "righe": []
+   },
+   {
+    "id": "area5",
+    "nome": "Bosco dei briganti",
+    "perc": 30,
+    "speciale": null,
+    "righe": [
+     {
+      "da": 1,
+      "a": 60,
+      "testo": "appostati sulla strada",
+      "partecipanti": [
+       {
+        "nome": "Brigante",
+        "dadi": "1d4+1",
+        "rif": null
+       }
+      ]
+     },
+     {
+      "da": 61,
+      "a": 100,
+      "testo": "ululati al tramonto",
+      "partecipanti": [
+       {
+        "nome": "Lupo",
+        "dadi": "2d4",
+        "rif": null
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "stallaggio": null,
+  "contatore": 7
+ }
+}

@@ -2,7 +2,7 @@
   "name": "schermo",
   "productName": "Schermo del Narratore",
   "version": "1.0.0",
-  "description": "Schermo del GM della Collana: campagne, PG, iniziativa, orologio e meteo",
+  "description": "Schermo del GM della Collana: campagne, PG, iniziativa con finestra TV, orologio e meteo",
   "author": "Collana",
   "main": "main.js",
   "devDependencies": {
@@ -15,7 +15,11 @@
     "files": [
       "main.js",
       "preload.js",
+      "preload_tv.js",
       "archivio.js",
+      "tv_posizione.js",
+      "tv.html",
+      "tv.js",
       "icon.png",
       "www/**/*"
     ],
