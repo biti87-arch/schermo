@@ -1,0 +1,158 @@
+## Fonti di luce
+[TABELLA]
+| Oggetto | Costo | Slot | Descrizione |
+| Candela x5 | 5 mr | PM | Illumina in un raggio di 3 m. Brucia per 1 ora. Pioggia e vento la spengono. Si spegne se chi la sorregge si muove a più della propria velocità base o al 25% dopo aver effettuato un’azione di attacco. |
+| Torcia | 3 ma | PM | Illumina in un raggio di 9 m. Brucia per 1 ora. Pioggia e vento moderati la spengono. In combattimento, viene considerata un’arma improvvisata ad una mano che infligge 1d3 danni contundenti + 1 danno da fuoco. |
+| Lanterna | 5 mo | PM | Illumina in un raggio di 15 m. Brucia per 3 ore usando 1 Fiaschetta d’olio. Pioggia e vento forti la spengono. Spegnerla è un’azione di round completo. |
+| Lanterna impermeabile | 10 mo | PM | Conta come una Lanterna ma pioggia e vento forti non la spengono. |
+| Lanterna schermabile | 20 mo | PM | Conta come una Lanterna ma come azione veloce si può occultarne temporaneamente la luce. |
+| Lanterna deluxe | 30 mo | PM | Conta come una Lanterna ma pioggia e vento forti non la spengono. Inoltre, come azione veloce si può occultarne temporaneamente la luce. |
+| Fiaschetta d’olio | 1 ma | PM | Contiene mezzo litro d’olio. Se versato è sufficiente per ricoprire 1,5 m quadrati. |
+[/TABELLA]
+## Caschetto portacandela (Empori)
+[TABELLA]
+| Oggetto | Costo | Slot | Descrizione |
+| Caschetto portacandela | 2 mo | — | Copricapo con un anello su cui va inserita una Candela (vedi Fonti di luce). Permette di tenere le mani libere per altre attività. Occupa lo slot testa. |
+[/TABELLA]
+## Locande e taverne
+[TABELLA]
+| Servizio giornaliero | Costo | Descrizione | Effetto |
+| Bevanda alcolica forte | 10 mo | Una bottiglia di alcolico forte sufficiente a cinque robusti sorsi. | Una creatura che beva un numero di sorsi pari a 2 + il doppio del bonus di Costituzione base diventa barcollante per 2 ore. Se supera questo limite cade priva di sensi per 4 ore. Gli effetti di un sorso svaniscono dopo un’ora. |
+| Dormitorio | 4 ma | Pagliericcio in una stanza comune non riscaldata. Bagno esterno. | Punti Fatica massimi ridotti di un quarto per quel giorno. |
+| Giro di bevute per quattro persone | 1 ma | Birra, liquore di scarsa o media qualità, vino della casa. | +2 Diplomazia o +2 Raggirare nei confronti della persona a cui si offre la bevuta. |
+| Stanza per 4 persone | 8 mo | Due letti a castello, pitale e braciere per scaldare la stanza. | — |
+| Stanza per 2 persone | 6 mo | Due letti singoli, due bauli, pitale e braciere per scaldare la stanza. | — |
+| Stanza singola | 8 mo | Letto singolo, baule, pitale e braciere per scaldare la stanza. | — |
+| Suite (1 per locanda) | 20 mo | Letto singolo, armadio, cassapanca, caminetto e bagno in camera. | +1 Punto Fatica massimo per livello per quel giorno (minimo +3 e massimo +10). |
+| Bagno con essenze | 2 mo | Vasca privata con acqua riscaldata, olii, sapone e asciugamani caldi. | +1 Diplomazia e +1 Raggirare per 3 giorni. |
+| Pasto scadente | 2 ma | Una portata di sole verdure acquose con del pane raffermo. | Penalità -1 ai Tiri Salvezza su Tempra per quel giorno. |
+| Pasto | 1 mo | Una portata di carne o pesce di seconda scelta, pane e verdure. | — |
+| Pasto eccellente | 5 mo | Due portate di carne o pesce, pane, verdure, formaggi, frutta, dolci e vino. | Bonus +1 al primo Tiro Salvezza su Tempra effettuato entro 24 ore. |
+| Compagnia intima | 25 mo | Un ragazzo o una ragazza esperti nell’arte amatoria per un’ora. Richiede la prenotazione di una stanza per minimo 2 persone senza altri ospiti. | Bonus +1 al primo Tiro Salvezza su Volontà effettuato entro 24 ore. |
+[/TABELLA]
+## Stalle e negozi di animali
+Stallaggio
+[TABELLA]
+| Servizio giornaliero | Costo | Descrizione |
+| Ricovero giornaliero | 5 ma | L’animale viene accudito, riparato e nutrito per un giorno. |
+[/TABELLA]
+Animali
+[TABELLA]
+| Animale | Costo | Descrizione |
+| Cane da guardia | 15 mo | Questo cane di taglia medio-piccola è addestrato a fare la guardia ma non a combattere. |
+| Cavallo da galoppo | 75 mo | Cavalcabili da creature di taglia media, possono coprire lunghe distanze in breve tempo. Questi equini non sono addestrati per essere cavalcati durante gli scontri e cercheranno di fuggire dal pericolo. I cavalli si rifiuteranno di entrare in luoghi chiusi e spaventosi come dungeon o caverne troppo profonde. |
+| Mulo | 20 mo | Asini e muli non sono adatti ad essere cavalcati ma sono capaci di trasportare carichi pesanti per grandi distanze. Questi animali sono imperturbabili di fronte al pericolo e sono disposti ad entrare nei dungeon o in altri posti strani o minacciosi. |
+| Pony da galoppo | 45 mo | Conta come un Cavallo ma è cavalcabile da creature di taglia piccola. |
+| Uccello | 5 mo | Questo animale viene tenuto in una gabbia ed inizierà a starnazzare in presenza di gas nocivi. |
+[/TABELLA]
+Oggetti di utilità
+[TABELLA]
+| Oggetto | Costo | Descrizione | CD / h |
+| Gabbia minuscola Gabbia piccola Gabbia media Gabbia grande Gabbia enorme | 2 mo 5 mo 10 mo 30 mo 60 mo | Queste gabbie portatili servono in genere a contenere animali, ma possono all’evenienza contenere di tutto. Le gabbie sono fatte di ferro, legno o bambù, secondo i costumi locali e i materiali disponibili. Una gabbia contiene una creatura della propria taglia, o tre una taglia inferiore. Le gabbie per creature acquatiche costano il triplo e pesano molto quando riempite d’acqua. | — |
+| Museruola | 9 ma | La museruola per gli animali (specie quelli carnivori) è obbligatoria nei centri urbani. Questa è regolabile per adattarsi a creature di taglia piccola o media. Per ogni taglia superiore il prezzo aumenta di 5 ma. | 12 / 6 |
+| Sella da carico | 3 mo | Adatta al trasporto di equipaggiamento e provviste di cavalli, pony e muli. L’animale non può essere cavalcato. | 14 / 30 |
+| Sella comune | 6 mo | Strumento utile a montare in arcione, senza il quale si subisce -5 Cavalcare. Se il cavaliere perde i sensi mentre è su una sella comune, ha una probabilità del 50% di rimanere in arcione. | 16 / 36 |
+| Sella militare | 15 mo | Conta come Sella comune ma il cavaliere ha una probabilità del 75% di rimanere in arcione se perde i sensi. | 18 / 42 |
+[/TABELLA]
+## Professione cerusico
+I guaritori sanno come alleviare il dolore, anestetizzare, curare le malattie e neutralizzare i veleni. Inoltre, hanno ottimi fondamenti di anatomia, disciplina tanto necessaria alle loro arti curatorie, quanto utile nel sapere dove colpire i nemici e arrecar loro il maggior danno possibile.
+Chiedere al DM l’apposita Scheda riassuntiva di Professione (cerusico).
+Acquisto dei medicinali: bende, forbici, aghi e fili per sutura, pomate, unguenti, pastiglie sono solo alcuni degli oggetti inclusi nelle unità di medicinali, strumenti essenziali ai cerusici, acquistabili presso Templi e ospedali (vedi paragrafo Equipaggiamento).
+Conservare i medicinali: le unità di medicinali devono essere trasportate all’interno di una borsa medica che può contenere un massimo di 10. Non è possibile conservare le unità di medicinali in altri luoghi senza rovinarne le proprietà. La borsa medica è acquistabile presso Sartorie e mercerie (vedi paragrafo Equipaggiamento).
+Utilizzo dei medicinali: Chiunque abbia Professione (cerusico) può utilizzare le unità di medicinali richieste al fine di effettuare le prove descritte più sotto. Nelle prove di Professione (cerusico) non si può prendere 10 o 20 e i risultati di 20 naturale non contano come 30.
+Limite di medicinali: Per motivi di bilanciamento del gioco, un party non può trasportare più di 10 unità di medicinali.
+Assistenza continua
+Unità di medicinali necessarie: 1 per paziente assistito, con successo o meno.
+Si assiste fino a cinque pazienti per 8 ore o una giornata intera, durante i quali non devono combattere, compiere azioni faticose o effettuare turni di guardia notturni. Un cerusico non può fornire assistenza continua a sé stesso. Durante l’assistenza, il cerusico può compiere altre attività ma dovrà essere in grado di controllare i pazienti almeno una volta ogni due ore (ciò non inficia sul suo stesso riposo). Al risveglio, si effettua per ciascun paziente una prova di Professione (cerusico) con CD 14 + 1 per paziente assistito. Se la prova ha successo, il paziente viene curato in questo modo:
+8 ore di riposo notturno con assistenza continua: 2 Punti Ferita per livello e 2 danni a ciascuna caratteristica, anziché 1 Punto Ferita per livello e 1 danno a ciascuna caratteristica.
+24 ore di riposo totale con assistenza continua: 4 Punti Ferita per livello e 4 danni a ciascuna caratteristica, anziché 2 Punti Ferita per livello e 2 danni a ciascuna caratteristica.
+Pronto soccorso
+Unità di medicinali necessarie: 1 per cura tentata.
+Si sceglie un paziente adiacente che non stia compiendo un’azione intensa e si tenta di curarne le ferite. Ci si deve quindi prendere cura di lui per 5 minuti ed effettuare poi una prova di Professione (cerusico) con CD 15. Se la prova ha successo, il paziente viene curato di un ammontare di danni pari a metà dei gradi posseduti in Professione (cerusico) +1d4 per ogni 5 punti con cui la prova viene superata. Si possono curare in questo modo solamente i danni ai Punti Ferita e non ai Punti Fatica. Trattare sé stessi aumenta di 5 la CD della prova. Una creatura può beneficare del pronto soccorso una sola volta dopo ciascun combattimento.
+Fermare sanguinamento
+Unità di medicinali necessarie: 1 per effetto di [SANGUINAMENTO] trattato, con successo o meno.
+Si sceglie un paziente adiacente che non stia compiendo un’azione intensa e si tenta di porre termine a un effetto di [SANGUINAMENTO] su di lui attivo. Come azione standard si effettua quindi una prova di Professione con CD 10. Se la prova ha successo, l’effetto è rimosso.
+Fermare emorragie e curare ferite gravi
+Si utilizzano le unità di medicinali indicate per ciascuna cura tentata e si effettua la prova necessaria, il tutto come indicato nella tabella. Se la prova riesce, la ferita guarisce dopo il tempo indicato. Se la prova fallisce, si può ritentare dopo il lasso di tempo indicato ma la CD della prova varierà ad ogni nuovo tentativo. Se non si dispone di unità di medicinali è possibile effettuare ugualmente la prova ma con una penalità di -5.
+[TABELLA]
+| Ferita | Unità di medicinali richieste | CD della prova e tempi di guarigione | Ritentare la prova |
+| Emorragia lieve | 1 | CD 15, cura immediata | dopo 1 round, la CD aumenta di 1 ad ogni nuovo tentativo |
+| Emorragia grave | 2 | CD 25, cura immediata | dopo 1d4 round, la CD aumenta di 1 ad ogni nuovo tentativo |
+| Gravità 1 | 1 | CD 15, cura dopo 1 giorno | dopo 1 giorno, la CD diminuisce di 1 ad ogni nuovo tentativo |
+| Gravità 2 | 2 | CD 20, cura dopo 3 giorni | dopo 2 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo |
+| Gravità 3 | 3 | CD 25, cura dopo 7 giorni | dopo 3 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo |
+[/TABELLA]
+Trattare un veleno
+Unità di medicinali necessarie: 1 per effetto di [VELENO] trattato, con successo o meno.
+Si sceglie un paziente adiacente che non stia compiendo un’azione intensa e si tenta di porre termine a un effetto di [VELENO] su di lui attivo. Come azione standard si effettua quindi una prova di Professione (cerusico) con una CD pari alla CD del veleno. Se la prova ha successo, l’effetto è rimosso e vengono inoltre curati 2 degli eventuali danni alle caratteristiche che questo potrebbe aver inflitto al paziente.
+Trattare una malattia
+Unità di medicinali necessarie: 1 per effetto di [MALATTIA] trattato, con successo o meno.
+Prima che riposi per la notte, si somministrano antiepidemici a un paziente con un effetto di [MALATTIA] attivo. Una creatura può essere trattata per un solo effetto di [MALATTIA] alla volta. Affinché il trattamento abbia effetto, il paziente non deve effettuare turni di guardia notturni. Al mattino seguente, si effettua una prova di Professione (cerusico) con una CD pari a quella della malattia. Se la prova ha successo, il paziente ottiene automaticamente uno dei successi necessari a porre termine all’effetto di [MALATTIA] per cui è stato trattato. Questo successo è in aggiunta a quello ottenibile grazie al consueto Tiro Salvezza giornaliero normalmente concesso.
+Conoscenze anatomiche
+Un’accurata conoscenza anatomica può essere fondamentale per assestare colpi più gravi del normale. Un cerusico ottiene un bonus ai danni e ai tiri per confermare i critici in base ai gradi posseduti in Professione (cerusico), in relazione alla creatura contro cui combatte. Non si ottengono questi bonus contro le creature immuni ai colpi critici o ai danni da precisione.
+[TABELLA]
+| Tipo di creatura | Gradi per bonus +1 | Gradi per bonus +2 |
+| Animali e parassiti | 1 | 11 |
+| Umanoidi | 2 | 12 |
+| Umanoidi mostruosi | 3 | 13 |
+| Folletti | 4 | 14 |
+| Non morti | 5 | 15 |
+| Aberrazioni | 6 | 16 |
+| Bestie magiche | 7 | 17 |
+| Costrutti | 8 | 18 |
+| Esterni | 9 | 19 |
+| Draghi | 10 | 20 |
+[/TABELLA]
+## Professione erborista
+Il mondo è un luogo ricco di erbe officinali, funghi velenosi, muschi e bacche dagli effetti più disparati che possono essere trovati nel posto giusto da chi sa cercare: i profani camminano lungo i sentieri dei boschi passando accanto a piante preziose senza accorgersene mentre erboristi esperti rischiano brutti incontri pur di trovare un mazzetto di quella pianta, piuttosto che l’altra.
+Chiedere al DM l’apposita Scheda riassuntiva di Professione (erborista).
+Raccolta delle erbe: salvo sia stato impossibilitato, al termine di una giornata un erborista ha il 45% +1% per ogni grado totale in Professione (erborista) di aver raccolto 1 unità di erbe miste più 1 aggiuntiva se ottiene un risultato pari o inferiore alla metà della propria percentuale di ritrovamento.
+Conservazione: le unità di erbe miste devono essere trasportate all’interno di una borsa da erborista che può contenere un massimo di 10. Non è possibile conservare le unità di erbe miste in altri luoghi senza rovinarne le proprietà. La borsa da erborista è acquistabile presso Sartorie e mercerie (vedi paragrafo Equipaggiamento).
+Limite di erbe miste: per motivi di bilanciamento del gioco, un party non può trasportare più di 10 unità di erbe miste.
+Preparare le misture: si sceglie un tipo di mistura e si trascorre 1d4 minuti nella preparazione. Al termine di questo tempo, si consuma 1 unità di erbe miste e si effettua una prova di Professione (erborista) con la CD indicata nella tabella sottostante. Se la prova ha successo si ottiene una mistura che deve essere utilizzata entro 1 minuto, in caso contrario l’unità di erbe miste è sprecata. Si continua a consumare unità di erbe miste ed effettuare prove fino ad ottenere il numero desiderato di misture. Nelle prove di Professione (erborista) non si può prendere 10 o 20 e i risultati di 20 naturale non contano come 30.
+Dosi multiple: assumere più misture dello stesso tipo resettano solamente l’eventuale durata dell’effetto.
+Unguenti: una creatura può cospargersi contemporaneamente di un solo unguento alla volta ma può impiegare 1d3 minuti sciacquandosi con abbondante acqua per rimuoverne uno dal corpo.
+Poltiglie: una creatura può beneficiare di una sola poltiglia al giorno e inghiottirne altre non sortisce alcun effetto.
+Elenco delle misture
+[TABELLA]
+| CD | Dosi | Mistura | Effetto |
+| Clima |
+| 15 | 2 | Unguento | Per 24 ore, si è considerati indossare abiti estivi o invernali (non si diventa cioè affaticati dopo 1 ora in ambienti caldi o freddi). |
+| Caratteristiche |
+| 20 | 1 | Poltiglia | Dopo 1 ora dall’assunzione, cura 1 danno a una caratteristica a scelta. |
+| 25 | 1 | Poltiglia | Dopo 1 ora dall’assunzione, cura 1d2 danni a una caratteristica a scelta. |
+| 30 | 1 | Poltiglia | Dopo 1 ora dall’assunzione, cura 1d3 danni a una caratteristica a scelta. |
+| 35 | 1 | Poltiglia | Dopo 1 ora dall’assunzione, cura 4 danni a una caratteristica a scelta. |
+| Memoria e Concentrazione |
+| 16 | 1 | Fomenta | Se usata prima di effettuare una prova di Conoscenze, stimola la memoria fornendo dopo 5 minuti bonus alchemico +3. |
+| 20 | 1 | Fomenta | Fornisce bonus alchemico +2 alla prima prova di Concentrazione per lanciare incantesimi sulla difensiva effettuata entro 2 ore dall’utilizzo. |
+| 25 | 1 | Fomenta | Se usata durante un enigma, si può effettuare un tentativo senza che il DM lo conti come fallimento. Si può creare una sola mistura di questo tipo ogni 24 ore. |
+| Creature specifiche |
+| 14 | 2 | Unguento | Sopprime l’odore, fornendo per 4 ore bonus alchemico +3 alle prove di Iniziativa contro animali e parassiti. |
+| 19 | 2 | Unguento | Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [MALEDIZIONE] e contro incantesimi e capacità di folletti e streghe. |
+| 25 | 2 | Unguento | Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro le capacità dei non morti. |
+| Sbronza, Infermità e Nausea |
+| 14 | 2 | Distillato | Fornisce per 1 ora bonus alchemico +4 ai Tiri Salvezza effettuati per non ubriacarsi. In alternativa, se usata prima di coricarsi, al risveglio evita i postumi di una sbronza. |
+| 16 | 2 | Distillato | Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [INFERMITÀ] e [NAUSEA]. |
+| Livelli negativi |
+| 20 | 1 | Impacco | Se usata prima di coricarsi, al risveglio, fornisce bonus alchemico +2 al Tiro Salvezza giornaliero per rimuovere ciascun livello negativo temporaneo ottenuto. |
+| 25 | 1 | Impacco | Se usata prima di coricarsi, al risveglio fornisce il 33% di rimuovere un livello negativo permanente ottenuto. |
+| Malattie |
+| 12 | 2 | Impacco | Se usata prima di coricarsi, al risveglio cura tutti i malanni comuni come febbre, mal di gola, cefalea, tosse, raffreddore, etc. |
+| 16 | 2 | Unguento | Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [MALATTIA] non ancora contratti. |
+| 20 | 1 | Impacco | Se usata prima di coricarsi, al risveglio fornisce bonus alchemico +2 al Tiro Salvezza giornaliero per curare un effetto di [MALATTIA] in atto. |
+| 24 | 2 | Distillato | Fornisce per 24 ore bonus alchemico +4 ai Tiri Salvezza per evitare di contrarre la licantropia o per non trasformarsi una volta contratta. |
+| 35 | 1 | Distillato | Cura in tre giorni una malattia non magica grave come peste, lebbra, colera, tifo, etc. |
+| Paura |
+| 16 | 2 | Unguento | Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [PAURA]. |
+| Riposo e Sonno |
+| 15 | 2 | Fomenta | Se usata prima di coricarsi, garantisce sonni tranquilli e bonus alchemico +6 ai Tiri Salvezza contro le intrusioni oniriche. |
+| 16 | 2 | Unguento | Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [SONNO]. |
+| 18 | 2 | Fomenta | Se usata prima di coricarsi, annulla l’aumento di +10 alla CD delle prove di Percezione (udito) effettuate durante il sonno. |
+| Unità di medicinali |
+| 18 | 1 | − | Una volta al giorno, si possono consumare 2 unità di erbe miste per creare 1 unità di medicinali utilizzabile entro 1 ora tramite Professione (cerusico). |
+| Veleni |
+| 16 | 2 | Unguento | Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [VELENO]. |
+| 16 | 1 | Distillato | Se cosparsa su del cibo (equivalente a cinque pasti), si formano immediatamente minuscole bolle rosse in presenza di veleni o agenti patogeni. |
+| 16 | 1 | Distillato | Altera del cibo equivalente a cinque pasti, affinché chi lo consumi debba superare un Tiro Salvezza su Tempra con CD 12 o cadere addormentato per 1 ora. Una creatura scossa o ferita si sveglia immediatamente. Per ogni unità di erbe miste addizionale la CD aumenta di 1 (massimo CD 18). Questo è un effetto di [SONNO] e [VELENO]. |
+[/TABELLA]

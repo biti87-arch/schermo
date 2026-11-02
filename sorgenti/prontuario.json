@@ -1,0 +1,4766 @@
+{
+ "fonte": "Guida del DM (estratto pdftotext); Vol. 1 2.5.2; Vol. 3 2.5.8; Tabelle del Tempo Atmosferico v1.0",
+ "sezioni": [
+  {
+   "id": "abilita",
+   "nome": "Abilità",
+   "voci": [
+    {
+     "id": "acrobazia",
+     "titolo": "Acrobazia",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Azione: Nessuna, è effettuata come parte di un'altra azione o come reazione ad una situazione."
+      },
+      {
+       "t": "p",
+       "testo": "Speciale: Se si hanno 3 o più gradi in Acrobazia si ottiene Bonus di Schivare +3 alla CA quando si Combatte sulla Difensiva invece del solito +2 e Bonus di Schivare +6 alla CA quando si esegue l'azione di Difesa Totale invece del solito +4."
+      },
+      {
+       "t": "p",
+       "testo": "Muoversi quando si è minacciati (una prova alla volta per ciascun nemico)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Situazione",
+         "CD"
+        ],
+        [
+         "Muoversi a ½ velocità evitando AdO",
+         "DMC dell'avversario +2 cumulativo per ogni avversario oltre il primo"
+        ],
+        [
+         "Muoversi a ½ velocità attraverso lo spazio occupato da un avversario",
+         "5 + DMC dell'avversario +2 per ogni avversario extra evitato in 1 round"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "Muoversi a velocità normale: +10 alla CD."
+      },
+      {
+       "t": "p",
+       "testo": "Fallire: provoca AdO; se si attraversa spazio occupato pone anche termine al movimento."
+      },
+      {
+       "t": "h",
+       "testo": "Salto in lungo"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Distanza",
+         "CD ¹"
+        ],
+        [
+         "1,5 m",
+         "5"
+        ],
+        [
+         "3m",
+         "10"
+        ],
+        [
+         "4,5 m",
+         "15"
+        ],
+        [
+         "6m",
+         "20"
+        ],
+        [
+         "Più di 6 m",
+         "+5 ogni 1,5 metri"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "¹ = raddoppia senza 3 m di rincorsa"
+      },
+      {
+       "t": "p",
+       "testo": "Fallire: se si fallisce di 4 o meno, si può tentare un Tiro Salvezza su Riflessi con CD 20 per afferrare l'estremità opposta. Se si fallisce di 5 o più, si cade proni."
+      },
+      {
+       "t": "h",
+       "testo": "Attutire cadute"
+      },
+      {
+       "t": "p",
+       "testo": "Se si salta in basso intenzionalmente o in conseguenza di un salto fallito, una prova con CD 15 permette di ignorare i primi 3 metri di caduta, sebbene si finisca sempre Proni se si subiscono danni da Caduta."
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "La Superficie è...",
+         "Modificatore ¹"
+        ],
+        [
+         "Leggermente ostruita (sassolini, sabbia)",
+         "+2"
+        ],
+        [
+         "Molto ostruita (caverna, macerie)",
+         "+5"
+        ],
+        [
+         "Leggermente scivolosa (umidità)",
+         "+2"
+        ],
+        [
+         "Molto scivolosa (ghiaccio)",
+         "+5"
+        ],
+        [
+         "Leggermente pendente (<45°)",
+         "+2"
+        ],
+        [
+         "Molto pendente (>45°)",
+         "+5"
+        ],
+        [
+         "Leggermente instabile (barca in acque agitate)",
+         "+2"
+        ],
+        [
+         "Moderatamente instabile (barca in una tempesta)",
+         "+5"
+        ],
+        [
+         "Molto instabile (terremoto)",
+         "+10"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "¹ I modificatori si sommano l'uno con l'altro, ma solo quello più grave per ogni diversa condizione che si applica alla prova."
+      },
+      {
+       "t": "h",
+       "testo": "Camminare su superfici scivolose"
+      },
+      {
+       "t": "p",
+       "testo": "Vedi «Terreni scivolosi» (Pericoli): prova solo oltre metà velocità, CD 15, 20 correndo o caricando."
+      }
+     ]
+    },
+    {
+     "id": "artista",
+     "titolo": "Artista della fuga",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Azione: Effettuare una prova di Artista della fuga per liberarsi da corde, manette o altri impedimenti richiede 1 minuto. Liberarsi da una rete o da un incantesimo di Animare corde, Comandare vegetali, Controllare vegetali o Intralciare è un'azione di round completo."
+      },
+      {
+       "t": "h",
+       "testo": "Sfuggire a varie forme di impedimenti"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Impedimento",
+         "CD"
+        ],
+        [
+         "Corda/Legacci",
+         "BMC di chi lega + 20"
+        ],
+        [
+         "Rete, Animare corde, Comandare vegetali, Controllare vegetali o Intralciare",
+         "20"
+        ],
+        [
+         "Calappio",
+         "23"
+        ],
+        [
+         "Manette",
+         "30"
+        ],
+        [
+         "Spazio ristretto",
+         "30"
+        ],
+        [
+         "Manette perfette",
+         "35"
+        ],
+        [
+         "Lottatore",
+         "DMC del lottatore"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "camuffare",
+     "titolo": "Camuffare",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Azione: Creare un travestimento richiede 1d3×10 minuti di lavoro."
+      },
+      {
+       "t": "p",
+       "testo": "CD: è una prova contrapposta alla Percezione di chi si vuol ingannare ma, se non si desta sospetti, si presuma le persone prendano 10."
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori in base al camuffamento"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Camuffamento",
+         "Modificatori cumulativi"
+        ],
+        [
+         "Solo dettagli minori",
+         "+5"
+        ],
+        [
+         "Camuffato di sesso diverso",
+         "-2"
+        ],
+        [
+         "Camuffato di razza diversa",
+         "-2"
+        ],
+        [
+         "Camuffato di diversa categoria d'età",
+         "-2"
+        ],
+        [
+         "Camuffato di diversa categoria di taglia",
+         "-2"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori relazionali"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Familiarità",
+         "Modificatori"
+        ],
+        [
+         "Conoscenza di vista",
+         "+4"
+        ],
+        [
+         "Amico o associato",
+         "+6"
+        ],
+        [
+         "Amico del cuore",
+         "+8"
+        ],
+        [
+         "Intimo",
+         "+10"
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Senza kit per il camuffamento: penalità −5 (Vol. 1, Prove di abilità)."
+      }
+     ]
+    },
+    {
+     "id": "cavalcare",
+     "titolo": "Cavalcare",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Azione: Montare o smontare è un'azione di movimento. Le altre azioni sono azioni di movimento, azioni gratuite o non sono azioni come indicato sopra."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Azione",
+         "Tipo di azione",
+         "CD"
+        ],
+        [
+         "Guidare con le ginocchia",
+         "−",
+         "5"
+        ],
+        [
+         "Rimanere in sella",
+         "−",
+         "5"
+        ],
+        [
+         "Entrare in combattimento con cavalcatura addestrata",
+         "gratuita",
+         "10"
+        ],
+        [
+         "Caduta attenuata",
+         "−",
+         "15"
+        ],
+        [
+         "Salto",
+         "movimento",
+         "15"
+        ],
+        [
+         "Controllare cavalcatura non addestrata (se si fallisce non si fa altro)",
+         "movimento",
+         "20"
+        ],
+        [
+         "Montare o smontare velocemente",
+         "gratuita",
+         "20"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "conoscenze",
+     "titolo": "Conoscenze",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Arcane: bestie magiche, costrutti, draghi, frasi criptiche, misteri antichi, simboli arcani, tradizioni magiche."
+      },
+      {
+       "t": "p",
+       "testo": "Dungeon: aberrazioni, caverne, esplorazioni sotterranee, melme."
+      },
+      {
+       "t": "p",
+       "testo": "Generali: abitanti, clima, costumi, leggi, personalità, popolazione, terreni, territori, tradizioni, umanoidi."
+      },
+      {
+       "t": "p",
+       "testo": "Ingegneria: acquedotti, costruzioni, fortificazioni, ponti."
+      },
+      {
+       "t": "p",
+       "testo": "Natura: animali, folletti, parassiti, stagioni e cicli, tempo atmosferico, umanoidi mostruosi, vegetali."
+      },
+      {
+       "t": "p",
+       "testo": "Nobiltà: araldica, casate e genealogie, galateo, governanti e linee di successione."
+      },
+      {
+       "t": "p",
+       "testo": "Proibite: demoni, magia legata ai piani, riti esoterici."
+      },
+      {
+       "t": "p",
+       "testo": "Religioni: divinità, mitologia, non morti, simboli sacri, tradizione ecclesiastica."
+      },
+      {
+       "t": "p",
+       "testo": "Scientifiche: elettricità, audiografi, pittogrammi, automaton, innovazioni e scoperte tecnologiche."
+      },
+      {
+       "t": "p",
+       "testo": "Storia e leggende: eventi storici, guerre, migrazioni, fondazione delle città, leggende."
+      },
+      {
+       "t": "h",
+       "testo": "Conoscere nozioni"
+      },
+      {
+       "t": "p",
+       "testo": "CD: 10 per domande decisamente facili, 15 per domande base, 20 per domande complesse e 30 per domande molto complesse."
+      },
+      {
+       "t": "h",
+       "testo": "Identificare mostri"
+      },
+      {
+       "t": "p",
+       "testo": "Una prova con CD 10 + GS della creatura, permette di identificarla e ricordarne 1 caratteristica. Per ogni 5 punti con cui si supera la prova, si viene a conoscenza di un’ulteriore caratteristica."
+      },
+      {
+       "t": "h",
+       "testo": "Conoscenze varie"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Azione",
+         "Abilità di Conoscenza",
+         "CD"
+        ],
+        [
+         "Identificare l'effetto di un incantesimo già attivo",
+         "Arcane",
+         "20 + livello dell'incantesimo"
+        ],
+        [
+         "Identificare un pericolo naturale sotterraneo",
+         "Dungeon",
+         "15 + GS del pericolo"
+        ],
+        [
+         "Identificare un minerale, una roccia o un metallo",
+         "Dungeon",
+         "10"
+        ],
+        [
+         "Determinare la pendenza",
+         "Dungeon",
+         "15"
+        ],
+        [
+         "Determinare la profondità sottoterra",
+         "Dungeon",
+         "20"
+        ],
+        [
+         "Identificare una costruzione pericolante",
+         "Ingegneria",
+         "10"
+        ],
+        [
+         "Determinare l'età e lo stile architettonico di un edificio",
+         "Ingegneria",
+         "15"
+        ],
+        [
+         "Determinare i punti deboli di una struttura",
+         "Ingegneria",
+         "20"
+        ],
+        [
+         "Riconoscere le caratteristiche regionali del terreno",
+         "Generali",
+         "15"
+        ],
+        [
+         "Conoscere la posizione della comunità più vicina o di un sito degno di nota",
+         "Generali",
+         "20"
+        ],
+        [
+         "Conoscere un evento recente o storicamente importante",
+         "Storia e leggende",
+         "10"
+        ],
+        [
+         "Determinare la data approssimativa di un evento specifico",
+         "Storia e leggende",
+         "15"
+        ],
+        [
+         "Conoscere un evento poco noto o di storia antica",
+         "Storia e leggende",
+         "20"
+        ],
+        [
+         "Conoscere le leggi e i governanti locali, e i luoghi popolari",
+         "Generali",
+         "10"
+        ],
+        [
+         "Conoscere una diceria comune o una tradizione locale",
+         "Generali",
+         "15"
+        ],
+        [
+         "Conoscere organizzazioni segrete, i loro capi e la loro ubicazione",
+         "Generali",
+         "20"
+        ],
+        [
+         "Conoscere i governanti attuali e i loro simboli",
+         "Nobiltà",
+         "10"
+        ],
+        [
+         "Conoscere il galateo",
+         "Nobiltà",
+         "15"
+        ],
+        [
+         "Conoscere la linea di successione",
+         "Nobiltà",
+         "20"
+        ],
+        [
+         "Identificare un pericolo naturale",
+         "Natura",
+         "15 + GS del pericolo"
+        ],
+        [
+         "Identificare una pianta o un animale comune",
+         "Natura",
+         "10"
+        ],
+        [
+         "Identificare un fenomeno atmosferico innaturale",
+         "Natura",
+         "15"
+        ],
+        [
+         "Determinare una caratteristica naturale artificiale",
+         "Natura",
+         "20"
+        ],
+        [
+         "Conoscere il nome di un piano extradimensionale",
+         "Proibite",
+         "10"
+        ],
+        [
+         "Riconoscere il simbolo o il clero di una divinità comune",
+         "Religioni",
+         "10"
+        ],
+        [
+         "Conoscere mitologie e dogmi religiosi comuni",
+         "Religioni",
+         "15"
+        ],
+        [
+         "Riconoscere il simbolo o il clero di una divinità poco nota",
+         "Religioni",
+         "20"
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Conoscenze (locali) e Conoscenze (geografia) sono incluse in Conoscenze (generali); Conoscenze (piani) è sostituita da Conoscenze (proibite); Conoscenze (scientifiche) si occupa di tutti quegli aspetti steampunk, come l'elettricità, gli audiografi (registratori vocali), i pittogrammi (fotografie), gli automaton e tutte le innovazioni e le scoperte tecnologiche. Addestrare animali, Linguistica e Guarire sono state rimosse."
+      },
+      {
+       "t": "nota",
+       "fonte": "app",
+       "testo": "Nobiltà, Scientifiche e Storia e leggende: voci scritte dall'app (sintesi dell'app). Le righe «Storia e nobiltà» della tabella della Guida sono divise come in AC2-3."
+      }
+     ]
+    },
+    {
+     "id": "diplomazia",
+     "titolo": "Diplomazia",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "h",
+       "testo": "Cambiare di 1 grado l'atteggiamento dei PNG (richiede 1 minuto)"
+      },
+      {
+       "t": "p",
+       "testo": "Per ogni 5 punti in cui il risultato della prova supera la CD, l'atteggiamento del personaggio aumenta di un grado addizionale (massimo 1 extra). Se si fallisce la prova di 4 o meno, l'atteggiamento del personaggio resta inalterato. Se si fallisce di 5 o più, l'atteggiamento del personaggio scende di un grado."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Atteggiamento Iniziale",
+         "CD"
+        ],
+        [
+         "Ostile",
+         "25 + modificatore di Carisma della creatura"
+        ],
+        [
+         "Maldisposto",
+         "20 + modificatore di Carisma della creatura"
+        ],
+        [
+         "Indifferente",
+         "15 + modificatore di Carisma della creatura"
+        ],
+        [
+         "Amichevole",
+         "10 + modificatore di Carisma della creatura"
+        ],
+        [
+         "Premuroso",
+         "0 + modificatore di Carisma della creatura"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Raccogliere informazioni (richiede da 5 minuti a 1d4 ore)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Richiesta",
+         "Modificatore"
+        ],
+        [
+         "Dare semplici consigli o direzioni",
+         "-5"
+        ],
+        [
+         "Dare consigli specifici",
+         "+0"
+        ],
+        [
+         "Dare un semplice aiuto",
+         "+0"
+        ],
+        [
+         "Rivelare un segreto poco importante",
+         "+5"
+        ],
+        [
+         "Dare un aiuto complicato e lungo",
+         "+5"
+        ],
+        [
+         "Dare un aiuto pericoloso",
+         "+10"
+        ],
+        [
+         "Rivelare un segreto importante",
+         "+10 o più"
+        ],
+        [
+         "Dare un aiuto che potrebbe essere punito",
+         "+15 o più"
+        ],
+        [
+         "Richieste addizionali",
+         "+5 per richiesta"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "CD: 10 per domande decisamente facili, 15 per domande base, 20 o 30 per domande molto complesse."
+      }
+     ]
+    },
+    {
+     "id": "disattivare",
+     "titolo": "Disattivare congegni",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Congegno",
+         "Tempo",
+         "CD ¹",
+         "Esempio"
+        ],
+        [
+         "Semplice",
+         "1 round",
+         "10",
+         "Bloccare una serratura"
+        ],
+        [
+         "Complicato",
+         "1d4 round",
+         "15",
+         "Sabotare una ruota di carro"
+        ],
+        [
+         "Difficile",
+         "2d4 round",
+         "20",
+         "Disarmare una trappola; se si fallisce di 4 o meno, si può ritentare. Se si fallisce di 5 o più la trappola scatta."
+        ],
+        [
+         "Ostico",
+         "2d4 round",
+         "25",
+         "Disarmare una trappola complessa, sabotare astutamente un congegno meccanico"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "¹ = +5 se si tenta di non lasciare tracce della manomissione."
+      },
+      {
+       "t": "p",
+       "testo": "Solo i personaggi con scoprire trappole possono disarmare le trappole magiche."
+      },
+      {
+       "t": "p",
+       "testo": "Tecnologia: penalità di -5 per disattivare congegni “tecnologici” se non si ha Conoscenze (scientifiche) come abilità di classe con almeno 1 grado assegnato."
+      },
+      {
+       "t": "h",
+       "testo": "Scassinare Serrature"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Qualità della serratura",
+         "CD"
+        ],
+        [
+         "Semplice",
+         "20"
+        ],
+        [
+         "Media",
+         "25"
+        ],
+        [
+         "Buona",
+         "30"
+        ],
+        [
+         "Superiore",
+         "40"
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Senza arnesi da scasso: penalità −5 (Vol. 1, Prove di abilità)."
+      }
+     ]
+    },
+    {
+     "id": "furtivita",
+     "titolo": "Furtività",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Prova: La prova di Furtività è contrapposta dalla prova di Percezione di chiunque sia in grado di vedere il personaggio."
+      },
+      {
+       "t": "h",
+       "testo": "Azioni furtive"
+      },
+      {
+       "t": "p",
+       "testo": "Muoversi: È possibile muoversi fino alla metà della velocità normale per round ed usare Furtività senza penalità. Oltre la metà e fino alla propria velocità normale, si subisce penalità -5. È praticamente impossibile usare Furtività mentre si attacca, si corre o si carica."
+      },
+      {
+       "t": "p",
+       "testo": "Distrarre e nascondersi: Se gli osservatori sono momentaneamente distratti (come da una prova di Raggirare), si può tentare una prova di Furtività. Mentre gli altri distolgono la loro attenzione, è possibile tentare una prova di Furtività se si riesce a raggiungere un posto nascosto di qualche tipo. Questa prova, tuttavia, è effettuata con penalità -10 poiché bisogna muoversi velocemente."
+      },
+      {
+       "t": "p",
+       "testo": "Cecchino: Se si supera la prova di Furtività ad almeno 3 metri dal bersaglio, si può compiere un attacco a distanza e poi riusare immediatamente Furtività. Si subisce penalità -20 alla prova di Furtività perché bisogna occultarsi dopo il tiro."
+      },
+      {
+       "t": "h",
+       "testo": "Furtività e Percezione nelle foreste"
+      },
+      {
+       "t": "p",
+       "testo": "In una foresta rada, la massima distanza alla quale effettuare una prova di Percezione può essere efficace per individuare presenze altrui nei dintorni è pari a 3d6 x 3m. In una foresta media, la distanza massima diventa pari a 2d8 x 3m. In una foresta fitta, la distanza massima diventa pari a 2d6 x 3m."
+      }
+     ]
+    },
+    {
+     "id": "intimidire",
+     "titolo": "Intimidire",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "h",
+       "testo": "Cambiare atteggiamento (richiede 1 minuto)"
+      },
+      {
+       "t": "p",
+       "testo": "Si può usare Intimidire per costringere un avversario ad agire in modo amichevole nei propri confronti per 1d6 × 10 minuti con una prova riuscita. La CD della prova è pari a 10 + i Dadi Vita del bersaglio + il modificatore di Saggezza del bersaglio. Se si supera la prova, il bersaglio darà le informazioni richieste, compirà azioni che non lo mettano in pericolo, o offrirà un aiuto limitato. Terminato l'effetto, l'atteggiamento del bersaglio nei propri confronti diventerà maldisposto e potrebbe fare rapporto alle autorità locali. Se si fallisce la prova di 5 o più, il bersaglio fornirà informazioni errate o inutili, oppure frustrerà gli sforzi del personaggio."
+      },
+      {
+       "t": "h",
+       "testo": "Demoralizzare (azione standard)"
+      },
+      {
+       "t": "p",
+       "testo": "Si può utilizzare Intimidire anche per rendere scosso un avversario. La CD della prova è pari a 10 + i Dadi Vita del bersaglio + il bonus di Saggezza del bersaglio. Se si supera la prova, il bersaglio rimane scosso per 1 round. La durata aumenta di 1 round ogni 5 punti con cui si supera la CD. Si può demoralizzare un avversario solo se si trova entro 9 metri e se si è chiaramente a portata di vista e udito. Usando ancora demoralizzare sulla stessa creatura ne estende solo la durata, senza creare una condizione di paura più intensa."
+      },
+      {
+       "t": "p",
+       "testo": "Ritentare: ad ogni tentativo extra la CD aumenta di 5. Questo aumento si annulla dopo che è passata 1 ora."
+      },
+      {
+       "t": "p",
+       "testo": "Speciale: +4 alla prova di Intimidire per ogni categoria di taglia per cui si è più grande del bersaglio e penalità –4 alla prova per ogni categoria di taglia per cui si è più piccoli del bersaglio."
+      }
+     ]
+    },
+    {
+     "id": "intuizione",
+     "titolo": "Intuizione",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Prova: La prova di Intuizione è contrapposta dalla prova di Raggirare di chi sta mentendo al personaggio."
+      },
+      {
+       "t": "h",
+       "testo": "Sospetto"
+      },
+      {
+       "t": "p",
+       "testo": "In base al comportamento altrui, è possibile avere l'impressione che ci sia qualcosa di sbagliato, come quando si parla con un impostore. In alternativa, si può avere la sensazione che qualcuno sia completamente degno di fiducia. La CD della prova è pari a 20."
+      },
+      {
+       "t": "h",
+       "testo": "Percepire ammaliamento"
+      },
+      {
+       "t": "p",
+       "testo": "È possibile capire quando il comportamento di qualcuno è influenzato da un effetto di ammaliamento. La CD della prova è pari a 25, ma se il bersaglio è dominato, la CD è pari a 15 a causa della portata limitata delle capacità del bersaglio."
+      },
+      {
+       "t": "p",
+       "testo": "Ritentare: No, anche se si può effettuare una prova di Intuizione per ogni prova contrapposta di Raggirare effettuata."
+      }
+     ]
+    },
+    {
+     "id": "nuotare",
+     "titolo": "Nuotare",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Tipi di acqua e CD: calma CD 10, Agitata CD 15 e tempestosa CD 20"
+      },
+      {
+       "t": "h",
+       "testo": "Nuotare per lunghi tratti"
+      },
+      {
+       "t": "p",
+       "testo": "Si può sempre prendere 10 alla prova di Nuotare, anche se distratti o minacciati mentre si nuota. Per ogni ora nuotata, occorre superare una prova di Nuotare con CD 20 oppure si subiscono 1d6 danni non letali per l'affaticamento."
+      },
+      {
+       "t": "h",
+       "testo": "Muoversi per piccoli tratti (1 prova per round)"
+      },
+      {
+       "t": "p",
+       "testo": "Una prova di Nuotare effettuata con successo permette di Nuotare alla metà della propria velocità (come Azione di Round Completo) o a un quarto della propria velocità (come Azione di Movimento). Se il tiro fallisce di 4 o meno, non si avanza nell'acqua. Se si fallisce di 5 o più, si finisce sott'acqua."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "La penalità per l'armatura e lo scudo è raddoppiata per l'abilità Nuotare."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Per facilitare i combattimenti in acqua (durante i quali sono richieste continue e ripetute prove di Nuotare) tutti i personaggi, quando non indossano un'armatura pesante, possono prendere 10 nelle prove di Nuotare in acque calme e acque agitate."
+      }
+     ]
+    },
+    {
+     "id": "percezione",
+     "titolo": "Percezione",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "h",
+       "testo": "Olfatto"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Dettaglio",
+         "CD"
+        ],
+        [
+         "Sentire odori forti (decomposizione)",
+         "-10"
+        ],
+        [
+         "Sentire odore di fumo",
+         "0"
+        ],
+        [
+         "Sentire odore di cibo avariato",
+         "5"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Udito"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Dettaglio",
+         "CD"
+        ],
+        [
+         "Una battaglia",
+         "-10"
+        ],
+        [
+         "Persone che parlano",
+         "0"
+        ],
+        [
+         "Una creatura che cammina",
+         "10"
+        ],
+        [
+         "Persone che sussurrano tra loro",
+         "15"
+        ],
+        [
+         "Una serratura che si apre",
+         "20"
+        ],
+        [
+         "Un arco che si tende",
+         "25"
+        ],
+        [
+         "Una creatura che scava nel terreno",
+         "25"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori (udito)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Modificatore",
+         "CD"
+        ],
+        [
+         "Udire attraverso una porta chiusa",
+         "+5"
+        ],
+        [
+         "Udire attraverso un muro",
+         "+10 ogni 30 cm di spessore"
+        ],
+        [
+         "Udire distanti dalla fonte del suono",
+         "+1 ogni 3 metri"
+        ],
+        [
+         "La creatura che ascolta dorme",
+         "+5"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Vista"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Dettaglio",
+         "CD"
+        ],
+        [
+         "Una tipica porta nascosta",
+         "15"
+        ],
+        [
+         "Una tipica porta segreta",
+         "20"
+        ],
+        [
+         "Un borseggiatore",
+         "Contrapposta a Rapidità di Mano"
+        ],
+        [
+         "Una creatura furtiva",
+         "Contrapposta a Furtività"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori (vista)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Modificatore",
+         "CD"
+        ],
+        [
+         "La creatura o l'oggetto sono invisibili",
+         "+20"
+        ],
+        [
+         "La creatura che effettua la prova è distratta",
+         "+5"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "alchimista",
+     "titolo": "Professione (alchimista)",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Identificare pozioni in base al livello dell’incantesimo Liv. 0 CD13; Liv 1 CD 15; Liv. 2 CD 17; Liv. 3 CD 19"
+      }
+     ]
+    },
+    {
+     "id": "raggirare",
+     "titolo": "Raggirare",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Una prova di Raggirare è contrapposta ad una prova di Intuizione da parte della vittima."
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Circostanze",
+         "Modificatore"
+        ],
+        [
+         "La vittima vuole crederci",
+         "+5"
+        ],
+        [
+         "L'inganno è credibile",
+         "0"
+        ],
+        [
+         "L'inganno è un po' difficile da credere",
+         "-5"
+        ],
+        [
+         "L'inganno è molto difficile da credere",
+         "-10"
+        ],
+        [
+         "L'inganno è inverosimile",
+         "-20"
+        ],
+        [
+         "Il bersaglio è ubriaco o menomato",
+         "+5"
+        ],
+        [
+         "Si ha una prova convincente",
+         "Fino a +10"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Fintare (richiede un’azione standard)"
+      },
+      {
+       "t": "p",
+       "testo": "È possibile fintare per far perdere al bersaglio il suo bonus di Destrezza alla CA contro il prossimo attacco in mischia che si compie contro di lui. La CD della prova è pari a 10 + il BaB dell'avversario + il bonus di Saggezza dell'avversario."
+      },
+      {
+       "t": "p",
+       "testo": "Se l'avversario è addestrato in Intuizione, la CD è invece 10 + il bonus di Intuizione dell'avversario, se maggiore."
+      }
+     ]
+    },
+    {
+     "id": "rapidita",
+     "titolo": "Rapidità di mano",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Quando si utilizza questa abilità sotto stretta osservazione, la prova è contrapposta dalla prova di Percezione dell'osservatore. Il successo della prova dell'osservatore non impedisce di compiere l'azione, ma solo di compierla senza essere notati."
+      },
+      {
+       "t": "h",
+       "testo": "Borseggiare"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Azione",
+         "CD"
+        ],
+        [
+         "Fare sparire un oggetto grande come una moneta",
+         "10"
+        ],
+        [
+         "Sfilare un piccolo oggetto a una persona",
+         "20"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Borseggiare in combattimento"
+      },
+      {
+       "t": "p",
+       "testo": "Non si può utilizzare questa abilità per prendere un oggetto ad un'altra creatura durante un combattimento se la creatura è conscia della presenza di chi tenta l’azione."
+      }
+     ]
+    },
+    {
+     "id": "sapienza",
+     "titolo": "Sapienza magica",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Azione",
+         "CD"
+        ],
+        [
+         "Identificare un incantesimo al momento del lancio",
+         "15 + livello dell'incantesimo"
+        ],
+        [
+         "Identificare un oggetto magico generico",
+         "15 + livello dell'incantatore dell'oggetto"
+        ],
+        [
+         "Identificare un oggetto con bonus +X",
+         "15 + 3x bonus di potenziamento totale"
+        ],
+        [
+         "Identificare pozioni in base al livello dell’incantesimo",
+         "Liv. 0 CD16; Liv 1 CD 18; Liv. 2 CD 20; Liv. 3 CD 22"
+        ],
+        [
+         "Decifrare una pergamena",
+         "20 + livello dell'incantesimo"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "Identificare un oggetto maledetto: si deve superare la CD base di 5 punti"
+      }
+     ]
+    },
+    {
+     "id": "scalare",
+     "titolo": "Scalare",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Una prova di Scalare fallita di 4 o meno significa che non si fanno progressi e una prova fallita di 5 o più significa che si cade dall'altezza già raggiunta."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "CD",
+         "Esempio di Superficie o Attività"
+        ],
+        [
+         "0",
+         "Una corda con nodi e una parete d'appoggio."
+        ],
+        [
+         "5",
+         "Una corda liscia con una parete d’appoggio o una corda con nodi."
+        ],
+        [
+         "10",
+         "Una superficie con buone sporgenze o il sartiame di una nave."
+        ],
+        [
+         "15",
+         "Un albero o una corda liscia."
+        ],
+        [
+         "20",
+         "Una superficie con qualche appiglio stretto per mani e piedi, come una tipica parete in un dungeon."
+        ],
+        [
+         "25",
+         "Una parete rocciosa naturale o un muro di mattoni."
+        ],
+        [
+         "30",
+         "Sporgenza o soffitto con appigli per le mani ma non per i piedi."
+        ],
+        [
+         "+5",
+         "La superficie è scivolosa."
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Mani libere"
+      },
+      {
+       "t": "p",
+       "testo": "Durante l'arrampicata, non è possibile spostarsi per evitare un colpo, quindi si perde il bonus di Destrezza alla CA (se presente)."
+      },
+      {
+       "t": "h",
+       "testo": "Combattimento e danni"
+      },
+      {
+       "t": "p",
+       "testo": "Non è possibile utilizzare lo scudo mentre si scala e quando si subisce danni occorre effettuare una prova di Scalare con la CD della parete. Il fallimento significa che si cade dall'attuale altezza."
+      },
+      {
+       "t": "h",
+       "testo": "Scalare accelerato"
+      },
+      {
+       "t": "p",
+       "testo": "Si tenta di Scalare più velocemente del normale. Accettando penalità –5, ci si può muovere a metà della propria velocità (invece che ad un quarto)."
+      },
+      {
+       "t": "h",
+       "testo": "Attrezzi da scalata"
+      },
+      {
+       "t": "p",
+       "testo": "Ci si può creare degli appigli per mani e piedi piantando chiodi da rocciatore in una parete. Per farlo occorre 1 minuto per chiodo, ed è necessario un chiodo ogni 150 cm di distanza."
+      },
+      {
+       "t": "h",
+       "testo": "Aggrapparsi mentre si cade"
+      },
+      {
+       "t": "p",
+       "testo": "Per riuscirci, bisogna effettuare una prova di Scalare (CD della parete + 20). È molto più facile aggrapparsi ad una pendenza (CD della pendenza + 10)."
+      },
+      {
+       "t": "h",
+       "testo": "Afferrare qualcuno che cade mentre si scala"
+      },
+      {
+       "t": "p",
+       "testo": "Farlo richiede un attacco di contatto in mischia contro il personaggio che cade (senza bonus di Destrezza alla CA). Se l'attacco ha successo, si deve immediatamente tentare una prova di Scalare (CD = CD della parete +10). Il successo indica che si è riusciti ad afferrare il personaggio che cade, ma il suo peso totale, compreso l'equipaggiamento, non può eccedere il proprio limite di carico massimo, altrimenti si rischia di cadere a propria volta. Se si fallisce la prova di Scalare di 4 o meno, non si riesce a fermare la caduta ma non si perde la propria presa sulla parete. Se si fallisce di 5 o più, non solo non si riesce a fermare la caduta ma si cade con l'altro personaggio."
+      }
+     ]
+    },
+    {
+     "id": "sopravvivenza",
+     "titolo": "Sopravvivenza",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "CD",
+         "Azione"
+        ],
+        [
+         "10",
+         "Foraggiare per fornire cibo e acqua per sé stessi e un'altra persona per ogni 2 punti con cui si supera la prova"
+        ],
+        [
+         "15",
+         "Trovare un riparo adeguato e ridurre del 5% la possibilità di essere aggrediti durante la notte (vedi Cap. 2 Incontri casuali)"
+        ],
+        [
+         "15",
+         "Fermare un effetto di sanguinamento"
+        ],
+        [
+         "15",
+         "Orientarsi e viaggiare senza perdersi"
+        ],
+        [
+         "15",
+         "Predire il tempo fino a 24 ore in anticipo + altre 24 ore per ogni 5 punti con cui si supera la prova"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Seguire tracce (richiede una prova ogni 1,5 Km)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Tipo di terreno",
+         "CD"
+        ],
+        [
+         "Molto soffice (neve fresca, polvere spessa, fango umido)",
+         "5"
+        ],
+        [
+         "Soffice",
+         "10"
+        ],
+        [
+         "Compatto (prati, campi, boschi e simili)",
+         "15"
+        ],
+        [
+         "Duro (nuda roccia o i pavimenti delle abitazioni)",
+         "20"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Modificatori"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Condizione",
+         "Modificatore"
+        ],
+        [
+         "Ogni tre creature incluse nel gruppo seguito",
+         "-1"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Taglia della creatura o delle creature seguite"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Taglia",
+         "Modificatore"
+        ],
+        [
+         "Piccolissima",
+         "+8"
+        ],
+        [
+         "Minuta",
+         "+4"
+        ],
+        [
+         "Minuscola",
+         "+2"
+        ],
+        [
+         "Piccola",
+         "+1"
+        ],
+        [
+         "Media",
+         "0"
+        ],
+        [
+         "Grande",
+         "-1"
+        ],
+        [
+         "Enorme",
+         "-2"
+        ],
+        [
+         "Mastodontica",
+         "-4"
+        ],
+        [
+         "Colossale",
+         "-8"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Tempo trascorso"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Condizione",
+         "Modificatore"
+        ],
+        [
+         "Ogni 24 ore da quando sono state lasciate le tracce",
+         "+1"
+        ],
+        [
+         "Ogni ora di pioggia da quando sono state lasciate le tracce",
+         "+1"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Visibilità"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Condizione",
+         "Modificatore"
+        ],
+        [
+         "Notte senza luna o nuvolosa",
+         "+6"
+        ],
+        [
+         "Luce lunare",
+         "+3"
+        ],
+        [
+         "Nebbia o precipitazioni",
+         "+3"
+        ],
+        [
+         "Gruppo seguito che nasconde le proprie tracce (e si muove alla metà della velocità)",
+         "+5"
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "Tabelle del Tempo",
+       "testo": "Foraggiare, Predire il tempo, Orientarsi e Riparo seguono le Tabelle del Tempo Atmosferico (Foraggiare per zona, Orientarsi una volta al giorno fuori dalle strade, riparo trovato CD 15, CD 20 in Brughiere e lande e in Tundra): vedi Meteo."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Gli effetti di [SANGUINAMENTO] possono essere fermati con una prova di Professione (cerusico) con CD 10 (vedi Volume 3, Fermare sanguinamento), con una prova di Sopravvivenza con CD 15 o tramite l'uso della magia."
+      }
+     ]
+    },
+    {
+     "id": "ucm",
+     "titolo": "Utilizzare congegni magici",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Si può utilizzare questa abilità per utilizzare un oggetto magico come se si avesse la capacità magica o i privilegi di classe di un'altra classe, come se si fosse di una razza diversa, e come se si avesse un allineamento differente."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Azione",
+         "CD"
+        ],
+        [
+         "Attivare alla cieca",
+         "25"
+        ],
+        [
+         "Emulare un allineamento",
+         "30"
+        ],
+        [
+         "Emulare una razza",
+         "25"
+        ],
+        [
+         "Emulare un punteggio di caratteristica",
+         "Vedi sotto"
+        ],
+        [
+         "Emulare un privilegio di classe",
+         "20"
+        ],
+        [
+         "Utilizzare bacchette, bastoni, etc.",
+         "20"
+        ],
+        [
+         "Utilizzare una pergamena",
+         "20 + livello dell'incantatore"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Attivare alla cieca"
+      },
+      {
+       "t": "p",
+       "testo": "Alcuni oggetti magici sono attivati da parole, pensieri e azioni speciali. È possibile attivare tali oggetti come se si stesse usando la parola, il pensiero o l'azione di attivazione, anche se non lo si sta facendo e anche se non la si conosce. Bisogna utilizzare una qualche attività equivalente per compiere la prova. Occorre parlare, roteare l'oggetto o tentare in altro modo di attivarlo. Si riceve bonus speciale +2 se si è attivato l'oggetto almeno un'altra volta in passato. Se si fallisce di 9 o meno, non si riesce ad attivare l'oggetto. Se si fallisce di 10 o più, si subisce un malfunzionamento. Un malfunzionamento significa che l'energia magica viene comunque sprigionata, ma non nel modo desiderato. I malfunzionamenti in genere implicano che l'oggetto ha effetto sul bersaglio sbagliato o che viene sprigionata energia magica incontrollata che infligge 2d6 danni a chi utilizza l'oggetto. Questo malfunzionamento è in aggiunta alla possibilità del normale malfunzionamento che capita quando si lancia un incantesimo da una pergamena che non si potrebbe altrimenti utilizzare."
+      },
+      {
+       "t": "h",
+       "testo": "Emulare un privilegio di classe"
+      },
+      {
+       "t": "p",
+       "testo": "Talvolta occorre un privilegio di classe per attivare un oggetto magico. In questo caso, il proprio livello effettivo nella classe emulata è pari al risultato ottenuto con la prova di Utilizzare congegni magici meno 20. Questa abilità non permette di sfruttare il privilegio di classe di un'altra classe. Permette solo di attivare oggetti magici come se si possedesse il privilegio di classe. Se la classe di cui si sta emulando il privilegio ha un requisito d'allineamento, occorre soddisfarlo, sia onestamente sia emulando un allineamento appropriato con una prova separata (vedi sopra)."
+      },
+      {
+       "t": "h",
+       "testo": "Emulare un punteggio di caratteristica"
+      },
+      {
+       "t": "p",
+       "testo": "Per lanciare un incantesimo da una pergamena si ha bisogno di un alto punteggio di caratteristica nella caratteristica appropriata. Il proprio punteggio di caratteristica effettivo (appropriato alla classe che si sta emulando quando si tenta di lanciare l'incantesimo dalla pergamena) è il risultato ottenuto nella prova di Utilizzare congegni magici meno 15. Se già si possiede un punteggio sufficientemente alto per utilizzare la capacità appropriata, allora la prova non è necessaria."
+      },
+      {
+       "t": "h",
+       "testo": "Utilizzare una pergamena"
+      },
+      {
+       "t": "p",
+       "testo": "Normalmente per lanciare un incantesimo da una pergamena si deve possedere quell'incantesimo particolare nella lista degli incantesimi della propria classe. Usando Utilizzare congegni magici in questo modo si può utilizzare un tale oggetto come se si avesse l'incantesimo nella lista degli incantesimi della propria classe. La CD è uguale a 20 + il livello di incantatore dell'incantesimo che si sta cercando di lanciare. In aggiunta, lanciare un incantesimo da una pergamena richiede un punteggio minimo (10 + il livello dell'incantesimo) nella caratteristica appropriata. Se non si possiede un punteggio sufficiente nella caratteristica, bisogna emularla con una prova di Utilizzare congegni magici separata (vedi sopra)."
+      },
+      {
+       "t": "p",
+       "testo": "Questo uso dell'abilità si applica anche ad altri oggetti magici a completamento di incantesimo."
+      },
+      {
+       "t": "p",
+       "testo": "Ritentare: Sì, ma se si ottiene un 1 naturale mentre si tenta di attivare un oggetto e si fallisce, allora non è possibile cercare di attivarlo nuovamente prima che siano passate 24 ore."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Il titolo della Guida è «Utilizzare oggetti magici»: nella Collana l'abilità è Utilizzare congegni magici."
+      }
+     ]
+    },
+    {
+     "id": "valutare",
+     "titolo": "Valutare",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Stima da Affrontare",
+         "CD"
+        ],
+        [
+         "Stimare il valore di un oggetto",
+         "15-30"
+        ],
+        [
+         "Determinare se un oggetto è magico",
+         "25"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "Fallire una valutazione di 5 punti o meno: si stima un valore inferiore del 20%."
+      },
+      {
+       "t": "p",
+       "testo": "Fallire una valutazione di 6 punti o più: si stima un valore del 50%."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "combattimento",
+   "nome": "Combattimento",
+   "voci": [
+    {
+     "id": "concentrazione",
+     "titolo": "Concentrazione",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Quando si effettua una prova di concentrazione si tira 1d20 e si aggiunge il proprio livello dell'incantatore e il modificatore della caratteristica usata per determinare gli incantesimi bonus dello stesso tipo."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Situazione del Lancio",
+         "CD della Prova di Concentrazione"
+        ],
+        [
+         "Lanciare sulla difensiva",
+         "15 + livello dell'incantesimo x2"
+        ],
+        [
+         "Feriti da un attacco mentre si lancia",
+         "10 + danni subiti + livello dell'incantesimo"
+        ],
+        [
+         "Danni continui",
+         "10 + 1/2 danni subiti + livello dell'incantesimo"
+        ],
+        [
+         "Distratto da un incantesimo",
+         "CD dell'incantesimo che non danneggia + livello dell'incantesimo"
+        ],
+        [
+         "In lotta o Immobilizzato",
+         "10 + BMC dell'aggressore + livello dell'incantesimo"
+        ],
+        [
+         "Movimento vigoroso (cavalcare, acque agitate)",
+         "10 + livello dell'incantesimo"
+        ],
+        [
+         "Movimento violento (al galoppo, rapide, mare in tempesta)",
+         "15 + livello dell'incantesimo"
+        ],
+        [
+         "Movimento estremamente violento",
+         "20 + livello dell'incantesimo"
+        ],
+        [
+         "Vento con pioggia o nevischio",
+         "5 + livello dell'incantesimo"
+        ],
+        [
+         "Vento con grandine e detriti",
+         "10 + livello dell'incantesimo"
+        ],
+        [
+         "Intralciato",
+         "15 + livello dell'incantesimo"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "occultamento",
+     "titolo": "Occultamento e coperture",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "h",
+       "testo": "Occultamento (dovuto a scarsa visibilità naturale o magica)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Tipo",
+         "Effetto sulla creatura"
+        ],
+        [
+         "Occultamento",
+         "20% di essere mancata a distanza a causa di scarsa visibilità"
+        ],
+        [
+         "Occultamento totale",
+         "Non è visibile ma si può attaccare la sua casella colpendo la creatura il 50% delle volte"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Coperture (dovute a ostacoli fisici sulla traiettoria)"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Tipo",
+         "Effetto"
+        ],
+        [
+         "Copertura leggera (visibile ma protetta meno della metà)",
+         "+2 CA"
+        ],
+        [
+         "Copertura pesante (visibile ma protetta più della metà)",
+         "+4 CA"
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Il danno da precisione può essere inflitto ai bersagli con occultamento totale, purché si superi con successo la prova percentuale necessaria a colpirli."
+      }
+     ]
+    },
+    {
+     "id": "rd",
+     "titolo": "Riduzione del danno",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Alcune creature magiche hanno la capacità soprannaturale di guarire all'istante i danni subiti dalle armi o di ignorare i colpi come se fossero invulnerabili. La parte numerica della riduzione del danno (o RD) di una creatura indica la quantità di punti ferita che una creatura ignora negli attacchi normali."
+      },
+      {
+       "t": "p",
+       "testo": "Generalmente, un certo tipo di arma può ignorare questa riduzione (vedi Superare la RD), Questa informazione è separata dalla riduzione del danno da una barra. Per esempio, RD 5/magia sta a significare che una creatura subisce 5 danni in meno da ogni arma che non sia magica. Se la barra è seguita da un trattino orizzontale, allora la riduzione del danno è efficace contro tutti i tipi di attacchi che non ignorano la riduzione del danno."
+      },
+      {
+       "t": "p",
+       "testo": "Quando la riduzione del danno nega completamente il danno diretto da un attacco, nega anche buona parte degli effetti speciali che accompagnano tale attacco, come il Veleno da ferimento, lo Stordimento di un Marzialista, ed una Malattia trasmessa tramite il ferimento. La riduzione del danno non nega gli attacchi di contatto, i danni da energia inferti da un attacco o risucchi di energia. Non nega neppure i Veleni o le Malattie trasmessi per inalazione, ingestione o contatto."
+      },
+      {
+       "t": "p",
+       "testo": "Quegli attacchi che non infliggono alcun danno a causa della riduzione del danno del bersaglio non provocano la perdita degli incantesimi. Gli incantesimi, le Capacità Magiche e gli attacchi di energia (anche fuoco non magico) ignorano la riduzione del danno."
+      },
+      {
+       "t": "p",
+       "testo": "A volte la riduzione del danno funziona come guarigione istantanea. A volte rappresenta la robustezza della pelle o del corpo della creatura. In entrambi i casi, i personaggi noteranno che gli attacchi convenzionali non funzionano."
+      },
+      {
+       "t": "p",
+       "testo": "Se una creatura è dotata di riduzione del danno da più di una fonte, le due forme di riduzione del danno non sono cumulative. La creatura ottiene invece il beneficio della riduzione del danno migliore in una determinata situazione."
+      },
+      {
+       "t": "p",
+       "testo": "Superare la RD: La riduzione del danno può essere superata da Materiali Speciali, da armi magiche (qualsiasi arma con Bonus di Potenziamento +1 o superiore, non però il Bonus di Potenziamento dato dalla qualità Perfetta), da determinati tipi di armi (come tagliente o contundente) e dalle armi con un allineamento."
+      },
+      {
+       "t": "p",
+       "testo": "Le munizioni scagliate da un’arma da tiro con un Bonus di Potenziamento +1 o superiore sono trattate come armi magiche allo scopo di superare la riduzione del danno. Allo stesso modo, le munizioni scagliate da un’arma da tiro con un allineamento guadagnano l’allineamento di quell'arma da tiro (oltre a qualsiasi allineamento che possano già avere)."
+      },
+      {
+       "t": "p",
+       "testo": "Le armi con un Bonus di Potenziamento +3 o superiore possono ignorare alcuni tipi di riduzioni del danno, a prescindere dal loro materiale o allineamento reale. La seguente tabella mostra che tipo Di Bonus di Potenziamento è necessario per superare alcuni tipi comuni di riduzione del danno."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Tipo di RD",
+         "Bonus di potenziamento equivalente dell'arma"
+        ],
+        [
+         "Ferro freddo/argento",
+         "+3"
+        ],
+        [
+         "Adamantio (*)",
+         "+4"
+        ],
+        [
+         "Basata su allineamento",
+         "+5"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "(*) Si noti che questo non dà la capacità di ignorare la Durezza, come una vera spada di Adamantio"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cure",
+   "nome": "Cure e recupero",
+   "voci": [
+    {
+     "id": "guarigione",
+     "titolo": "Guarigione",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Punti Fatica: tutti dopo 8 ore di sonno o tramite il Rifiatare."
+      },
+      {
+       "t": "p",
+       "testo": "Punti Ferita: 1 x livello dopo 8 ore di sonno o 2 x livello dopo 1 giorno di totale inattività."
+      },
+      {
+       "t": "p",
+       "testo": "Danni non letali: 1 all’ora."
+      },
+      {
+       "t": "p",
+       "testo": "Danni alle caratteristiche: 1 dopo 8 ore di sonno o 2 dopo 1 giorno di totale inattività."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "I Punti Ferita vengono recuperati normalmente tramite il riposo, secondo le regole della guarigione naturale. I Punti Fatica sono totalmente ripristinati dopo 8 ore di riposo e durante la giornata possono essere recuperati tramite il Rifiatare, che non ripristina mai Punti Ferita."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Se un personaggio riceve una cura magica o alchemica, prima recupera i Punti Ferita e una volta raggiunto il massimo, inizia a recuperare i Punti Fatica."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Rifiatare: ogni personaggio ha una riserva di dadi pari ai propri Dadi Vita e durante la giornata può prendersi un qualsiasi numero di pause dal ritmo incalzante dell'avventura per recuperare un poco le forze. Rifiatare richiede almeno una mezzora d'inattività, al termine della quale il personaggio può lanciare un qualsiasi numero di dadi della riserva (anche uno alla volta) e aggiungere il totale ai propri Punti Fatica (ma mai ai Punti Ferita). Per rifiatare il personaggio deve essere cosciente e avere ovviamente dadi residui nella riserva."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 3",
+       "testo": "Riposo totale (24 ore): 2 Punti Ferita per livello e 2 danni a ciascuna caratteristica; con l'assistenza continua del cerusico il doppio (vedi Professione (cerusico))."
+      },
+      {
+       "t": "nota",
+       "fonte": "app",
+       "testo": "Danni non letali, danni alle caratteristiche e livelli negativi: vedi le voci di regola in Condizioni."
+      }
+     ]
+    },
+    {
+     "id": "cerusico",
+     "titolo": "Professione (cerusico)",
+     "fonte": "Vol. 3",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "I guaritori sanno come alleviare il dolore, anestetizzare, curare le malattie e neutralizzare i veleni. Inoltre, hanno ottimi fondamenti di anatomia, disciplina tanto necessaria alle loro arti curatorie, quanto utile nel sapere dove colpire i nemici e arrecar loro il maggior danno possibile."
+      },
+      {
+       "t": "p",
+       "testo": "Acquisto dei medicinali: bende, forbici, aghi e fili per sutura, pomate, unguenti, pastiglie sono solo alcuni degli oggetti inclusi nelle unità di medicinali, strumenti essenziali ai cerusici, acquistabili presso Templi e ospedali (vedi paragrafo Equipaggiamento)."
+      },
+      {
+       "t": "p",
+       "testo": "Conservare i medicinali: le unità di medicinali devono essere trasportate all’interno di una borsa medica che può contenere un massimo di 10. Non è possibile conservare le unità di medicinali in altri luoghi senza rovinarne le proprietà. La borsa medica è acquistabile presso Sartorie e mercerie (vedi paragrafo Equipaggiamento)."
+      },
+      {
+       "t": "p",
+       "testo": "Utilizzo dei medicinali: Chiunque abbia Professione (cerusico) può utilizzare le unità di medicinali richieste al fine di effettuare le prove descritte più sotto. Nelle prove di Professione (cerusico) non si può prendere 10 o 20 e i risultati di 20 naturale non contano come 30."
+      },
+      {
+       "t": "p",
+       "testo": "Limite di medicinali: Per motivi di bilanciamento del gioco, un party non può trasportare più di 10 unità di medicinali."
+      },
+      {
+       "t": "h",
+       "testo": "Assistenza continua"
+      },
+      {
+       "t": "p",
+       "testo": "Unità di medicinali necessarie: 1 per paziente assistito, con successo o meno."
+      },
+      {
+       "t": "p",
+       "testo": "Si assiste fino a cinque pazienti per 8 ore o una giornata intera, durante i quali non devono combattere, compiere azioni faticose o effettuare turni di guardia notturni. Un cerusico non può fornire assistenza continua a sé stesso. Durante l’assistenza, il cerusico può compiere altre attività ma dovrà essere in grado di controllare i pazienti almeno una volta ogni due ore (ciò non inficia sul suo stesso riposo). Al risveglio, si effettua per ciascun paziente una prova di Professione (cerusico) con CD 14 + 1 per paziente assistito. Se la prova ha successo, il paziente viene curato in questo modo:"
+      },
+      {
+       "t": "p",
+       "testo": "8 ore di riposo notturno con assistenza continua: 2 Punti Ferita per livello e 2 danni a ciascuna caratteristica, anziché 1 Punto Ferita per livello e 1 danno a ciascuna caratteristica."
+      },
+      {
+       "t": "p",
+       "testo": "24 ore di riposo totale con assistenza continua: 4 Punti Ferita per livello e 4 danni a ciascuna caratteristica, anziché 2 Punti Ferita per livello e 2 danni a ciascuna caratteristica."
+      },
+      {
+       "t": "h",
+       "testo": "Pronto soccorso"
+      },
+      {
+       "t": "p",
+       "testo": "Unità di medicinali necessarie: 1 per cura tentata."
+      },
+      {
+       "t": "p",
+       "testo": "Si sceglie un paziente adiacente che non stia compiendo un’azione intensa e si tenta di curarne le ferite. Ci si deve quindi prendere cura di lui per 5 minuti ed effettuare poi una prova di Professione (cerusico) con CD 15. Se la prova ha successo, il paziente viene curato di un ammontare di danni pari a metà dei gradi posseduti in Professione (cerusico) +1d4 per ogni 5 punti con cui la prova viene superata. Si possono curare in questo modo solamente i danni ai Punti Ferita e non ai Punti Fatica. Trattare sé stessi aumenta di 5 la CD della prova. Una creatura può beneficare del pronto soccorso una sola volta dopo ciascun combattimento."
+      },
+      {
+       "t": "h",
+       "testo": "Fermare sanguinamento"
+      },
+      {
+       "t": "p",
+       "testo": "Unità di medicinali necessarie: 1 per effetto di [SANGUINAMENTO] trattato, con successo o meno."
+      },
+      {
+       "t": "p",
+       "testo": "Si sceglie un paziente adiacente che non stia compiendo un’azione intensa e si tenta di porre termine a un effetto di [SANGUINAMENTO] su di lui attivo. Come azione standard si effettua quindi una prova di Professione con CD 10. Se la prova ha successo, l’effetto è rimosso."
+      },
+      {
+       "t": "h",
+       "testo": "Fermare emorragie e curare ferite gravi"
+      },
+      {
+       "t": "p",
+       "testo": "Si utilizzano le unità di medicinali indicate per ciascuna cura tentata e si effettua la prova necessaria, il tutto come indicato nella tabella. Se la prova riesce, la ferita guarisce dopo il tempo indicato. Se la prova fallisce, si può ritentare dopo il lasso di tempo indicato ma la CD della prova varierà ad ogni nuovo tentativo. Se non si dispone di unità di medicinali è possibile effettuare ugualmente la prova ma con una penalità di -5."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Ferita",
+         "Unità di medicinali richieste",
+         "CD della prova e tempi di guarigione",
+         "Ritentare la prova"
+        ],
+        [
+         "Emorragia lieve",
+         "1",
+         "CD 15, cura immediata",
+         "dopo 1 round, la CD aumenta di 1 ad ogni nuovo tentativo"
+        ],
+        [
+         "Emorragia grave",
+         "2",
+         "CD 25, cura immediata",
+         "dopo 1d4 round, la CD aumenta di 1 ad ogni nuovo tentativo"
+        ],
+        [
+         "Gravità 1",
+         "1",
+         "CD 15, cura dopo 1 giorno",
+         "dopo 1 giorno, la CD diminuisce di 1 ad ogni nuovo tentativo"
+        ],
+        [
+         "Gravità 2",
+         "2",
+         "CD 20, cura dopo 3 giorni",
+         "dopo 2 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo"
+        ],
+        [
+         "Gravità 3",
+         "3",
+         "CD 25, cura dopo 7 giorni",
+         "dopo 3 giorni, la CD diminuisce di 1 ad ogni nuovo tentativo"
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Trattare un veleno"
+      },
+      {
+       "t": "p",
+       "testo": "Unità di medicinali necessarie: 1 per effetto di [VELENO] trattato, con successo o meno."
+      },
+      {
+       "t": "p",
+       "testo": "Si sceglie un paziente adiacente che non stia compiendo un’azione intensa e si tenta di porre termine a un effetto di [VELENO] su di lui attivo. Come azione standard si effettua quindi una prova di Professione (cerusico) con una CD pari alla CD del veleno. Se la prova ha successo, l’effetto è rimosso e vengono inoltre curati 2 degli eventuali danni alle caratteristiche che questo potrebbe aver inflitto al paziente."
+      },
+      {
+       "t": "h",
+       "testo": "Trattare una malattia"
+      },
+      {
+       "t": "p",
+       "testo": "Unità di medicinali necessarie: 1 per effetto di [MALATTIA] trattato, con successo o meno."
+      },
+      {
+       "t": "p",
+       "testo": "Prima che riposi per la notte, si somministrano antiepidemici a un paziente con un effetto di [MALATTIA] attivo. Una creatura può essere trattata per un solo effetto di [MALATTIA] alla volta. Affinché il trattamento abbia effetto, il paziente non deve effettuare turni di guardia notturni. Al mattino seguente, si effettua una prova di Professione (cerusico) con una CD pari a quella della malattia. Se la prova ha successo, il paziente ottiene automaticamente uno dei successi necessari a porre termine all’effetto di [MALATTIA] per cui è stato trattato. Questo successo è in aggiunta a quello ottenibile grazie al consueto Tiro Salvezza giornaliero normalmente concesso."
+      },
+      {
+       "t": "h",
+       "testo": "Conoscenze anatomiche"
+      },
+      {
+       "t": "p",
+       "testo": "Un’accurata conoscenza anatomica può essere fondamentale per assestare colpi più gravi del normale. Un cerusico ottiene un bonus ai danni e ai tiri per confermare i critici in base ai gradi posseduti in Professione (cerusico), in relazione alla creatura contro cui combatte. Non si ottengono questi bonus contro le creature immuni ai colpi critici o ai danni da precisione."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Tipo di creatura",
+         "Gradi per bonus +1",
+         "Gradi per bonus +2"
+        ],
+        [
+         "Animali e parassiti",
+         "1",
+         "11"
+        ],
+        [
+         "Umanoidi",
+         "2",
+         "12"
+        ],
+        [
+         "Umanoidi mostruosi",
+         "3",
+         "13"
+        ],
+        [
+         "Folletti",
+         "4",
+         "14"
+        ],
+        [
+         "Non morti",
+         "5",
+         "15"
+        ],
+        [
+         "Aberrazioni",
+         "6",
+         "16"
+        ],
+        [
+         "Bestie magiche",
+         "7",
+         "17"
+        ],
+        [
+         "Costrutti",
+         "8",
+         "18"
+        ],
+        [
+         "Esterni",
+         "9",
+         "19"
+        ],
+        [
+         "Draghi",
+         "10",
+         "20"
+        ]
+       ]
+      }
+     ],
+     "strumento": "cerusico"
+    },
+    {
+     "id": "erborista",
+     "titolo": "Professione (erborista)",
+     "fonte": "Vol. 3",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Il mondo è un luogo ricco di erbe officinali, funghi velenosi, muschi e bacche dagli effetti più disparati che possono essere trovati nel posto giusto da chi sa cercare: i profani camminano lungo i sentieri dei boschi passando accanto a piante preziose senza accorgersene mentre erboristi esperti rischiano brutti incontri pur di trovare un mazzetto di quella pianta, piuttosto che l’altra."
+      },
+      {
+       "t": "p",
+       "testo": "Raccolta delle erbe: salvo sia stato impossibilitato, al termine di una giornata un erborista ha il 45% +1% per ogni grado totale in Professione (erborista) di aver raccolto 1 unità di erbe miste più 1 aggiuntiva se ottiene un risultato pari o inferiore alla metà della propria percentuale di ritrovamento."
+      },
+      {
+       "t": "p",
+       "testo": "Conservazione: le unità di erbe miste devono essere trasportate all’interno di una borsa da erborista che può contenere un massimo di 10. Non è possibile conservare le unità di erbe miste in altri luoghi senza rovinarne le proprietà. La borsa da erborista è acquistabile presso Sartorie e mercerie (vedi paragrafo Equipaggiamento)."
+      },
+      {
+       "t": "p",
+       "testo": "Limite di erbe miste: per motivi di bilanciamento del gioco, un party non può trasportare più di 10 unità di erbe miste."
+      },
+      {
+       "t": "p",
+       "testo": "Preparare le misture: si sceglie un tipo di mistura e si trascorre 1d4 minuti nella preparazione. Al termine di questo tempo, si consuma 1 unità di erbe miste e si effettua una prova di Professione (erborista) con la CD indicata nella tabella sottostante. Se la prova ha successo si ottiene una mistura che deve essere utilizzata entro 1 minuto, in caso contrario l’unità di erbe miste è sprecata. Si continua a consumare unità di erbe miste ed effettuare prove fino ad ottenere il numero desiderato di misture. Nelle prove di Professione (erborista) non si può prendere 10 o 20 e i risultati di 20 naturale non contano come 30."
+      },
+      {
+       "t": "p",
+       "testo": "Dosi multiple: assumere più misture dello stesso tipo resettano solamente l’eventuale durata dell’effetto."
+      },
+      {
+       "t": "p",
+       "testo": "Unguenti: una creatura può cospargersi contemporaneamente di un solo unguento alla volta ma può impiegare 1d3 minuti sciacquandosi con abbondante acqua per rimuoverne uno dal corpo."
+      },
+      {
+       "t": "p",
+       "testo": "Poltiglie: una creatura può beneficiare di una sola poltiglia al giorno e inghiottirne altre non sortisce alcun effetto."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "CD",
+         "Dosi",
+         "Mistura",
+         "Effetto"
+        ],
+        [
+         "Clima"
+        ],
+        [
+         "15",
+         "2",
+         "Unguento",
+         "Per 24 ore, si è considerati indossare abiti estivi o invernali (non si diventa cioè affaticati dopo 1 ora in ambienti caldi o freddi)."
+        ],
+        [
+         "Caratteristiche"
+        ],
+        [
+         "20",
+         "1",
+         "Poltiglia",
+         "Dopo 1 ora dall’assunzione, cura 1 danno a una caratteristica a scelta."
+        ],
+        [
+         "25",
+         "1",
+         "Poltiglia",
+         "Dopo 1 ora dall’assunzione, cura 1d2 danni a una caratteristica a scelta."
+        ],
+        [
+         "30",
+         "1",
+         "Poltiglia",
+         "Dopo 1 ora dall’assunzione, cura 1d3 danni a una caratteristica a scelta."
+        ],
+        [
+         "35",
+         "1",
+         "Poltiglia",
+         "Dopo 1 ora dall’assunzione, cura 4 danni a una caratteristica a scelta."
+        ],
+        [
+         "Memoria e Concentrazione"
+        ],
+        [
+         "16",
+         "1",
+         "Fomenta",
+         "Se usata prima di effettuare una prova di Conoscenze, stimola la memoria fornendo dopo 5 minuti bonus alchemico +3."
+        ],
+        [
+         "20",
+         "1",
+         "Fomenta",
+         "Fornisce bonus alchemico +2 alla prima prova di Concentrazione per lanciare incantesimi sulla difensiva effettuata entro 2 ore dall’utilizzo."
+        ],
+        [
+         "25",
+         "1",
+         "Fomenta",
+         "Se usata durante un enigma, si può effettuare un tentativo senza che il DM lo conti come fallimento. Si può creare una sola mistura di questo tipo ogni 24 ore."
+        ],
+        [
+         "Creature specifiche"
+        ],
+        [
+         "14",
+         "2",
+         "Unguento",
+         "Sopprime l’odore, fornendo per 4 ore bonus alchemico +3 alle prove di Iniziativa contro animali e parassiti."
+        ],
+        [
+         "19",
+         "2",
+         "Unguento",
+         "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [MALEDIZIONE] e contro incantesimi e capacità di folletti e streghe."
+        ],
+        [
+         "25",
+         "2",
+         "Unguento",
+         "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro le capacità dei non morti."
+        ],
+        [
+         "Sbronza, Infermità e Nausea"
+        ],
+        [
+         "14",
+         "2",
+         "Distillato",
+         "Fornisce per 1 ora bonus alchemico +4 ai Tiri Salvezza effettuati per non ubriacarsi. In alternativa, se usata prima di coricarsi, al risveglio evita i postumi di una sbronza."
+        ],
+        [
+         "16",
+         "2",
+         "Distillato",
+         "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [INFERMITÀ] e [NAUSEA]."
+        ],
+        [
+         "Livelli negativi"
+        ],
+        [
+         "20",
+         "1",
+         "Impacco",
+         "Se usata prima di coricarsi, al risveglio, fornisce bonus alchemico +2 al Tiro Salvezza giornaliero per rimuovere ciascun livello negativo temporaneo ottenuto."
+        ],
+        [
+         "25",
+         "1",
+         "Impacco",
+         "Se usata prima di coricarsi, al risveglio fornisce il 33% di rimuovere un livello negativo permanente ottenuto."
+        ],
+        [
+         "Malattie"
+        ],
+        [
+         "12",
+         "2",
+         "Impacco",
+         "Se usata prima di coricarsi, al risveglio cura tutti i malanni comuni come febbre, mal di gola, cefalea, tosse, raffreddore, etc."
+        ],
+        [
+         "16",
+         "2",
+         "Unguento",
+         "Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [MALATTIA] non ancora contratti."
+        ],
+        [
+         "20",
+         "1",
+         "Impacco",
+         "Se usata prima di coricarsi, al risveglio fornisce bonus alchemico +2 al Tiro Salvezza giornaliero per curare un effetto di [MALATTIA] in atto."
+        ],
+        [
+         "24",
+         "2",
+         "Distillato",
+         "Fornisce per 24 ore bonus alchemico +4 ai Tiri Salvezza per evitare di contrarre la licantropia o per non trasformarsi una volta contratta."
+        ],
+        [
+         "35",
+         "1",
+         "Distillato",
+         "Cura in tre giorni una malattia non magica grave come peste, lebbra, colera, tifo, etc."
+        ],
+        [
+         "Paura"
+        ],
+        [
+         "16",
+         "2",
+         "Unguento",
+         "Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [PAURA]."
+        ],
+        [
+         "Riposo e Sonno"
+        ],
+        [
+         "15",
+         "2",
+         "Fomenta",
+         "Se usata prima di coricarsi, garantisce sonni tranquilli e bonus alchemico +6 ai Tiri Salvezza contro le intrusioni oniriche."
+        ],
+        [
+         "16",
+         "2",
+         "Unguento",
+         "Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [SONNO]."
+        ],
+        [
+         "18",
+         "2",
+         "Fomenta",
+         "Se usata prima di coricarsi, annulla l’aumento di +10 alla CD delle prove di Percezione (udito) effettuate durante il sonno."
+        ],
+        [
+         "Unità di medicinali"
+        ],
+        [
+         "18",
+         "1",
+         "−",
+         "Una volta al giorno, si possono consumare 2 unità di erbe miste per creare 1 unità di medicinali utilizzabile entro 1 ora tramite Professione (cerusico)."
+        ],
+        [
+         "Veleni"
+        ],
+        [
+         "16",
+         "2",
+         "Unguento",
+         "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [VELENO]."
+        ],
+        [
+         "16",
+         "1",
+         "Distillato",
+         "Se cosparsa su del cibo (equivalente a cinque pasti), si formano immediatamente minuscole bolle rosse in presenza di veleni o agenti patogeni."
+        ],
+        [
+         "16",
+         "1",
+         "Distillato",
+         "Altera del cibo equivalente a cinque pasti, affinché chi lo consumi debba superare un Tiro Salvezza su Tempra con CD 12 o cadere addormentato per 1 ora. Una creatura scossa o ferita si sveglia immediatamente. Per ogni unità di erbe miste addizionale la CD aumenta di 1 (massimo CD 18). Questo è un effetto di [SONNO] e [VELENO]."
+        ]
+       ]
+      }
+     ],
+     "strumento": "erborista"
+    }
+   ]
+  },
+  {
+   "id": "viaggi",
+   "nome": "Viaggi",
+   "voci": [
+    {
+     "id": "spostamenti",
+     "titolo": "Spostamenti",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Marcia giornaliera: In un giorno di cammino normale, si può camminare per 8 ore. Il resto del giorno viene sfruttato per fare e disfare il campo, riposarsi, cacciare, mangiare, dormire e altre attività secondarie."
+      },
+      {
+       "t": "p",
+       "testo": "Marcia forzata: È possibile camminare per più di 8 ore in un giorno compiendo una marcia forzata. Per ogni ora di marcia oltre le 8 ore, è necessario effettuare una prova di Costituzione (CD 18, +2 per ogni ora aggiuntiva). Se la prova fallisce si subisce 1 danno a Costituzione e ci si deve fermare per quella giornata."
+      },
+      {
+       "t": "p",
+       "testo": "Cavalcare veloci: È possibile forzare una cavalcatura a procedere per più di 8 ore in un giorno compiendo una marcia forzata. Per ogni ora di marcia oltre le 8 ore, è necessario effettuare una prova di Costituzione (CD 18, +2 per ogni ora aggiuntiva). Se la prova fallisce si subisce 2 danni a Costituzione e si deve fermare per quella giornata."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Creatura o mezzo",
+         "Miglia/h"
+        ],
+        [
+         "Creatura umanoide a piedi",
+         "3"
+        ],
+        [
+         "Cavallo",
+         "6"
+        ],
+        [
+         "Pony o cavalcatura media",
+         "4"
+        ],
+        [
+         "Carro",
+         "3"
+        ],
+        [
+         "Imbarcazione fluviale",
+         "1"
+        ]
+       ]
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Terreno",
+         "Velocità di Movimento"
+        ],
+        [
+         "Strade ben tenute",
+         "-"
+        ],
+        [
+         "Pianura",
+         "-"
+        ],
+        [
+         "Colline",
+         "1/2"
+        ],
+        [
+         "Foresta",
+         "1/2"
+        ],
+        [
+         "Montagna",
+         "1/3"
+        ],
+        [
+         "Deserto sabbioso",
+         "1/3"
+        ],
+        [
+         "Tundra Ghiacciata",
+         "1/3"
+        ],
+        [
+         "Paludi",
+         "1/4"
+        ],
+        [
+         "Giungla",
+         "1/4"
+        ]
+       ]
+      }
+     ],
+     "strumento": "marcia"
+    }
+   ]
+  },
+  {
+   "id": "pericoli",
+   "nome": "Pericoli",
+   "voci": [
+    {
+     "id": "annegamento",
+     "titolo": "Annegamento",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "1) Si può trattenere il fiato per un numero di round pari al doppio del punteggio di Costituzione. Se una creatura compie un’azione standard o di round completo, la durata restante per cui può trattenere il fiato è ridotta di 1 round. Una creatura priva di sensi inizia dal punto 3, come se avesse fallito la prova."
+      },
+      {
+       "t": "p",
+       "testo": "2) Trascorso questo periodo di tempo, la creatura deve effettuare una prova di Costituzione con CD 10 ad ogni round per continuare a trattenere il fiato. Ogni round, la CD aumenta di 1."
+      },
+      {
+       "t": "p",
+       "testo": "3) Quando alla fine la creatura fallisce la sua prova di Costituzione, comincia ad annegare: nel 1° round è Privo di Sensi, nel 2° round resta Privo di Sensi e nel 3° round annega (Morto)."
+      },
+      {
+       "t": "p",
+       "testo": "Issare a riva: Chi tenta il salvataggio ha bisogno di un ramo, dell’asta di una lancia, di una corda. Poi deve superare una prova di Forza con CD 10 per tirare fuori la vittima, e la vittima deve superare una prova di Forza con CD 10 per rimanere aggrappata al ramo, al bastone o alla corda. Se entrambe le prove hanno successo, la vittima viene tirata 1,5 metri più vicina alla salvezza. Se la vittima non supera questa prova, deve immediatamente effettuare una prova di Nuotare con CD 15 per rimanere al di sopra della superficie."
+      }
+     ],
+     "strumento": "apnea"
+    },
+    {
+     "id": "cadere",
+     "titolo": "Cadere",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Se una creatura si lascia cadere volontariamente il conteggio della caduta viene considerato di 3m inferiore, ed è possibile effettuare una prova di Acrobazia con CD 15 per considerare il primo d6 di danno come danno non letale più 1d6 per ogni 5 punti per cui la prova viene superata. Se si subiscono danni che non siano danni non letali si cade a terra proni. Una creatura può lanciare incantesimi mentre cade normalmente solo se questi richiedono un’azione immediata, altrimenti è necessaria una prova di Concentrazione con CD pari a 20 + il livello dell’incantesimo"
+      },
+      {
+       "t": "p",
+       "testo": "Cadere in acqua: Fino a quando l'acqua è profonda perlomeno 3 metri, i primi 6 m di caduta non infliggono danni mentre i successivi 6 infliggono danni non letali. Oltre questa distanza, si deve far normalmente riferimento alla tabella sottostante."
+      },
+      {
+       "t": "p",
+       "testo": "Le creature che si tuffano volontariamente in acqua non subiscono danni se superano una prova di Acrobazia o di Nuotare con CD 15, se l'acqua è profonda almeno 3 metri (serve una prova per ogni 9 m di tuffo). La CD della prova aumenta di 5 ogni 15 m di tuffo."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Metri",
+         "Danno",
+         "Media"
+        ],
+        [
+         "3",
+         "1d6",
+         "3-4"
+        ],
+        [
+         "4-5",
+         "2d6",
+         "7"
+        ],
+        [
+         "6-8",
+         "4d6",
+         "14"
+        ],
+        [
+         "9 - 11",
+         "12d6",
+         "42"
+        ],
+        [
+         "12 - 14",
+         "20d6",
+         "70"
+        ],
+        [
+         "15 - 17",
+         "26d6",
+         "91"
+        ],
+        [
+         "18 - 20",
+         "32d6",
+         "112"
+        ],
+        [
+         "21 - 33",
+         "40d6",
+         "140"
+        ],
+        [
+         "34+",
+         "morte",
+         "—"
+        ]
+       ]
+      }
+     ],
+     "strumento": "cadere"
+    },
+    {
+     "id": "fumo",
+     "titolo": "Fumo",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "1) Una creatura costretta a respirare del fumo denso deve superare un Tiro Salvezza su Tempra ogni round (CD 15, +1 per ogni prova precedente) oppure passa il round a tossire e soffocare."
+      },
+      {
+       "t": "p",
+       "testo": "2) Una creatura che continua a soffocare per 2 round consecutivi subisce 1d6 Danni Non Letali. Il fumo oscura la vista, fornendo Occultamento (probabilità del 20% di essere mancato) alle creature che si trovano al suo interno."
+      }
+     ],
+     "strumento": "fumo"
+    },
+    {
+     "id": "scivolosi",
+     "titolo": "Terreni scivolosi",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Una creatura che attraversi una superfice scivolosa con una velocità superiore a metà, deve effettuare una prova di Acrobazia con CD 15 all'inizio del movimento. Il fallimento significa che è caduta prona all'inizio del movimento. Correre o caricare su terreno scivoloso aumenta la CD di 5. Una creatura che superi questa prova di 5 o più può aumentare il proprio movimento di 3 metri, ma è considerata impreparata fino all'inizio del suo prossimo turno. Le creature che non possono essere colte alla sprovvista sono immuni a questo effetto."
+      }
+     ]
+    },
+    {
+     "id": "acquatici",
+     "titolo": "Ambienti acquatici",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Acqua corrente: Qualsiasi cosa che galleggi sulla superficie viene spinta in direzione della corrente a una velocità compresa tra 3 metri e 12 metri per round. Le rapide più veloci possono spingere i nuotatori in direzione della corrente a una velocità compresa tra i 18 e i 27 metri per round. I fiumi più rapidi sono sempre composti almeno da acque agitate (Nuotare CD 15) e le rapide sono considerate acque tempestose (Nuotare CD 20). Se un personaggio si trova in acque correnti, viene spostato in direzione della corrente della quantità indicata alla fine del suo turno. Se un personaggio prova a mantenere la sua posizione fissa rispetto alla riva, può impiegare tutto il suo turno per nuotare contro corrente."
+      },
+      {
+       "t": "p",
+       "testo": "Portato via: I personaggi portati via da un fiume che si muovono ad una velocità pari o superiore a 18 metri per round devono superare una prova di Nuotare con CD 20 ad ogni round per evitare di finire sott'acqua. Se un personaggio supera la prova di 5 o più rispetto al minimo richiesto, ferma il suo movimento aggrappandosi a qualcosa, una roccia, il ramo di un albero o un tronco affiorante: in questo caso non viene più portato via dal flusso della corrente. Per sfuggire alle rapide raggiungendo la riva, sono necessarie tre prove di Nuotare con CD 20 una dopo l'altra. Quei personaggi che si sono fermati grazie a una roccia, un ramo o un tronco non possono andarsene con le loro forze a meno che non si rituffino in acqua e non tentino un'attraversata a nuoto. Altri personaggi possono provare a salvarli, come se fossero intrappolati nelle sabbie mobili (descritte in Terreni Paludosi)."
+      },
+      {
+       "t": "p",
+       "testo": "Acqua ferma: I laghi e gli oceani richiedono semplicemente una velocità di nuoto o una prova di Nuotare per spostarsi (CD 10 in acque calme, CD 15 in acque agitate e CD 20 in acque tempestose). I personaggi devono trovare un modo per respirare, se si trovano sott’acqua, altrimenti annegheranno. Quando un personaggio si trova sott’acqua, può spostarsi in qualsiasi direzione."
+      },
+      {
+       "t": "h",
+       "testo": "Combattimento sott'acqua"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Circostanza",
+         "Attacco/Danni: tagliente o contundente",
+         "Attacco/Danni: penetrante",
+         "Movimento",
+         "Senza equilibrio¹"
+        ],
+        [
+         "Libertà di movimento",
+         "normale/normale",
+         "normale/normale",
+         "normale",
+         "No"
+        ],
+        [
+         "Si possiede velocità di nuotare",
+         "–2/dimezzati",
+         "normale",
+         "normale",
+         "No"
+        ],
+        [
+         "Prova di Nuotare superata",
+         "–2/dimezzati²",
+         "normale",
+         "un quarto o metà³",
+         "No"
+        ],
+        [
+         "Appoggio solido⁴",
+         "–2/dimezzati²",
+         "normale",
+         "metà",
+         "No"
+        ],
+        [
+         "Nessuna delle voci sopraelencate",
+         "–2/dimezzati²",
+         "–2/dimezzati",
+         "normale",
+         "Sì"
+        ]
+       ]
+      },
+      {
+       "t": "p",
+       "testo": "¹ Le creature che annaspano in acqua (solitamente poiché hanno fallito la loro prova di Nuotare) hanno difficoltà a combattere efficacemente. Una creatura senza equilibrio perde il suo bonus di Destrezza alla Classe Armatura, e gli avversari ottengono bonus +2 ai loro Tiri per Colpire contro di essa."
+      },
+      {
+       "t": "p",
+       "testo": "² Una creatura senza un effetto di Libertà di Movimento o una velocità di nuotare effettua le sue prove di Lotta sott'acqua con penalità –2, ma infligge danni normalmente quando è in lotta."
+      },
+      {
+       "t": "p",
+       "testo": "³ Una prova di Nuotare superata consente a una creatura di muoversi a un quarto della sua velocità come Azione di movimento o a metà della sua velocità come azione di round completo."
+      },
+      {
+       "t": "p",
+       "testo": "⁴ Le creature dotate di appoggio solido che stanno camminando sul fondo, si appoggiano allo scafo della nave o sono in condizioni analoghe; una creatura può camminare sul fondo solo se indossa o trasporta peso a sufficienza per ancorarsi sul fondo (almeno 8 kg per le creature Medie, viene raddoppiato per ogni categoria di taglia superiore a media e dimezzato per ogni categoria inferiore)."
+      },
+      {
+       "t": "p",
+       "testo": "Attacchi in acqua: le creature non acquatiche vedono male quando immerse e subiscono -2 ai tiri per colpire e -2 Percezione (vista)."
+      },
+      {
+       "t": "p",
+       "testo": "Attacchi a distanza sott'acqua: Le armi da lancio sono inefficaci sott’acqua, anche quando vengono lanciate da terra. Gli attacchi con le altre armi a distanza subiscono penalità –2 ai Tiri per Colpire per ogni 1,5 metri d’acqua che attraversano, oltre alle normali penalità per la gittata."
+      },
+      {
+       "t": "p",
+       "testo": "Attacchi dalla terraferma: Quei personaggi che nuotano, galleggiano o attraversano l’acqua in superficie, o guadano un tratto in cui l’acqua è alta almeno fino al petto, godono di copertura migliorata (bonus +8 alla CA, bonus +4 ai Tiri Salvezza su Riflessi) nei confronti degli avversari che si trovano sulla terraferma. Quegli avversari che si avvalgono degli effetti di Libertà di movimento ignorano questa copertura quando compiono attacchi in mischia contro i bersagli in acqua. Una creatura completamente sommersa dispone di copertura totale contro gli avversari sulla terraferma a meno che quegli avversari non beneficino degli effetti di Libertà di movimento. Gli effetti magici non sono influenzati, tranne quelli che richiedono un tiro per colpire (che vengono trattati come tutti gli altri effetti) e gli effetti di fuoco."
+      },
+      {
+       "t": "p",
+       "testo": "Fuoco: Il fuoco non magico non brucia sott'acqua. Gli incantesimi o gli effetti magici dotati del descrittore fuoco sono inefficaci sott'acqua, a meno che l'incantatore non effettui una prova di livello dell'incantatore (CD 20 + livello dell'incantesimo). Se la prova ha successo, l’incantesimo crea una bolla di vapore invece dell’effetto di fuoco desiderato, ma per il resto l’incantesimo funziona come descritto. Un effetto di fuoco soprannaturale è inefficace sott’acqua, a meno che la sua descrizione specifica non indichi il contrario. La superficie di uno specchio d’acqua blocca la linea di effetto di qualsiasi incantesimo di fuoco. Se l’incantatore ha effettuato una prova di livello dell’incantatore per rendere l’incantesimo di fuoco utilizzabile sott’acqua, la superficie blocca comunque la linea di effetto dell’incantesimo."
+      },
+      {
+       "t": "p",
+       "testo": "Lanciare incantesimi sott'acqua: Lanciare incantesimi mentre ci si trova sott'acqua può essere difficile per chi non ha la capacità di respirare sott'acqua. Una creatura che non è in grado di respirare sott'acqua deve effettuare una prova di Concentrazione (CD 15 + livello dell'incantesimo) per lanciare un incantesimo sott’acqua (questa è in aggiunta alla prova di livello dell’incantatore richiesta per lanciare con successo un incantesimo di fuoco sott’acqua). Le creature che respirano sott’acqua possono invece lanciare normalmente i loro incantesimi. Alcuni incantesimi potrebbero funzionare diversamente sott’acqua, a discrezione del GM."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Per facilitare i combattimenti in acqua (durante i quali sono richieste continue e ripetute prove di Nuotare) tutti i personaggi, quando non indossano un'armatura pesante, possono prendere 10 nelle prove di Nuotare in acque calme e acque agitate."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Si ricorda che il talento Grande nuotatore, nelle campagne acquatiche, fornisce una velocità di Nuotare pari a metà velocità su terreno e consente di trattenere il fiato il doppio del tempo."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 1",
+       "testo": "Gli aumenti al tempo di apnea provenienti da fonti diverse non si cumulano: si applica solo il moltiplicatore più alto."
+      }
+     ]
+    },
+    {
+     "id": "boschivi",
+     "titolo": "Ambienti boschivi",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Alberi: Una creatura in piedi nello stesso quadretto dell’albero ottiene copertura parziale, che concede bonus +2 alla Classe Armatura e bonus +1 ai Tiri Salvezza su Riflessi. È necessaria una prova di Scalare con CD 15 per arrampicarsi su un albero."
+      },
+      {
+       "t": "p",
+       "testo": "Sottobosco rado: Viticci, radici e cespugli bassi coprono buona parte del terreno in una foresta. Uno spazio coperto da sottobosco rado richiede 2 quadretti di movimento per attraversarlo, e fornisce Occultamento. Il sottobosco incrementa la CD delle prove di Acrobazia e Furtività di +2."
+      },
+      {
+       "t": "p",
+       "testo": "Sottobosco fitto: Richiede 4 quadretti di movimento per attraversarlo, e fornisce Occultamento con una possibilità del 30% di mancare il bersaglio (invece del normale 20%). Incrementa la CD delle prove di Acrobazia e Furtività di +5. Nascondersi nel sottobosco fitto è facile, e chi lo fa ottiene Bonus di Circostanza +5 alle prove di Furtività."
+      },
+      {
+       "t": "p",
+       "testo": "Fronde degli alberi: Le creature sulle piattaforme o tra i rami degli alberi vengono considerate dotate di Copertura quando attaccano creature a terra, e nei terreni boschivi medi o fitti hanno anche Occultamento."
+      },
+      {
+       "t": "p",
+       "testo": "Furtività: Per una creatura usare Furtività è facile in un terreno boschivo. I tronchi e i grossi alberi forniscono Copertura, offrendo anche altre opportunità per nascondersi. I rumori di sottofondo in una foresta rendono le prove di Percezione più difficoltose, incrementando la CD della prova di +2 per ogni 3 metri, invece di +1."
+      }
+     ]
+    },
+    {
+     "id": "collinari",
+     "titolo": "Ambienti collinari",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Pendio graduale: Questa inclinazione non è abbastanza ripida da influenzare il movimento, ma i personaggi ottengono bonus +1 agli attacchi in mischia contro gli avversari che si trovano più in basso rispetto a loro."
+      },
+      {
+       "t": "p",
+       "testo": "Pendio ripido: I personaggi che si muovono in salita (su un quadretto adiacente di elevazione superiore) devono utilizzare 2 quadretti di movimento per entrare in ogni quadretto di pendio ripido."
+      },
+      {
+       "t": "p",
+       "testo": "Rupe: Arrampicarsi su una rupe normalmente richiede una prova di Scalare con CD 15, e la parete di solito è alta 1d4 × 3 metri, anche se le necessità della mappa potrebbero richiedere una rupe più alta."
+      }
+     ]
+    },
+    {
+     "id": "desertici",
+     "titolo": "Ambienti desertici (anche tundra)",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Ghiaccio: Il terreno è coperto da ghiaccio scivoloso. Sono necessari 2 quadretti di movimento per entrare in un quadretto coperto da una lastra di ghiaccio, e la CD delle prove di Acrobazia aumenta di +5. È necessaria una prova di Acrobazia con CD 10 per correre o Caricare su una lastra di ghiaccio."
+      },
+      {
+       "t": "p",
+       "testo": "Dune di sabbia: Le dune di sabbia funzionano come colline."
+      },
+      {
+       "t": "nota",
+       "fonte": "app",
+       "testo": "Nella Guida questa voce si chiama «Desertici» e contiene ghiaccio e dune: vale anche per la tundra."
+      }
+     ]
+    },
+    {
+     "id": "paludosi",
+     "titolo": "Ambienti paludosi",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Stagno 30 cm: Sono necessari 2 quadretti di movimento per entrare in un quadretto di stagno basso, e la CD delle prova di Acrobazia in quel quadretto aumenta di +2."
+      },
+      {
+       "t": "p",
+       "testo": "Stagno 120 cm: Le creature medie o di taglia superiore devono utilizzare 4 quadretti di movimento per entrare in un quadretto di stagno profondo o, se preferiscono, possono attraversare lo spazio a nuoto. Le creature piccole o di taglia inferiore devono attraversare uno stagno profondo a nuoto. Non è possibile effettuare prove di Acrobazia in uno stagno profondo."
+      },
+      {
+       "t": "p",
+       "testo": "L’acqua in uno stagno profondo fornisce Copertura alle creature medie o di taglia superiore. Le creature più piccole ottengono copertura migliorata (bonus +8 alla CA, bonus +4 ai Tiri Salvezza su Riflessi)."
+      },
+      {
+       "t": "p",
+       "testo": "Sabbie mobili: Un personaggio che si avvicina senza correre o caricare a un banco di sabbie mobili a passo normale ha diritto a una prova di Sopravvivenza con CD 8 per scorgere il pericolo prima di finirci dentro. I personaggi intrappolati nelle sabbie mobili devono superare una prova di Nuotare con CD 10 ad ogni round per rimanere fermi al loro posto, o una prova con CD 15 per avanzare di 1,5 metri in una qualsiasi direzione desiderata. Se un personaggio intrappolato fallisce la prova di 5 o più, affonda al di sotto della superficie e inizia ad annegare quando non è più in grado di trattenere il respiro (vedi Nuotare). I personaggi al di sotto della superficie di un banco di sabbie mobili possono tornare in superficie superando una prova di Nuotare (CD 15, +1 per ogni round consecutivo in cui sono rimasti sotto la superficie)."
+      },
+      {
+       "t": "p",
+       "testo": "Chi tenta il salvataggio ha bisogno di un ramo, dell’asta di una lancia, di una corda. Poi deve superare una prova di Forza con CD 15 per tirare fuori la vittima dalle sabbie mobili, e la vittima deve superare una prova di Forza con CD 10 per rimanere aggrappata al ramo, al bastone o alla corda. Se entrambe le prove hanno successo, la vittima viene tirata 1,5 metri più vicina alla salvezza. Se la vittima non supera questa prova, deve immediatamente effettuare una prova di Nuotare con CD 15 per rimanere al di sopra della superficie."
+      }
+     ]
+    },
+    {
+     "id": "montuosi",
+     "titolo": "Ambienti montuosi e altitudine",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Pendii e rupi: Funzionano come descritto in Terreni collinosi."
+      },
+      {
+       "t": "p",
+       "testo": "Baratro: È necessaria un prova di Scalare con CD 15 per arrampicarsi fuori da un baratro."
+      },
+      {
+       "t": "p",
+       "testo": "Sottobosco rado: Funziona come in Terreni boschivi."
+      },
+      {
+       "t": "p",
+       "testo": "Ghiaia: Una distesa di ciottoli che normalmente non influenza la velocità, ma che può risultare pericolosa su un pendio. La CD delle prove di Acrobazia aumenta di +2 se un pendio graduale è ricoperto di ghiaia, e di +5 se un pendio ripido è ricoperto di ghiaia. La CD delle prove di Furtività aumenta di +2 se c'è ghiaia su un qualsiasi pendio."
+      },
+      {
+       "t": "p",
+       "testo": "Detriti grandi: Il terreno è fittamente disseminato di rocce di tutte le dimensioni. Sono necessari 2 quadretti di movimento per entrare in un quadretto coperto da detriti fitti. La CD delle prove di Acrobazia aumenta di +5 e la CD delle prove di Furtività aumenta di +2."
+      },
+      {
+       "t": "p",
+       "testo": "Parete rocciosa: Una parete di roccia verticale che è possibile scalare solo con una prova di Scalare con CD 25."
+      },
+      {
+       "t": "p",
+       "testo": "Acclimatarsi: Le creature abituate alle alte quote solitamente se la cavano meglio rispetto a chi vive a bassa quota. Qualsiasi creatura la cui voce Ambiente includa la dicitura montagne viene considerata nativa della zona e acclimatata alle alte quote. I personaggi possono acclimatarsi vivendo in alta montagna per un mese. I personaggi che passano più di due mesi lontani dalle montagne dovranno acclimatarsi di nuovo quando ritornano. I non morti, i costrutti e le altre creature che non respirano sono immuni agli effetti dell’altitudine."
+      },
+      {
+       "t": "p",
+       "testo": "Fino ai 1.500 metri: La maggior parte dei viaggi nei territori montuosi avviene attraverso i bassi passi, una zona composta per la maggior parte da rilievi alpini e foreste. I viaggiatori potrebbero avere qualche difficoltà (come indicato dai modificatori di movimento dei viaggi attraverso le montagne), ma l’altitudine in sé non ha alcun effetto in termini di gioco."
+      },
+      {
+       "t": "p",
+       "testo": "Tra i 1.500 metri e i 4.500 metri: La salita verso le pendici più alte delle montagna o l'attraversamento delle montagne vere e proprie ricadono in questa categoria. Tutte le creature non acclimatate respirano a fatica per effetto dell'aria rarefatta di queste zone. I personaggi dovranno superare un Tiro Salvezza su Tempra ogni 6 ore (CD 15, +1 per ogni prova precedente), altrimenti diverranno affaticati. L'affaticamento ha fine quando il personaggio ridiscende a un'altitudine dove l'aria è più densa. I personaggi acclimatati non devono effettuare alcun Tiro Salvezza su Tempra a questo scopo."
+      },
+      {
+       "t": "p",
+       "testo": "Oltre i 4.500 metri: Le montagne più alte possono superare i 6.000 metri d'altezza. A queste quote, i personaggi sono soggetti all'affaticamento da alta quota (descritto sopra) e all'infermità d'alta quota, che siano acclimatati o meno all'alta quota. L'infermità da alta quota sta ad indicare la privazione a lungo termine di ossigeno, ed influenza i punteggi delle caratteristiche fisiche e mentali. Per ogni 6 ore trascorse a un'altitudine superiore ai 4.500 metri, un personaggio dovrà superare un Tiro Salvezza su Tempra (CD 15, + 1 per ogni prova precedente), altrimenti subirà 1 danno a tutti i punteggi di caratteristica. Le creature acclimatate alle alte quote ottengono bonus di competenza +4 ai Tiri Salvezza per resistere agli effetti dell'infermità da alta quota, ma prima o poi anche i montanari più esperti dovranno abbandonare queste pericolose altitudini"
+      }
+     ],
+     "strumento": "alta_quota"
+    },
+    {
+     "id": "valanghe",
+     "titolo": "Valanghe e frane",
+     "fonte": "Guida del DM",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Vedere la valanga: Una valanga può essere scorta fin da 1d10 × 150 metri più a valle da un personaggio che superi una prova di Percezione con CD 20. Se tutti i personaggi falliscono la loro prova di Percezione per determinare la distanza dell’incontro, la valanga si avvicina, e tutti la notano automaticamente quando giunge a metà della distanza originaria."
+      },
+      {
+       "t": "p",
+       "testo": "Sentire la valanga: In condizioni ottimali, un personaggio che superi una prova di Percezione con CD 15 può sentire la valanga o la frana in arrivo quando è lontana 1d6 × 150 metri. Questa prova può anche avere una CD di 20, 25 o più in condizioni in cui altri rumori forti si sovrappongono (come ad esempio nel mezzo di una tempesta)."
+      },
+      {
+       "t": "p",
+       "testo": "Effetti: I personaggi travolti subiscono 8d6 danni o danni dimezzati se superano un Tiro Salvezza su Riflessi con CD 15. Come conseguenza risultano sepolti. I personaggi sepolti subiscono 1d6 danni non letali al minuto; se un personaggio sepolto perde i sensi, deve superare una prova di Costituzione con CD 15, altrimenti subisce 1d6 danni letali ad ogni minuto, finché non viene liberato o non muore."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "riparare",
+   "nome": "Riparare",
+   "voci": [
+    {
+     "id": "riparare",
+     "titolo": "Riparare oggetti rotti",
+     "fonte": "Vol. 3",
+     "strumento": "riparare",
+     "blocchi": [
+      {
+       "t": "p",
+       "testo": "Quando un oggetto si danneggia ottiene 1 livello di danneggiamento. I livelli di danneggiamento sono cumulabili e sono: scheggiato → rotto → distrutto."
+      },
+      {
+       "t": "h",
+       "testo": "Penalità degli oggetti scheggiati"
+      },
+      {
+       "t": "p",
+       "testo": "Le armi scheggiate impongono penalità -2 ai tiri per colpire e hanno un critico fisso di 20/x2."
+      },
+      {
+       "t": "p",
+       "testo": "Le armature e gli scudi scheggiati forniscono metà bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura."
+      },
+      {
+       "t": "p",
+       "testo": "Gli oggetti vari scheggiati non forniscono alcun beneficio."
+      },
+      {
+       "t": "h",
+       "testo": "Riparare gli oggetti scheggiati"
+      },
+      {
+       "t": "p",
+       "testo": "Un oggetto scheggiato ha subito danni minimi e può essere riparato utilizzando un bancone da artigiano ben fornito o dei semplici attrezzi da artigiano, anche mentre si è in viaggio."
+      },
+      {
+       "t": "h",
+       "testo": "Penalità degli oggetti rotti"
+      },
+      {
+       "t": "p",
+       "testo": "Le armi rotte impongono penalità -4 ai tiri per colpire e hanno un critico fisso di 20/x2."
+      },
+      {
+       "t": "p",
+       "testo": "Le armature e gli scudi rotti forniscono un terzo del bonus alla CA (per difetto e minimo +0) e raddoppiano la penalità di armatura."
+      },
+      {
+       "t": "p",
+       "testo": "Gli oggetti vari rotti non forniscono alcun beneficio."
+      },
+      {
+       "t": "h",
+       "testo": "Riparare gli oggetti rotti"
+      },
+      {
+       "t": "p",
+       "testo": "Un oggetto rotto ha subito ingenti danni e può essere riparato solo utilizzando un bancone da artigiano ben fornito."
+      },
+      {
+       "t": "h",
+       "testo": "Oggetti distrutti"
+      },
+      {
+       "t": "p",
+       "testo": "Le armi, le armature, gli scudi e gli oggetti vari distrutti hanno subito danni critici, non sono più utilizzabili e non possono più essere riparati (salvo diversamente indicato dal DM)."
+      },
+      {
+       "t": "h",
+       "testo": "Riparare per conto proprio"
+      },
+      {
+       "t": "p",
+       "testo": "Si dedica alla Professione 30 minuti per riparare un oggetto scheggiato o 2 ore per riparare un oggetto rotto."
+      },
+      {
+       "t": "p",
+       "testo": "Si effettua una prova di Professione senza aggiungere il bonus di Intelligenza con una CD variabile in base alla potenza o al valore dell’oggetto, come indicato nella tabella sottostante. In questa prova un risultato naturale di 20 non è mai considerato pari a 30."
+      },
+      {
+       "t": "p",
+       "testo": "Se la prova ha successo, l’oggetto è stato riparato."
+      },
+      {
+       "t": "p",
+       "testo": "Se la prova fallisce, la condizione dell’oggetto peggiora di un grado (scheggiato → rotto → distrutto)."
+      },
+      {
+       "t": "h",
+       "testo": "Riparare presso artigiani PNG"
+      },
+      {
+       "t": "p",
+       "testo": "Si versa in anticipo all’artigiano una commissione pari a un quarantesimo del valore dell’oggetto scheggiato o pari a un ventesimo del valore dell’oggetto rotto. La paga minima è sempre e comunque di 1 mo."
+      },
+      {
+       "t": "p",
+       "testo": "Un oggetto scheggiato verrà riparato e riconsegnato dopo 1d4 ore mentre uno rotto dopo 1 giorno."
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Armature e scudi",
+         "CD scheggiato",
+         "CD rotto"
+        ],
+        [
+         "Comune",
+         "8",
+         "9"
+        ],
+        [
+         "Perfetto",
+         "11",
+         "12"
+        ],
+        [
+         "+1",
+         "12",
+         "13"
+        ],
+        [
+         "+2",
+         "15",
+         "16"
+        ],
+        [
+         "+3",
+         "18",
+         "19"
+        ],
+        [
+         "+4",
+         "21",
+         "22"
+        ],
+        [
+         "+5",
+         "24",
+         "25"
+        ],
+        [
+         "+6",
+         "26",
+         "27"
+        ],
+        [
+         "+7",
+         "27",
+         "28"
+        ],
+        [
+         "+8",
+         "28",
+         "29"
+        ],
+        [
+         "+9",
+         "29",
+         "30"
+        ],
+        [
+         "+10",
+         "29",
+         "30"
+        ]
+       ]
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Armi",
+         "CD scheggiato",
+         "CD rotto"
+        ],
+        [
+         "Comune",
+         "8",
+         "9"
+        ],
+        [
+         "Perfetto",
+         "11",
+         "12"
+        ],
+        [
+         "+1",
+         "13",
+         "14"
+        ],
+        [
+         "+2",
+         "16",
+         "17"
+        ],
+        [
+         "+3",
+         "19",
+         "20"
+        ],
+        [
+         "+4",
+         "22",
+         "23"
+        ],
+        [
+         "+5",
+         "25",
+         "26"
+        ],
+        [
+         "+6",
+         "26",
+         "27"
+        ],
+        [
+         "+7",
+         "27",
+         "28"
+        ],
+        [
+         "+8",
+         "28",
+         "29"
+        ],
+        [
+         "+9",
+         "29",
+         "30"
+        ],
+        [
+         "+10",
+         "29",
+         "30"
+        ]
+       ]
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Valore dell’oggetto (mo)",
+         "CD scheggiato",
+         "CD rotto"
+        ],
+        [
+         "1-1.000",
+         "8",
+         "9"
+        ],
+        [
+         "1.001-1.999",
+         "11",
+         "12"
+        ],
+        [
+         "fino a 2.000",
+         "13",
+         "14"
+        ],
+        [
+         "fino a 8.000",
+         "16",
+         "17"
+        ],
+        [
+         "fino a 18.000",
+         "19",
+         "20"
+        ],
+        [
+         "fino a 32.000",
+         "22",
+         "23"
+        ],
+        [
+         "fino a 50.000",
+         "25",
+         "26"
+        ],
+        [
+         "fino a 72.000",
+         "26",
+         "27"
+        ],
+        [
+         "fino a 98.000",
+         "27",
+         "28"
+        ],
+        [
+         "fino a 128.000",
+         "28",
+         "29"
+        ],
+        [
+         "fino a 162.000",
+         "29",
+         "30"
+        ],
+        [
+         "fino a 200.000",
+         "29",
+         "30"
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "app",
+       "testo": "«fino a X» vale dal gradino precedente +1 fino a X: 2.000 mo = 13/14, da 2.001 a 8.000 = 16/17, e così via (AC9-2)."
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 3",
+       "testo": "Nella Guida la CD «scheggiato» delle armi +10 è 39: fa fede il Vol. 3 (29/30). Armi rotte: −4 (la Guida dice −3)."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "locande",
+   "nome": "Locande e luce",
+   "voci": [
+    {
+     "id": "locande",
+     "titolo": "Locande e taverne",
+     "fonte": "Vol. 3",
+     "strumento": "locanda",
+     "blocchi": [
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Servizio giornaliero",
+         "Costo",
+         "Descrizione",
+         "Effetto"
+        ],
+        [
+         "Bevanda alcolica forte",
+         "10 mo",
+         "Una bottiglia di alcolico forte sufficiente a cinque robusti sorsi.",
+         "Una creatura che beva un numero di sorsi pari a 2 + il doppio del bonus di Costituzione base diventa barcollante per 2 ore. Se supera questo limite cade priva di sensi per 4 ore. Gli effetti di un sorso svaniscono dopo un’ora."
+        ],
+        [
+         "Dormitorio",
+         "4 ma",
+         "Pagliericcio in una stanza comune non riscaldata. Bagno esterno.",
+         "Punti Fatica massimi ridotti di un quarto per quel giorno."
+        ],
+        [
+         "Giro di bevute per quattro persone",
+         "1 ma",
+         "Birra, liquore di scarsa o media qualità, vino della casa.",
+         "+2 Diplomazia o +2 Raggirare nei confronti della persona a cui si offre la bevuta."
+        ],
+        [
+         "Stanza per 4 persone",
+         "8 mo",
+         "Due letti a castello, pitale e braciere per scaldare la stanza.",
+         "—"
+        ],
+        [
+         "Stanza per 2 persone",
+         "6 mo",
+         "Due letti singoli, due bauli, pitale e braciere per scaldare la stanza.",
+         "—"
+        ],
+        [
+         "Stanza singola",
+         "8 mo",
+         "Letto singolo, baule, pitale e braciere per scaldare la stanza.",
+         "—"
+        ],
+        [
+         "Suite (1 per locanda)",
+         "20 mo",
+         "Letto singolo, armadio, cassapanca, caminetto e bagno in camera.",
+         "+1 Punto Fatica massimo per livello per quel giorno (minimo +3 e massimo +10)."
+        ],
+        [
+         "Bagno con essenze",
+         "2 mo",
+         "Vasca privata con acqua riscaldata, olii, sapone e asciugamani caldi.",
+         "+1 Diplomazia e +1 Raggirare per 3 giorni."
+        ],
+        [
+         "Pasto scadente",
+         "2 ma",
+         "Una portata di sole verdure acquose con del pane raffermo.",
+         "Penalità -1 ai Tiri Salvezza su Tempra per quel giorno."
+        ],
+        [
+         "Pasto",
+         "1 mo",
+         "Una portata di carne o pesce di seconda scelta, pane e verdure.",
+         "—"
+        ],
+        [
+         "Pasto eccellente",
+         "5 mo",
+         "Due portate di carne o pesce, pane, verdure, formaggi, frutta, dolci e vino.",
+         "Bonus +1 al primo Tiro Salvezza su Tempra effettuato entro 24 ore."
+        ],
+        [
+         "Compagnia intima",
+         "25 mo",
+         "Un ragazzo o una ragazza esperti nell’arte amatoria per un’ora. Richiede la prenotazione di una stanza per minimo 2 persone senza altri ospiti.",
+         "Bonus +1 al primo Tiro Salvezza su Volontà effettuato entro 24 ore."
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "stalle",
+     "titolo": "Stalle e negozi di animali",
+     "fonte": "Vol. 3",
+     "blocchi": [
+      {
+       "t": "h",
+       "testo": "Stallaggio"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Servizio giornaliero",
+         "Costo",
+         "Descrizione"
+        ],
+        [
+         "Ricovero giornaliero",
+         "5 ma",
+         "L’animale viene accudito, riparato e nutrito per un giorno."
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Animali"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Animale",
+         "Costo",
+         "Descrizione"
+        ],
+        [
+         "Cane da guardia",
+         "15 mo",
+         "Questo cane di taglia medio-piccola è addestrato a fare la guardia ma non a combattere."
+        ],
+        [
+         "Cavallo da galoppo",
+         "75 mo",
+         "Cavalcabili da creature di taglia media, possono coprire lunghe distanze in breve tempo. Questi equini non sono addestrati per essere cavalcati durante gli scontri e cercheranno di fuggire dal pericolo. I cavalli si rifiuteranno di entrare in luoghi chiusi e spaventosi come dungeon o caverne troppo profonde."
+        ],
+        [
+         "Mulo",
+         "20 mo",
+         "Asini e muli non sono adatti ad essere cavalcati ma sono capaci di trasportare carichi pesanti per grandi distanze. Questi animali sono imperturbabili di fronte al pericolo e sono disposti ad entrare nei dungeon o in altri posti strani o minacciosi."
+        ],
+        [
+         "Pony da galoppo",
+         "45 mo",
+         "Conta come un Cavallo ma è cavalcabile da creature di taglia piccola."
+        ],
+        [
+         "Uccello",
+         "5 mo",
+         "Questo animale viene tenuto in una gabbia ed inizierà a starnazzare in presenza di gas nocivi."
+        ]
+       ]
+      },
+      {
+       "t": "h",
+       "testo": "Oggetti di utilità"
+      },
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Oggetto",
+         "Costo",
+         "Descrizione",
+         "CD / h"
+        ],
+        [
+         "Gabbia minuscola Gabbia piccola Gabbia media Gabbia grande Gabbia enorme",
+         "2 mo 5 mo 10 mo 30 mo 60 mo",
+         "Queste gabbie portatili servono in genere a contenere animali, ma possono all’evenienza contenere di tutto. Le gabbie sono fatte di ferro, legno o bambù, secondo i costumi locali e i materiali disponibili. Una gabbia contiene una creatura della propria taglia, o tre una taglia inferiore. Le gabbie per creature acquatiche costano il triplo e pesano molto quando riempite d’acqua.",
+         "—"
+        ],
+        [
+         "Museruola",
+         "9 ma",
+         "La museruola per gli animali (specie quelli carnivori) è obbligatoria nei centri urbani. Questa è regolabile per adattarsi a creature di taglia piccola o media. Per ogni taglia superiore il prezzo aumenta di 5 ma.",
+         "12 / 6"
+        ],
+        [
+         "Sella da carico",
+         "3 mo",
+         "Adatta al trasporto di equipaggiamento e provviste di cavalli, pony e muli. L’animale non può essere cavalcato.",
+         "14 / 30"
+        ],
+        [
+         "Sella comune",
+         "6 mo",
+         "Strumento utile a montare in arcione, senza il quale si subisce -5 Cavalcare. Se il cavaliere perde i sensi mentre è su una sella comune, ha una probabilità del 50% di rimanere in arcione.",
+         "16 / 36"
+        ],
+        [
+         "Sella militare",
+         "15 mo",
+         "Conta come Sella comune ma il cavaliere ha una probabilità del 75% di rimanere in arcione se perde i sensi.",
+         "18 / 42"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "luce",
+     "titolo": "Fonti di luce",
+     "fonte": "Vol. 3",
+     "blocchi": [
+      {
+       "t": "tab",
+       "righe": [
+        [
+         "Oggetto",
+         "Costo",
+         "Slot",
+         "Descrizione"
+        ],
+        [
+         "Candela x5",
+         "5 mr",
+         "PM",
+         "Illumina in un raggio di 3 m. Brucia per 1 ora. Pioggia e vento la spengono. Si spegne se chi la sorregge si muove a più della propria velocità base o al 25% dopo aver effettuato un’azione di attacco."
+        ],
+        [
+         "Torcia",
+         "3 ma",
+         "PM",
+         "Illumina in un raggio di 9 m. Brucia per 1 ora. Pioggia e vento moderati la spengono. In combattimento, viene considerata un’arma improvvisata ad una mano che infligge 1d3 danni contundenti + 1 danno da fuoco."
+        ],
+        [
+         "Lanterna",
+         "5 mo",
+         "PM",
+         "Illumina in un raggio di 15 m. Brucia per 3 ore usando 1 Fiaschetta d’olio. Pioggia e vento forti la spengono. Spegnerla è un’azione di round completo."
+        ],
+        [
+         "Lanterna impermeabile",
+         "10 mo",
+         "PM",
+         "Conta come una Lanterna ma pioggia e vento forti non la spengono."
+        ],
+        [
+         "Lanterna schermabile",
+         "20 mo",
+         "PM",
+         "Conta come una Lanterna ma come azione veloce si può occultarne temporaneamente la luce."
+        ],
+        [
+         "Lanterna deluxe",
+         "30 mo",
+         "PM",
+         "Conta come una Lanterna ma pioggia e vento forti non la spengono. Inoltre, come azione veloce si può occultarne temporaneamente la luce."
+        ],
+        [
+         "Fiaschetta d’olio",
+         "1 ma",
+         "PM",
+         "Contiene mezzo litro d’olio. Se versato è sufficiente per ricoprire 1,5 m quadrati."
+        ],
+        [
+         "Caschetto portacandela",
+         "2 mo",
+         "—",
+         "Copricapo con un anello su cui va inserita una Candela (vedi Fonti di luce). Permette di tenere le mani libere per altre attività. Occupa lo slot testa."
+        ]
+       ]
+      },
+      {
+       "t": "nota",
+       "fonte": "Vol. 3",
+       "testo": "Prezzi del Vol. 3 (la Guida dice Torcia 5 ma). Le fonti di luce in uso stanno nel pannello Luce del Viaggio."
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "appendice_a": {
+  "titolo": "Appendice A – Equipaggiamento",
+  "testo": "Oggetti richiesti dalle regole di questo manuale, da aggiungere al Vol. 3 (Sartorie e mercerie, Oggetti vari).",
+  "righe": [
+   [
+    "Oggetto",
+    "Costo",
+    "Regole",
+    "Descrizione",
+    "CD / h"
+   ],
+   [
+    "Abiti estivi",
+    "8 mo",
+    "—",
+    "Tessuti leggeri e chiari, copricapo a tesa larga, velo per il viso. Proteggono dal Clima caldo e dall'Arsura.",
+    "16 / 12"
+   ],
+   [
+    "Abiti invernali",
+    "8 mo",
+    "—",
+    "Lana, pellicce, stivali foderati. Proteggono dal Clima freddo e dal Gelo.",
+    "16 / 12"
+   ],
+   [
+    "Otre",
+    "1 mo",
+    "Z",
+    "Sacca di pelle impermeabilizzata, contiene 1 razione d'acqua (4 litri).",
+    "12 / 6"
+   ],
+   [
+    "Racchette da neve",
+    "5 mo",
+    "Z",
+    "La Neve non rallenta; la Neve fitta rallenta come la Neve.",
+    "14 / 6"
+   ]
+  ]
+ },
+ "refusi": [
+  {
+   "voce": "conoscenze",
+   "guida": "si viene a conoscenza di a un’ulteriore caratteristica",
+   "corretto": "si viene a conoscenza di un’ulteriore caratteristica",
+   "nota": "refuso «di a un’ulteriore»"
+  },
+  {
+   "voce": "furtivita",
+   "guida": "La prova di Nascondersi è contrapposta",
+   "corretto": "La prova di Furtività è contrapposta",
+   "nota": "«Nascondersi» non è più un'abilità: Furtività"
+  },
+  {
+   "voce": "intuizione",
+   "guida": "In base al comportamento altui",
+   "corretto": "In base al comportamento altrui",
+   "nota": "refuso «altui»"
+  },
+  {
+   "voce": "rd",
+   "guida": "un certo tipo Di arma",
+   "corretto": "un certo tipo di arma",
+   "nota": "maiuscola «Di»"
+  },
+  {
+   "voce": "ucm",
+   "guida": "Si può utilizzare questa abilità per utilizzare un oggetto magico",
+   "corretto": "Si può utilizzare questa abilità per utilizzare un oggetto magico",
+   "nota": "titolo «Utilizzare oggetti magici» → Utilizzare congegni magici (Vol. 1)"
+  },
+  {
+   "voce": "annegamento",
+   "guida": "comincia ad annegare: nel 1° round perde i sensi (0 Punti Ferita ), nel round seguente perde i sensi e nel 3° terzo round annega.",
+   "corretto": "comincia ad annegare: nel 1° round è Privo di Sensi, nel 2° round resta Privo di Sensi e nel 3° round annega (Morto).",
+   "nota": "AC7-1: nella Collana i PF negativi e il morente non esistono; refuso «3° terzo»"
+  },
+  {
+   "voce": "montuosi",
+   "guida": "I personaggi dovranno superare un Tiro Salvezza su Tempra ogni 6 ore (CD 20+6 ogni 6 ore), altrimenti diverranno affaticati.",
+   "corretto": "I personaggi dovranno superare un Tiro Salvezza su Tempra ogni 6 ore (CD 15, +1 per ogni prova precedente), altrimenti diverranno affaticati.",
+   "nota": "AC7-1: la Guida dice «CD 20+6 ogni 6 ore»"
+  },
+  {
+   "voce": "montuosi",
+   "guida": "Per ogni 6 ore trascorse a un'altitudine superiore ai 4.000 metri",
+   "corretto": "Per ogni 6 ore trascorse a un'altitudine superiore ai 4.500 metri",
+   "nota": "AC7-1: il titolo dice 4.500 m"
+  },
+  {
+   "voce": "acrobazia",
+   "guida": "H: Camminare su superfici scivolose\n\nP: CD 10 se si va a metà velocità ma per ogni 5 punti di successo extra ci si può muovere di 3 metri extra ma a quel punto si è considerati impreparati. CD 20 se si corre o carica.\n\nP: Fallire manda proni all’inizio del movimento.",
+   "corretto": "H: Camminare su superfici scivolose\n\nP: Vedi «Terreni scivolosi» (Pericoli): prova solo oltre metà velocità, CD 15, 20 correndo o caricando.",
+   "nota": "AC7-1: una sola regola, quella di Terreni scivolosi (la Guida qui diceva CD 10 a metà velocità)"
+  }
+ ],
+ "viaggi": {
+  "km_miglio": 1.6,
+  "mezzi": [
+   {
+    "id": "piedi",
+    "nome": "Creatura umanoide a piedi",
+    "miglia": 3,
+    "kmh": 4.8
+   },
+   {
+    "id": "cavallo",
+    "nome": "Cavallo",
+    "miglia": 6,
+    "kmh": 9.6
+   },
+   {
+    "id": "pony",
+    "nome": "Pony o cavalcatura media",
+    "miglia": 4,
+    "kmh": 6.4
+   },
+   {
+    "id": "carro",
+    "nome": "Carro",
+    "miglia": 3,
+    "kmh": 4.8
+   },
+   {
+    "id": "barca",
+    "nome": "Imbarcazione fluviale",
+    "miglia": 1,
+    "kmh": 1.6
+   }
+  ],
+  "piedi_m": 9,
+  "terreni": [
+   {
+    "id": "strade_ben_tenute",
+    "nome": "Strade ben tenute",
+    "molt": [
+     1,
+     1
+    ]
+   },
+   {
+    "id": "pianura",
+    "nome": "Pianura",
+    "molt": [
+     1,
+     1
+    ]
+   },
+   {
+    "id": "colline",
+    "nome": "Colline",
+    "molt": [
+     1,
+     2
+    ]
+   },
+   {
+    "id": "foresta",
+    "nome": "Foresta",
+    "molt": [
+     1,
+     2
+    ]
+   },
+   {
+    "id": "montagna",
+    "nome": "Montagna",
+    "molt": [
+     1,
+     3
+    ]
+   },
+   {
+    "id": "deserto_sabbioso",
+    "nome": "Deserto sabbioso",
+    "molt": [
+     1,
+     3
+    ]
+   },
+   {
+    "id": "tundra_ghiacciata",
+    "nome": "Tundra Ghiacciata",
+    "molt": [
+     1,
+     3
+    ]
+   },
+   {
+    "id": "paludi",
+    "nome": "Paludi",
+    "molt": [
+     1,
+     4
+    ]
+   },
+   {
+    "id": "giungla",
+    "nome": "Giungla",
+    "molt": [
+     1,
+     4
+    ]
+   }
+  ],
+  "suolo": [
+   {
+    "id": "nessuno",
+    "nome": "asciutto",
+    "molt": [
+     1,
+     1
+    ]
+   },
+   {
+    "id": "neve",
+    "nome": "neve depositata, pioggia gelata o fango (×½ fuori strada)",
+    "molt": [
+     1,
+     2
+    ]
+   },
+   {
+    "id": "neve_fitta",
+    "nome": "neve fitta depositata (×¼ fuori strada, ×½ con le racchette)",
+    "molt": [
+     1,
+     4
+    ],
+    "racchette": [
+     1,
+     2
+    ]
+   }
+  ],
+  "suolo_meteo": {
+   "Neve": "neve",
+   "Pioggia gelata": "neve",
+   "Monsone": "neve",
+   "Tormenta": "neve_fitta",
+   "Neve fitta": "neve_fitta"
+  },
+  "tempeste": [
+   "Tempesta di grandine",
+   "Tempesta di polvere",
+   "Tempesta di sabbia",
+   "Tempesta di cenere",
+   "Tormenta",
+   "Uragano",
+   "Tempesta di vento"
+  ],
+  "tempeste_molt": [
+   1,
+   4
+  ],
+  "ore_giorno": 8,
+  "forzata": {
+   "cd": 18,
+   "passo": 2,
+   "danno_pg": 1,
+   "danno_cavalcatura": 2
+  },
+  "orientarsi": {
+   "cd": 15,
+   "mods": [
+    {
+     "voci": [
+      "Foschia"
+     ],
+     "cd": 2
+    },
+    {
+     "voci": [
+      "Nebbia",
+      "Neve fitta",
+      "Miraggi"
+     ],
+     "cd": 5
+    },
+    {
+     "voci": [
+      "Tempesta di grandine",
+      "Tempesta di polvere",
+      "Tempesta di sabbia",
+      "Tempesta di cenere",
+      "Tempesta di vento",
+      "Uragano",
+      "Tormenta"
+     ],
+     "cd": 10
+    }
+   ],
+   "perso": "metà della strada",
+   "sbagliata": 5
+  }
+ },
+ "cadere": {
+  "righe": [
+   {
+    "da": 3,
+    "a": 3,
+    "dadi": 1
+   },
+   {
+    "da": 4,
+    "a": 5,
+    "dadi": 2
+   },
+   {
+    "da": 6,
+    "a": 8,
+    "dadi": 4
+   },
+   {
+    "da": 9,
+    "a": 11,
+    "dadi": 12
+   },
+   {
+    "da": 12,
+    "a": 14,
+    "dadi": 20
+   },
+   {
+    "da": 15,
+    "a": 17,
+    "dadi": 26
+   },
+   {
+    "da": 18,
+    "a": 20,
+    "dadi": 32
+   },
+   {
+    "da": 21,
+    "a": 33,
+    "dadi": 40
+   }
+  ],
+  "morte": 34,
+  "volontaria": {
+   "meno": 3,
+   "cd": 15,
+   "ogni": 5
+  },
+  "acqua": {
+   "profondita": 3,
+   "nulla": 6,
+   "non_letali": 6
+  },
+  "lettura_acqua": "Oltre i 12 m in acqua: i 6 m non letali più la tabella per i metri oltre i 12 (Z3b)."
+ },
+ "pericoli": {
+  "annegamento": {
+   "per_cos": 2,
+   "cd": 10,
+   "passo": 1,
+   "grande_nuotatore": 2
+  },
+  "fumo": {
+   "ts": "Tempra",
+   "cd": 15,
+   "passo": 1,
+   "di_fila": 2,
+   "danni": "1d6",
+   "occultamento": 20
+  },
+  "alta_quota": [
+   {
+    "id": "quota",
+    "nome": "Alta quota (1.500–4.500 m)",
+    "ts": "Tempra",
+    "cd": 15,
+    "passo": 1,
+    "ore": 6,
+    "effetto": "Affaticato",
+    "nota": "finisce scendendo di quota; i personaggi acclimatati non tirano"
+   },
+   {
+    "id": "infermita",
+    "nome": "Infermità d'alta quota (oltre 4.500 m)",
+    "ts": "Tempra",
+    "cd": 15,
+    "passo": 1,
+    "ore": 6,
+    "effetto": "1 danno a tutte le caratteristiche",
+    "nota": "gli acclimatati hanno +4 al TS"
+   }
+  ]
+ },
+ "incontri": {
+  "aree": [
+   {
+    "nome": "Terre selvagge",
+    "perc": 20,
+    "speciale": null
+   },
+   {
+    "nome": "Caverne e sotterranei",
+    "perc": 15,
+    "speciale": null
+   },
+   {
+    "nome": "Montagna",
+    "perc": 10,
+    "speciale": {
+     "nome": "nelle grotte",
+     "perc": 20
+    }
+   },
+   {
+    "nome": "Bosco",
+    "perc": 10,
+    "speciale": null
+   },
+   {
+    "nome": "Campagna e colline; strade di collegamento",
+    "perc": 5,
+    "speciale": null
+   },
+   {
+    "nome": "Deserto o desolazione",
+    "perc": 5,
+    "speciale": {
+     "nome": "in oasi e rovine",
+     "perc": 30
+    }
+   }
+  ],
+  "ora": "2d12",
+  "riparo": 5,
+  "ogni_ore": 6
+ },
+ "riparare": {
+  "tabella": {
+   "armature": [
+    {
+     "voce": "Comune",
+     "s": 8,
+     "r": 9
+    },
+    {
+     "voce": "Perfetto",
+     "s": 11,
+     "r": 12
+    },
+    {
+     "voce": "+1",
+     "s": 12,
+     "r": 13
+    },
+    {
+     "voce": "+2",
+     "s": 15,
+     "r": 16
+    },
+    {
+     "voce": "+3",
+     "s": 18,
+     "r": 19
+    },
+    {
+     "voce": "+4",
+     "s": 21,
+     "r": 22
+    },
+    {
+     "voce": "+5",
+     "s": 24,
+     "r": 25
+    },
+    {
+     "voce": "+6",
+     "s": 26,
+     "r": 27
+    },
+    {
+     "voce": "+7",
+     "s": 27,
+     "r": 28
+    },
+    {
+     "voce": "+8",
+     "s": 28,
+     "r": 29
+    },
+    {
+     "voce": "+9",
+     "s": 29,
+     "r": 30
+    },
+    {
+     "voce": "+10",
+     "s": 29,
+     "r": 30
+    }
+   ],
+   "armi": [
+    {
+     "voce": "Comune",
+     "s": 8,
+     "r": 9
+    },
+    {
+     "voce": "Perfetto",
+     "s": 11,
+     "r": 12
+    },
+    {
+     "voce": "+1",
+     "s": 13,
+     "r": 14
+    },
+    {
+     "voce": "+2",
+     "s": 16,
+     "r": 17
+    },
+    {
+     "voce": "+3",
+     "s": 19,
+     "r": 20
+    },
+    {
+     "voce": "+4",
+     "s": 22,
+     "r": 23
+    },
+    {
+     "voce": "+5",
+     "s": 25,
+     "r": 26
+    },
+    {
+     "voce": "+6",
+     "s": 26,
+     "r": 27
+    },
+    {
+     "voce": "+7",
+     "s": 27,
+     "r": 28
+    },
+    {
+     "voce": "+8",
+     "s": 28,
+     "r": 29
+    },
+    {
+     "voce": "+9",
+     "s": 29,
+     "r": 30
+    },
+    {
+     "voce": "+10",
+     "s": 29,
+     "r": 30
+    }
+   ],
+   "vari": [
+    {
+     "voce": "1-1.000",
+     "fino": 1000,
+     "s": 8,
+     "r": 9
+    },
+    {
+     "voce": "1.001-1.999",
+     "fino": 1999,
+     "s": 11,
+     "r": 12
+    },
+    {
+     "voce": "fino a 2.000",
+     "fino": 2000,
+     "s": 13,
+     "r": 14
+    },
+    {
+     "voce": "fino a 8.000",
+     "fino": 8000,
+     "s": 16,
+     "r": 17
+    },
+    {
+     "voce": "fino a 18.000",
+     "fino": 18000,
+     "s": 19,
+     "r": 20
+    },
+    {
+     "voce": "fino a 32.000",
+     "fino": 32000,
+     "s": 22,
+     "r": 23
+    },
+    {
+     "voce": "fino a 50.000",
+     "fino": 50000,
+     "s": 25,
+     "r": 26
+    },
+    {
+     "voce": "fino a 72.000",
+     "fino": 72000,
+     "s": 26,
+     "r": 27
+    },
+    {
+     "voce": "fino a 98.000",
+     "fino": 98000,
+     "s": 27,
+     "r": 28
+    },
+    {
+     "voce": "fino a 128.000",
+     "fino": 128000,
+     "s": 28,
+     "r": 29
+    },
+    {
+     "voce": "fino a 162.000",
+     "fino": 162000,
+     "s": 29,
+     "r": 30
+    },
+    {
+     "voce": "fino a 200.000",
+     "fino": 200000,
+     "s": 29,
+     "r": 30
+    }
+   ]
+  },
+  "tempi": {
+   "s": 30,
+   "r": 120
+  },
+  "artigiano": {
+   "s": 40,
+   "r": 20,
+   "minimo_mo": 1,
+   "tempi": {
+    "s": "1d4 ore",
+    "r": "1 giorno"
+   }
+  },
+  "nota_valore": "«fino a X» vale dal gradino precedente +1 fino a X: 2.000 mo = 13/14, da 2.001 a 8.000 = 16/17, e così via (AC9-2)."
+ },
+ "locanda": [
+  {
+   "id": "bevanda_alcolica_forte",
+   "nome": "Bevanda alcolica forte",
+   "costo": "10 mo",
+   "mr": 1000,
+   "descrizione": "Una bottiglia di alcolico forte sufficiente a cinque robusti sorsi.",
+   "effetto": "Una creatura che beva un numero di sorsi pari a 2 + il doppio del bonus di Costituzione base diventa barcollante per 2 ore. Se supera questo limite cade priva di sensi per 4 ore. Gli effetti di un sorso svaniscono dopo un’ora.",
+   "app": {
+    "bevanda": true,
+    "sorsi_base": 2,
+    "barcollante_ore": 2,
+    "privo_ore": 4
+   }
+  },
+  {
+   "id": "dormitorio",
+   "nome": "Dormitorio",
+   "costo": "4 ma",
+   "mr": 40,
+   "descrizione": "Pagliericcio in una stanza comune non riscaldata. Bagno esterno.",
+   "effetto": "Punti Fatica massimi ridotti di un quarto per quel giorno.",
+   "app": {
+    "stanza": true,
+    "fatica_max_frazione": -4,
+    "durata_ore": 24
+   }
+  },
+  {
+   "id": "giro_di_bevute_per_quattro_persone",
+   "nome": "Giro di bevute per quattro persone",
+   "costo": "1 ma",
+   "mr": 10,
+   "descrizione": "Birra, liquore di scarsa o media qualità, vino della casa.",
+   "effetto": "+2 Diplomazia o +2 Raggirare nei confronti della persona a cui si offre la bevuta.",
+   "app": {}
+  },
+  {
+   "id": "stanza_per_4_persone",
+   "nome": "Stanza per 4 persone",
+   "costo": "8 mo",
+   "mr": 800,
+   "descrizione": "Due letti a castello, pitale e braciere per scaldare la stanza.",
+   "effetto": "—",
+   "app": {
+    "stanza": true
+   }
+  },
+  {
+   "id": "stanza_per_2_persone",
+   "nome": "Stanza per 2 persone",
+   "costo": "6 mo",
+   "mr": 600,
+   "descrizione": "Due letti singoli, due bauli, pitale e braciere per scaldare la stanza.",
+   "effetto": "—",
+   "app": {
+    "stanza": true
+   }
+  },
+  {
+   "id": "stanza_singola",
+   "nome": "Stanza singola",
+   "costo": "8 mo",
+   "mr": 800,
+   "descrizione": "Letto singolo, baule, pitale e braciere per scaldare la stanza.",
+   "effetto": "—",
+   "app": {
+    "stanza": true
+   }
+  },
+  {
+   "id": "suite_1_per_locanda",
+   "nome": "Suite (1 per locanda)",
+   "costo": "20 mo",
+   "mr": 2000,
+   "descrizione": "Letto singolo, armadio, cassapanca, caminetto e bagno in camera.",
+   "effetto": "+1 Punto Fatica massimo per livello per quel giorno (minimo +3 e massimo +10).",
+   "app": {
+    "stanza": true,
+    "fatica_max_liv": 1,
+    "minimo": 3,
+    "massimo": 10,
+    "durata_ore": 24
+   }
+  },
+  {
+   "id": "bagno_con_essenze",
+   "nome": "Bagno con essenze",
+   "costo": "2 mo",
+   "mr": 200,
+   "descrizione": "Vasca privata con acqua riscaldata, olii, sapone e asciugamani caldi.",
+   "effetto": "+1 Diplomazia e +1 Raggirare per 3 giorni.",
+   "app": {
+    "abilita_nome": {
+     "Diplomazia": 1,
+     "Raggirare": 1
+    },
+    "durata_giorni": 3
+   }
+  },
+  {
+   "id": "pasto_scadente",
+   "nome": "Pasto scadente",
+   "costo": "2 ma",
+   "mr": 20,
+   "descrizione": "Una portata di sole verdure acquose con del pane raffermo.",
+   "effetto": "Penalità -1 ai Tiri Salvezza su Tempra per quel giorno.",
+   "app": {
+    "pasto": true,
+    "mods": {
+     "tempra": -1
+    },
+    "fino": "mezzanotte"
+   }
+  },
+  {
+   "id": "pasto",
+   "nome": "Pasto",
+   "costo": "1 mo",
+   "mr": 100,
+   "descrizione": "Una portata di carne o pesce di seconda scelta, pane e verdure.",
+   "effetto": "—",
+   "app": {
+    "pasto": true
+   }
+  },
+  {
+   "id": "pasto_eccellente",
+   "nome": "Pasto eccellente",
+   "costo": "5 mo",
+   "mr": 500,
+   "descrizione": "Due portate di carne o pesce, pane, verdure, formaggi, frutta, dolci e vino.",
+   "effetto": "Bonus +1 al primo Tiro Salvezza su Tempra effettuato entro 24 ore.",
+   "app": {
+    "pasto": true,
+    "mods": {
+     "tempra": 1
+    },
+    "durata_ore": 24,
+    "primo": "primo TS su Tempra"
+   }
+  },
+  {
+   "id": "compagnia_intima",
+   "nome": "Compagnia intima",
+   "costo": "25 mo",
+   "mr": 2500,
+   "descrizione": "Un ragazzo o una ragazza esperti nell’arte amatoria per un’ora. Richiede la prenotazione di una stanza per minimo 2 persone senza altri ospiti.",
+   "effetto": "Bonus +1 al primo Tiro Salvezza su Volontà effettuato entro 24 ore.",
+   "app": {
+    "mods": {
+     "volonta": 1
+    },
+    "durata_ore": 24,
+    "primo": "primo TS su Volontà"
+   }
+  }
+ ],
+ "stalle": {
+  "stallaggio": {
+   "nome": "Ricovero giornaliero",
+   "costo": "5 ma",
+   "mr": 50,
+   "descrizione": "L’animale viene accudito, riparato e nutrito per un giorno."
+  },
+  "animali": [
+   {
+    "nome": "Cane da guardia",
+    "costo": "15 mo",
+    "descrizione": "Questo cane di taglia medio-piccola è addestrato a fare la guardia ma non a combattere."
+   },
+   {
+    "nome": "Cavallo da galoppo",
+    "costo": "75 mo",
+    "descrizione": "Cavalcabili da creature di taglia media, possono coprire lunghe distanze in breve tempo. Questi equini non sono addestrati per essere cavalcati durante gli scontri e cercheranno di fuggire dal pericolo. I cavalli si rifiuteranno di entrare in luoghi chiusi e spaventosi come dungeon o caverne troppo profonde."
+   },
+   {
+    "nome": "Mulo",
+    "costo": "20 mo",
+    "descrizione": "Asini e muli non sono adatti ad essere cavalcati ma sono capaci di trasportare carichi pesanti per grandi distanze. Questi animali sono imperturbabili di fronte al pericolo e sono disposti ad entrare nei dungeon o in altri posti strani o minacciosi."
+   },
+   {
+    "nome": "Pony da galoppo",
+    "costo": "45 mo",
+    "descrizione": "Conta come un Cavallo ma è cavalcabile da creature di taglia piccola."
+   },
+   {
+    "nome": "Uccello",
+    "costo": "5 mo",
+    "descrizione": "Questo animale viene tenuto in una gabbia ed inizierà a starnazzare in presenza di gas nocivi."
+   }
+  ],
+  "oggetti": [
+   {
+    "nome": "Gabbia minuscola Gabbia piccola Gabbia media Gabbia grande Gabbia enorme",
+    "costo": "2 mo 5 mo 10 mo 30 mo 60 mo",
+    "descrizione": "Queste gabbie portatili servono in genere a contenere animali, ma possono all’evenienza contenere di tutto. Le gabbie sono fatte di ferro, legno o bambù, secondo i costumi locali e i materiali disponibili. Una gabbia contiene una creatura della propria taglia, o tre una taglia inferiore. Le gabbie per creature acquatiche costano il triplo e pesano molto quando riempite d’acqua.",
+    "cd_h": "—"
+   },
+   {
+    "nome": "Museruola",
+    "costo": "9 ma",
+    "descrizione": "La museruola per gli animali (specie quelli carnivori) è obbligatoria nei centri urbani. Questa è regolabile per adattarsi a creature di taglia piccola o media. Per ogni taglia superiore il prezzo aumenta di 5 ma.",
+    "cd_h": "12 / 6"
+   },
+   {
+    "nome": "Sella da carico",
+    "costo": "3 mo",
+    "descrizione": "Adatta al trasporto di equipaggiamento e provviste di cavalli, pony e muli. L’animale non può essere cavalcato.",
+    "cd_h": "14 / 30"
+   },
+   {
+    "nome": "Sella comune",
+    "costo": "6 mo",
+    "descrizione": "Strumento utile a montare in arcione, senza il quale si subisce -5 Cavalcare. Se il cavaliere perde i sensi mentre è su una sella comune, ha una probabilità del 50% di rimanere in arcione.",
+    "cd_h": "16 / 36"
+   },
+   {
+    "nome": "Sella militare",
+    "costo": "15 mo",
+    "descrizione": "Conta come Sella comune ma il cavaliere ha una probabilità del 75% di rimanere in arcione se perde i sensi.",
+    "cd_h": "18 / 42"
+   }
+  ]
+ },
+ "luce": [
+  {
+   "nome": "Candela x5",
+   "costo": "5 mr",
+   "slot": "PM",
+   "descrizione": "Illumina in un raggio di 3 m. Brucia per 1 ora. Pioggia e vento la spengono. Si spegne se chi la sorregge si muove a più della propria velocità base o al 25% dopo aver effettuato un’azione di attacco."
+  },
+  {
+   "nome": "Torcia",
+   "costo": "3 ma",
+   "slot": "PM",
+   "descrizione": "Illumina in un raggio di 9 m. Brucia per 1 ora. Pioggia e vento moderati la spengono. In combattimento, viene considerata un’arma improvvisata ad una mano che infligge 1d3 danni contundenti + 1 danno da fuoco."
+  },
+  {
+   "nome": "Lanterna",
+   "costo": "5 mo",
+   "slot": "PM",
+   "descrizione": "Illumina in un raggio di 15 m. Brucia per 3 ore usando 1 Fiaschetta d’olio. Pioggia e vento forti la spengono. Spegnerla è un’azione di round completo."
+  },
+  {
+   "nome": "Lanterna impermeabile",
+   "costo": "10 mo",
+   "slot": "PM",
+   "descrizione": "Conta come una Lanterna ma pioggia e vento forti non la spengono."
+  },
+  {
+   "nome": "Lanterna schermabile",
+   "costo": "20 mo",
+   "slot": "PM",
+   "descrizione": "Conta come una Lanterna ma come azione veloce si può occultarne temporaneamente la luce."
+  },
+  {
+   "nome": "Lanterna deluxe",
+   "costo": "30 mo",
+   "slot": "PM",
+   "descrizione": "Conta come una Lanterna ma pioggia e vento forti non la spengono. Inoltre, come azione veloce si può occultarne temporaneamente la luce."
+  },
+  {
+   "nome": "Fiaschetta d’olio",
+   "costo": "1 ma",
+   "slot": "PM",
+   "descrizione": "Contiene mezzo litro d’olio. Se versato è sufficiente per ricoprire 1,5 m quadrati."
+  },
+  {
+   "nome": "Caschetto portacandela",
+   "costo": "2 mo",
+   "slot": "—",
+   "descrizione": "Copricapo con un anello su cui va inserita una Candela (vedi Fonti di luce). Permette di tenere le mani libere per altre attività. Occupa lo slot testa."
+  }
+ ],
+ "cerusico": {
+  "assistenza": {
+   "cd_base": 14,
+   "per_paziente": 1,
+   "massimo": 5,
+   "unita": 1
+  },
+  "pronto": {
+   "cd": 15,
+   "se_stesso": 5,
+   "ogni": 5,
+   "dado": 4,
+   "unita": 1
+  },
+  "sanguinamento": {
+   "cerusico": 10,
+   "sopravvivenza": 15,
+   "unita": 1
+  },
+  "veleno": {
+   "unita": 1,
+   "cura_caratteristiche": 2
+  },
+  "malattia": {
+   "unita": 1
+  },
+  "limite": 10
+ },
+ "erborista": {
+  "misture": [
+   {
+    "id": "m01",
+    "gruppo": "Clima",
+    "cd": 15,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Per 24 ore, si è considerati indossare abiti estivi o invernali (non si diventa cioè affaticati dopo 1 ora in ambienti caldi o freddi).",
+    "app": {
+     "durata": {
+      "n": 24,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m02",
+    "gruppo": "Caratteristiche",
+    "cd": 20,
+    "dosi": 1,
+    "tipo": "Poltiglia",
+    "effetto": "Dopo 1 ora dall’assunzione, cura 1 danno a una caratteristica a scelta.",
+    "app": {
+     "poltiglia": true,
+     "cura": "1"
+    }
+   },
+   {
+    "id": "m03",
+    "gruppo": "Caratteristiche",
+    "cd": 25,
+    "dosi": 1,
+    "tipo": "Poltiglia",
+    "effetto": "Dopo 1 ora dall’assunzione, cura 1d2 danni a una caratteristica a scelta.",
+    "app": {
+     "poltiglia": true,
+     "cura": "1d2"
+    }
+   },
+   {
+    "id": "m04",
+    "gruppo": "Caratteristiche",
+    "cd": 30,
+    "dosi": 1,
+    "tipo": "Poltiglia",
+    "effetto": "Dopo 1 ora dall’assunzione, cura 1d3 danni a una caratteristica a scelta.",
+    "app": {
+     "poltiglia": true,
+     "cura": "1d3"
+    }
+   },
+   {
+    "id": "m05",
+    "gruppo": "Caratteristiche",
+    "cd": 35,
+    "dosi": 1,
+    "tipo": "Poltiglia",
+    "effetto": "Dopo 1 ora dall’assunzione, cura 4 danni a una caratteristica a scelta.",
+    "app": {
+     "poltiglia": true,
+     "cura": "4"
+    }
+   },
+   {
+    "id": "m06",
+    "gruppo": "Memoria e Concentrazione",
+    "cd": 16,
+    "dosi": 1,
+    "tipo": "Fomenta",
+    "effetto": "Se usata prima di effettuare una prova di Conoscenze, stimola la memoria fornendo dopo 5 minuti bonus alchemico +3.",
+    "app": {
+     "durata": null
+    }
+   },
+   {
+    "id": "m07",
+    "gruppo": "Memoria e Concentrazione",
+    "cd": 20,
+    "dosi": 1,
+    "tipo": "Fomenta",
+    "effetto": "Fornisce bonus alchemico +2 alla prima prova di Concentrazione per lanciare incantesimi sulla difensiva effettuata entro 2 ore dall’utilizzo.",
+    "app": {
+     "durata": {
+      "n": 2,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m08",
+    "gruppo": "Memoria e Concentrazione",
+    "cd": 25,
+    "dosi": 1,
+    "tipo": "Fomenta",
+    "effetto": "Se usata durante un enigma, si può effettuare un tentativo senza che il DM lo conti come fallimento. Si può creare una sola mistura di questo tipo ogni 24 ore.",
+    "app": {
+     "durata": null,
+     "una_al_giorno": true
+    }
+   },
+   {
+    "id": "m09",
+    "gruppo": "Creature specifiche",
+    "cd": 14,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Sopprime l’odore, fornendo per 4 ore bonus alchemico +3 alle prove di Iniziativa contro animali e parassiti.",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m10",
+    "gruppo": "Creature specifiche",
+    "cd": 19,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [MALEDIZIONE] e contro incantesimi e capacità di folletti e streghe.",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m11",
+    "gruppo": "Creature specifiche",
+    "cd": 25,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro le capacità dei non morti.",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m12",
+    "gruppo": "Sbronza, Infermità e Nausea",
+    "cd": 14,
+    "dosi": 2,
+    "tipo": "Distillato",
+    "effetto": "Fornisce per 1 ora bonus alchemico +4 ai Tiri Salvezza effettuati per non ubriacarsi. In alternativa, se usata prima di coricarsi, al risveglio evita i postumi di una sbronza.",
+    "app": {
+     "durata": {
+      "n": 1,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m13",
+    "gruppo": "Sbronza, Infermità e Nausea",
+    "cd": 16,
+    "dosi": 2,
+    "tipo": "Distillato",
+    "effetto": "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [INFERMITÀ] e [NAUSEA].",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m14",
+    "gruppo": "Livelli negativi",
+    "cd": 20,
+    "dosi": 1,
+    "tipo": "Impacco",
+    "effetto": "Se usata prima di coricarsi, al risveglio, fornisce bonus alchemico +2 al Tiro Salvezza giornaliero per rimuovere ciascun livello negativo temporaneo ottenuto.",
+    "app": {
+     "durata": "riposo"
+    }
+   },
+   {
+    "id": "m15",
+    "gruppo": "Livelli negativi",
+    "cd": 25,
+    "dosi": 1,
+    "tipo": "Impacco",
+    "effetto": "Se usata prima di coricarsi, al risveglio fornisce il 33% di rimuovere un livello negativo permanente ottenuto.",
+    "app": {
+     "durata": "riposo"
+    }
+   },
+   {
+    "id": "m16",
+    "gruppo": "Malattie",
+    "cd": 12,
+    "dosi": 2,
+    "tipo": "Impacco",
+    "effetto": "Se usata prima di coricarsi, al risveglio cura tutti i malanni comuni come febbre, mal di gola, cefalea, tosse, raffreddore, etc.",
+    "app": {
+     "durata": "riposo"
+    }
+   },
+   {
+    "id": "m17",
+    "gruppo": "Malattie",
+    "cd": 16,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [MALATTIA] non ancora contratti.",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m18",
+    "gruppo": "Malattie",
+    "cd": 20,
+    "dosi": 1,
+    "tipo": "Impacco",
+    "effetto": "Se usata prima di coricarsi, al risveglio fornisce bonus alchemico +2 al Tiro Salvezza giornaliero per curare un effetto di [MALATTIA] in atto.",
+    "app": {
+     "durata": "riposo"
+    }
+   },
+   {
+    "id": "m19",
+    "gruppo": "Malattie",
+    "cd": 24,
+    "dosi": 2,
+    "tipo": "Distillato",
+    "effetto": "Fornisce per 24 ore bonus alchemico +4 ai Tiri Salvezza per evitare di contrarre la licantropia o per non trasformarsi una volta contratta.",
+    "app": {
+     "durata": {
+      "n": 24,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m20",
+    "gruppo": "Malattie",
+    "cd": 35,
+    "dosi": 1,
+    "tipo": "Distillato",
+    "effetto": "Cura in tre giorni una malattia non magica grave come peste, lebbra, colera, tifo, etc.",
+    "app": {
+     "durata": {
+      "n": 3,
+      "unita": "giorni"
+     }
+    }
+   },
+   {
+    "id": "m21",
+    "gruppo": "Paura",
+    "cd": 16,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [PAURA].",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m22",
+    "gruppo": "Riposo e Sonno",
+    "cd": 15,
+    "dosi": 2,
+    "tipo": "Fomenta",
+    "effetto": "Se usata prima di coricarsi, garantisce sonni tranquilli e bonus alchemico +6 ai Tiri Salvezza contro le intrusioni oniriche.",
+    "app": {
+     "durata": "riposo"
+    }
+   },
+   {
+    "id": "m23",
+    "gruppo": "Riposo e Sonno",
+    "cd": 16,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Fornisce per 4 ore bonus alchemico +3 ai Tiri Salvezza contro effetti di [SONNO].",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m24",
+    "gruppo": "Riposo e Sonno",
+    "cd": 18,
+    "dosi": 2,
+    "tipo": "Fomenta",
+    "effetto": "Se usata prima di coricarsi, annulla l’aumento di +10 alla CD delle prove di Percezione (udito) effettuate durante il sonno.",
+    "app": {
+     "durata": "riposo"
+    }
+   },
+   {
+    "id": "m25",
+    "gruppo": "Unità di medicinali",
+    "cd": 18,
+    "dosi": 1,
+    "tipo": "−",
+    "effetto": "Una volta al giorno, si possono consumare 2 unità di erbe miste per creare 1 unità di medicinali utilizzabile entro 1 ora tramite Professione (cerusico).",
+    "app": {
+     "medicinali": true
+    }
+   },
+   {
+    "id": "m26",
+    "gruppo": "Veleni",
+    "cd": 16,
+    "dosi": 2,
+    "tipo": "Unguento",
+    "effetto": "Fornisce per 4 ore bonus alchemico +2 ai Tiri Salvezza contro effetti di [VELENO].",
+    "app": {
+     "durata": {
+      "n": 4,
+      "unita": "ore"
+     }
+    }
+   },
+   {
+    "id": "m27",
+    "gruppo": "Veleni",
+    "cd": 16,
+    "dosi": 1,
+    "tipo": "Distillato",
+    "effetto": "Se cosparsa su del cibo (equivalente a cinque pasti), si formano immediatamente minuscole bolle rosse in presenza di veleni o agenti patogeni.",
+    "app": {
+     "cibo": true
+    }
+   },
+   {
+    "id": "m28",
+    "gruppo": "Veleni",
+    "cd": 16,
+    "dosi": 1,
+    "tipo": "Distillato",
+    "effetto": "Altera del cibo equivalente a cinque pasti, affinché chi lo consumi debba superare un Tiro Salvezza su Tempra con CD 12 o cadere addormentato per 1 ora. Una creatura scossa o ferita si sveglia immediatamente. Per ogni unità di erbe miste addizionale la CD aumenta di 1 (massimo CD 18). Questo è un effetto di [SONNO] e [VELENO].",
+    "app": {
+     "cibo": true
+    }
+   }
+  ],
+  "raccolta": {
+   "base": 45,
+   "per_grado": 1
+  },
+  "limite": 10,
+  "tempo": "1d4",
+  "medicinali": {
+   "erbe": 2,
+   "per_giorno": 1
+  }
+ }
+}

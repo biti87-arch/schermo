@@ -1185,5 +1185,236 @@ t('AB1-3 tabella di Confuso uguale a condizioni.json', JSON.stringify(M.CONFUSO.
   x = M.comando(x, 'avanti', {}, meteo, rng, 0); x = M.aggiungiLuce(x, STR, { tipo: 'torcia', chi: 'acc:' + c.compagnia.persone[0].id });
   t('Build 2c: torcia a un accompagnatore con nome', M.nomeChiLuce(x, x.luci[0].chi) === 'Mira'); }
 
+// ================================================================ Build 3b — Prontuario e incontri casuali (sezione AC)
+const P3 = require('./prontuario.json'); M.usaProntuario(P3);
+t('AC6 aree della Guida nel motore = prontuario.json', JSON.stringify(M.areeGuida().map(a => [a.nome, a.perc, a.speciale])) === JSON.stringify(P3.incontri.aree.map(a => [a.nome, a.perc, a.speciale])));
+const aria3 = { ...aria, velocita: '9 m', cerusico: 8, abilita_libere: [{ nome: 'Diplomazia', valore: 6 }, { nome: '', valore: 0 }] };
+const bruno3 = { ...bruno, velocita: '6 m (4 caselle)', erborista: true, erborista_gradi: 5 };
+let h0 = M.impostaMeteo(M.aggiungiPG(M.aggiungiPG(camp, aria3, rng), bruno3, rng), meteo, 'Clima mite', rng);
+const HA = h0.pg[0].id, HB = h0.pg[1].id, pgH = (c, id) => c.pg.find(p => p.id === id);
+t('AC campagna nuova: medicinali ed erbe spenti, aree della Guida, niente marcia', !h0.medicinali.attivo && !h0.erbe.attivo && h0.aree.length === 6 && h0.viaggio.attivo === null && h0.n_comb === 0);
+lancia('AC gradi del cerusico non validi', () => M.aggiungiPG(camp, { ...aria, cerusico: -1 }, rng), 'cerusico');
+// ---- AC3-2/AC3-3 riposo totale e assistenza continua
+{ let c = M.clona(h0); pgH(c, HA).stato.ferita = 10; pgH(c, HB).stato.ferita = 10;
+  let x = M.riposo(c, meteo, rng, [HA, HB]);
+  t('AC3-2 riposo 8 ore: +1 Ferita per livello', pgH(x, HA).stato.ferita === 17 && pgH(x, HB).stato.ferita === 15 && x.tempo.R === c.tempo.R + 8 * M.ROUND_ORA);
+  t('AC3-9 log dei danni alle caratteristiche', x.log.some(e => /Danni alle caratteristiche: Aria, Bruno recuperano 1 a ciascuna/.test(e.testo)));
+  x = M.riposo(c, meteo, rng, [HA, HB], { totale: true });
+  t('AC3-2 riposo totale: 24 ore, +2 Ferita per livello', pgH(x, HA).stato.ferita === 24 && pgH(x, HB).stato.ferita === 20 && x.tempo.R === c.tempo.R + M.ROUND_GIORNO);
+  t('AC3-2 il riposo totale vale per il limite di F7', !M.puoRiposare(x, pgH(x, HA)).ok === false || M.puoRiposare(x, pgH(x, HA), x.tempo.R).ok);
+  c = M.impostaContatore(c, 'medicinali', { attivo: true, n: 3 });
+  x = M.riposo(c, meteo, rng, [HA, HB], { assistenza: { chi: HA, esiti: { [HB]: 15 } } });
+  t('AC3-3 assistenza riuscita (CD 15 con un paziente): Ferita ×2', pgH(x, HB).stato.ferita === 20 && pgH(x, HA).stato.ferita === 17);
+  t('AC3-3 una unità per paziente', x.medicinali.n === 2 && x.log.some(e => /CD 15 riuscita/.test(e.testo)));
+  x = M.riposo(c, meteo, rng, [HA, HB], { totale: true, assistenza: { chi: HA, esiti: { [HB]: 14 } } });
+  t('AC3-3 assistenza fallita: niente doppio, l\'unità si usa lo stesso', pgH(x, HB).stato.ferita === 20 && x.medicinali.n === 2);
+  x = M.riposo(c, meteo, rng, [HA, HB], { totale: true, assistenza: { chi: HA, esiti: { [HB]: 30 } } });
+  t('AC3-3 riposo totale con assistenza: 4 per livello', pgH(x, HB).stato.ferita === Math.min(32, 10 + 20) && x.log.some(e => /Bruno recupera 4 a ciascuna/.test(e.testo)));
+  lancia('AC3-3 non assiste sé stesso', () => M.riposo(c, meteo, rng, [HA, HB], { assistenza: { chi: HA, esiti: { [HA]: 20 } } }), 'sé stesso');
+  lancia('AC3-3 il paziente deve riposare', () => M.riposo(c, meteo, rng, [HA], { assistenza: { chi: HA, esiti: { [HB]: 20 } } }), 'riposare'); }
+// ---- AC3-4 medicinali
+{ let c = M.impostaContatore(h0, 'medicinali', { attivo: true, n: 12 }); t('AC3-4 al massimo 10', c.medicinali.n === 10);
+  c = M.impostaContatore(c, 'medicinali', { delta: -11 }); t('AC3-4 non sotto 0', c.medicinali.n === 0);
+  // cerusico sulle emorragie: con il contatore acceso le unità si scalano, a 0 il −5 da solo
+  let k = M.aggiungiMalus(c, { pg: HA }, { tipo: 'emorragia_lieve', nome: 'Emorragia lieve', durata: { tipo: 'curata' }, pf: 8 }, rng);
+  const id = pgH(k, HA).stato.malus[0].id;
+  let r = M.cerusico(k, { pg: HA }, id, 17, false, rng, FER); t('AC3-4 a 0 medicinali: −5 da solo (17 → 12, fallita)', !r.riuscita && r.totale === 12);
+  k = M.impostaContatore(k, 'medicinali', { n: 2 }); r = M.cerusico(k, { pg: HA }, id, 15, true, rng, FER);
+  t('AC3-4 con i medicinali: niente −5 e scala 1', r.riuscita && r.camp.medicinali.n === 1); }
+// ---- AC3-5 pronto soccorso
+{ let c = M.clona(h0); pgH(c, HB).stato.ferita = 5;
+  let r = M.prontoSoccorso(c, meteo, semi(3), { paziente: HB, curatore: HA, totale: 25 });
+  t('AC3-5 riuscito: metà dei gradi + 2d4, solo Ferita', r.riuscita && r.cd === 15 && r.cura >= 4 + 2 && r.cura <= 4 + 8 && pgH(r.camp, HB).stato.ferita === 5 + r.cura && r.camp.tempo.R === c.tempo.R + 50);
+  lancia('AC3-5 una volta dopo ogni combattimento', () => M.prontoSoccorso(r.camp, meteo, rng, { paziente: HB, curatore: HA, totale: 25 }), 'già');
+  let k = avviaG(M.clona(r.camp), [{ tipo: 'nemico', nome: 'Orco', bonus: 0, n: 1 }]);
+  k = M.avviaCombattimento(r.camp, [{ tipo: 'pg', pgId: HA, totale: 20 }, { tipo: 'nemico', nome: 'Orco', bonus: 0, n: 1 }], rng, 0);
+  k = M.fineCombattimento(k, 0).camp; t('AC3-5 dopo il combattimento di nuovo', M.puoProntoSoccorso(k, HB));
+  r = M.prontoSoccorso(c, meteo, rng, { paziente: HA, curatore: HA, totale: 19 }); t('AC3-5 su sé stessi CD 20', !r.riuscita && r.cd === 20);
+  r = M.prontoSoccorso(c, meteo, rng, { paziente: HB, gradi: 3, totale: 15 }); t('AC3-5 gradi scritti a mano', r.riuscita && r.cura === 1); }
+// ---- AC3-6, AC3-7, AC3-8 sanguinamento, veleno, malattia
+{ let c = M.aggiungiMalus(h0, { pg: HA }, cond('Sanguinante', { tipo: 'libera' }), rng), id = pgH(c, HA).stato.malus[0].id;
+  t('AC3-6 Sopravvivenza 14: continua', pgH(M.fermaSanguinamento(c, { pg: HA }, id, 'sopravvivenza', 14).camp, HA).stato.malus.length === 1);
+  t('AC3-6 Professione (cerusico) 10: fermato', !pgH(M.fermaSanguinamento(c, { pg: HA }, id, 'cerusico', 10).camp, HA).stato.malus.length);
+  c = M.aggiungiMalus(h0, { pg: HA }, { tipo: 'veleno', nome: 'Veleno di ragno', veleno: { forma: 'ferimento', ts: 'Tempra', cd: 14, frequenza: { unita: 'round', volte: 4 }, effetto: '1d2 For', cura: 1 } }, rng);
+  const v = pgH(c, HA).stato.malus.find(m => m.tipo === 'veleno');
+  t('AC3-7 veleno 13 su CD 14: resta', M.trattaVeleno(c, { pg: HA }, v.id, 13).camp.pg[0].stato.malus.some(m => m.tipo === 'veleno'));
+  const tv = M.trattaVeleno(c, { pg: HA }, v.id, 14); t('AC3-7 veleno trattato: chiuso, 2 danni curati nel log', !tv.camp.pg[0].stato.malus.some(m => m.tipo === 'veleno') && tv.camp.log.some(e => /cura 2 danni alle caratteristiche/.test(e.testo)));
+  c = M.aggiungiMalus(h0, { pg: HA }, { tipo: 'malattia', nome: 'Febbre', veleno: { forma: 'contatto', ts: 'Tempra', cd: 12, frequenza: { unita: 'giorni', volte: null }, effetto: '1 Cos', cura: 2, insorgenza: null } }, rng);
+  const ma = pgH(c, HA).stato.malus.find(m => m.tipo === 'malattia');
+  c = M.trattaMalattia(c, { pg: HA }, ma.id, true); t('AC3-8 trattata stanotte', pgH(c, HA).stato.malus.find(m => m.id === ma.id).trattata);
+  c = M.avanza(c, M.ROUND_GIORNO, meteo, rng); const q = c.coda.find(x => x.malus === ma.id && x.tipo === 'veleno');
+  const e = M.esitoPromemoria(c, q.id, true, rng, { cerusico: true }), mm = pgH(e, HA).stato.malus.find(m => m.id === ma.id);
+  t('AC3-8 prova del cerusico riuscita: un successo in più (2/2 = guarita)', !mm && e.log.some(x => /un successo in più/.test(x.testo)), mm && mm.vel); }
+// ---- AC4 erborista
+{ let c = M.impostaContatore(h0, 'erbe', { attivo: true, n: 9 });
+  c = M.avanza(c, M.ROUND_GIORNO, meteo, rng); const q = c.coda.find(x => x.tipo === 'erbe');
+  t('AC4-3 raccolta in coda per l\'erborista (50%)', q && q.pg === HB && /50%/.test(q.testo));
+  lancia('AC4-3 la raccolta va risposta', () => M.togliDallaCodaId(c, q.id), 'Raccoglie');
+  let r = M.risolviRaccolta(c, q.id, false, facce([[20, 100]])); t('AC4-3 d% 20 su 50: 2 unità, ma al massimo 10', r.unita === 1 && r.camp.erbe.n === 10);
+  r = M.risolviRaccolta(c, q.id, false, facce([[40, 100]])); t('AC4-3 d% 40: 1 unità', r.unita === 1);
+  r = M.risolviRaccolta(c, q.id, false, facce([[51, 100]])); t('AC4-3 d% 51: niente', r.unita === 0 && r.camp.erbe.n === 9);
+  r = M.risolviRaccolta(c, q.id, true, rng); t('AC4-3 impossibilitato', r.unita === 0 && !r.camp.coda.some(x => x.tipo === 'erbe'));
+  t('AC4-3 senza contatore niente raccolta', !M.avanza(h0, M.ROUND_GIORNO, meteo, rng).coda.some(x => x.tipo === 'erbe'));
+  c = M.impostaContatore(h0, 'erbe', { attivo: true, n: 5 });
+  const paura = P3.erborista.misture.find(m => m.gruppo === 'Paura');
+  let x = M.preparaMistura(c, meteo, rng, { chi: HB, mistura: paura.id, totale: 15, a: [{ pg: HA }] });
+  t('AC4-4 fallita: unità sprecata', !x.riuscita && x.camp.erbe.n === 4 && x.camp.tempo.R > c.tempo.R && x.camp.tempo.R <= c.tempo.R + 40);
+  x = M.preparaMistura(c, meteo, rng, { chi: HB, mistura: paura.id, totale: 16, a: [{ pg: HA }, { pg: HB }, { pg: HA }] });
+  const b = pgH(x.camp, HA).stato.malus.find(m => m.tb === 'alchemico');
+  t('AC4-4 riuscita: bonus alchemico 4 ore a 2 dosi', x.riuscita && b && b.nome === 'Unguento (Paura)' && b.durata.tipo === 'tempo' && b.durata.fine - x.camp.tempo.R === 4 * M.ROUND_ORA && pgH(x.camp, HB).stato.malus.length === 1);
+  const sonno = P3.erborista.misture.find(m => m.gruppo === 'Riposo e Sonno' && m.tipo === 'Unguento');
+  x = M.preparaMistura(x.camp, meteo, rng, { chi: HB, mistura: sonno.id, totale: 20, a: [{ pg: HA }] });
+  t('AC4-4 un solo unguento alla volta', pgH(x.camp, HA).stato.malus.filter(m => m.unguento).length === 1 && pgH(x.camp, HA).stato.malus.some(m => m.nome === 'Unguento (Riposo e Sonno)'));
+  const imp = P3.erborista.misture.find(m => m.gruppo === 'Malattie' && m.app.durata === 'riposo');
+  x = M.preparaMistura(x.camp, meteo, rng, { chi: HB, mistura: imp.id, totale: 30, a: [{ pg: HA }] });
+  t('AC4-4 «prima di coricarsi»: fino al riposo', pgH(x.camp, HA).stato.malus.some(m => m.finoRiposo));
+  const rip = M.riposo(x.camp, meteo, rng, [HA]); t('AC4-4 il riposo la toglie e la ricorda nel log', !pgH(rip, HA).stato.malus.some(m => m.finoRiposo) && rip.log.some(e => /fa effetto al risveglio/.test(e.testo)));
+  const pol = P3.erborista.misture.find(m => m.app.poltiglia && m.app.cura === '1d2');
+  x = M.preparaMistura(c, meteo, rng, { chi: HB, mistura: pol.id, totale: 25, a: [{ pg: HA }] });
+  t('AC4-6 poltiglia: promemoria fra 1 ora', x.camp.promemoria.some(p => /la poltiglia cura [12] dann/.test(p.testo)));
+  const x2 = M.preparaMistura(x.camp, meteo, rng, { chi: HB, mistura: pol.id, totale: 25, a: [{ pg: HA }] });
+  t('AC4-6 seconda poltiglia nello stesso giorno: niente effetto', x2.camp.log.some(e => /ha già preso una poltiglia oggi/.test(e.testo)) && x2.camp.promemoria.filter(p => /poltiglia/.test(p.testo)).length === 1);
+  const med = P3.erborista.misture.find(m => m.app.medicinali);
+  let mc = M.impostaContatore(c, 'medicinali', { attivo: true, n: 0 }); x = M.preparaMistura(mc, meteo, rng, { chi: HB, mistura: med.id, totale: 18 });
+  t('AC4-5 2 erbe → 1 medicinale, promemoria entro 1 ora', x.camp.erbe.n === 3 && x.camp.medicinali.n === 1 && x.camp.promemoria.some(p => /medicinali/.test(p.testo)));
+  lancia('AC4-5 una volta al giorno', () => M.preparaMistura(x.camp, meteo, rng, { chi: HB, mistura: med.id, totale: 18 }), 'una sola volta');
+  const en = P3.erborista.misture.find(m => m.app.una_al_giorno); x = M.preparaMistura(c, meteo, rng, { chi: HB, mistura: en.id, totale: 25, a: [{ pg: HA }] });
+  lancia('AC4-4 enigma: una ogni 24 ore', () => M.preparaMistura(x.camp, meteo, rng, { chi: HB, mistura: en.id, totale: 25, a: [{ pg: HA }] }), '24 ore');
+  lancia('AC4 contatore spento', () => M.preparaMistura(h0, meteo, rng, { chi: HB, mistura: paura.id, totale: 20, a: [{ pg: HA }] }), 'contatore'); }
+// ---- AC5 viaggi
+{ t('AC5-2 a piedi dal più lento (6 m → 3,2 km/h)', M.kmhPiedi(h0).kmh === 3.2 && M.kmhPiedi(h0, [HA]).kmh === 4.8 && M.metriVelocita('9 m (6 caselle)') === 9);
+  let c = M.avviaMarcia(h0, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 4 });
+  t('AC5-3 4 ore in pianura a 3,2 km/h: 12,8 km, orologio +4 ore', c.viaggio.ultima.km === 12.8 && c.tempo.R === h0.tempo.R + 4 * M.ROUND_ORA && !c.viaggio.attivo);
+  c = M.avviaMarcia(h0, meteo, rng, { mezzo: 'cavallo', terreno: 'colline', km: 24 });
+  t('AC5-3 24 km a cavallo in collina (×½): 5 ore', c.viaggio.ultima.km === 24 && c.viaggio.ultima.min === 300, c.viaggio.ultima);
+  c = M.avviaMarcia(h0, meteo, rng, { mezzo: 'libera', kmh: 4, terreno: 'pianura', fuori_strada: true, suolo: 'neve_fitta', racchette: true, ore: 2 });
+  t('AC5-1 fuori strada c\'è Orientarsi', c.viaggio.attivo && c.viaggio.attivo.evento.tipo === 'orientarsi' && c.viaggio.attivo.evento.cd === 15);
+  c = M.rispondiMarcia(c, meteo, rng, { orientarsi: 15 });
+  t('AC5-4 neve fitta con le racchette ×½: 4 km in 2 ore', c.viaggio.ultima.km === 4 && c.viaggio.oggi.orientarsi === 'ok');
+  c = M.avviaMarcia(c, meteo, rng, { mezzo: 'libera', kmh: 4, terreno: 'pianura', fuori_strada: true, suolo: 'neve', ore: 1 });
+  t('AC5-7 Orientarsi una volta al giorno', !c.viaggio.attivo && c.viaggio.ultima.km === 2);
+  let o = M.avviaMarcia(h0, meteo, rng, { mezzo: 'libera', kmh: 4, terreno: 'pianura', fuori_strada: true, ore: 2 }); o = M.rispondiMarcia(o, meteo, rng, { orientarsi: 12 });
+  t('AC5-7 fallito di 3: persi, metà strada', o.viaggio.oggi.orientarsi === 'perso' && o.viaggio.ultima.km === 4);
+  o = M.avviaMarcia(h0, meteo, rng, { mezzo: 'libera', kmh: 4, terreno: 'pianura', fuori_strada: true, ore: 2 }); o = M.rispondiMarcia(o, meteo, rng, { orientarsi: 10 });
+  t('AC5-7 fallito di 5: direzione sbagliata nel log', o.viaggio.oggi.orientarsi === 'sbagliata' && o.log.some(e => /direzione sbagliata/.test(e.testo)));
+  let z = M.impostaMeteo(M.cambiaZona(h0, meteo, '10'), meteo, 'Clima caldo + Tempesta di sabbia', rng);
+  const k = M.moltMarcia(z, meteo, { mezzo: 'piedi', terreno: 'deserto_sabbioso', fuori_strada: false, suolo: 'nessuno' }, z.meteo.durata.da);
+  t('AC5-4 Tempesta di sabbia ×¼ e deserto ×⅓', Math.abs(k.k - 1 / 12) < 1e-9, k);
+  t('AC5-4 suolo proposto dal meteo', M.suoloProposto(M.impostaMeteo(h0, meteo, 'Clima mite', rng), meteo) === 'nessuno');
+  // marcia forzata
+  let f = M.avviaMarcia(h0, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 10 });
+  t('AC5-6 alla 9ª ora la prova di Costituzione CD 18', f.viaggio.attivo.evento.tipo === 'forzata' && f.viaggio.attivo.evento.cd === 18 && f.viaggio.attivo.min === 480);
+  f = M.rispondiMarcia(f, meteo, rng, { forzata: { falliti: [] } });
+  t('AC5-6 alla 10ª ora CD 20', f.viaggio.attivo.evento.tipo === 'forzata' && f.viaggio.attivo.evento.cd === 20);
+  const f2 = M.rispondiMarcia(f, meteo, rng, { forzata: { falliti: [HB] } });
+  t('AC5-6 un fallimento ferma la marcia: 1 danno a Costituzione', !f2.viaggio.attivo && f2.viaggio.ultima.min === 540 && pgH(f2, HB).stato.malus.some(m => m.nome === '1 danno a Costituzione'));
+  t('AC5-6 quel giorno Foraggiare è bloccato', M.infoForaggiare(f2, meteo).impossibile === 'marcia forzata oggi');
+  const f3 = M.rispondiMarcia(f, meteo, rng, { forzata: { falliti: [HB], continua: true } });
+  t('AC5-6 «Continua» lascia indietro chi ha fallito', f3.viaggio.ultima.min === 600 && f3.log.some(e => /Restano indietro: Bruno/.test(e.testo)));
+  lancia('AC5 una marcia alla volta', () => M.avviaMarcia(M.avviaMarcia(h0, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 10 }), meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 1 }), 'già');
+  // marcia oltre la mezzanotte: le ore di oggi ripartono
+  let n = M.vaiA(h0, (M.scomponi(h0).N + 1) * M.ROUND_GIORNO - 2 * M.ROUND_ORA, meteo, rng); n = M.avviaMarcia(n, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 4 });
+  t('AC5-5 a cavallo della mezzanotte: niente marcia forzata, 2 ore nel giorno nuovo', !n.viaggio.attivo && n.viaggio.oggi.min === 120); }
+// ---- AC6 incontri casuali
+{ t('AC6-3 tabella: buchi e sovrapposizioni', JSON.stringify(M.controllaRighe([{ da: 1, a: 50 }, { da: 40, a: 90 }])) === JSON.stringify(['buchi: 91-100', 'sovrapposizioni: 40-50']) && !M.controllaRighe([{ da: 1, a: 100 }]).length);
+  let c = M.salvaArea(h0, { nome: 'Strada dei lupi', perc: 100, righe: [{ da: 1, a: 100, partecipanti: [{ nome: 'Lupo', dadi: '2d4' }], testo: 'ululati' }] });
+  const ar = c.aree.at(-1);
+  lancia('AC6-2 probabilità non valida', () => M.salvaArea(h0, { nome: 'X', perc: 120, righe: [] }), 'probabilità');
+  lancia('AC6-3 dadi non validi', () => M.salvaArea(h0, { nome: 'X', perc: 10, righe: [{ da: 1, a: 100, partecipanti: [{ nome: 'Lupo', dadi: '2x' }] }] }), 'non valida');
+  const comp = M.composizione(c, ar, semi(9)); t('AC6-3 composizione: 2d4 lupi', comp.partecipanti[0].n >= 2 && comp.partecipanti[0].n <= 8 && /ululati/.test(comp.testo));
+  t('AC6-3 senza tabella: «scegli tu»', /scegli tu/.test(M.composizione(c, c.aree[0], rng).testo));
+  c.impostazioni.incontri_casuali = true;
+  let m = M.avviaMarcia(c, meteo, semi(11), { mezzo: 'piedi', terreno: 'pianura', ore: 6, area: ar.id });
+  const e = m.viaggio.attivo && m.viaggio.attivo.evento;
+  t('AC6-4 incontro dentro le 6 ore: la marcia si ferma', e && e.tipo === 'incontro' && e.partecipanti.length === 1 && m.viaggio.attivo.min === (m.viaggio.incontro_in - 1) * 60, [e, m.viaggio]);
+  m = M.rispondiMarcia(m, meteo, rng, { incontro: 'avvia' }); t('AC6-4 Avvia: marcia sospesa', m.viaggio.attivo.sospesa);
+  m = M.rispondiMarcia(m, meteo, rng, { riprendi: true }); t('AC6-4 Riprendi la marcia fino alla fine', !m.viaggio.attivo && m.viaggio.ultima.min === 360);
+  let s = M.avviaMarcia(c, meteo, semi(11), { mezzo: 'piedi', terreno: 'pianura', ore: 6, area: ar.id }); s = M.rispondiMarcia(s, meteo, rng, { incontro: 'ignora' });
+  t('AC6-4 Ignora: la marcia continua', !s.viaggio.attivo && s.viaggio.ultima.min === 360);
+  const spento = M.avviaMarcia({ ...c, impostazioni: { ...c.impostazioni, incontri_casuali: false } }, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 6, area: ar.id });
+  t('AC6-1 con l\'impostazione spenta niente tiri', !spento.viaggio.attivo && !spento.log.some(e => /Incontri casuali \(/.test(e.testo)));
+  const ma = M.salvaArea(c, { nome: 'Mai', perc: 0, righe: [] }), mai = ma.aree.at(-1);
+  const mm = M.avviaMarcia(ma, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 13, area: mai.id }); // ore 9–13: marcia forzata
+  t('AC6-6 nessun incontro nel log (a ogni blocco di 6 ore)', mm.log.filter(e => /Incontri casuali \(Mai\): nessun incontro \(\d+ su 0%\)/.test(e.testo)).length >= 1);
+  let tm = M.tiraIncontro(c, semi(5), { area: ar.id }); t('AC6-5 a mano: ora 2d12 come promemoria con l\'incontro', tm.esce && tm.camp.promemoria.some(p => p.incontro && p.R === tm.R) && tm.R > c.tempo.R && tm.ora >= 2 && tm.ora <= 24);
+  tm = M.tiraIncontro(c, rng, { area: c.aree[0].id, riparo: true }); t('AC6-5 notte al riparo −5%', tm.perc === 15);
+  const sp = M.tiraIncontro(c, rng, { area: c.aree[2].id, speciale: true }); t('AC6-2 speciale (nelle grotte 20%)', sp.perc === 20);
+  c = M.eliminaArea(c, ar.id); t('AC6-2 elimina area', !c.aree.some(a => a.id === ar.id)); }
+// ---- AC7 pericoli
+{ t('AC7-3 tabella di Cadere', [2.9, 3, 5, 8, 10, 33].map(M.dadiCaduta).join() === '0,1,2,4,12,40' && M.dadiCaduta(34) === null);
+  let e = M.caduta({ metri: 6, volontaria: true }, rng); t('AC7-3 volontaria: −3 m', e.dadi_letali === 1);
+  e = M.caduta({ metri: 6, volontaria: true, acrobazia: 20 }, rng); t('AC7-3 Acrobazia 20: il d6 diventa non letale', e.dadi_letali === 0 && e.dadi_non_letali === 1);
+  e = M.caduta({ metri: 10, acqua: true }, rng); t('AC7-3 in acqua 10 m: 4 m non letali (2d6)', e.dadi_letali === 0 && e.dadi_non_letali === 2);
+  e = M.caduta({ metri: 20, acqua: true }, rng); t('AC7-3 in acqua 20 m: 6 m non letali + tabella per gli 8 m oltre (Z3b)', e.dadi_non_letali === 4 && e.dadi_letali === 4);
+  t('AC7-3 34 m: morte', M.caduta({ metri: 40 }, rng).morte);
+  e = M.caduta({ metri: 5 }, facce([[3, 6], [4, 6]])); let a = M.applicaCaduta(h0, { pg: HA }, e);
+  t('AC7-3 applica: Danno e Prono', a.camp.pg[0].stato.fatica === 42 - 7 && a.camp.pg[0].stato.malus.some(m => m.nome === 'Prono'));
+  // trattenere il fiato
+  let c = M.trattieniFiato(h0, { pg: HA }, { cos: 3 }); const ap = () => pgH(c, HA).stato.malus.find(m => m.apnea);
+  t('AC7-4 2 × Costituzione round', ap().durata.fine - c.tempo.R === 6);
+  c = M.menoUnRound(c, { pg: HA }, ap().id); t('AC7-4 −1 round', ap().durata.fine - c.tempo.R === 5);
+  c = M.avanza(c, 5, meteo, rng); let q = c.coda.find(x => x.malus === ap().id);
+  t('AC7-4 finito il fiato: prova di Costituzione CD 10', ap().apnea.fase === 'prove' && q && /Costituzione CD 10/.test(q.testo));
+  c = M.esitoPromemoria(c, q.id, true, rng); t('AC7-4 superata: la CD sale', ap().per.cd === 11);
+  c = M.avanza(c, 1, meteo, rng); q = c.coda.find(x => x.malus === ap().id && x.tipo === 'ts'); t('AC7-4 un round dopo di nuovo CD 11', q && /CD 11/.test(q.testo));
+  c = M.esitoPromemoria(c, q.id, false, rng);
+  t('AC7-4 fallita: Privo di Sensi e annega', ap().apnea.fase === 'annega' && pgH(c, HA).stato.malus.some(m => m.nome === 'Privo di Sensi'));
+  c = M.avanza(c, 2, meteo, rng); t('AC7-4 al 3° round annega (avviso di morte)', c.coda.some(x => x.tipo === 'morte' && /annegamento/.test(x.testo)));
+  // fumo e alta quota
+  c = M.aggiungiMalus(h0, { pg: HA }, M.pericoloPronto('fumo'), rng); const fu = () => pgH(c, HA).stato.malus.find(m => m.fumo);
+  const tsF = () => c.coda.find(x => x.malus === fu().id && x.tipo === 'ts');
+  c = M.avanza(c, 1, meteo, rng); c = M.esitoPromemoria(c, tsF().id, false, rng); c = M.avanza(c, 1, meteo, rng);
+  t('AC7-5 fumo: CD 16 alla seconda prova', /CD 16/.test(tsF().testo));
+  c = M.esitoPromemoria(c, tsF().id, false, semi(2)); t('AC7-5 due fallimenti di fila: 1d6 non letali', pgH(c, HA).stato.nonletali >= 1 && pgH(c, HA).stato.nonletali <= 6);
+  c = M.aggiungiMalus(h0, { pg: HA }, M.pericoloPronto('quota'), rng); c = M.avanza(c, 6 * M.ROUND_ORA, meteo, rng);
+  q = c.coda.find(x => x.tipo === 'ts'); c = M.esitoPromemoria(c, q.id, false, rng);
+  t('AC7-5 alta quota fallita: Affaticato, CD 16 alla prossima', pgH(c, HA).stato.malus.some(m => m.nome === 'Affaticato') && pgH(c, HA).stato.malus.find(m => m.quota).per.cd === 16);
+  c = M.aggiungiMalus(h0, { pg: HA }, { tipo: 'altro', nome: 'Prova', durata: { tipo: 'libera' }, ts: { tipo: 'Volontà', cd: 12, ogni: 1, unita: 'round', finisce: false, incr: true } }, rng);
+  c = M.avanza(c, 1, meteo, rng); q = c.coda.find(x => x.tipo === 'ts'); c = M.esitoPromemoria(c, q.id, false, rng);
+  t('AC7-5 «CD +1 a ogni prova» per ogni malus', pgH(c, HA).stato.malus[0].per.cd === 13); }
+// ---- AC9 riparare
+{ t('AC9-3 armi +10 scheggiato: 29 (non 39)', M.cdRiparare('armi', '+10', 's').cd === 29 && M.cdRiparare('armature', 'Perfetto', 'r').cd === 12);
+  t('AC9-2 valore: 2.000 → 13/14, 2.001 → 16/17, 1.000 → 8', M.cdRiparare('vari', 2000, 's').cd === 13 && M.cdRiparare('vari', 2001, 'r').cd === 17 && M.cdRiparare('vari', 1000, 's').cd === 8 && M.cdRiparare('vari', 200000, 's').cd === 29);
+  lancia('AC9-2 oltre 200.000 mo', () => M.cdRiparare('vari', 200001, 's'), 'oltre');
+  let r = M.riparaOggetto(h0, meteo, rng, { tipo: 'armi', chiave: '+1', stato: 'r', totale: 13, nome: 'Spada' });
+  t('AC9-3 rotto: 2 ore, fallita peggiora', !r.riuscita && r.cd === 14 && r.camp.tempo.R === h0.tempo.R + 2 * M.ROUND_ORA && r.camp.log.some(e => /peggiora di un grado \(distrutto\)/.test(e.testo)));
+  r = M.riparaOggetto(h0, meteo, rng, { tipo: 'armature', chiave: 'Comune', stato: 's', totale: 8 }); t('AC9-3 scheggiato: 30 minuti, riparato', r.riuscita && r.camp.tempo.R === h0.tempo.R + 300);
+  let a = M.artigiano(h0, rng, { valore: 5000, stato: 'r', nome: 'Armatura' }); t('AC9-4 rotto: 1/20 del valore, 1 giorno', a.mr === 25000 && a.R === h0.tempo.R + M.ROUND_GIORNO && a.camp.promemoria.some(p => /Armatura/.test(p.testo)));
+  a = M.artigiano(h0, rng, { valore: 10, stato: 's' }); t('AC9-4 minimo 1 mo', a.mr === 100 && M.moneta(a.mr) === '1 mo' && M.moneta(1234) === '12 mo 3 ma 4 mr'); }
+// ---- AC10 locanda
+{ let r = M.locanda(h0, rng, { servizi: { [HA]: ['stanza_per_2_persone', 'pasto_eccellente', 'bagno_con_essenze'], [HB]: ['stanza_per_2_persone', 'pasto_scadente'] } });
+  t('AC10-2 costo: una stanza per 2 (6 mo), pasti 5 mo e 2 ma, bagno 2 mo', r.mr === 600 + 500 + 20 + 200 && /13 mo 2 ma/.test(r.camp.log.at(-1).testo), r.mr);
+  const A3 = pgH(r.camp, HA), B3 = pgH(r.camp, HB);
+  t('AC10-4 pasto eccellente: +1 Tempra 24 ore (primo TS)', A3.stato.malus.some(m => m.nome === 'Pasto eccellente (primo TS su Tempra)' && m.mods.tempra === 1));
+  t('AC10-4 pasto scadente: −1 Tempra fino a mezzanotte', B3.stato.malus.some(m => m.nome === 'Pasto scadente' && m.mods.tempra === -1 && m.durata.fine === (M.scomponi(r.camp).N + 1) * M.ROUND_GIORNO));
+  t('AC10-5 bagno: Diplomazia fra le libere, Raggirare come etichetta', A3.stato.malus.some(m => m.nome === 'Bagno con essenze' && m.mods.abilita_nome.Diplomazia === 1 && /\+1 Raggirare/.test(m.mods.altro)));
+  const g = M.avanza(r.camp, M.ROUND_GIORNO, meteo, rng);
+  t('AC10-4 il pasto sostituisce la razione di oggi (cibo e acqua)', g.scorte.cibo === r.camp.scorte.cibo - 2 && g.scorte.acqua === r.camp.scorte.acqua - 2, [r.camp.scorte, g.scorte]);
+  t('AC10-4 lo scadente scade a mezzanotte', !pgH(g, HB).stato.malus.some(m => m.nome === 'Pasto scadente'));
+  let s = M.riposo(r.camp, meteo, rng, [HA, HB], { stanze: { [HA]: 'suite_1_per_locanda', [HB]: 'dormitorio' } });
+  t('AC10-3 Suite: +7 Fatica massimi e correnti', M.massimi(s, pgH(s, HA)).fatica === 49 && pgH(s, HA).stato.fatica === 49);
+  t('AC10-3 Dormitorio: −¼ dei Fatica massimi', M.massimi(s, pgH(s, HB)).fatica === 30 - 7 && pgH(s, HB).stato.fatica === 23);
+  s = M.avanza(s, M.ROUND_GIORNO, meteo, rng); t('AC10-3 dopo 24 ore: i correnti oltre il massimo scendono', M.massimi(s, pgH(s, HA)).fatica === 42 && pgH(s, HA).stato.fatica === 42);
+  lancia('AC10-2 una stanza sola', () => M.locanda(h0, rng, { servizi: { [HA]: ['dormitorio', 'stanza_singola'] } }), 'stanza');
+  let b = M.bevanda(h0, rng, { pg: HA, sorsi: 4, cos: 1 }); t('AC10-6 sorsi = 2 + 2×Cos: Barcollante 2 ore', b.soglia === 4 && pgH(b.camp, HA).stato.malus.some(m => m.nome === 'Barcollante'));
+  b = M.bevanda(h0, rng, { pg: HA, sorsi: 5, cos: 1 }); t('AC10-6 oltre: Privo di Sensi 4 ore', pgH(b.camp, HA).stato.malus.some(m => m.nome === 'Privo di Sensi' && m.durata.fine - b.camp.tempo.R === 4 * M.ROUND_ORA));
+  let an = M.aggiungiAnimale(h0, { nome: 'Fulmine', tipo: 'cavalcatura', mangia: 'foraggio', cibo: 1, acqua: 1 }); an = M.modificaScorta(an, 'foraggio', 5);
+  an = M.stallaggio(an, [an.compagnia.animali[0].id]); const dopo = M.avanza(an, M.ROUND_GIORNO, meteo, rng);
+  t('AC10-7 stallaggio: l\'animale oggi non consuma (acqua solo per 2 PG e 2 accompagnatori)', dopo.scorte.foraggio === 5 && dopo.scorte.acqua === an.scorte.acqua - 4, [an.scorte, dopo.scorte]); }
+// ---- migrazione: le campagne salvate con le build precedenti si aprono (con i campi della 3b spenti); la 3a con tutto
+for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_build2b.json', 'campagna_build2c.json', 'campagna_build3a.json']) {
+  const c = M.importa(fs.readFileSync(path.join(__dirname, 'prove', f), 'utf8')).campagne[0];
+  t(`AC migrazione ${f}: medicinali ed erbe spenti, aree della Guida, viaggio vuoto`, !c.medicinali.attivo && !c.erbe.attivo && c.aree.length === 6 && c.viaggio.attivo === null && c.pg.every(p => p.scheda.cerusico === 0 && p.scheda.erborista === false));
+  const m = M.avviaMarcia(c.combattimento ? M.fineCombattimento(c, 0).camp : c, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 1 });
+  t(`AC migrazione ${f}: si marcia`, m.viaggio.ultima && m.viaggio.ultima.min === 60);
+}
+{ const c = M.importa(fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build3a.json'), 'utf8')).campagne[0];
+  t('Build 3a: luci (torcia, lanterna al riparo, personalizzata, permanente)', c.luci.map(l => l.tipo).join() === 'torcia,lanterna,personalizzata,personalizzata' && c.luci[1].riparo && c.luci[3].resta === null);
+  t('Build 3a: promemoria a tempo, modello, storico dei dadi, sessione nel log', c.promemoria.length === 1 && c.modelli[0].nome === 'Scudo' && c.tiri.length === 2 && c.log.some(e => e.sessione));
+  const B = c.pg[1], lv = B.stato.malus.filter(m => m.nome === 'Livelli negativi'), v = M.valoriPG(c, B);
+  t('Build 3a: livelli negativi in due malus che si sommano (3 → −7/−8)', lv.length === 2 && v.fatica_max.valore === 48 - 7 && v.ferita_max.valore === 49 - 8, [v.fatica_max, v.ferita_max]);
+  const A = c.pg[0]; t('Build 3a: bonus con il tipo, uno non si somma', A.stato.malus.filter(m => m.tb === 'deviazione').length === 2 && M.valoriPG(c, A).ca.valore === 19 + 4 + 2);
+  t('Build 3a: combattimento in corso con il promemoria del round', c.combattimento && c.combattimento.promemoria.some(p => p.round === 3)); }
+
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

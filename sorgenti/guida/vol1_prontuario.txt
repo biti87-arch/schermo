@@ -1,0 +1,32 @@
+## Abilità
+Abilità eliminate o sostituite
+Conoscenze (locali) e Conoscenze (geografia) sono incluse in Conoscenze (generali); Conoscenze (piani) è sostituita da Conoscenze (proibite); Conoscenze (scientifiche) si occupa di tutti quegli aspetti steampunk, come l'elettricità, gli audiografi (registratori vocali), i pittogrammi (fotografie), gli automaton e tutte le innovazioni e le scoperte tecnologiche. Addestrare animali, Linguistica e Guarire sono state rimosse.
+Punti abilità di background
+In base alla propria classe, ad ogni livello ogni personaggio ottiene dei punti abilità extra da assegnare alle abilità di background: Conoscenze (generali, ingegneria, nobiltà, scientifiche, storia e leggende), Intrattenere, Pilotare mezzi terrestri, Pilotare imbarcazioni, Professione, Rapidità di mano e Valutare.
+Prove di abilità
+•  Alcune prove di abilità necessitano di una strumentazione minima per essere utilizzate e, senza di essa, si subisce penalità di −5. Tali abilità sono Camuffare senza kit di trucchi, Disattivare congegni senza arnesi da scasso, Intrattenere senza strumento musicale, Professione senza attrezzi da artigiano (eccetto cerusico).
+•  La penalità per l'armatura e lo scudo è raddoppiata per l'abilità Nuotare.
+Professione
+•  Un personaggio può essere competente in due sole professioni.
+•  Solo una Professione può essere di classe (ed ottenere il bonus di competenza di +3), anche se il personaggio è un multiclasse.
+•  Per le regole specifiche delle professioni si veda il Volume 3 – Professioni.
+•  1 grado in Professione (fabbro), (falegname) o (ingegnere bellico) consente di non tener il conto delle munizioni standard create con la relativa abilità.
+•  Il costo della parte potente degli archi compositi non è conteggiato nelle monete d'argento usate per stabilire le tempistiche di fabbricazione.
+•  Armi e armature possono essere migliorate a perfette anche in un secondo momento, anziché alla creazione. Lo stesso discorso vale per gli archi compositi.
+•  Gli oggetti creati tramite Professione hanno un valore pari a 0.
+•  Se una classe ha come requisito il possedere una determinata Professione come abilità di classe, si può decidere di cambiare la Professione attuale per soddisfare tale requisito ma solo se la Professione che si va a sostituire non è a sua volta un requisito.
+## Punti Ferita, Punti Fatica, Punti Ferita temporanei e Rifiatare
+•  Dal secondo livello in poi, quando determina i Punti Ferita e i Punti Fatica ottenuti, un personaggio può ripetere il tiro in base al Dado Vita garantito dalla propria classe: il d6 ripete i risultati di 1, il d8 e il d10 ripetono i risultati di 1 e 2 e il d12 ripete i risultati di 1, 2 e 3. Questo tiro può essere ripetuto un qualsiasi numero di volte.
+•  Quando un personaggio aggiunge Punti Ferita al proprio totale, metà del valore è aggiunto normalmente ai Punti Ferita mentre l'altra metà è aggiunta ai Punti Fatica (se il totale è dispari, il punto in eccesso viene aggiunto ai Punti Ferita). I Punti Fatica sono i primi a esser persi e, una volta esauriti, il personaggio inizierà a perdere i Punti Ferita. In pratica, i Punti Fatica rappresentano il grado di guardia del personaggio, la sua stanchezza fisica e mentale, le contusioni, le volte che rimane senza fiato a causa di un colpo parato o di uno spintone, etc. Una volta esaurita questa “vigilanza”, gli arti si fanno più pesanti, si è meno lucidi e i colpi iniziano ad andare a segno, spedendo il personaggio verso la morte, ad ogni Punto Ferita perduto.
+•  I Punti Ferita vengono recuperati normalmente tramite il riposo, secondo le regole della guarigione naturale. I Punti Fatica sono totalmente ripristinati dopo 8 ore di riposo e durante la giornata possono essere recuperati tramite il Rifiatare, che non ripristina mai Punti Ferita.
+•  Se un personaggio riceve una cura magica o alchemica, prima recupera i Punti Ferita e una volta raggiunto il massimo, inizia a recuperare i Punti Fatica.
+•  I Punti Ferita temporanei provenienti dalla stessa fonte non si cumulano, ma si ottiene ogni volta la quantità maggiore. Quelli provenienti da fonti diverse si cumulano.
+•  Una creatura affetta da licantropia si trasformerà non appena avrà perso il suo primo Punto Ferita.
+•  Rifiatare: ogni personaggio ha una riserva di dadi pari ai propri Dadi Vita e durante la giornata può prendersi un qualsiasi numero di pause dal ritmo incalzante dell'avventura per recuperare un poco le forze. Rifiatare richiede almeno una mezzora d'inattività, al termine della quale il personaggio può lanciare un qualsiasi numero di dadi della riserva (anche uno alla volta) e aggiungere il totale ai propri Punti Fatica (ma mai ai Punti Ferita). Per rifiatare il personaggio deve essere cosciente e avere ovviamente dadi residui nella riserva.
+## Colpi critici, danni da precisione e occultamento
+•  Il danno da precisione può essere inflitto ai bersagli con occultamento totale, purché si superi con successo la prova percentuale necessaria a colpirli.
+•  Salvo diversamente indicato, un personaggio può ottenere da una sola fonte una percentuale di ignorare i colpi critici e/o i danni da precisione (come ad esempio grazie alla capacità speciale Fortificazione delle armature).
+## Regole delle campagne acquatiche
+Per facilitare i combattimenti in acqua (durante i quali sono richieste continue e ripetute prove di Nuotare) tutti i personaggi, quando non indossano un'armatura pesante, possono prendere 10 nelle prove di Nuotare in acque calme e acque agitate.
+Si ricorda che il talento Grande nuotatore, nelle campagne acquatiche, fornisce una velocità di Nuotare pari a metà velocità su terreno e consente di trattenere il fiato il doppio del tempo.
+Gli aumenti al tempo di apnea provenienti da fonti diverse non si cumulano: si applica solo il moltiplicatore più alto.

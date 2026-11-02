@@ -148,6 +148,16 @@ p.voce{margin:2px 0 2px 12px}
 .schede button.on{color:var(--arancio);border-bottom-color:var(--arancio)}
 .effetto{border-left:3px solid var(--oro-scuro);padding-left:8px;font-size:.88rem}
 .effetto b{color:var(--oro);font-weight:600}
+.dado{font:inherit;font-family:var(--f-num);color:var(--oro);background:none;border:0;border-bottom:1px dotted var(--oro-scuro);padding:0 1px;cursor:pointer;min-height:0}
+.dado:hover,.dado:focus-visible{background:var(--pannello2)}
+.tabmeteo tr.gruppo-t td{font-weight:600;color:var(--oro);background:var(--pannello2)}
+.nota-p .chip{font-size:.7rem}
+.sez-p{margin:12px 0 4px;color:var(--oro);font-size:1rem}
+.pannello.evidenza{border-color:var(--oro)}
+.riga-ar .fila{flex-wrap:wrap;gap:4px;margin-bottom:4px}
+.riga-ar input.corto{width:4.5em}
+.riga-ar input[data-k="nome"],.riga-ar input[data-k="testo"]{flex:1;min-width:8em}
+.riga-ar select{max-width:12em}
 .scorta{display:grid;grid-template-columns:4.5em 1fr auto;gap:6px;align-items:center}
 .scorta .q{font-family:var(--f-num);font-size:1.3rem;color:var(--oro)}
 .membro{border-top:1px solid var(--riga);padding:5px 0}
@@ -375,7 +385,7 @@ function disegnaTesta() {
       <div class="tasti-tempo" aria-label="Avanza il tempo">
         <button class="btn min" data-az="tempo" data-r="1">+1 round</button><button class="btn min" data-az="tempo" data-r="10">+1 min</button>
         <button class="btn min" data-az="tempo" data-r="100">+10 min</button><button class="btn min" data-az="tempo" data-r="600">+1 ora</button>
-        <button class="btn min oro" data-az="riposo">Riposo 8 ore</button><button class="btn min" data-az="salto">Salto…</button>
+        <button class="btn min oro" data-az="riposo">Riposo…</button><button class="btn min" data-az="salto">Salto…</button>
         <button class="btn min" data-az="dadi" title="Dadi">🎲</button><button class="btn min prim" data-az="aggiungiScheda" title="Aggiungi una scheda al bestiario">+ Scheda</button><button class="btn min" data-az="impostazioni" title="Impostazioni della campagna">⚙</button></div>
     </div>${coda}</header>`;
 }
@@ -537,7 +547,7 @@ function disegnaViaggio() {
       <details class="cartella"><summary>Fiamme</summary><p class="piccolo tenue">${esc(MET.fiamme.frase)}</p>${regoleHtml([{ tabella: [['Fonte', 'Si spegne con'], ...MET.fiamme.righe.map(r => [r.fonte, r.spegne])] }])}</details>
       <details class="cartella"><summary>Regole generali</summary>${MET.regole.map(s => `<h4 class="sotto">${esc(s.titolo)}</h4>${regoleHtml(s.parti)}`).join('')}</details>
       ${z.mare ? `<details class="cartella"><summary>Navigazione</summary>${regoleHtml(MET.navigazione)}</details>` : ''}</div>`;
-  return meteo + disegnaLuce() + disegnaPromemoria() + disegnaCompagnia() + (c.impostazioni.scorte !== false ? disegnaScorte() : '<div class="pannello"><span class="tenue piccolo">Scorte spente (⚙ Impostazioni): niente consumo né Fame e Sete automatiche.</span></div>');
+  return meteo + disegnaMarcia() + disegnaLuce() + disegnaPromemoria() + disegnaCompagnia() + (c.impostazioni.scorte !== false ? disegnaScorte() : '<div class="pannello"><span class="tenue piccolo">Scorte spente (⚙ Impostazioni): niente consumo né Fame e Sete automatiche.</span></div>');
 }
 function disegnaCompagnia() {
   const c = S.camp, k = c.compagnia, sc = c.impostazioni.scorte !== false;
@@ -548,7 +558,7 @@ function disegnaCompagnia() {
   return `<div class="pannello" id="p-compagnia"><div class="fila"><h3>Compagnia</h3><span class="tenue piccolo">${M.numeroAccompagnatori(c)} accompagnatori · ${k.animali.length} animali</span><span class="spazio"></span>
       <button class="btn min" data-az="nuovoAcc">+ Accompagnatore</button><button class="btn min" data-az="nuovoAni">+ Animale</button></div>
     ${pers}<div class="fila"><span class="spazio piccolo tenue">Accompagnatori senza nome</span><button class="btn min" data-az="accomp" data-d="-1" aria-label="Uno in meno">−</button><span class="num" id="n-senza">${k.senza_nome}</span><button class="btn min" data-az="accomp" data-d="1" aria-label="Uno in più">+</button></div>
-    ${ani}</div>`;
+    ${ani}<h4 class="sotto">Medicinali ed erbe (Vol. 3)</h4>${disegnaContatori()}</div>`;
 }
 function disegnaScorte() {
   const c = S.camp, sc = c.scorte, kA = M.moltiplicatoreAcqua(c, MET), z = M.razionamentoAperto(c), zona = M.zonaDi(MET, c.zona);
@@ -612,15 +622,7 @@ const AZ = {
   async esempio() { await Archivio.scrivi(campagnaEsempio()); await ricaricaElenco(); avviso('Campagna d\'esempio caricata (con un PNG, un mostro condiviso e un incontro)'); },
   // tempo
   tempo(el) { applica(M.avanza(S.camp, +el.dataset.r, MET, rng, 'Orologio')); },
-  riposo() {
-    const c = S.camp;
-    apri({ titolo: 'Riposo 8 ore', corpo: `<p class="piccolo">Fatica al massimo, +1 Punto Ferita per livello, riserva del Rifiatare piena; l'orologio avanza di 8 ore con le sue scadenze. Il Punto eroe non cambia.</p>
-        <p class="piccolo">Un solo riposo nelle 24 ore; dopo un riposo a cavallo di due giorni, il giorno dopo si può di nuovo, ma non prima di 12 ore dalla fine.</p>
-        ${c.pg.map(p => { const r = M.puoRiposare(c, p); return r.ok
-          ? `<label class="spunta"><input type="checkbox" name="r_${p.id}" checked> ${esc(p.scheda.nome)}</label>`
-          : `<label class="spunta spento"><input type="checkbox" name="r_${p.id}" disabled> ${esc(p.scheda.nome)} <span class="piccolo">— di nuovo da ${esc(M.formatoData(c, r.da))}</span></label>`; }).join('')}`,
-      azioni: [{ testo: 'Annulla' }, { testo: 'Riposa', classe: 'prim', fn: f => { const ids = c.pg.filter(p => spunta(f, 'r_' + p.id)).map(p => p.id); applica(M.riposo(S.camp, MET, rng, ids)); } }] });
-  },
+  riposo() { finestraRiposo(null, null); },
   salto() {
     const c = S.camp, t = M.scomponi(c);
     apri({ titolo: 'Salto di tempo', corpo: `<fieldset><legend>Avanza di</legend><div class="griglia stretta">
@@ -642,7 +644,7 @@ const AZ = {
   codaFatto(el) { applica(M.togliDallaCoda(S.camp, +(el.dataset.i || 0))); },
   codaFattoId(el) { applica(M.togliDallaCodaId(S.camp, el.dataset.q)); },
   codaTutti() { const c = M.clona(S.camp); c.coda = c.coda.filter(x => DA_RISPONDERE.includes(x.tipo)); applica(c); },
-  esito(el) { applicaS(M.esitoPromemoria(S.camp, el.dataset.q, !!el.dataset.e, rng)); },
+  esito(el) { const cer = document.getElementById('cer-' + el.dataset.q); applicaS(M.esitoPromemoria(S.camp, el.dataset.q, !!el.dataset.e, rng, cer ? { cerusico: cer.checked } : undefined)); },
   morte(el) { const r = M.risolviMorte(S.camp, el.dataset.q, el.dataset.s, rng); applicaS(r.camp);
     if (r.tiro !== null) avviso(`d% ${r.tiro}: ${r.esito === 'morente' ? 'resta morente per 1 minuto (ultime parole)' : 'muore'}`); },
   malus(el) { finestraMalus(chiDi(el)); },
@@ -737,7 +739,7 @@ const AZ = {
     apri({ titolo: `Cura a ${esc(p.scheda.nome)}`, corpo: `<label class="campo"><span>Punti curati</span><input type="number" name="n" min="1" inputmode="numeric"></label>
         ${dir.length ? `<label class="campo"><span>Dirigi la cura su</span><select name="su"><option value="">Punti vita</option>${dir.map(m => `<option value="${m.id}">${esc(M.descriviMalus(S.camp, m))}</option>`).join('')}</select></label>` : ''}
         <p class="tenue piccolo">Cura magica o alchemica: prima i Punti Ferita fino al massimo, poi i Punti Fatica. Toglie anche altrettanti danni non letali. Diretta a una ferita grave o a un'emorragia, va solo al suo contatore.</p>`,
-      azioni: [{ testo: 'Annulla' }, { testo: 'Cura', classe: 'prim', fn: f => { const su = val(f, 'su') && val(f, 'su').value;
+      azioni: [{ testo: 'Annulla' }, { testo: 'Pronto soccorso…', fn: () => { finestraProntoSoccorso(id); } }, { testo: 'Cura', classe: 'prim', fn: f => { const su = val(f, 'su') && val(f, 'su').value;
         if (su) applicaS(M.curaDiretta(S.camp, { pg: id }, su, intero(f, 'n'))); else applica(M.cura(S.camp, id, intero(f, 'n'))); } }] });
   },
   temp(el) {
@@ -872,12 +874,15 @@ function chipMalus(chi, m, nonConta) {
 }
 function bottoniCoda(q, i) {
   if (q.tipo === 'razionamento') return `<button class="btn min prim" data-az="razionamento" data-id="${q.razionamento}">Scegli chi</button>`;
+  if (q.tipo === 'erbe') return `<button class="btn min prim" data-az="raccolta" data-q="${q.id}">Raccoglie</button><button class="btn min" data-az="raccolta" data-q="${q.id}" data-imp="1">Impossibilitato</button>`;
+  if (q.tipo === 'promemoria' && q.incontro) return `<button class="btn min prim" data-az="avviaComp" data-q="${q.id}">Avvia</button><button class="btn min" data-az="codaFattoId" data-q="${q.id}">Ignora</button>`;
+  if (q.tipo === 'ts' && q.trattata) return `<label class="spunta piccolo"><input type="checkbox" id="cer-${q.id}"> il cerusico riesce</label><button class="btn min ok" data-az="esito" data-q="${q.id}" data-e="1">Superato</button><button class="btn min peric" data-az="esito" data-q="${q.id}" data-e="">Fallito</button>`;
   if (q.tipo === 'ts' || q.tipo === 'veleno') return `<button class="btn min ok" data-az="esito" data-q="${q.id}" data-e="1">Superato</button><button class="btn min peric" data-az="esito" data-q="${q.id}" data-e="">Fallito</button>`;
   if (q.tipo === 'morte') return `<button class="btn min prim" data-az="morte" data-q="${q.id}" data-s="morente">Tira il 20% del Morente</button><button class="btn min peric" data-az="morte" data-q="${q.id}" data-s="morto">Morto</button><button class="btn min" data-az="morte" data-q="${q.id}" data-s="ignora">Ignora</button>`;
   return q.id ? `<button class="btn min" data-az="codaFattoId" data-q="${q.id}">Fatto</button>` : `<button class="btn min" data-az="codaFatto" data-i="${i}">Fatto</button>`;
 }
-const DA_RISPONDERE = ['razionamento', 'ts', 'veleno', 'morte'];
-function primoInCoda(c) { const pri = ['morte', 'ts', 'veleno', 'razionamento']; for (const t of pri) { const i = c.coda.findIndex(q => q.tipo === t); if (i >= 0) return i; } return 0; }
+const DA_RISPONDERE = ['razionamento', 'ts', 'veleno', 'morte', 'erbe'];
+function primoInCoda(c) { const pri = ['morte', 'ts', 'veleno', 'razionamento', 'erbe']; for (const t of pri) { const i = c.coda.findIndex(q => q.tipo === t); if (i >= 0) return i; } return 0; }
 
 // ---------- G: finestra «Malus/Bonus»
 const UNITA = [['round', 'round'], ['minuti', 'minuti'], ['ore', 'ore'], ['giorni', 'giorni'], ['incontro', 'fino a fine incontro'], ['permanente', 'permanente'], ['libera', 'senza durata (si toglie a mano)']];
@@ -908,7 +913,7 @@ function finestraMalus(chi, preset) {
     <fieldset data-per="ts"><legend><label class="spunta"><input type="checkbox" name="tsOn"> TS periodico</label></legend><div class="griglia stretta">
       <label class="campo"><span>TS</span><select name="tsT">${opz([['Tempra', 'Tempra'], ['Riflessi', 'Riflessi'], ['Volontà', 'Volontà']], 'Volontà')}</select></label>${num('tsCD', 'CD')}
       <label class="campo"><span>Ogni</span><input type="number" name="tsN" min="1" value="1"></label><label class="campo"><span>Unità</span><select name="tsU">${opz(UNITA.slice(0, 4), 'round')}</select></label>
-      <label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="tsFin" checked> Superato = finisce</label></div></fieldset>
+      <label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="tsFin" checked> Superato = finisce</label><label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="tsInc"> CD +1 a ogni prova</label></div></fieldset>
     <fieldset data-per="veleno"><legend>Veleno o malattia</legend><div class="griglia stretta">
       <label class="campo"><span>Tipo</span><select name="vF">${opz([['ferimento', 'ferimento'], ['contatto', 'contatto'], ['ingestione', 'ingestione'], ['inalazione', 'inalazione']], 'ferimento')}</select></label>
       <label class="campo"><span>TS</span><select name="vT">${opz([['Tempra', 'Tempra'], ['Riflessi', 'Riflessi'], ['Volontà', 'Volontà']], 'Tempra')}</select></label>${num('vCD', 'CD')}
@@ -938,7 +943,7 @@ function finestraMalus(chi, preset) {
         if (tipo === 'condizione' && val(f, 'crescOn') && !spunta(f, 'crescOn')) d.crescente = false;
         if (val(f, 'sc') && val(f, 'sc').value) { d.scadenza = 'causa'; d.causa = val(f, 'sc').value; }
         d.mods = { altro: testo(f, 'm_altro') }; for (const k of ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max']) d.mods[k] = n('m_' + k);
-        if (spunta(f, 'tsOn')) d.ts = { tipo: val(f, 'tsT').value, cd: n('tsCD') || null, ogni: n('tsN'), unita: val(f, 'tsU').value, finisce: spunta(f, 'tsFin') };
+        if (spunta(f, 'tsOn')) d.ts = { tipo: val(f, 'tsT').value, cd: n('tsCD') || null, ogni: n('tsN'), unita: val(f, 'tsU').value, finisce: spunta(f, 'tsFin'), ...(spunta(f, 'tsInc') ? { incr: true } : {}) };
       }
       return d;
   }
@@ -960,7 +965,7 @@ function finestraMalus(chi, preset) {
     if (d.durata) { val(el, 'du').value = d.durata.unita || 'round'; if (d.durata.n) val(el, 'dn').value = d.durata.n; val(el, 'livOn').checked = !!d.durata.liv; }
     for (const k of ['ts', 'tempra', 'riflessi', 'volonta', 'ca', 'dmc', 'abilita', 'iniziativa', 'fatica_max']) val(el, 'm_' + k).value = d.mods && d.mods[k] ? d.mods[k] : '';
     val(el, 'm_altro').value = (d.mods && d.mods.altro) || '';
-    if (d.ts) { val(el, 'tsOn').checked = true; val(el, 'tsT').value = d.ts.tipo; val(el, 'tsCD').value = d.ts.cd || ''; val(el, 'tsN').value = d.ts.ogni; val(el, 'tsU').value = d.ts.unita; val(el, 'tsFin').checked = d.ts.finisce !== false; }
+    if (d.ts) { val(el, 'tsOn').checked = true; val(el, 'tsT').value = d.ts.tipo; val(el, 'tsCD').value = d.ts.cd || ''; val(el, 'tsN').value = d.ts.ogni; val(el, 'tsU').value = d.ts.unita; val(el, 'tsFin').checked = d.ts.finisce !== false; val(el, 'tsInc').checked = !!d.ts.incr; }
   };
   el.addEventListener('change', ev => { if (ev.target.name === 'modello' && ev.target.value) { const m = S.camp.modelli.find(x => x.id === ev.target.value); if (m) metti(m.dati); } aggiorna(); });
   el.addEventListener('click', ev => { if (!ev.target.closest('[data-mod="elimina"]')) return; const id = val(el, 'modello').value; if (!id) return avviso('Scegli il modello da eliminare', true);
@@ -981,12 +986,18 @@ function finestraDettaglioMalus(chi, id) {
   if (m.pf !== undefined) azioni.push({ testo: 'Cura…', classe: 'oro', fn: () => { finestraCuraFerita(chi, id); } });
   if (m.tipo === 'panico') azioni.push({ testo: 'Azione di round completo', classe: 'oro', fn: () => applicaS(M.spendiRoundCompleto(S.camp, chi, id)) });
   if (v) azioni.push({ testo: 'Dose aggiuntiva', fn: () => applicaS(M.doseAggiuntiva(S.camp, chi, id)) });
+  // Build 3b: cerusico (AC3-6 … AC3-8) e annegamento (AC7-4)
+  if (m.tipo === 'condizione' && m.nome === 'Sanguinante') azioni.push({ testo: 'Fermare il sanguinamento…', classe: 'oro', fn: () => { finestraProva('Fermare il sanguinamento', 'Professione (cerusico) CD 10 (1 unità di medicinali) o Sopravvivenza CD 15: riuscita = condizione tolta.', (t, ab) => { const r = M.fermaSanguinamento(S.camp, chi, id, ab, t); applicaS(r.camp); avviso(r.riuscita ? 'Sanguinamento fermato' : 'Il sanguinamento continua', !r.riuscita); }, true); } });
+  if (m.tipo === 'veleno') azioni.push({ testo: 'Trattare il veleno…', classe: 'oro', fn: () => { finestraProva(`Trattare: ${esc(m.nome)}`, `Professione (cerusico) contro la CD del veleno (${pr.cd}), 1 unità di medicinali: riuscita = effetto chiuso, cura 2 danni alle caratteristiche (nel log).`, t => { const r = M.trattaVeleno(S.camp, chi, id, t); applicaS(r.camp); avviso(r.riuscita ? 'Veleno trattato' : 'Prova fallita', !r.riuscita); }); } });
+  if (m.tipo === 'malattia') azioni.push({ testo: m.trattata ? 'Togli «trattata stanotte»' : 'Trattata stanotte', classe: 'oro', fn: () => applicaS(M.trattaMalattia(S.camp, chi, id, !m.trattata)) });
+  if (m.apnea && m.apnea.fase === 'fiato') azioni.push({ testo: '−1 round', classe: 'oro', fn: () => { applicaS(M.menoUnRound(S.camp, chi, id)); return false; } });
+  if (m.apnea) azioni.push({ testo: 'Fuori dall\'acqua', fn: () => applicaS(M.togliMalus(S.camp, chi, id)) });
   azioni.push({ testo: 'Togli', classe: 'peric', fn: () => applicaS(M.togliMalus(S.camp, chi, id)) });
   apri({ titolo: esc(M.nomeEsteso(m)), corpo: `<p class="piccolo">${esc(nomeChi(c, chi))}${m.etichetta ? ' · ' + esc(m.etichetta) : ''}</p>
       ${riga('Durata', esc(M.descriviDurata(c, m) || 'senza durata'))}${riga('Legata a', leg ? esc(leg.nome) + ': sparisce quando guarisce' : '')}${riga('Fa durare', esc(legate))}
       ${m.durata.tipo === 'round' && m.scadenza === 'causa' && c.combattimento && c.combattimento.righe[m.causa] ? riga('Scade al turno di', esc(M.etichetta(c.combattimento.righe[m.causa]))) : ''}
       ${riga('Modificatori', mods)}${riga('Fonte', esc(m.fonte))}
-      ${pr && pr.kind === 'ts' ? riga('TS periodico', `${pr.ts} CD ${pr.cd}, ogni ${M.formatoDurata(pr.ogni)}${pr.finisce ? ', superato = finisce' : ''}`) : ''}
+      ${pr && pr.kind === 'ts' ? riga('TS periodico', `${pr.ts} CD ${pr.cd}, ogni ${M.formatoDurata(pr.ogni)}${pr.finisce ? ', superato = finisce' : ''}${pr.incr ? ', CD +1 a ogni prova' : ''}`) : ''}${m.trattata ? riga('Cerusico', 'trattata stanotte: alla prossima scadenza anche la prova del cerusico') : ''}
       ${v ? riga('Veleno', `${esc(v.forma)} · ${pr.ts} CD ${pr.cd} · 1 ogni ${M.formatoDurata(pr.ogni)}${v.volte ? ` · ${v.volte - v.restanti}/${v.volte}` : ' · senza limite'} · effetto ${esc(v.effetto || '—')}${v.totale ? ` (totale ${v.totale})` : ''} · cura ${v.successi}/${v.cura} TS consecutivi`) + (v.primo ? riga('Primo effetto', esc(M.formatoData(c, pr.prossimo))) : riga('Prossimo TS', pr.attesa ? 'in coda' : esc(M.formatoData(c, pr.prossimo)))) : ''}
       ${m.pf !== undefined ? riga('Cure', `${Math.min(m.cure, m.pf)}/${m.pf} PF (cure magiche dirette)`) + riga('Cerusico', m.cer.guarisce != null ? 'guarisce ' + esc(M.formatoData(c, m.cer.guarisce)) : `${m.cer.tentativi} tentativi` + (m.cer.prossimo != null ? `, di nuovo da ${esc(M.formatoData(c, m.cer.prossimo))} con CD ${m.cer.cd}` : '')) : ''}
       ${m.morte_R != null ? riga('Morte', esc(M.formatoData(c, m.morte_R)) + ' se non è fermata') : ''}
@@ -1174,13 +1185,13 @@ function finestraImpostazioni() {
   apri({ titolo: 'Impostazioni della campagna', corpo: `<fieldset><legend>Campagna</legend>
       <label class="campo"><span>Nome</span><input type="text" name="nome" value="${esc(S.camp.nome)}"></label>
       <label class="campo"><span>Etichetta dell'anno</span><input type="text" name="etichetta" value="${esc(S.camp.anno.etichetta)}"></label>
-      ${voce('scorte', 'Usa le scorte', '(consumo di cibo, acqua e foraggio, Fame e Sete automatiche, Foraggiare)')}${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(dalla Build 3)')}</fieldset>
+      ${voce('scorte', 'Usa le scorte', '(consumo di cibo, acqua e foraggio, Fame e Sete automatiche, Foraggiare)')}${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(ogni 6 ore di marcia; aree e tabelle col pulsante qui sotto)')}</fieldset>
     <fieldset><legend>Timer reale</legend>${voce('timer', 'Timer reale del turno e del combattimento')}
       <label class="campo"><span>Soglia di avviso del turno (secondi, 0 = nessuna)</span><input type="number" name="soglia_timer" min="0" value="${i.soglia_timer}"></label></fieldset>
     <fieldset><legend>Finestra TV (Build 4)</legend>${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento')}${voce('tv_ora', 'Ora del giorno')}${voce('tv_meteo', 'Meteo')}${voce('timer_tv', 'Timer sulla TV')}${voce('f10', 'Tasto F10: turno successivo')}
       <label class="campo"><span>Creature fuori combattimento</span><select name="tv_fuori"><option value="barrate" ${i.tv_fuori === 'barrate' ? 'selected' : ''}>barrate</option><option value="tolte" ${i.tv_fuori === 'tolte' ? 'selected' : ''}>tolte</option></select></label></fieldset>
     <fieldset><legend>Aspetto</legend><label class="campo"><span>Tema</span><select name="tema"><option value="scuro" ${i.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${i.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label></fieldset>`,
-    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => {
+    azioni: [{ testo: 'Annulla' }, { testo: 'Aree degli incontri casuali…', fn: () => { finestraAree(); return false; } }, { testo: 'Salva', classe: 'prim', fn: f => {
       const c = M.clona(S.camp), x = c.impostazioni;
       if (!testo(f, 'nome')) throw new Error('Nome della campagna mancante');
       c.nome = testo(f, 'nome'); c.anno.etichetta = testo(f, 'etichetta');
@@ -1198,6 +1209,7 @@ const CAMPI_PG = [
   ['Tiri Salvezza', [['tempra', 'Tempra', 'n'], ['riflessi', 'Riflessi', 'n'], ['volonta', 'Volontà', 'n'], ['ts_note', 'Note (es. +2 vs [PAURA])', 't']]],
   ['Abilità e iniziativa', [['percezione', 'Percezione', 'n'], ['intuizione', 'Intuizione', 'n'], ['furtivita', 'Furtività', 'n'], ['lib0', 'Abilità libera 1', 'lib'], ['lib1', 'Abilità libera 2', 'lib'], ['iniziativa', 'Bonus di iniziativa', 'n'], ['imp_pen', 'Impreparato', 'imp']]],
   ['Altro', [['velocita', 'Velocità', 't'], ['sensi', 'Sensi', 't'], ['note', 'Note', 't']]],
+  ['Professioni (Vol. 3)', [['cerusico', 'Gradi in Professione (cerusico)', 'n'], ['erborista_gradi', 'Gradi in Professione (erborista)', 'n'], ['erborista', 'Erborista: raccoglie le erbe ogni giorno', 'c']]],
 ];
 function campiPGhtml(s) {
   return CAMPI_PG.map(([leg, campi]) => `<fieldset><legend>${leg}</legend><div class="griglia">${campi.map(([k, et, tipo]) => {
@@ -1778,7 +1790,7 @@ function campagnaEsempio() {
     { nome: 'Bruno', giocatore: 'Giocatore 2', razza: 'Orco', classe: 'Barbaro 7', livello: 7, fatica_max: 48, ferita_max: 49, rif_dadi: 7, rif_tipo: 12, rif_ripete: true, ca: 17, ca_contatto: 11, ca_sprovvista: 15, dmc: 24,
       tempra: 9, riflessi: 4, volonta: 3, percezione: 9, intuizione: 2, furtivita: 1, iniziativa: 2, imp_pen: 6, abilita_libere: [{ nome: 'Intimidire', valore: 11 }, { nome: '', valore: 0 }] },
     { nome: 'Cira', giocatore: 'Giocatore 3', razza: 'Umana', classe: 'Sacerdote 7', livello: 7, fatica_max: 32, ferita_max: 33, rif_dadi: 7, rif_tipo: 8, ca: 20, ca_contatto: 11, ca_sprovvista: 19, dmc: 18,
-      tempra: 7, riflessi: 3, volonta: 9, percezione: 10, intuizione: 12, furtivita: 0, iniziativa: 1, imp_pen: 6, abilita_libere: [{ nome: 'Professione (cerusico)', valore: 12 }, { nome: '', valore: 0 }] },
+      tempra: 7, riflessi: 3, volonta: 9, percezione: 10, intuizione: 12, furtivita: 0, iniziativa: 1, imp_pen: 6, abilita_libere: [{ nome: 'Professione (cerusico)', valore: 12 }, { nome: '', valore: 0 }], cerusico: 6 },
   ];
   let c = M.creaCampagna({ nome: 'Campagna d\'esempio', anno: { numero: 1462, etichetta: 'dopo la Caduta' }, partenza: { mese: 9, giorno: 26, ore: 17, min: 30, sett: 0 },
     zona: '1', pg, accompagnatori: 2, persone: [{ nome: 'Mira', ruolo: 'guida' }], cibo: 12, acqua: 9, foraggio: 6 }, MET, rng, Date.now());
@@ -1854,14 +1866,6 @@ function testoScheda(righe) {
   chiudi(); return out;
 }
 // ---------- terza colonna: Prontuario (AB1-4, AB2-3, AB2-4)
-function disegnaProntuario() {
-  const P = S.ui.pront = S.ui.pront || { sez: 'condizioni', q: '', gruppo: '', aperta: null };
-  const sez = (k, t) => `<button class="btn min${P.sez === k ? ' oro' : ''}" data-az="prontSez" data-s="${k}">${t}</button>`;
-  return `<div class="pannello" id="p-prontuario"><div class="fila">${sez('condizioni', 'Condizioni')}${sez('imprevisti', 'Imprevisti')}
-      <span class="tenue piccolo">Prontuario della Guida: Build 3b</span></div>
-    <label class="campo"><span>Cerca</span><input type="search" id="pront-q" value="${esc(P.q)}" placeholder="nome o parola (anche nel testo)"></label>
-    ${P.sez === 'imprevisti' ? disegnaImprevisti(P) : disegnaCondizioni(P)}</div>`;
-}
 const cerca = (q, ...t) => !q || t.join(' ').toLowerCase().includes(q.toLowerCase());
 function disegnaCondizioni(P) {
   const gr = ['', ...GRUPPI_C].map(g => `<button class="btn min${P.gruppo === g ? ' oro' : ''}" data-az="prontGruppo" data-g="${g}">${g ? NOMI_GRUPPO[g] : 'Tutte'}</button>`).join('');
@@ -1972,7 +1976,7 @@ function disegnaLuce() {
 function finestraLuce() {
   const c = S.camp, chi = [['gruppo', 'Il gruppo'], ...c.pg.map(p => ['pg:' + p.id, p.scheda.nome]), ...c.compagnia.persone.map(a => ['acc:' + a.id, a.nome])];
   const FI = { nessuna: 'non la spegne (luce magica)', candela: 'come una candela', torcia: 'come una torcia', lanterna: 'come una lanterna', impermeabile: 'come una lanterna impermeabile' };
-  const el = apri({ titolo: 'Nuova fonte di luce', corpo: `<label class="campo"><span>Fonte</span><select name="t">${STR.luce.map(f => `<option value="${f.id}">${esc(f.nome)} (${f.raggio} m, ${f.ore} ${f.ore === 1 ? 'ora' : 'ore'}${f.olio ? ' per fiaschetta' : ''}) · ${esc(f.costo)}</option>`).join('')}
+  const el = apri({ titolo: 'Nuova fonte di luce', corpo: `<label class="campo"><span>Fonte</span><select name="t">${STR.luce.map(f => `<option value="${f.id}">${esc(f.nome)} (${f.raggio} m, ${f.ore} ${f.ore === 1 ? 'ora' : 'ore'}${f.olio ? ' per fiaschetta' : ''}) · ${esc(costoLuceV3(f))}</option>`).join('')}
         <option value="personalizzata">Personalizzata (incantesimo o altra fonte)…</option></select></label>
       <p class="tenue piccolo" id="l-desc"></p>
       <div class="griglia" id="l-pers" hidden><label class="campo" style="grid-column:1/-1"><span>Nome</span><input type="text" name="pn" placeholder="es. Luce, Fiamma perenne, falò"></label>
@@ -2054,6 +2058,330 @@ Object.assign(AZ, {
 Object.assign(CAMBI, { riparoLuce(el) { applica(M.riparoLuce(S.camp, el.dataset.id, el.checked)); } });
 document.addEventListener('input', ev => { if (ev.target.id !== 'pront-q') return; S.ui.pront.q = ev.target.value; clearTimeout(S.ui.prontT);
   S.ui.prontT = setTimeout(() => { const pos = ev.target.selectionStart; disegna(); const q = $('#pront-q'); if (q) { q.focus(); q.setSelectionRange(pos, pos); } }, 250); });
+
+
+// ================================================================= Build 3b: Prontuario (R, AC1–AC10) e incontri casuali (S, AC6)
+const PRONT = DATI.prontuario; M.usaProntuario(PRONT);
+const MONETA = mr => M.moneta(mr);
+// dadi cliccabili nei testi del Prontuario (AC7-6): «8d6», «1d4+1», «2d12»
+const conDadi = html => html.replace(/(^|[\s(>«])(\d*d\d+(?:[+−-]\d+)?)(?=[\s,.;:)»<×]|$)/g, (t, pre, e) => `${pre}<button type="button" class="dado" data-az="tiraDado" data-e="${e.replace('−', '-')}" title="Tira ${e}">${e}</button>`);
+const testoP = s => conDadi(coloraTutte(esc(s)));
+function bloccoHtml(b) {
+  if (b.t === 'h') return `<h4 class="sotto">${esc(b.testo)}</h4>`;
+  if (b.t === 'p') return `<p class="piccolo">${testoP(b.testo)}</p>`;
+  if (b.t === 'nota') return `<p class="piccolo nota-p"><span class="chip">${esc(b.fonte === 'app' ? 'nota dell\'app' : b.fonte)}</span> ${testoP(b.testo)}</p>`;
+  const [h, ...r] = b.righe, n = h.length;
+  return `<div class="tabmeteo"><table><tr>${h.map(x => `<th>${esc(x)}</th>`).join('')}</tr>${r.map(x => x.length === 1 ? `<tr class="gruppo-t"><td colspan="${n}">${esc(x[0])}</td></tr>` : `<tr>${x.map(y => `<td>${testoP(y)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+}
+const STRUMENTI_V = { marcia: ['Marcia…', 'marcia'], cadere: ['Cadere…', 'cadere'], apnea: ['Trattenere il fiato…', 'apnea'], fumo: ['Fumo: applica a…', 'fumo'],
+  alta_quota: ['Alta quota: applica a…', 'quota'], riparare: ['Riparare…', 'riparare'], locanda: ['Locanda…', 'locandaF'], erborista: ['Prepara mistura…', 'mistura'], cerusico: ['Medicinali…', 'vediCompagnia'] };
+const testiVoce = v => [v.titolo, ...v.blocchi.flatMap(b => b.t === 'tab' ? b.righe.flat() : [b.testo])];
+function cardVoce(v, aperta) {
+  const s = v.strumento && STRUMENTI_V[v.strumento];
+  return `<details class="cartella cond-card" data-voce="${v.id}" ${aperta ? 'open' : ''}><summary>${esc(v.titolo)}</summary>${v.blocchi.map(bloccoHtml).join('')}
+    <p class="tenue piccolo">Fonte: ${esc(v.fonte)}</p>${s ? `<div class="fila"><button class="btn min oro" data-az="${s[1]}">${s[0]}</button></div>` : ''}</details>`;
+}
+// AC1-1: dieci sezioni; la ricerca vale su tutto
+const SEZ_P = [['condizioni', 'Condizioni'], ['imprevisti', 'Imprevisti'], ...PRONT.sezioni.map(s => [s.id, s.nome]).slice(0, 5), ['meteo', 'Meteo'], ...PRONT.sezioni.map(s => [s.id, s.nome]).slice(5)];
+function disegnaSezioneP(P, id, q) {
+  if (id === 'condizioni') return disegnaCondizioni(P);
+  if (id === 'imprevisti') return disegnaImprevisti(P);
+  if (id === 'meteo') return disegnaMeteoP(P, q);
+  const s = PRONT.sezioni.find(x => x.id === id), voci = s.voci.filter(v => cerca(q, ...testiVoce(v)));
+  return voci.map(v => cardVoce(v, P.aperta === v.id || (q && voci.length <= 3))).join('') || (q ? '' : '<p class="tenue piccolo">Nessuna voce.</p>');
+}
+// AC8: le Tabelle del Tempo Atmosferico, solo da consultare (la zona attuale già aperta)
+function disegnaMeteoP(P, q) {
+  const c = S.camp, z = P.zona || c.zona, zz = M.zonaDi(MET, z), out = [];
+  const sez = (titolo, html, testi, aperta) => { if (cerca(q, titolo, ...(testi || []))) out.push(`<details class="cartella" ${aperta || q ? 'open' : ''}><summary>${esc(titolo)}</summary>${html}</details>`); };
+  if (!q) out.push(`<label class="campo"><span>Zona</span>${selectZona('pront-zona', 'data-az-cambio="prontZona"', z)}</label>`);
+  if (z !== MET.sotterraneo.zona) sez(`${zz.n}. ${zz.nome}: tabelle`, (MET.stagioni[z] || []).map(st => `<h4 class="sotto">${esc(M.nomeStagione(MET, z, st.id))}</h4>` +
+    tabellaHtml(['d%', 'Tempo'], MET.tabelle[z][st.id].map(r => [r.da === r.a ? String(r.da).padStart(2, '0') : `${String(r.da).padStart(2, '0')}-${r.a === 100 ? '00' : String(r.a).padStart(2, '0')}`, r.testo]))).join('') +
+    `<p class="piccolo tenue">${esc(zz.descrizione)}</p>${zz.particolarita.length ? `<ul class="voci piccolo">${zz.particolarita.map(x => `<li>${testoP(x)}</li>`).join('')}</ul>` : ''}`, [zz.nome], !q);
+  else sez('Sotterraneo: condizioni', tabellaHtml(['d%', 'Condizione'], MET.sotterraneo.righe.map(r => [`${r.da}-${r.a}`, r.nome])), MET.sotterraneo.righe.map(r => r.nome), !q);
+  sez('Effetti', Object.entries(MET.effetti).map(([n, x]) => `<div class="effetto"><b>${esc(n)}</b> ${testoP(x)}</div>`).join(''), Object.entries(MET.effetti).flat());
+  sez('Fiamme', `<p class="piccolo tenue">${esc(MET.fiamme.frase)}</p>` + regoleHtml([{ tabella: [['Fonte', 'Si spegne con'], ...MET.fiamme.righe.map(r => [r.fonte, r.spegne])] }]), MET.fiamme.righe.flatMap(r => [r.fonte, r.spegne]));
+  sez('Regole generali', MET.regole.map(s => `<h4 class="sotto">${esc(s.titolo)}</h4>${regoleHtml(s.parti)}`).join(''), MET.regole.flatMap(s => [s.titolo, ...s.parti.flatMap(p => p.testo ? [p.testo] : p.elenco || (p.tabella || []).flat())]));
+  sez('Navigazione', regoleHtml(MET.navigazione), MET.navigazione.flatMap(p => p.testo ? [p.testo] : p.elenco || (p.tabella || []).flat()));
+  sez('Foraggiare e acqua', `<p class="piccolo">${testoP(MET.foraggiare.frase)}</p><p class="piccolo">${testoP(MET.foraggiare.avariato_frase || '')}</p>${MET.acqua.righe.map(x => `<p class="piccolo voce">• ${testoP(x)}</p>`).join('')}`, [MET.foraggiare.frase, ...MET.acqua.righe]);
+  sez('Fame e sete', ['sete', 'fame'].map(k => `<h4 class="sotto">${esc(MET.fame_sete[k].nome)}</h4><p class="piccolo">${testoP(MET.fame_sete[k].testo)}</p>`).join(''), ['Fame', 'Sete', MET.fame_sete.sete.testo, MET.fame_sete.fame.testo]);
+  sez('Appendice A – Equipaggiamento', `<p class="piccolo tenue">${esc(PRONT.appendice_a.testo)}</p>` + bloccoHtml({ t: 'tab', righe: PRONT.appendice_a.righe }), PRONT.appendice_a.righe.flat());
+  sez('Appendice B – Tabella riassuntiva degli effetti', bloccoHtml({ t: 'tab', righe: MET.riassunto }), MET.riassunto.flat());
+  return out.join('') || (q ? '' : '');
+}
+// ---------- AC5 Viaggi: pannello della marcia (evento in corso) e finestra «Marcia»
+function disegnaMarcia() {
+  const c = S.camp, v = c.viaggio, a = v.attivo, ci = c.impostazioni.incontri_casuali;
+  const area = ci && v.area ? c.aree.find(x => x.id === v.area) : null;
+  const testa = `<div class="fila"><h3>Marcia</h3><span class="tenue piccolo">${v.oggi && v.oggi.giorno === M.scomponi(c).N ? `oggi ${M.formatoDurata(v.oggi.min * M.ROUND_MIN)} di marcia${v.oggi.forzata ? ' · marcia forzata' : ''}` : 'oggi nessuna marcia'}${area ? ` · incontri: ${esc(area.nome)} (${M.formatoDurata(Math.round(v.accumulo * 60) * M.ROUND_MIN)} su 6 h)` : ''}</span><span class="spazio"></span>
+    ${a ? '' : '<button class="btn min prim" data-az="marcia">Marcia…</button>'}${ci ? '<button class="btn min" data-az="tiraIncontro">Tira incontro…</button>' : ''}<button class="btn min" data-az="locandaF">Locanda…</button></div>`;
+  if (!a) return `<div class="pannello" id="p-marcia">${testa}${v.ultima ? `<p class="tenue piccolo">Ultima marcia: ${String(v.ultima.km).replace('.', ',')} km in ${M.formatoDurata(v.ultima.min * M.ROUND_MIN)}.</p>` : ''}</div>`;
+  const resta = a.resta_min !== null ? `restano ${M.formatoDurata(a.resta_min * M.ROUND_MIN)}` : `restano ${String(Math.round(a.resta_km * 10) / 10).replace('.', ',')} km`;
+  const stato = `<p class="piccolo"><b>${String(Math.round(a.km * 10) / 10).replace('.', ',')} km</b> in ${M.formatoDurata(a.min * M.ROUND_MIN)} · ${resta}${a.ultimi && a.ultimi.length ? ` · ${esc(a.ultimi.join(', '))}` : ''}</p>`;
+  const e = a.evento;
+  let corpo = '';
+  if (a.sospesa) corpo = `<p class="piccolo">La marcia è ferma per l'incontro.</p><div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="riprendi">Riprendi la marcia (${resta.replace('restano ', '')})</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
+  else if (e && e.tipo === 'orientarsi') corpo = `<div class="effetto"><b>Orientarsi</b> Sopravvivenza CD ${e.cd}${e.motivi.length ? ` (${esc(e.motivi.join(', '))})` : ''}: una prova al giorno fuori dalle strade; la Bussola dà +3. Fallita: metà della strada; fallita di 5 o più: tutto il giorno nella direzione sbagliata.</div>
+    <div class="fila"><label class="campo"><span>Risultato della prova</span><input type="number" id="m-or" inputmode="numeric"></label><button class="btn prim" data-az="marciaRisposta" data-r="orientarsi">Registra</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
+  else if (e && e.tipo === 'forzata') corpo = `<div class="effetto"><b>Marcia forzata, ${e.ora}ª ora</b> prova di Costituzione CD ${e.cd} per ciascuno (fallita: ${PRONT.viaggi.forzata.danno_pg} danno a Costituzione e ci si ferma; cavalcature ${PRONT.viaggi.forzata.danno_cavalcatura} danni).</div>
+    <div class="fila">${e.pg.map(p => `<label class="spunta"><input type="checkbox" data-fz="${p.id}"> ${esc(p.nome)} fallisce</label>`).join('')}${e.cavalcature.map(x => `<label class="spunta"><input type="checkbox" data-fzc="${x.id}"> ${esc(x.nome)} fallisce</label>`).join('')}</div>
+    <div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="forzata">Registra e continua se tutti superano</button><button class="btn" data-az="marciaRisposta" data-r="forzataContinua">Continua lasciando indietro chi fallisce</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
+  else if (e && e.tipo === 'incontro') corpo = `<div class="effetto"><b>Incontro casuale (${esc(e.area)})</b> ${esc(M.formatoData(c, e.R))} · ${esc(e.meteo.join(' + '))}<br>${testoP(e.testo)}</div>
+    <div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="avvia">Avvia</button><button class="btn" data-az="marciaRisposta" data-r="ignora">Ignora</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
+  return `<div class="pannello evidenza" id="p-marcia">${testa}${stato}${corpo}</div>`;
+}
+function finestraMarcia() {
+  const c = S.camp, V = PRONT.viaggi, pi = M.kmhPiedi(c), ci = c.impostazioni.incontri_casuali, sp = M.suoloProposto(c, MET), ult = S.ui.marcia || {};
+  const el = apri({ titolo: 'Marcia', larga: true, corpo: `<div class="griglia">
+      <label class="campo"><span>Mezzo</span><select name="mz">${V.mezzi.map(m => `<option value="${m.id}" ${m.id === (ult.mezzo || 'piedi') ? 'selected' : ''}>${esc(m.nome)} (${m.id === 'piedi' ? pi.kmh : m.kmh} km/h)</option>`).join('')}<option value="libera" ${ult.mezzo === 'libera' ? 'selected' : ''}>Velocità libera…</option></select></label>
+      <label class="campo"><span>km/h</span><input type="number" name="kmh" step="0.1" min="0.1" value="${ult.kmh || pi.kmh}"></label>
+      <label class="campo"><span>Terreno</span><select name="tr">${V.terreni.map(t => `<option value="${t.id}" ${t.id === (ult.terreno || 'pianura') ? 'selected' : ''}>${esc(t.nome)}${t.molt[0] !== t.molt[1] ? ` (×${t.molt[0]}/${t.molt[1]})` : ''}</option>`).join('')}</select></label>
+      <label class="campo"><span>Suolo (fuori strada)</span><select name="su">${V.suolo.map(s => `<option value="${s.id}" ${s.id === sp ? 'selected' : ''}>${esc(s.nome)}</option>`).join('')}</select></label>
+      <label class="spunta"><input type="checkbox" name="fs" ${ult.fuori_strada ? 'checked' : ''}> Fuori strada (Orientarsi una volta al giorno)</label>
+      <label class="spunta"><input type="checkbox" name="ra"> Racchette da neve</label>
+      <label class="campo"><span>Ore di marcia</span><input type="number" name="ore" step="0.5" min="0" value="8"></label>
+      <label class="campo"><span>oppure km da percorrere</span><input type="number" name="km" step="0.1" min="0" placeholder="—"></label>
+      ${ci ? `<label class="campo"><span>Area degli incontri casuali</span><select name="ar"><option value="">nessuna</option>${c.aree.map(a => `<option value="${a.id}" ${a.id === c.viaggio.area ? 'selected' : ''}>${esc(a.nome)} (${a.perc}%)</option>`).join('')}</select></label>
+        <label class="spunta"><input type="checkbox" name="spc" ${c.viaggio.speciale ? 'checked' : ''}> Speciale (grotte, oasi e rovine…)</label>` : ''}</div>
+      <p class="tenue piccolo" id="mz-nota">A piedi: la velocità del più lento${pi.chi ? ` (${esc(pi.chi)}, ${pi.metri} m)` : ''}; 9 m = 4,8 km/h, in proporzione (1 miglio = 1,6 km). Ogni ora conta il meteo di quell'ora (tempeste ×¼). Dopo 8 ore di marcia nello stesso giorno: marcia forzata.</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Parti', classe: 'prim', fn: f => {
+      const mz = val(f, 'mz').value, km = testo(f, 'km'), d = { mezzo: mz, kmh: Number(val(f, 'kmh').value), terreno: val(f, 'tr').value, suolo: val(f, 'su').value, fuori_strada: spunta(f, 'fs'), racchette: spunta(f, 'ra') };
+      if (km) d.km = Number(km.replace(',', '.')); else d.ore = Number(testo(f, 'ore').replace(',', '.'));
+      if (val(f, 'ar')) { d.area = val(f, 'ar').value || null; d.speciale = spunta(f, 'spc'); }
+      S.ui.marcia = { mezzo: mz, kmh: mz === 'libera' ? d.kmh : null, terreno: d.terreno, fuori_strada: d.fuori_strada };
+      applica(M.avviaMarcia(S.camp, MET, rng, d)); S.ui.scheda = 'viaggio'; disegna(); const p = $('#p-marcia'); if (p) p.scrollIntoView({ block: 'start' }); } }] });
+  const agg = () => { const m = val(el, 'mz').value; if (m !== 'libera') val(el, 'kmh').value = m === 'piedi' ? pi.kmh : V.mezzi.find(x => x.id === m).kmh; };
+  el.addEventListener('change', ev => { if (ev.target.name === 'mz') agg(); });
+}
+// ---------- AC6 «Tira incontro» a mano e aree degli incontri casuali
+function finestraTiraIncontro() {
+  const c = S.camp;
+  apri({ titolo: 'Tira incontro', corpo: `<label class="campo"><span>Area</span><select name="ar">${c.aree.map(a => `<option value="${a.id}" ${a.id === c.viaggio.area ? 'selected' : ''}>${esc(a.nome)} (${a.perc}%${a.speciale ? `, ${esc(a.speciale.nome)} ${a.speciale.perc}%` : ''})</option>`).join('')}</select></label>
+      <label class="spunta"><input type="checkbox" name="sp"> Speciale</label><label class="spunta"><input type="checkbox" name="ri"> Notte al riparo (−${PRONT.incontri.riparo}%, Sopravvivenza CD 15)</label>
+      <p class="tenue piccolo">Se esce un incontro l'ora è il 2d12 della Guida: diventa un promemoria con la composizione e «Avvia» quando scatta.</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => { const r = M.tiraIncontro(S.camp, rng, { area: val(f, 'ar').value, speciale: spunta(f, 'sp'), riparo: spunta(f, 'ri') }); applica(r.camp);
+      avviso(r.esce ? `d% ${r.tiro} su ${r.perc}%: incontro alle ${String(r.ora % 24).padStart(2, '0')}:00 — ${r.testo}` : `d% ${r.tiro} su ${r.perc}%: nessun incontro`); } }] });
+}
+function finestraAree() {
+  const c = S.camp;
+  const el = apri({ titolo: 'Incontri casuali: aree e tabelle', larga: true, corpo: `<p class="tenue piccolo">Probabilità ogni 6 ore di marcia (Guida del DM), modificabili; tabella d% della campagna: mostri o PNG del bestiario con la quantità in dadi, oppure un evento scritto.</p>
+      <div id="aree-el">${c.aree.map(a => `<div class="membro"><div class="fila"><b>${esc(a.nome)}</b><span class="tenue piccolo">${a.perc}%${a.speciale ? ` · ${esc(a.speciale.nome)} ${a.speciale.perc}%` : ''} · ${a.righe.length} righe${M.controllaRighe(a.righe).length ? ` · <span class="cond-t">${esc(M.controllaRighe(a.righe).join('; '))}</span>` : ''}</span><span class="spazio"></span>
+        <button type="button" class="btn min" data-ar="mod" data-id="${a.id}">Modifica</button><button type="button" class="btn min peric" data-ar="del" data-id="${a.id}" aria-label="Elimina">✕</button></div></div>`).join('')}</div>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: '+ Area', classe: 'prim', fn: () => { finestraArea(null); } }] });
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-ar]'); if (!b) return; chiudi(Fin.pila.at(-1).id);
+    if (b.dataset.ar === 'mod') finestraArea(b.dataset.id); else conferma('Elimina area', 'Eliminare l\'area e la sua tabella?', () => { applica(M.eliminaArea(S.camp, b.dataset.id)); finestraAree(); }, 'Elimina', 'peric'); });
+}
+function rigaAreaHtml(r, i) {
+  const p = r.partecipanti || [];
+  return `<div class="riga-ar" data-i="${i}"><div class="fila"><input type="number" class="corto" data-k="da" value="${r.da ?? ''}" min="1" max="100" aria-label="da"> – <input type="number" class="corto" data-k="a" value="${r.a ?? ''}" min="1" max="100" aria-label="a">
+    <input type="text" data-k="dadi" value="${esc(p[0] ? p[0].dadi : '1')}" class="corto" aria-label="quantità (dadi)"><select data-k="sch">${opzSchede(p[0] && p[0].rif ? rifStr(p[0].rif) : '')}</select>
+    <input type="text" data-k="nome" value="${esc(p[0] ? p[0].nome : '')}" placeholder="nome (o dalla scheda)"><input type="text" data-k="testo" value="${esc(r.testo || '')}" placeholder="evento o nota"><button type="button" class="btn min peric" data-togli="${i}" aria-label="Togli la riga">✕</button></div></div>`;
+}
+function finestraArea(id) {
+  const c = S.camp, a0 = id ? c.aree.find(x => x.id === id) : { nome: '', perc: 10, speciale: null, righe: [] };
+  let righe = M.clona(a0.righe);
+  const el = apri({ titolo: id ? `Area: ${esc(a0.nome)}` : 'Nuova area', larga: true, corpo: `<div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" value="${esc(a0.nome)}"></label>
+      <label class="campo"><span>Probabilità (%)</span><input type="number" name="p" min="0" max="100" value="${a0.perc}"></label>
+      <label class="campo"><span>Speciale (facoltativo)</span><input type="text" name="sn" value="${esc(a0.speciale ? a0.speciale.nome : '')}" placeholder="es. nelle grotte"></label>
+      <label class="campo"><span>Probabilità speciale (%)</span><input type="number" name="sp" min="0" max="100" value="${a0.speciale ? a0.speciale.perc : ''}"></label></div>
+      <h4 class="sotto">Tabella d% (da – a · quantità · scheda · nome · evento)</h4><div id="ar-righe">${righe.map(rigaAreaHtml).join('')}</div><p class="piccolo" id="ar-msg"></p>
+      <div class="fila"><button type="button" class="btn min" data-agg-riga="1">+ Riga</button>${c.aree.filter(x => x.id !== id && x.righe.length).length ? `<select name="cp"><option value="">Copia la tabella da…</option>${c.aree.filter(x => x.id !== id && x.righe.length).map(x => `<option value="${x.id}">${esc(x.nome)}</option>`).join('')}</select>` : ''}</div>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => { const sn = testo(f, 'sn');
+      applica(M.salvaArea(S.camp, { id: id || undefined, nome: testo(f, 'n'), perc: intero(f, 'p'), speciale: sn ? { nome: sn, perc: intero(f, 'sp') } : null, righe: leggiRighe() })); finestraAree(); } }] });
+  const leggiRighe = () => [...el.querySelectorAll('.riga-ar')].map(x => { const g = k => x.querySelector(`[data-k="${k}"]`), s = g('sch').value, r = s ? rifDa(s) : null, sc = r ? schedaDi(r) : null;
+    const nome = g('nome').value.trim() || (sc ? sc.nome : '');
+    return { da: Number(g('da').value), a: Number(g('a').value), testo: g('testo').value, partecipanti: nome ? [{ nome, dadi: g('dadi').value || '1', rif: r }] : [] }; });
+  const msg = () => { el.querySelector('#ar-msg').innerHTML = esc(M.controllaRighe(leggiRighe().filter(r => r.da && r.a)).join('; ')); };
+  el.addEventListener('click', ev => { if (ev.target.closest('[data-agg-riga]')) { righe = leggiRighe(); const u = righe.at(-1); righe.push({ da: u ? Math.min(100, u.a + 1) : 1, a: 100, partecipanti: [], testo: '' }); el.querySelector('#ar-righe').innerHTML = righe.map(rigaAreaHtml).join(''); msg(); }
+    const t = ev.target.closest('[data-togli]'); if (t) { righe = leggiRighe(); righe.splice(+t.dataset.togli, 1); el.querySelector('#ar-righe').innerHTML = righe.map(rigaAreaHtml).join(''); msg(); } });
+  el.addEventListener('change', ev => { if (ev.target.name === 'cp' && ev.target.value) { righe = M.clona(S.camp.aree.find(x => x.id === ev.target.value).righe); el.querySelector('#ar-righe').innerHTML = righe.map(rigaAreaHtml).join(''); } msg(); });
+  msg();
+}
+// avvio del combattimento con la composizione dell'incontro casuale (come N2)
+function avviaComposizione(comp, titolo) {
+  const c = S.camp; if (c.combattimento) throw new Error('C\'è già un combattimento in corso');
+  const av = nuovoAvvio(); av.campagna = c.id; av.titolo = titolo;
+  av.nemici = comp.partecipanti.map(p => { const s = p.rif ? schedaDi(p.rif) : null; return { nome: s ? s.nome : p.nome, bonus: s && s.iniziativa !== null ? s.iniziativa : 0, n: p.n, modo: 'tipo', imp: false, nascosto: false, nomeTv: '', rif: s ? p.rif : null }; });
+  if (!av.nemici.length) av.nemici = [{ nome: '', bonus: 0, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '' }];
+  S.ui.avvio = av; disegna(); const p = $('#avvio'); if (p) p.scrollIntoView({ block: 'start' });
+  avviso('Inserisci l\'iniziativa dei PG e premi «Tira e avvia»');
+}
+// ---------- AC7 pericoli
+function sceltaCreatura(nome) { const c = S.camp, cb = c.combattimento;
+  return `<label class="campo"><span>${nome || 'Chi'}</span><select name="chi">${[...c.pg.map(p => [`pg:${p.id}`, p.scheda.nome]), ...(cb ? Object.values(cb.righe).filter(r => r.tipo !== 'pg').map(r => [`riga:${r.id}`, M.etichetta(r)]) : [])].map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select></label>`; }
+const chiDa = f => { const [k, v] = val(f, 'chi').value.split(':'); return { [k]: v }; };
+function finestraCadere() {
+  let es = null;
+  const el = apri({ titolo: 'Cadere', corpo: `<div class="griglia"><label class="campo"><span>Metri</span><input type="number" name="m" min="0" step="0.5" value="6"></label>
+      <label class="spunta"><input type="checkbox" name="vo"> Volontaria (−3 m)</label><label class="campo"><span>Acrobazia (se volontaria)</span><input type="number" name="ac" placeholder="—"></label>
+      <label class="spunta"><input type="checkbox" name="aq"> In acqua profonda almeno 3 m</label></div>${sceltaCreatura()}
+      <div class="fila"><button type="button" class="btn oro" data-cd="tira">Tira i danni</button></div><div id="cd-ris"></div>
+      <p class="tenue piccolo">${esc(PRONT.cadere.lettura_acqua)}</p>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Applica', classe: 'prim', fn: f => { if (!es) tiraC(f); const r = M.applicaCaduta(S.camp, chiDa(f), es); applica(r.camp);
+      if (r.feritaGrave) finestraFeritaGrave(chiDa(f).pg, r.feritaGrave.riga); } }] });
+  const tiraC = f => { const ac = testo(f, 'ac'); es = M.caduta({ metri: Number(val(f, 'm').value), volontaria: spunta(f, 'vo'), acrobazia: ac ? Number(ac) : null, acqua: spunta(f, 'aq') }, rng);
+    f.querySelector('#cd-ris').innerHTML = es.morte ? '<div class="risultato cond-t">Morte</div>' : `<div class="risultato">${es.letali}${es.dadi_non_letali ? ` <small>+ ${es.non_letali} non letali</small>` : ''}</div><p class="num piccolo">${es.dadi_letali}d6 [${es.tiri.letali.join(', ')}]${es.dadi_non_letali ? ` · non letali ${es.dadi_non_letali}d6 [${es.tiri.non_letali.join(', ')}]` : ''}${es.note.length ? ' · ' + esc(es.note.join('; ')) : ''}</p>`; };
+  el.addEventListener('click', ev => { if (ev.target.closest('[data-cd="tira"]')) prova(() => tiraC(el)); });
+  el.addEventListener('change', () => { es = null; });
+}
+function finestraApnea() {
+  apri({ titolo: 'Trattenere il fiato', corpo: `${sceltaCreatura()}<div class="griglia"><label class="campo"><span>Costituzione (punteggio)</span><input type="number" name="cos" min="1" value="12"></label>
+      <label class="spunta"><input type="checkbox" name="gn"> Grande nuotatore (×2)</label></div>
+      <p class="tenue piccolo">Round = 2 × Costituzione; −1 round per ogni azione standard o di round completo (pulsante sull'etichetta). Finiti: prova di Costituzione CD 10 a ogni round (+1 ogni round); fallita: 1° round Privo di Sensi, 2° round resta Privo di Sensi, 3° round annega.</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => applicaS(M.trattieniFiato(S.camp, chiDa(f), { cos: intero(f, 'cos'), grande_nuotatore: spunta(f, 'gn') })) }] });
+}
+function finestraPericolo(tipo) {
+  const d = M.pericoloPronto(tipo), q = PRONT.pericoli.alta_quota;
+  apri({ titolo: `${esc(d.nome)}: applica a…`, corpo: `${tipo === 'fumo' ? '' : `<label class="campo"><span>Quota</span><select name="q">${q.map(x => `<option value="${x.id}" ${x.id === tipo ? 'selected' : ''}>${esc(x.nome)}</option>`).join('')}</select></label>`}${sceltaCreatura()}
+      <p class="tenue piccolo">${tipo === 'fumo' ? 'Tempra CD 15 ogni round (+1 a ogni prova); fallita: passa il round a tossire; due fallimenti di fila: 1d6 danni non letali. Occultamento 20% nel fumo.' : 'Tempra CD 15 ogni 6 ore (+1 a ogni prova); fallita: Affaticato (1.500–4.500 m) o 1 danno a tutte le caratteristiche (oltre 4.500 m).'}</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Applica', classe: 'prim', fn: f => applicaS(M.aggiungiMalus(S.camp, chiDa(f), M.pericoloPronto(val(f, 'q') ? val(f, 'q').value : tipo), rng)) }] });
+}
+// ---------- AC9 Riparare
+function finestraRiparare() {
+  const T = PRONT.riparare.tabella;
+  const el = apri({ titolo: 'Riparare', larga: true, corpo: `<div class="griglia"><label class="campo"><span>Oggetto</span><input type="text" name="n" placeholder="es. Spada lunga"></label>
+      <label class="campo"><span>Tipo</span><select name="t"><option value="armi">Arma</option><option value="armature">Armatura o scudo</option><option value="vari">Oggetto vario</option></select></label>
+      <label class="campo" data-rp="b"><span>Bonus</span><select name="b">${T.armi.map(x => `<option>${esc(x.voce)}</option>`).join('')}</select></label>
+      <label class="campo" data-rp="v" hidden><span>Valore (mo)</span><input type="number" name="v" min="1" value="500"></label>
+      <label class="campo"><span>Stato</span><select name="s"><option value="s">scheggiato</option><option value="r">rotto</option></select></label></div>
+      <div class="effetto" id="rp-cd"></div>
+      <fieldset><legend>Per conto proprio</legend><label class="campo"><span>Risultato della prova di Professione (senza Int; il 20 naturale non vale 30)</span><input type="number" name="tot" inputmode="numeric"></label></fieldset>
+      <fieldset><legend>Presso un artigiano PNG</legend><label class="campo"><span>Valore dell'oggetto (mo)</span><input type="number" name="va" min="1" placeholder="per la commissione"></label></fieldset>`,
+    azioni: [{ testo: 'Chiudi' }, { testo: 'Dall\'artigiano', fn: f => { const r = M.artigiano(S.camp, rng, { valore: Number(testo(f, 'va')), stato: val(f, 's').value, nome: testo(f, 'n') }); applica(r.camp); avviso(`Commissione ${MONETA(r.mr)}; pronto ${M.formatoData(r.camp, r.R)}`); } },
+      { testo: 'Registra la prova', classe: 'prim', fn: f => { const r = M.riparaOggetto(S.camp, MET, rng, leggiR(f)); applica(r.camp); avviso(r.riuscita ? 'Riparato' : 'Fallita: peggiora di un grado', !r.riuscita); } }] });
+  const leggiR = f => { const t = val(f, 't').value; return { tipo: t, chiave: t === 'vari' ? Number(val(f, 'v').value) : val(f, 'b').value, stato: val(f, 's').value, totale: testo(f, 'tot') === '' ? NaN : Number(testo(f, 'tot')), nome: testo(f, 'n') }; };
+  const agg = () => { const t = val(el, 't').value; el.querySelector('[data-rp="b"]').hidden = t === 'vari'; el.querySelector('[data-rp="v"]').hidden = t !== 'vari';
+    if (t !== 'vari') { const s = val(el, 'b'), v = s.value; s.innerHTML = T[t].map(x => `<option>${esc(x.voce)}</option>`).join(''); if ([...s.options].some(o => o.value === v)) s.value = v; }
+    try { const x = M.cdRiparare(t, t === 'vari' ? Number(val(el, 'v').value) : val(el, 'b').value, val(el, 's').value); el.querySelector('#rp-cd').innerHTML = `<b>CD ${x.cd}</b> · ${x.minuti === 30 ? '30 minuti' : '2 ore'} di lavoro · riga «${esc(x.voce)}»`; }
+    catch (e) { el.querySelector('#rp-cd').textContent = e.message; } };
+  el.addEventListener('change', agg); el.addEventListener('input', ev => { if (ev.target.name === 'v') agg(); }); agg();
+}
+// ---------- AC10 Locanda, bevanda, stallaggio
+function finestraLocanda() {
+  const c = S.camp, L = PRONT.locanda, an = c.compagnia.animali;
+  const el = apri({ titolo: 'Locanda', larga: true, corpo: `<p class="tenue piccolo">Vol. 3, Locande e taverne. Le stanze per 2 e per 4 si pagano una volta ogni 2 o 4 persone; gli effetti delle stanze valgono 24 ore dalla fine del riposo nella locanda.</p>
+      ${c.pg.map(p => `<fieldset><legend>${esc(p.scheda.nome)}</legend><div class="fila">${L.filter(x => !x.app.bevanda).map(x => `<label class="spunta piccolo"><input type="checkbox" data-loc="${p.id}" value="${x.id}"> ${esc(x.nome)} <span class="tenue">${esc(x.costo)}</span></label>`).join('')}</div></fieldset>`).join('')}
+      <label class="spunta"><input type="checkbox" name="bere" checked> Anche da bere (il pasto vale come razione di cibo e d'acqua del giorno)</label>
+      ${an.length ? `<fieldset><legend>Stallaggio (${esc(PRONT.stalle.stallaggio.costo)} per animale: oggi non consumano foraggio né acqua)</legend><div class="fila">${an.map(a => `<label class="spunta piccolo"><input type="checkbox" data-stal="${a.id}"> ${esc(a.nome)}</label>`).join('')}</div></fieldset>` : ''}
+      <div class="effetto" id="loc-tot"></div>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Bevanda alcolica forte…', fn: () => { finestraBevanda(); return false; } }, { testo: 'Paga', fn: f => fai(f, false) }, { testo: 'Paga e riposa nella locanda', classe: 'prim', fn: f => fai(f, true) }] });
+  const leggiL = f => { const s = {}; for (const p of c.pg) s[p.id] = [...f.querySelectorAll(`[data-loc="${p.id}"]:checked`)].map(x => x.value); return s; };
+  const fai = (f, riposa) => {
+    let x = M.locanda(S.camp, rng, { servizi: leggiL(f), bere: spunta(f, 'bere') });
+    const st = [...f.querySelectorAll('[data-stal]:checked')].map(i => i.dataset.stal); let c2 = x.camp; if (st.length) c2 = M.stallaggio(c2, st);
+    applica(c2); avviso(`Locanda: ${MONETA(x.mr + (st.length ? PRONT.stalle.stallaggio.mr * st.length : 0))}`);
+    if (riposa) finestraRiposo(Object.keys(x.stanze).length ? x.stanze : {}, Object.keys(leggiL(f)).filter(id => leggiL(f)[id].length));
+  };
+  const tot = () => { try { const x = M.locanda(S.camp, () => 0.5, { servizi: leggiL(el) }); const n = el.querySelectorAll('[data-stal]:checked').length;
+    el.querySelector('#loc-tot').innerHTML = `<b>Totale: ${MONETA(x.mr + n * PRONT.stalle.stallaggio.mr)}</b>`; } catch (e) { el.querySelector('#loc-tot').textContent = e.message; } };
+  el.addEventListener('change', tot); tot();
+}
+function finestraBevanda() {
+  const c = S.camp;
+  apri({ titolo: 'Bevanda alcolica forte', corpo: `<label class="campo"><span>Chi</span><select name="p">${c.pg.map(p => `<option value="${p.id}">${esc(p.scheda.nome)}</option>`).join('')}</select></label>
+      <div class="griglia"><label class="campo"><span>Sorsi</span><input type="number" name="s" min="1" value="1"></label><label class="campo"><span>Bonus di Costituzione base</span><input type="number" name="c" value="0"></label></div>
+      <p class="tenue piccolo">Sorsi pari a 2 + il doppio del bonus di Costituzione base: Barcollante 2 ore; oltre: Privo di Sensi 4 ore. Gli effetti di un sorso svaniscono dopo un'ora.</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Beve', classe: 'prim', fn: f => { const r = M.bevanda(S.camp, rng, { pg: val(f, 'p').value, sorsi: intero(f, 's'), cos: intero(f, 'c') }); applica(r.camp); avviso(`Limite: ${r.soglia} sorsi`); } }] });
+}
+// riposo: 8 ore o totale, assistenza continua, stanze della locanda (AC3-2, AC3-3, AC10-3)
+function finestraRiposo(stanze, preScelti) {
+  const c = S.camp, A3 = PRONT.cerusico.assistenza, L = PRONT.locanda;
+  const el = apri({ titolo: 'Riposo', larga: true, corpo: `<div class="fila"><label class="spunta"><input type="radio" name="dur" value="8" checked> 8 ore (Fatica al massimo, +1 Ferita per livello)</label><label class="spunta"><input type="radio" name="dur" value="24"> Riposo totale, 24 ore (+2 Ferita per livello)</label></div>
+      <p class="piccolo tenue">Riserva del Rifiatare piena; l'orologio avanza con le sue scadenze. Il Punto eroe non cambia. Un solo riposo nelle 24 ore; dopo un riposo a cavallo di due giorni, il giorno dopo si può di nuovo, ma non prima di 12 ore dalla fine.</p>
+      ${c.pg.map(p => { const r = M.puoRiposare(c, p), st = stanze && stanze[p.id] ? L.find(x => x.id === stanze[p.id]) : null; return r.ok
+        ? `<label class="spunta"><input type="checkbox" name="r_${p.id}" ${!preScelti || preScelti.includes(p.id) ? 'checked' : ''}> ${esc(p.scheda.nome)}${st ? ` <span class="chip">${esc(st.nome)}</span>` : ''}</label>`
+        : `<label class="spunta spento"><input type="checkbox" name="r_${p.id}" disabled> ${esc(p.scheda.nome)} <span class="piccolo">— di nuovo da ${esc(M.formatoData(c, r.da))}</span></label>`; }).join('')}
+      <fieldset><legend><label class="spunta"><input type="checkbox" name="asOn"> Assistenza continua (Professione (cerusico))</label></legend>
+        <label class="campo"><span>Chi assiste</span><select name="asChi">${c.pg.map(p => `<option value="${p.id}">${esc(p.scheda.nome)}${p.scheda.cerusico ? ` (${p.scheda.cerusico} gradi)` : ''}</option>`).join('')}</select></label>
+        <div id="as-paz"></div><p class="tenue piccolo">Fino a ${A3.massimo} pazienti, non sé stesso; CD ${A3.cd_base} + numero dei pazienti; 1 unità di medicinali per paziente. Riuscita: il doppio dei Punti Ferita e dei danni alle caratteristiche recuperati.</p></fieldset>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Riposa', classe: 'prim', fn: f => {
+      const ids = c.pg.filter(p => spunta(f, 'r_' + p.id)).map(p => p.id), opz = { totale: f.querySelector('[name="dur"]:checked').value === '24' };
+      if (spunta(f, 'asOn')) { const esiti = {}; for (const i of f.querySelectorAll('[data-paz]')) if (i.value.trim() !== '') esiti[i.dataset.paz] = Number(i.value); opz.assistenza = { chi: val(f, 'asChi').value, esiti }; }
+      if (stanze && Object.keys(stanze).length) opz.stanze = Object.fromEntries(Object.entries(stanze).filter(([k]) => ids.includes(k)));
+      applica(M.riposo(S.camp, MET, rng, ids, opz)); } }] });
+  const paz = () => { const chi = val(el, 'asChi').value, n = c.pg.filter(p => p.id !== chi).length;
+    el.querySelector('#as-paz').innerHTML = `<div class="griglia stretta">${c.pg.filter(p => p.id !== chi).map(p => `<label class="campo"><span>${esc(p.scheda.nome)}: risultato</span><input type="number" data-paz="${p.id}" placeholder="non assistito"></label>`).join('')}</div>`; };
+  el.addEventListener('change', ev => { if (ev.target.name === 'asChi') paz(); }); paz();
+}
+// ---------- AC4 Prepara mistura
+function finestraMistura() {
+  const c = S.camp, E = PRONT.erborista, erb = c.pg.filter(p => p.scheda.erborista);
+  if (!c.erbe.attivo) return avviso('Accendi il contatore delle erbe miste (pannello Compagnia)', true);
+  const grp = [...new Set(E.misture.map(m => m.gruppo))];
+  const el = apri({ titolo: `Prepara mistura (erbe miste: ${c.erbe.n})`, larga: true, corpo: `<label class="campo"><span>Chi prepara</span><select name="chi">${(erb.length ? erb : c.pg).map(p => `<option value="${p.id}">${esc(p.scheda.nome)}${p.scheda.erborista ? ` (${p.scheda.erborista_gradi} gradi)` : ''}</option>`).join('')}</select></label>
+      <label class="campo"><span>Mistura</span><select name="m">${grp.map(g => `<optgroup label="${esc(g)}">${E.misture.filter(m => m.gruppo === g).map(m => { const b = M.bloccoMistura(c, m); return `<option value="${m.id}" ${b ? 'disabled' : ''}>CD ${m.cd} · ${esc(m.tipo)} · ${esc(m.effetto.slice(0, 70))}${m.effetto.length > 70 ? '…' : ''}${b ? ` (${esc(b)})` : ''}</option>`; }).join('')}</optgroup>`).join('')}</select></label>
+      <div class="effetto" id="mi-desc"></div><div id="mi-dest"></div>
+      <label class="campo"><span>Risultato della prova di Professione (erborista) (niente prendere 10 o 20)</span><input type="number" name="t" inputmode="numeric"></label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Prepara', classe: 'prim', fn: f => { const a = [...f.querySelectorAll('[data-dest]:checked')].map(i => { const [k, v] = i.dataset.dest.split(':'); return { [k]: v }; });
+      const r = M.preparaMistura(S.camp, MET, rng, { chi: val(f, 'chi').value, mistura: val(f, 'm').value, totale: testo(f, 't') === '' ? NaN : Number(testo(f, 't')), a }); applica(r.camp); avviso(r.riuscita ? 'Mistura pronta' : 'Prova fallita: erbe sprecate', !r.riuscita); } }] });
+  const desc = () => { const m = M.misturaDi(val(el, 'm').value), d = m.app.durata;
+    el.querySelector('#mi-desc').innerHTML = `<b>${esc(M.nomeMistura(m))}</b> CD ${m.cd} · ${m.dosi} ${m.dosi === 1 ? 'dose' : 'dosi'} · ${testoP(m.effetto)}<br><span class="tenue piccolo">${m.app.medicinali ? '2 erbe miste → 1 unità di medicinali' : m.app.cibo ? 'sul cibo: solo nel log' : m.app.poltiglia ? 'poltiglia: una al giorno, cura fra 1 ora (promemoria)' : d === 'riposo' ? 'fino al prossimo riposo' : d ? `dura ${d.n} ${d.unita}` : 'senza durata (si toglie a mano)'}</span>`;
+    const chi = [...c.pg.map(p => [`pg:${p.id}`, p.scheda.nome]), ...(c.combattimento ? Object.values(c.combattimento.righe).filter(r => r.tipo !== 'pg').map(r => [`riga:${r.id}`, M.etichetta(r)]) : [])];
+    el.querySelector('#mi-dest').innerHTML = m.app.medicinali || m.app.cibo ? '' : `<div class="fila"><span class="piccolo">A chi (fino a ${m.dosi}):</span>${chi.map(([v, t], i) => `<label class="spunta piccolo"><input type="checkbox" data-dest="${v}" ${i === 0 ? 'checked' : ''}> ${esc(t)}</label>`).join('')}</div>`; };
+  el.addEventListener('change', ev => { if (ev.target.name === 'm') desc(); }); desc();
+}
+// ---------- AC3-5 … AC3-8: pronto soccorso, sanguinamento, veleno (finestre)
+function finestraProntoSoccorso(pazId) {
+  const c = S.camp, p = c.pg.find(x => x.id === pazId), C = PRONT.cerusico.pronto;
+  if (!M.puoProntoSoccorso(c, pazId)) return avviso(`${p.scheda.nome} ha già avuto il pronto soccorso dopo l'ultimo combattimento`, true);
+  apri({ titolo: `Pronto soccorso a ${esc(p.scheda.nome)}`, corpo: `<label class="campo"><span>Chi cura</span><select name="cu">${c.pg.map(q => `<option value="${q.id}">${esc(q.scheda.nome)} (${q.scheda.cerusico || 0} gradi)</option>`).join('')}<option value="">altro (gradi qui sotto)</option></select></label>
+      <div class="griglia"><label class="campo"><span>Gradi (se «altro»)</span><input type="number" name="g" min="0" value="0"></label><label class="campo"><span>Risultato della prova</span><input type="number" name="t" inputmode="numeric"></label></div>
+      <p class="tenue piccolo">5 minuti; CD ${C.cd} (${C.cd + C.se_stesso} su sé stessi); cura metà dei gradi + 1d4 ogni ${C.ogni} punti oltre la CD, solo ai Punti Ferita; una volta dopo ogni combattimento; 1 unità di medicinali.</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Registra', classe: 'prim', fn: f => { const cu = val(f, 'cu').value;
+      const r = M.prontoSoccorso(S.camp, MET, rng, { paziente: pazId, curatore: cu || undefined, gradi: cu ? undefined : intero(f, 'g', 0), totale: intero(f, 't') }); applica(r.camp); avviso(r.riuscita ? `Cura ${r.cura} Punti Ferita` : `Fallita (CD ${r.cd})`, !r.riuscita); } }] });
+}
+function finestraProva(titolo, testoP2, fn, conAbilita) {
+  apri({ titolo, corpo: `${conAbilita ? '<label class="campo"><span>Prova</span><select name="ab"><option value="cerusico">Professione (cerusico) CD 10</option><option value="sopravvivenza">Sopravvivenza CD 15</option></select></label>' : ''}
+      <label class="campo"><span>Risultato della prova</span><input type="number" name="t" inputmode="numeric"></label><p class="tenue piccolo">${testoP2}</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Registra', classe: 'prim', fn: f => fn(intero(f, 't'), val(f, 'ab') ? val(f, 'ab').value : null) }] });
+}
+// ---------- contatori di medicinali ed erbe (pannello Compagnia)
+function disegnaContatori() {
+  const c = S.camp, riga = (k, nome, lim, extra) => { const x = c[k];
+    return `<div class="fila"><label class="spunta piccolo"><input type="checkbox" data-az-cambio="contatore" data-k="${k}" ${x.attivo ? 'checked' : ''}> ${nome}</label>${x.attivo ? `<button class="btn min" data-az="contatore" data-k="${k}" data-d="-1" aria-label="Una in meno">−</button><span class="num" id="n-${k}">${x.n}/${lim}</span><button class="btn min" data-az="contatore" data-k="${k}" data-d="1" aria-label="Una in più">+</button>${extra || ''}` : '<span class="tenue piccolo">spento</span>'}</div>`; };
+  return riga('medicinali', 'Unità di medicinali', PRONT.cerusico.limite) + riga('erbe', 'Erbe miste', PRONT.erborista.limite, c.erbe.attivo ? '<button class="btn min oro" data-az="mistura">Prepara mistura…</button>' : '');
+}
+Object.assign(AZ, {
+  tiraDado(el) { const r = M.tiraDadi(S.camp, el.dataset.e, 'libero', { log: leggiPref('dadi-log') === '1' }, rng); applica(r.camp); avviso(`${M.testoTiro(r.esito)}`); },
+  marcia() { finestraMarcia(); },
+  marciaRisposta(el) {
+    const k = el.dataset.r, c = S.camp, a = c.viaggio.attivo; let r;
+    if (k === 'riprendi') r = { riprendi: true }; else if (k === 'termina') r = { termina: true }; else if (k === 'avvia' || k === 'ignora') r = { incontro: k };
+    else if (k === 'orientarsi') { const v = $('#m-or').value.trim(); if (v === '') throw new Error('Scrivi il risultato della prova'); r = { orientarsi: Number(v) }; }
+    else { const box = $('#p-marcia'); r = { forzata: { falliti: [...box.querySelectorAll('[data-fz]:checked')].map(i => i.dataset.fz), cavalcature: [...box.querySelectorAll('[data-fzc]:checked')].map(i => i.dataset.fzc), continua: k === 'forzataContinua' } }; }
+    const ev = a && a.evento; applica(M.rispondiMarcia(c, MET, rng, r));
+    if (k === 'avvia' && ev) avviaComposizione(ev, `Incontro casuale (${ev.area})`);
+  },
+  tiraIncontro() { finestraTiraIncontro(); },
+  aree() { finestraAree(); },
+  cadere() { finestraCadere(); }, apnea() { finestraApnea(); }, fumo() { finestraPericolo('fumo'); }, quota() { finestraPericolo('quota'); },
+  riparare() { finestraRiparare(); }, locandaF() { finestraLocanda(); }, mistura() { finestraMistura(); },
+  vediCompagnia() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#p-compagnia'); if (z) z.scrollIntoView({ block: 'start' }); },
+  contatore(el) { applica(M.impostaContatore(S.camp, el.dataset.k, { delta: +el.dataset.d })); },
+  raccolta(el) { const r = M.risolviRaccolta(S.camp, el.dataset.q, !!el.dataset.imp, rng); applica(r.camp); if (r.tiro) avviso(`d% ${r.tiro} su ${r.perc}%: ${r.unita} unità di erbe miste`); },
+  avviaComp(el) { const q = S.camp.coda.find(x => x.id === el.dataset.q); if (!q || !q.incontro) return; applica(M.togliDallaCodaId(S.camp, q.id)); avviaComposizione(q.incontro, `Incontro casuale (${q.incontro.area})`); },
+  prontoSoccorso(el) { finestraProntoSoccorso(el.dataset.id); },
+});
+Object.assign(CAMBI, {
+  contatore(el) { applica(M.impostaContatore(S.camp, el.dataset.k, { attivo: el.checked })); },
+  prontZona(el) { S.ui.pront.zona = el.value; disegna(); },
+});
+
+// prezzi delle fonti di luce dal Vol. 3 (Z3b): la tabella degli strumenti resta quella della Build 3a
+function costoLuceV3(f) { const x = PRONT.luce.find(y => y.nome.toLowerCase().replace(/ x\d+$/, '') === f.nome.toLowerCase()); return x ? x.costo + (/ x(\d+)$/.test(x.nome) ? ` ogni ${x.nome.match(/ x(\d+)$/)[1]}` : '') : f.costo; }
+function disegnaProntuario() {
+  const P = S.ui.pront = S.ui.pront || { sez: 'condizioni', q: '', gruppo: '', aperta: null };
+  if (!SEZ_P.some(([k]) => k === P.sez)) P.sez = 'condizioni';
+  const bt = SEZ_P.map(([k, t]) => `<button class="btn min${P.sez === k ? ' oro' : ''}" data-az="prontSez" data-s="${k}">${t}</button>`).join('');
+  let corpo;
+  if (P.q.trim()) {
+    corpo = SEZ_P.map(([k, t]) => { let h = disegnaSezioneP({ ...P, gruppo: '' }, k, P.q.trim()); if (k === 'condizioni') h = h.replace(/^<div class="fila filtri">[\s\S]*?<\/div>/, '');
+      return /<details/.test(h) ? `<h3 class="sez-p">${t}</h3>${h}` : ''; }).join('') || '<p class="tenue piccolo">Nessun risultato.</p>';
+  } else corpo = disegnaSezioneP(P, P.sez, '');
+  return `<div class="pannello" id="p-prontuario"><div class="fila filtri">${bt}</div>
+    <label class="campo"><span>Cerca in tutto il Prontuario</span><input type="search" id="pront-q" value="${esc(P.q)}" placeholder="nome o parola (anche nel testo)"></label>
+    ${corpo}</div>`;
+}
 
 // ================================================================= avvio
 async function ricaricaElenco() {

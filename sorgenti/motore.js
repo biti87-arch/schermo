@@ -11,6 +11,9 @@ const ROUND_MIN = 10, ROUND_ORA = 600, ROUND_GIORNO = 14400;
 const clona = o => JSON.parse(JSON.stringify(o));
 let STRUMENTI = null; // strumenti.json (Build 3a): fonti di luce e Fiamme, impostato con usaStrumenti()
 function usaStrumenti(s) { STRUMENTI = s; }
+let PRONT = null; // prontuario.json (Build 3b): viaggi, pericoli, cerusico, erborista, locande, incontri; impostato con usaProntuario()
+function usaProntuario(p) { PRONT = p; }
+function pront() { if (!PRONT) throw new Error('dati del Prontuario non caricati'); return PRONT; }
 const nuovoId = rng => Math.floor(rng() * 36 ** 8).toString(36).padStart(8, '0');
 // id interni (PG, righe dell'iniziativa): contatore della campagna, sempre univoci
 const prossimoId = (c, pre) => { c.contatore = (c.contatore || 0) + 1; return pre + c.contatore; };
@@ -332,6 +335,7 @@ function creaCampagna(dati, meteo, rng, oraReale) {
     compagnia: { senza_nome: dati.accompagnatori, persone: [], animali: [] },
     pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) }, png: [], incontri: [],
     modelli: [], luci: [], promemoria: [], tiri: [],
+    ...CAMPI_3B(),
   };
   camp.tempo.R = tempoAssoluto(camp, dati.anno.numero, p.mese || 0, p.giorno || 1, p.ore || 0, p.min || 0);
   const L = cal.settimana ? cal.settimana.length : 0;
@@ -342,6 +346,12 @@ function creaCampagna(dati, meteo, rng, oraReale) {
   log(c, `Campagna creata: ${c.nome}, ${formatoData(c)}`);
   return tiraMeteo(c, meteo, rng);
 }
+// Build 3b: medicinali ed erbe miste del gruppo (AC3-4, AC4-2), viaggio e marcia (AC5), aree degli incontri casuali (AC6), combattimenti finiti (pronto soccorso)
+const AREE_GUIDA = [['Terre selvagge', 20, null], ['Caverne e sotterranei', 15, null], ['Montagna', 10, ['nelle grotte', 20]], ['Bosco', 10, null],
+  ['Campagna e colline; strade di collegamento', 5, null], ['Deserto o desolazione', 5, ['in oasi e rovine', 30]]];
+function areeGuida() { return AREE_GUIDA.map(([nome, perc, sp], i) => ({ id: 'ar' + (i + 1), nome, perc, speciale: sp ? { nome: sp[0], perc: sp[1] } : null, righe: [] })); }
+function CAMPI_3B() { return { medicinali: { attivo: false, n: 0 }, erbe: { attivo: false, n: 0, med_giorno: null, enigma_R: null }, n_comb: 0,
+  viaggio: { oggi: null, accumulo: 0, tirato: false, incontro_in: null, area: null, speciale: false, attivo: null, ultima: null }, aree: areeGuida(), stallaggio: null }; }
 function duplicaCampagna(camp, rng, oraReale) {
   const c = clona(camp); c.id = (oraReale || 0).toString(36) + nuovoId(rng); c.nome = camp.nome + ' (copia)'; c.creata = c.modificata = oraReale || 0; return c;
 }
@@ -407,6 +417,9 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   if (x.combattimento) for (const r of Object.values(x.combattimento.righe)) if (r.alleato === undefined) r.alleato = false;
   // Build 3a: modelli della finestra Malus/Bonus, fonti di luce, promemoria, storico dei dadi
   for (const k of ['modelli', 'luci', 'promemoria', 'tiri']) x[k] = x[k] || [];
+  // Build 3b: medicinali, erbe miste, viaggio, aree degli incontri casuali (spenti finché il GM non li accende)
+  const n3 = CAMPI_3B(); for (const k of Object.keys(n3)) if (x[k] === undefined) x[k] = n3[k];
+  for (const p of x.pg) for (const [k, v] of [['cerusico', 0], ['erborista', false], ['erborista_gradi', 0]]) if (p.scheda[k] === undefined) p.scheda[k] = v;
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -415,13 +428,15 @@ function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length >
 const SCHEDA_VUOTA = { nome: '', giocatore: '', razza: '', classe: '', livello: 1, fatica_max: 0, ferita_max: 0,
   rif_dadi: 1, rif_tipo: 8, rif_ripete: false, ca: 10, ca_contatto: 10, ca_sprovvista: 10, dmc: 10, rd: '', resistenze: '', immunita: '',
   tempra: 0, riflessi: 0, volonta: 0, ts_note: '', percezione: 0, intuizione: 0, furtivita: 0,
-  abilita_libere: [{ nome: '', valore: 0 }, { nome: '', valore: 0 }], iniziativa: 0, imp_pen: 6, velocita: '', sensi: '', note: '' };
+  abilita_libere: [{ nome: '', valore: 0 }, { nome: '', valore: 0 }], iniziativa: 0, imp_pen: 6, velocita: '', sensi: '', note: '',
+  cerusico: 0, erborista: false, erborista_gradi: 0 }; // Build 3b: gradi in Professione (cerusico) ed (erborista)
 function controllaScheda(s) {
   const err = [];
   if (!s.nome || !String(s.nome).trim()) err.push('nome mancante');
   for (const k of ['livello', 'fatica_max', 'ferita_max', 'rif_dadi']) if (!(Number.isInteger(s[k]) && s[k] >= (k === 'livello' ? 1 : 0))) err.push(`${k} non valido`);
   if (![4, 6, 8, 10, 12].includes(s.rif_tipo)) err.push('dado del Rifiatare non valido');
   if (![6, 3, 0].includes(s.imp_pen)) err.push('penalità da impreparato: 6, 3 o 0');
+  for (const k of ['cerusico', 'erborista_gradi']) if (s[k] !== undefined && !(Number.isInteger(s[k]) && s[k] >= 0)) err.push(`${k === 'cerusico' ? 'gradi in Professione (cerusico)' : 'gradi in Professione (erborista)'} non validi`);
   return err;
 }
 function aggiungiPG(camp, scheda, rng) {
@@ -574,24 +589,47 @@ function puoRiposare(camp, p, R) {
   const da = riposoPossibileDa(p); if (R === undefined) R = camp.tempo.R;
   return { ok: da === null || R >= da, da };
 }
-function riposo(camp, meteo, rng, ids) {
+function riposo(camp, meteo, rng, ids, opz) {
+  opz = opz || {};
+  const totale = !!opz.totale, DUR = totale ? ROUND_GIORNO : DURATA_RIPOSO, k = totale ? 2 : 1;
   const scelti = camp.pg.filter(p => !ids || ids.includes(p.id));
   if (!scelti.length) throw new Error('nessun PG scelto per il riposo');
   for (const p of scelti) { const r = puoRiposare(camp, p);
     if (!r.ok) throw new Error(`${p.scheda.nome} ha già riposato: di nuovo da ${formatoData(camp, r.da)}`); }
+  const as = opz.assistenza && Object.keys(opz.assistenza.esiti || {}).length ? opz.assistenza : null;
+  if (as) { // AC3-3 assistenza continua del cerusico: fino a 5 pazienti fra chi riposa, non sé stesso
+    const paz = Object.keys(as.esiti), P3 = pront().cerusico.assistenza;
+    if (!trova(camp, as.chi)) throw new Error('chi assiste?');
+    if (paz.includes(as.chi)) throw new Error('un cerusico non può assistere sé stesso');
+    if (paz.length > P3.massimo) throw new Error(`al massimo ${P3.massimo} pazienti`);
+    for (const x of paz) { if (!scelti.some(p => p.id === x)) throw new Error('i pazienti devono riposare'); if (!Number.isInteger(as.esiti[x])) throw new Error('risultato della prova mancante'); }
+  }
   const inizio = camp.tempo.R;
-  let c = avanza(camp, DURATA_RIPOSO, meteo, rng, 'Riposo 8 ore');
+  let c = avanza(camp, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
+  const assistiti = new Set(), recCar = {};
+  if (as) {
+    const paz = Object.keys(as.esiti), cd = pront().cerusico.assistenza.cd_base + paz.length, med = usaMedicinali(c, paz.length);
+    for (const x of paz) { const ok = as.esiti[x] >= cd; if (ok) assistiti.add(x);
+      log(c, `Assistenza continua di ${trova(c, as.chi).scheda.nome} a ${trova(c, x).scheda.nome}: Professione (cerusico) ${as.esiti[x]} su CD ${cd} ${ok ? 'riuscita' : 'fallita'}`); }
+    log(c, `Assistenza continua: ${med}`);
+  }
   for (const p of c.pg) {
     if (!scelti.some(x => x.id === p.id)) continue;
     const s = p.scheda, st = p.stato, mx = massimi(c, p), div = divisoreOrgano(p);
     st.fatica = div > 1 ? Math.min(mx.fatica, st.fatica + Math.floor(Math.max(0, mx.fatica - st.fatica) / div)) : mx.fatica;
-    st.ferita = Math.min(mx.ferita, st.ferita + s.livello); st.rif_riserva = s.rif_dadi;
+    const kk = k * (assistiti.has(p.id) ? 2 : 1); recCar[p.id] = kk;
+    st.ferita = Math.min(mx.ferita, st.ferita + s.livello * kk); st.rif_riserva = s.rif_dadi;
     if (div > 1) log(c, `${s.nome}: organo compromesso, Punti Fatica recuperati ÷ ${div}`);
-    st.ultimo_riposo = { inizio, fine: inizio + DURATA_RIPOSO };
+    st.ultimo_riposo = { inizio, fine: inizio + DUR };
+    for (const m of st.malus.filter(m => m.finoRiposo)) togliDaElenco(c, st.malus, m, `${s.nome}: ${m.nome} fa effetto al risveglio (${m.mods && m.mods.altro ? m.mods.altro : 'prima di coricarsi'})`);
     for (const m of st.malus.filter(m => m.tipo === 'condizione' && ['Affaticato', 'Esausto'].includes(m.nome) && !daFameSete(m)))
       togliDaElenco(c, st.malus, m, `${s.nome}: il riposo toglie ${m.nome}`);
   }
-  log(c, `Riposo (${scelti.map(p => p.scheda.nome).join(', ')}): Fatica al massimo, +1 Ferita per livello, riserva del Rifiatare piena`);
+  log(c, `Riposo${totale ? ' totale' : ''} (${scelti.map(p => p.scheda.nome).join(', ')}): Fatica al massimo, +${k} Ferita per livello${assistiti.size ? ` (×2 con l'assistenza: ${[...assistiti].map(x => trova(c, x).scheda.nome).join(', ')})` : ''}, riserva del Rifiatare piena`);
+  // AC3-9 danni alle caratteristiche: l'app non tiene i punteggi, il log dice quanto si recupera
+  const gruppi = {}; for (const p of scelti) (gruppi[recCar[p.id]] = gruppi[recCar[p.id]] || []).push(p.scheda.nome);
+  log(c, 'Danni alle caratteristiche: ' + Object.entries(gruppi).map(([n, nomi]) => `${nomi.join(', ')} recupera${nomi.length > 1 ? 'no' : ''} ${n} a ciascuna caratteristica`).join('; '));
+  if (opz.stanze) stanzeLocanda(c, opz.stanze, rng);
   return c;
 }
 
@@ -608,15 +646,18 @@ function moltiplicatoreAcqua(camp, meteo) {
   return k;
 }
 // chi consuma una scorta: [{chiave, nome, tipo, n, bisogno (per unità), stato}]
-function consumatori(c, scorta, k) {
-  const out = [], kc = compagnia(c);
+function consumatori(c, scorta, k, giorno) {
+  const out = [], kc = compagnia(c), g = giorno === undefined ? giornoDi(c.tempo.R) : giorno;
+  const pasto = (st, cosa) => st && st.pasto && st.pasto.giorno === g && (cosa === 'cibo' || st.pasto.bere);
+  const stalla = a => c.stallaggio && c.stallaggio.giorno === g && c.stallaggio.ids.includes(a.id);
   if (scorta !== 'foraggio') {
     const b = scorta === 'acqua' ? k : 1;
-    for (const p of c.pg) out.push({ chiave: 'pg:' + p.id, nome: p.scheda.nome, tipo: 'pg', n: 1, bisogno: b, stato: p.stato });
+    for (const p of c.pg) if (!pasto(p.stato, scorta)) out.push({ chiave: 'pg:' + p.id, nome: p.scheda.nome, tipo: 'pg', n: 1, bisogno: b, stato: p.stato });
     for (const a of kc.persone) out.push({ chiave: 'acc:' + a.id, nome: a.nome, tipo: 'acc', n: 1, bisogno: b, stato: a.stato });
     if (kc.senza_nome) out.push({ chiave: 'senza', nome: 'accompagnatori senza nome', tipo: 'senza', n: kc.senza_nome, bisogno: b, stato: null });
   }
   for (const a of kc.animali) {
+    if (stalla(a)) continue;
     if (scorta === 'acqua' && !a.trova_acqua && a.acqua > 0) out.push({ chiave: 'ani:' + a.id, nome: a.nome, tipo: 'animale', n: 1, bisogno: a.acqua * k, stato: a.stato });
     if (scorta !== 'acqua' && !a.trova_cibo && a.cibo > 0 && (a.mangia === 'razioni') === (scorta === 'cibo')) out.push({ chiave: 'ani:' + a.id, nome: a.nome, tipo: 'animale', n: 1, bisogno: a.cibo, stato: a.stato });
   }
@@ -715,20 +756,22 @@ function cambioGiorno(camp, meteo, rng) {
     const pioggia = c.scorte.recipienti !== false && voci.find(v => meteo.acqua.pioggia.includes(v));
     const stilli = c.meteo && c.meteo.sotterraneo && c.meteo.sotterraneo.nome === 'Stillicidio';
     for (const [chi, mal] of SCORTE) {
-      if (!consumatori(c, chi, k).length) continue;
+      if (!consumatori(c, chi, k, N - 1).length) continue;
       const gratis = chi === 'acqua' ? (pioggia ? `${pioggia}: acqua raccolta con i recipienti` : stilli ? 'Stillicidio: acqua senza prova' : null) : null;
       const r = { id: prossimoId(c, 'z'), R: c.tempo.R, giorno: N, scorta: chi, mal, k: chi === 'acqua' ? k : 1, gratis };
       c.razionamenti.push(r);
       risolviAutomatici(c, chi, meteo);
     }
   }
+  if (c.erbe && c.erbe.attivo) for (const p of c.pg) if (p.scheda.erborista)
+    c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'erbe', pg: p.id, testo: `${p.scheda.nome}: raccolta delle erbe (${pront().erborista.raccolta.base + (p.scheda.erborista_gradi || 0)}%) per il giorno che finisce.` });
   return tiraMeteo(c, meteo, rng);
 }
 function risolviAutomatici(c, chi, meteo) {
   for (;;) {
     const r = c.razionamenti.find(x => x.scorta === chi);
     if (!r) return;
-    const cons = consumatori(c, chi, r.k), T = cons.reduce((s, x) => s + x.bisogno * x.n, 0), q = c.scorte[chi], qb = CATTIVA[chi] ? c.scorte[CATTIVA[chi]] || 0 : 0;
+    const cons = consumatori(c, chi, r.k, r.giorno - 1), T = cons.reduce((s, x) => s + x.bisogno * x.n, 0), q = c.scorte[chi], qb = CATTIVA[chi] ? c.scorte[CATTIVA[chi]] || 0 : 0;
     const tutti = { buone: cons.filter(x => x.tipo !== 'senza').map(x => x.chiave), cattive: [], senza_buone: compagnia(c).senza_nome, senza_cattive: 0 };
     if (r.gratis) applicaRazionamento(c, r, tutti, meteo, true);
     else if (q >= T) applicaRazionamento(c, r, tutti, meteo);
@@ -744,7 +787,7 @@ function risolviAutomatici(c, chi, meteo) {
   }
 }
 function applicaRazionamento(c, r, sc, meteo, gratis) {
-  const regola = meteo.fame_sete[r.mal], verbo = r.scorta === 'acqua' ? 'beve' : 'mangia', cons = consumatori(c, r.scorta, r.k), kc = compagnia(c);
+  const regola = meteo.fame_sete[r.mal], verbo = r.scorta === 'acqua' ? 'beve' : 'mangia', cons = consumatori(c, r.scorta, r.k, r.giorno - 1), kc = compagnia(c);
   let usateB = 0, usateC = 0;
   const senza = [], prove = [], avariati = [];
   for (const x of cons) {
@@ -787,7 +830,7 @@ function applicaRazionamento(c, r, sc, meteo, gratis) {
 // dati per la finestra «Scegli chi»
 function datiRazionamento(camp, id) {
   const r = camp.razionamenti.find(x => x.id === id); if (!r) throw new Error('razionamento non trovato');
-  return { r, consumatori: consumatori(camp, r.scorta, r.k), buone: camp.scorte[r.scorta], cattive: CATTIVA[r.scorta] ? camp.scorte[CATTIVA[r.scorta]] || 0 : 0, nomeCattive: CATTIVA[r.scorta] ? NOMI_SCORTA[CATTIVA[r.scorta]] : '' };
+  return { r, consumatori: consumatori(camp, r.scorta, r.k, r.giorno - 1), buone: camp.scorte[r.scorta], cattive: CATTIVA[r.scorta] ? camp.scorte[CATTIVA[r.scorta]] || 0 : 0, nomeCattive: CATTIVA[r.scorta] ? NOMI_SCORTA[CATTIVA[r.scorta]] : '' };
 }
 // scelta del GM per un giorno in sospeso: {buone:[chiavi], cattive:[chiavi], senza_buone, senza_cattive}
 // (forma della Build 1: risolviRazionamento(camp, id, [id dei PG], accompagnatori, meteo))
@@ -798,7 +841,7 @@ function risolviRazionamento(camp, id, scelta, acc, meteo) {
   if (!r) throw new Error('razionamento non trovato');
   if (c.razionamenti.find(x => x.scorta === r.scorta).id !== id) throw new Error('prima va deciso il giorno precedente');
   const sc = { buone: [...new Set(scelta.buone || [])], cattive: [...new Set(scelta.cattive || [])], senza_buone: scelta.senza_buone || 0, senza_cattive: scelta.senza_cattive || 0 };
-  const cons = consumatori(c, r.scorta, r.k), chiavi = cons.map(x => x.chiave);
+  const cons = consumatori(c, r.scorta, r.k, r.giorno - 1), chiavi = cons.map(x => x.chiave);
   for (const x of [...sc.buone, ...sc.cattive]) if (!chiavi.includes(x) || x === 'senza') throw new Error(x.startsWith('pg:') ? 'PG non trovato' : 'voce non trovata');
   if (sc.buone.some(x => sc.cattive.includes(x))) throw new Error('una voce non può avere tutte e due');
   const ks = cons.find(x => x.tipo === 'senza'), nS = ks ? ks.n : 0;
@@ -847,7 +890,8 @@ function infoForaggiare(camp, meteo, R) {
   if (a.stagione_cd && a.stagione_cd[staz]) acqua = { ...acqua, tipo: 'cd', cd: a.stagione_cd[staz], motivo: a.note.find(n => n.segno === '³').testo };
   if (a.senza_prova && sott === a.senza_prova) acqua = { tipo: 'libera', motivo: a.note.find(n => n.segno === '⁴').testo };
   const pesca = meteo.foraggiare.pesca.zone.includes(z.id) || !!(camp.varianti || {}).acqua_dolce;
-  return { zona: z.id, cd: f.cd + mods.reduce((s, m) => s + m.cd, 0), base: f.cd, ogni: f.ogni, mods, impossibile: imp ? `${imp} in corso` : null,
+  const forz = camp.viaggio && camp.viaggio.oggi && camp.viaggio.oggi.giorno === giornoDi(R) && camp.viaggio.oggi.forzata;
+  return { zona: z.id, cd: f.cd + mods.reduce((s, m) => s + m.cd, 0), base: f.cd, ogni: f.ogni, mods, impossibile: imp ? `${imp} in corso` : forz ? 'marcia forzata oggi' : null,
     acqua, avariato: f.avariato, pesca, voci };
 }
 const resaForaggiare = (tot, cd, ogni) => tot >= cd ? 1 + Math.floor((tot - cd) / ogni) : 0;
@@ -1099,7 +1143,7 @@ function fineCombattimento(camp, oraReale, schedaDi) {
     rie.xp = { sconfitti, tutti, perPG: Math.floor(sconfitti / pg), perPGconAcc: Math.floor(sconfitti / conAcc) };
     log(c, `XP dei nemici sconfitti: ${migliaia(sconfitti)} (${migliaia(rie.xp.perPG)} a PG; ${migliaia(rie.xp.perPGconAcc)} contando gli accompagnatori)`);
   }
-  c.combattimento = null;
+  c.combattimento = null; c.n_comb = (c.n_comb || 0) + 1;
   for (const p of c.pg) { const via = p.stato.malus.filter(m => m.durata.tipo === 'incontro');
     for (const m of via) togliDaElenco(c, p.stato.malus, m, `${p.scheda.nome}: finisce ${m.nome} (fine dell'incontro)`); }
   return { camp: c, riepilogo: rie };
@@ -1223,11 +1267,12 @@ function nuovoMalus(c, chi, d, rng) {
     const t = d.ts, k = UNITA_ROUND[t.unita];
     if (!t.tipo || !Number.isInteger(t.cd) || !k || !(Number.isInteger(t.ogni) && t.ogni > 0)) throw new Error('TS periodico incompleto');
     m.per = { kind: 'ts', ts: t.tipo, cd: t.cd, unita: t.unita, ogni: t.ogni * k, finisce: t.finisce !== false, attesa: false };
+    if (t.incr) m.per.incr = true; // AC7-5: «CD +1 a ogni prova»
     // il primo TS: al prossimo turno della creatura di riferimento (in combattimento), altrimenti dopo l'intervallo
     m.per.prossimo = t.unita === 'round' && c.combattimento ? fineRound(c, chi, m, t.ogni - 1) : c.tempo.R + m.per.ogni;
   }
   if (tipo === 'veleno' || tipo === 'malattia') impostaVeleno(c, chi, m, d.veleno || {});
-  for (const k of ['pf', 'gravita', 'passo', 'azioni', 'amp', 'dita']) if (d[k] !== undefined) m[k] = clona(d[k]);
+  for (const k of ['pf', 'gravita', 'passo', 'azioni', 'amp', 'dita', 'apnea', 'fumo', 'quota', 'finoRiposo', 'unguento', 'primo']) if (d[k] !== undefined) m[k] = clona(d[k]);
   if (['ferita', 'emorragia_lieve', 'emorragia_grave'].includes(tipo)) { m.cure = 0; m.cer = { tentativi: 0, cd: null, prossimo: null, guarisce: null }; }
   if (['emorragia_grave', 'panico'].includes(tipo)) { m.p = 0; m.tiri = 0; }
   if (tipo === 'panico') m.spese = [];
@@ -1292,7 +1337,9 @@ function togliMalus(camp, chi, id) {
   togliDaElenco(c, x.elenco, m, `${x.nome}: tolto ${nomeEsteso(m)}`); return c;
 }
 function scadeMalus(c, x, m) {
+  if (m.apnea) return scadeApnea(c, x, m); // AC7-4
   togliDaElenco(c, x.elenco, m, `${x.nome}: scade ${nomeEsteso(m)}`);
+  if (x.p) { const mx = massimi(c, x.p); x.p.stato.fatica = Math.min(x.p.stato.fatica, mx.fatica); } // finito un bonus ai massimi (Suite), i correnti oltre scendono
   if (m.dopoMorto && x.p) { nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Morto', durata: { tipo: 'permanente' } }); }
 }
 function guarisci(c, x, m, come) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${nomeEsteso(m)} ${come}`); }
@@ -1418,7 +1465,7 @@ function effettoVeleno(c, x, m, rng) {
   return e.testo;
 }
 // risposta a un promemoria di TS (periodico o di veleno/malattia)
-function esitoPromemoria(camp, qid, superato, rng) {
+function esitoPromemoria(camp, qid, superato, rng, opz) {
   const c = clona(camp), i = c.coda.findIndex(q => q.id === qid);
   if (i < 0 || !['ts', 'veleno'].includes(c.coda[i].tipo)) throw new Error('promemoria non trovato');
   const q = c.coda[i]; c.coda.splice(i, 1);
@@ -1430,8 +1477,14 @@ function esitoPromemoria(camp, qid, superato, rng) {
   if (m.per.kind === 'ts') {
     log(c, `${x.nome}: ${m.nome}, ${m.per.ts} CD ${m.per.cd} ${superato ? 'superato' : 'fallito'}`);
     if (superato && m.per.finisce) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${nomeEsteso(m)} finisce (TS superato)`); return c; }
+    if (m.per.incr) m.per.cd += 1;
+    if (pericoloEsito(c, x, m, superato, rng)) return c; // AC7: fumo, alta quota, apnea
   } else {
     const v = m.vel;
+    if (m.trattata && opz && opz.cerusico !== undefined) { // AC3-8: la prova del cerusico della notte vale un successo in più
+      m.trattata = false;
+      if (opz.cerusico) { v.successi++; log(c, `${x.nome}: ${m.nome}, la prova del cerusico riesce: un successo in più (${v.successi}/${v.cura})`); }
+      else log(c, `${x.nome}: ${m.nome}, la prova del cerusico fallisce`); }
     if (superato) { v.successi++; log(c, `${x.nome}: ${m.nome}, ${m.per.ts} CD ${m.per.cd} superato (${v.successi}/${v.cura} consecutivi)`); }
     else { v.successi = 0; log(c, `${x.nome}: ${m.nome}, ${m.per.ts} CD ${m.per.cd} fallito`); effettoVeleno(c, x, m, rng); }
     if (v.successi >= v.cura) { togliDaElenco(c, x.elenco, m, `${x.nome}: ${m.nome} curato (${v.cura} TS consecutivi)`); return c; }
@@ -1458,6 +1511,7 @@ function togliDallaCodaId(camp, qid) {
   if (['ts', 'veleno'].includes(c.coda[i].tipo)) throw new Error('rispondi Superato o Fallito');
   if (c.coda[i].tipo === 'morte') throw new Error('scegli cosa succede');
   if (c.coda[i].tipo === 'razionamento') throw new Error('prima scegli chi usa la scorta');
+  if (c.coda[i].tipo === 'erbe') throw new Error('rispondi Raccoglie o Impossibilitato');
   c.coda.splice(i, 1); return c;
 }
 
@@ -1755,6 +1809,8 @@ function cerusico(camp, chi, id, totale, senzaMedicinali, rng, FER) {
   if (!riga) throw new Error('questo malus non si cura con Professione (cerusico)');
   if (m.cer.guarisce != null) throw new Error(`guarisce già: ${formatoData(c, m.cer.guarisce)}`);
   if (m.cer.prossimo != null && c.tempo.R < m.cer.prossimo) throw new Error(`si può ritentare da ${formatoData(c, m.cer.prossimo)}`);
+  if (c.medicinali && c.medicinali.attivo) { // AC3-4: con il contatore acceso le unità si scalano; se non bastano, −5 da solo
+    if (c.medicinali.n >= riga.medicinali) { c.medicinali.n -= riga.medicinali; senzaMedicinali = false; } else senzaMedicinali = true; }
   const cd = m.cer.cd !== null ? m.cer.cd : riga.cd, eff = totale + (senzaMedicinali ? FER.senza_medicinali : 0);
   m.cer.tentativi++;
   const med = senzaMedicinali ? `senza medicinali (${FER.senza_medicinali})` : `${riga.medicinali} unità di medicinali`;
@@ -2702,7 +2758,7 @@ function togliPromemoria(camp, id) { const c = clona(camp); c.promemoria = c.pro
 function togliPromemoriaRound(camp, i) { const c = clona(camp), cb = c.combattimento; if (!cb || !cb.promemoria[i]) throw new Error('promemoria non trovato'); cb.promemoria.splice(i, 1); return c; }
 function promemoriaTempo(c, da, a) {
   const scattano = c.promemoria.filter(p => p.R > da && p.R <= a);
-  for (const p of scattano) { c.coda.push({ id: prossimoId(c, 'q'), R: p.R, tipo: 'promemoria', testo: `Promemoria: ${p.testo}` }); log(c, `Promemoria: ${p.testo}`); }
+  for (const p of scattano) { c.coda.push({ id: prossimoId(c, 'q'), R: p.R, tipo: 'promemoria', testo: `Promemoria: ${p.testo}`, ...(p.incontro ? { incontro: p.incontro } : {}) }); log(c, `Promemoria: ${p.testo}`); }
   if (scattano.length) c.promemoria = c.promemoria.filter(p => !scattano.includes(p));
 }
 // i promemoria dei round del combattimento in corso salvati nell'incontro da cui è partito
@@ -2733,6 +2789,522 @@ function righeLog(camp, opz) {
 }
 function testoLog(camp, opz) { return righeLog(camp, opz).map(e => `[${formatoData(camp, e.R)}] ${e.testo}`).join('\n'); }
 
+// ================================================================== Build 3b: Prontuario e incontri casuali (sezione AC)
+// ---- AC3-4, AC4-2 medicinali ed erbe miste del gruppo (contatori 0–10, spenti nelle campagne salvate prima)
+function impostaContatore(camp, chi, d) {
+  if (!['medicinali', 'erbe'].includes(chi)) throw new Error('contatore non valido');
+  const c = clona(camp), x = c[chi], lim = chi === 'medicinali' ? pront().cerusico.limite : pront().erborista.limite;
+  if (d.attivo !== undefined) { x.attivo = !!d.attivo; log(c, `${chi === 'medicinali' ? 'Medicinali' : 'Erbe miste'}: contatore ${x.attivo ? 'acceso' : 'spento'}`); }
+  if (d.delta !== undefined || d.n !== undefined) {
+    const n = d.n !== undefined ? d.n : x.n + d.delta;
+    if (!Number.isInteger(n)) throw new Error('numero non valido');
+    x.n = Math.max(0, Math.min(lim, n)); log(c, `${chi === 'medicinali' ? 'Unità di medicinali' : 'Erbe miste'}: ${x.n}/${lim}`);
+  }
+  return c;
+}
+// scala n unità di medicinali (se il contatore è acceso); restituisce il testo per il log
+function usaMedicinali(c, n) {
+  const m = c.medicinali;
+  if (!m || !m.attivo) return `${n} ${n === 1 ? 'unità' : 'unità'} di medicinali (contatore spento)`;
+  if (m.n >= n) { m.n -= n; return `${n} ${n === 1 ? 'unità' : 'unità'} di medicinali (restano ${m.n})`; }
+  const usate = m.n; m.n = 0; return `mancano i medicinali: ne servono ${n}, usate ${usate}`;
+}
+
+// ---- AC3-5 pronto soccorso: CD 15 (20 su sé stessi), metà dei gradi + 1d4 ogni 5 punti oltre la CD, solo Punti Ferita, una volta dopo ogni combattimento
+function puoProntoSoccorso(camp, pazId) { const p = trova(camp, pazId); return p.stato.ps === undefined || p.stato.ps === null || p.stato.ps < (camp.n_comb || 0); }
+function prontoSoccorso(camp, meteo, rng, d) {
+  const C = pront().cerusico.pronto;
+  const paz = trova(camp, d.paziente);
+  if (!puoProntoSoccorso(camp, paz.id)) throw new Error(`${paz.scheda.nome} ha già avuto il pronto soccorso dopo l'ultimo combattimento`);
+  let gradi, chi = 'il cerusico';
+  if (d.curatore) { const q = trova(camp, d.curatore); gradi = q.scheda.cerusico || 0; chi = q.scheda.nome; } else gradi = d.gradi;
+  if (!(Number.isInteger(gradi) && gradi >= 0)) throw new Error('gradi in Professione (cerusico) non validi');
+  if (!Number.isInteger(d.totale)) throw new Error('risultato della prova mancante');
+  let c = camp.combattimento || d.orologio === false ? clona(camp) : avanza(camp, 5 * ROUND_MIN, meteo, rng, 'Pronto soccorso');
+  const p = trova(c, paz.id), se = d.curatore === paz.id, cd = C.cd + (se ? C.se_stesso : 0), med = usaMedicinali(c, C.unita);
+  p.stato.ps = c.n_comb || 0;
+  if (d.totale < cd) { log(c, `${chi}: pronto soccorso a ${p.scheda.nome}, Professione (cerusico) ${d.totale} su CD ${cd} fallita (${med})`); return { camp: c, riuscita: false, cd, cura: 0 }; }
+  const extra = Math.floor((d.totale - cd) / C.ogni), dadi = Array.from({ length: extra }, () => d4(rng));
+  const cura = Math.floor(gradi / 2) + dadi.reduce((a, b) => a + b, 0), mx = massimi(c, p), prima = p.stato.ferita;
+  p.stato.ferita = Math.min(mx.ferita, p.stato.ferita + cura);
+  log(c, `${chi}: pronto soccorso a ${p.scheda.nome}, Professione (cerusico) ${d.totale} su CD ${cd} riuscita: cura ${cura} (${Math.floor(gradi / 2)}${dadi.length ? ' + ' + dadi.length + 'd4 [' + dadi.join(', ') + ']' : ''}) solo ai Punti Ferita, ${prima} → ${p.stato.ferita} (${med})`);
+  return { camp: c, riuscita: true, cd, cura };
+}
+const d4 = rng => d(4, rng);
+// ---- AC3-6 fermare il sanguinamento (Sanguinante): Professione (cerusico) CD 10 o Sopravvivenza CD 15
+function fermaSanguinamento(camp, chi, id, abilita, totale) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id), S3 = pront().cerusico.sanguinamento;
+  if (!(m.tipo === 'condizione' && m.nome === 'Sanguinante')) throw new Error('solo la condizione Sanguinante');
+  if (!Number.isInteger(totale)) throw new Error('risultato della prova mancante');
+  const cer = abilita !== 'sopravvivenza', cd = cer ? S3.cerusico : S3.sopravvivenza, med = cer ? `, ${usaMedicinali(c, S3.unita)}` : '';
+  const ab = cer ? 'Professione (cerusico)' : 'Sopravvivenza';
+  if (totale >= cd) togliDaElenco(c, x.elenco, m, `${x.nome}: sanguinamento fermato, ${ab} ${totale} su CD ${cd}${med}`);
+  else log(c, `${x.nome}: ${ab} ${totale} su CD ${cd}, il sanguinamento continua${med}`);
+  return { camp: c, riuscita: totale >= cd, cd };
+}
+// ---- AC3-7 trattare un veleno: CD del veleno; riuscita = effetto chiuso, il log ricorda i 2 danni alle caratteristiche curati
+function trattaVeleno(camp, chi, id, totale) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id), V = pront().cerusico.veleno;
+  if (m.tipo !== 'veleno') throw new Error('solo i veleni');
+  if (!Number.isInteger(totale)) throw new Error('risultato della prova mancante');
+  const cd = m.per.cd, med = usaMedicinali(c, V.unita);
+  if (totale >= cd) togliDaElenco(c, x.elenco, m, `${x.nome}: ${m.nome} trattato, Professione (cerusico) ${totale} su CD ${cd} (${med}): cura ${V.cura_caratteristiche} danni alle caratteristiche`);
+  else log(c, `${x.nome}: ${m.nome}, Professione (cerusico) ${totale} su CD ${cd} fallita (${med})`);
+  return { camp: c, riuscita: totale >= cd, cd };
+}
+// ---- AC3-8 trattare una malattia: «trattata stanotte»; alla scadenza giornaliera la coda chiede anche la prova del cerusico
+function trattaMalattia(camp, chi, id, si) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id);
+  if (m.tipo !== 'malattia') throw new Error('solo le malattie');
+  if (si && x.elenco.some(y => y !== m && y.trattata)) throw new Error('si tratta una sola malattia alla volta');
+  if (!!m.trattata === !!si) return c;
+  m.trattata = !!si;
+  log(c, si ? `${x.nome}: ${m.nome} trattata stanotte (${usaMedicinali(c, pront().cerusico.malattia.unita)})` : `${x.nome}: ${m.nome}, trattamento tolto`);
+  for (const q of c.coda) if (q.malus === m.id) q.trattata = !!si;
+  return c;
+}
+
+// ---- AC4 Professione (erborista): raccolta, misture, medicinali
+function risolviRaccolta(camp, qid, impossibilitato, rng) {
+  const c = clona(camp), i = c.coda.findIndex(q => q.id === qid && q.tipo === 'erbe'); if (i < 0) throw new Error('promemoria non trovato');
+  const q = c.coda[i]; c.coda.splice(i, 1);
+  const p = c.pg.find(x => x.id === q.pg); if (!p) return { camp: c, unita: 0 };
+  if (impossibilitato) { log(c, `${p.scheda.nome}: niente raccolta delle erbe (impossibilitato)`); return { camp: c, unita: 0, tiro: null }; }
+  const E = pront().erborista, perc = E.raccolta.base + E.raccolta.per_grado * (p.scheda.erborista_gradi || 0), tiro = d(100, rng);
+  let u = tiro <= perc ? (tiro <= Math.floor(perc / 2) ? 2 : 1) : 0;
+  const prima = c.erbe.n; c.erbe.n = Math.min(E.limite, c.erbe.n + u);
+  log(c, `${p.scheda.nome}: raccolta delle erbe, d% ${tiro} su ${perc}% → ${u} ${u === 1 ? 'unità' : 'unità'} di erbe miste` + (c.erbe.n - prima < u ? ` (al massimo ${E.limite}: ${c.erbe.n - prima} tenute)` : '') + ` (ora ${c.erbe.n})`);
+  return { camp: c, unita: c.erbe.n - prima, tiro, perc };
+}
+function misturaDi(id) { const m = pront().erborista.misture.find(x => x.id === id); if (!m) throw new Error('mistura non trovata'); return m; }
+function nomeMistura(m) { return `${m.tipo === '−' ? 'Mistura' : m.tipo} (${m.gruppo})`; }
+// motivo per cui una mistura non si può preparare adesso (null = si può)
+function bloccoMistura(c, m) {
+  const E = pront().erborista;
+  if (m.app.medicinali) { if (c.erbe.n < E.medicinali.erbe) return `servono ${E.medicinali.erbe} unità di erbe miste`; if (c.erbe.med_giorno === giornoDi(c.tempo.R)) return 'una sola volta al giorno'; return null; }
+  if (c.erbe.n < 1) return 'nessuna unità di erbe miste';
+  if (m.app.una_al_giorno && c.erbe.enigma_R !== null && c.tempo.R < c.erbe.enigma_R + ROUND_GIORNO) return 'una sola mistura di questo tipo ogni 24 ore';
+  return null;
+}
+// d: {chi: id del PG che prepara, mistura, totale, a: [{pg} | {riga}] (fino alle dosi)}
+function preparaMistura(camp, meteo, rng, d) {
+  const m = misturaDi(d.mistura), E = pront().erborista;
+  if (!camp.erbe.attivo) throw new Error('accendi il contatore delle erbe miste');
+  const b = bloccoMistura(camp, m); if (b) throw new Error(b);
+  if (!Number.isInteger(d.totale)) throw new Error('risultato della prova mancante');
+  const chiP = trova(camp, d.chi), dest = (d.a || []).slice(0, m.dosi);
+  const min = d4(rng);
+  let c = avanza(camp, min * ROUND_MIN, meteo, rng, `Preparazione della mistura (${min} minuti)`);
+  const usa = m.app.medicinali ? E.medicinali.erbe : 1; c.erbe.n -= usa;
+  if (m.app.una_al_giorno) c.erbe.enigma_R = c.tempo.R;
+  const testoB = `${chiP.scheda.nome}: ${nomeMistura(m)} CD ${m.cd}, Professione (erborista) ${d.totale}`;
+  if (d.totale < m.cd) { log(c, `${testoB} fallita: ${usa} ${usa === 1 ? 'unità' : 'unità'} di erbe miste sprecata (restano ${c.erbe.n})`); return { camp: c, riuscita: false }; }
+  log(c, `${testoB} riuscita (restano ${c.erbe.n} erbe miste)`);
+  if (m.app.medicinali) {
+    c.erbe.med_giorno = giornoDi(c.tempo.R); c.medicinali.n = Math.min(pront().cerusico.limite, c.medicinali.n + 1);
+    log(c, `Unità di medicinali: +1 (ora ${c.medicinali.n}), da usare entro 1 ora`);
+    c.promemoria.push({ id: prossimoId(c, 'pr'), testo: 'L\'unità di medicinali preparata con le erbe non è più utilizzabile (1 ora)', R: c.tempo.R + ROUND_ORA }); c.promemoria.sort((a, b) => a.R - b.R);
+    return { camp: c, riuscita: true };
+  }
+  if (m.app.cibo) { log(c, `${nomeMistura(m)}: ${m.effetto}`); return { camp: c, riuscita: true }; }
+  if (!dest.length) throw new Error('a chi va la mistura?');
+  for (const chi of dest) {
+    const x = creaturaDi(c, chi); if (!x) continue;
+    if (m.app.poltiglia) {
+      const st = x.p ? x.p.stato : x.r, g = giornoDi(c.tempo.R);
+      if (st.poltiglia === g) { log(c, `${x.nome}: ha già preso una poltiglia oggi, questa non ha effetto`); continue; }
+      st.poltiglia = g;
+      const n = /^\d+$/.test(m.app.cura) ? +m.app.cura : tira(m.app.cura, rng).totale;
+      c.promemoria.push({ id: prossimoId(c, 'pr'), testo: `${x.nome}: la poltiglia cura ${n} ${n === 1 ? 'danno' : 'danni'} a una caratteristica a scelta`, R: c.tempo.R + ROUND_ORA });
+      c.promemoria.sort((a, b) => a.R - b.R); log(c, `${x.nome}: poltiglia, fra 1 ora cura ${n} ${n === 1 ? 'danno' : 'danni'} a una caratteristica`); continue;
+    }
+    if (m.tipo === 'Unguento') for (const y of x.elenco.filter(y => y.unguento)) togliDaElenco(c, x.elenco, y, `${x.nome}: un solo unguento alla volta, tolto ${y.nome}`);
+    const dur = m.app.durata, dd = dur && typeof dur === 'object' ? dur : { tipo: 'libera' };
+    nuovoMalus(c, chi, { tipo: 'bonus', tb: 'alchemico', nome: nomeMistura(m), mods: { altro: m.effetto }, durata: dd, fonte: 'Professione (erborista)',
+      ...(dur === 'riposo' ? { finoRiposo: true } : {}), ...(m.tipo === 'Unguento' ? { unguento: true } : {}) }, rng);
+  }
+  return { camp: c, riuscita: true };
+}
+
+// ---- AC5 Viaggi: calcolatore di marcia ora per ora, marcia forzata, Orientarsi; AC6 incontri casuali ogni 6 ore di marcia
+// velocità a piedi dal PG più lento (9 m = 3 miglia all'ora, in proporzione: regola di Pathfinder 1e)
+function metriVelocita(s) { const m = String(s || '').match(/(\d+(?:[.,]\d+)?)\s*m\b/); return m ? +m[1].replace(',', '.') : null; }
+function kmhPiedi(camp, ids) {
+  const V = pront().viaggi, pg = camp.pg.filter(p => !ids || ids.includes(p.id));
+  const mm = pg.map(p => metriVelocita(p.scheda.velocita)).filter(x => x);
+  const m = mm.length ? Math.min(...mm) : V.piedi_m;
+  const base = V.mezzi.find(x => x.id === 'piedi').kmh;
+  return { kmh: Math.round(base * m / V.piedi_m * 10) / 10, metri: m, chi: mm.length ? pg.find(p => metriVelocita(p.scheda.velocita) === m).scheda.nome : null };
+}
+const frazione = ([a, b]) => a / b;
+function oggiViaggio(c) {
+  const g = giornoDi(c.tempo.R), v = c.viaggio;
+  if (!v.oggi || v.oggi.giorno !== g) v.oggi = { giorno: g, min: 0, forzata: false, prove_forzata: 0, orientarsi: null };
+  return v.oggi;
+}
+function suoloProposto(camp, meteo) {
+  const V = pront().viaggi; let s = 'nessuno';
+  for (const v of vociDelGiorno(camp, meteo)) { const x = V.suolo_meteo[v]; if (x === 'neve_fitta' || (x && s === 'nessuno')) s = x; }
+  return s;
+}
+// moltiplicatore della velocità in quest'ora: terreno, suolo (fuori strada), tempeste in vigore, Orientarsi fallito
+function moltMarcia(c, meteo, a, R) {
+  const V = pront().viaggi, motivi = [];
+  let k = 1;
+  if (a.mezzo !== 'barca') {
+    const t = V.terreni.find(x => x.id === a.terreno); k *= frazione(t.molt); if (frazione(t.molt) !== 1) motivi.push(`${t.nome} ×${t.molt[0]}/${t.molt[1]}`);
+    if (a.fuori_strada && a.suolo !== 'nessuno') { const s = V.suolo.find(x => x.id === a.suolo), f = a.racchette && s.racchette ? s.racchette : s.molt; k *= frazione(f); motivi.push(`suolo ×${f[0]}/${f[1]}`); }
+  }
+  const tp = vociAllOra(c, meteo, R).find(v => V.tempeste.includes(v));
+  if (tp) { k *= frazione(V.tempeste_molt); motivi.push(`${tp} ×1/4`); }
+  const o = c.viaggio.oggi;
+  if (o && o.orientarsi === 'perso' && a.fuori_strada) { k *= 0.5; motivi.push('persi (Orientarsi) ×1/2'); }
+  return { k, motivi };
+}
+function cdOrientarsi(c, meteo) {
+  const O = pront().viaggi.orientarsi, voci = vociAllOra(c, meteo, c.tempo.R); let cd = O.cd; const mot = [];
+  for (const m of O.mods) { const v = voci.find(x => m.voci.includes(x)); if (v) { cd += m.cd; mot.push(`${v} +${m.cd}`); } }
+  return { cd, motivi: mot };
+}
+function probIncontro(c) {
+  const a = (c.aree || []).find(x => x.id === c.viaggio.area); if (!a) return null;
+  return { area: a, perc: c.viaggio.speciale && a.speciale ? a.speciale.perc : a.perc, speciale: c.viaggio.speciale && a.speciale ? a.speciale.nome : null };
+}
+// d: {mezzo: 'piedi'|'cavallo'|'pony'|'carro'|'barca'|'libera', kmh (libera o a piedi corretto), terreno, fuori_strada, racchette, suolo, ore | km, area, speciale}
+function avviaMarcia(camp, meteo, rng, d) {
+  const V = pront().viaggi;
+  if (camp.viaggio.attivo) throw new Error('c\'è già una marcia in corso');
+  if (camp.combattimento) throw new Error('prima chiudi il combattimento');
+  const mezzo = d.mezzo || 'piedi';
+  let kmh = d.kmh;
+  if (mezzo !== 'libera' && (kmh === undefined || kmh === null)) kmh = mezzo === 'piedi' ? kmhPiedi(camp).kmh : V.mezzi.find(x => x.id === mezzo).kmh;
+  if (!(typeof kmh === 'number' && kmh > 0)) throw new Error('velocità non valida');
+  if (!V.terreni.some(t => t.id === d.terreno) && mezzo !== 'barca') throw new Error('scegli il terreno');
+  const ore = d.ore, km = d.km;
+  if (!(ore > 0) && !(km > 0)) throw new Error('scrivi le ore o i km');
+  const c = clona(camp);
+  if (d.area !== undefined) { c.viaggio.area = d.area || null; c.viaggio.speciale = !!d.speciale; }
+  c.viaggio.attivo = { mezzo, kmh, terreno: d.terreno || 'pianura', fuori_strada: !!d.fuori_strada, racchette: !!d.racchette, suolo: d.suolo || 'nessuno',
+    resta_min: ore > 0 ? Math.round(ore * 60) : null, resta_km: ore > 0 ? null : km, min: 0, km: 0, R0: c.tempo.R, evento: null, sospesa: false, lasciati: [] };
+  log(c, `Marcia: ${mezzo === 'libera' ? kmh + ' km/h' : V.mezzi.find(x => x.id === mezzo).nome + ' (' + kmh + ' km/h)'}` + (mezzo !== 'barca' ? `, ${V.terreni.find(x => x.id === c.viaggio.attivo.terreno).nome}${d.fuori_strada ? ' fuori strada' : ''}` : '') + `, ${ore > 0 ? ore + ' ore' : km + ' km'}`);
+  return avanzaMarcia(c, meteo, rng);
+}
+const finita = a => (a.resta_min !== null && a.resta_min <= 0) || (a.resta_km !== null && a.resta_km <= 1e-9);
+function avanzaMarcia(c, meteo, rng) {
+  const V = pront().viaggi;
+  for (let guardia = 0; guardia < 500; guardia++) {
+    const a = c.viaggio.attivo; if (!a || a.evento || a.sospesa) return c;
+    if (finita(a)) return fineMarcia(c, 'arrivo');
+    const o = oggiViaggio(c);
+    // Orientarsi: una volta al giorno fuori dalle strade
+    if (a.fuori_strada && o.orientarsi === null) { const x = cdOrientarsi(c, meteo); a.evento = { tipo: 'orientarsi', ...x }; return c; }
+    // marcia forzata: dalla 9ª ora di oggi, una prova di Costituzione per ogni ora in più
+    if (o.min >= V.ore_giorno * 60 && o.prove_forzata < Math.floor((o.min - V.ore_giorno * 60) / 60) + 1) {
+      const cd = V.forzata.cd + V.forzata.passo * o.prove_forzata;
+      const cav = compagnia(c).animali.filter(x => x.tipo === 'cavalcatura').map(x => ({ id: x.id, nome: x.nome }));
+      a.evento = { tipo: 'forzata', cd, ora: o.prove_forzata + V.ore_giorno + 1, pg: c.pg.filter(p => !a.lasciati.includes(p.id)).map(p => ({ id: p.id, nome: p.scheda.nome })), cavalcature: a.mezzo === 'piedi' || a.mezzo === 'barca' ? [] : cav };
+      return c;
+    }
+    // incontri casuali: all'inizio di ogni blocco di 6 ore di marcia il d%; l'incontro a un'ora del blocco (1d6)
+    const inc = c.impostazioni.incontri_casuali ? probIncontro(c) : null;
+    if (inc) {
+      const v = c.viaggio;
+      if (v.accumulo === 0 && !v.tirato) {
+        v.tirato = true; const t = d(100, rng);
+        if (t <= inc.perc) { v.incontro_in = d(6, rng); log(c, `Incontri casuali (${inc.area.nome}${inc.speciale ? ', ' + inc.speciale : ''}): d% ${t} su ${inc.perc}% → incontro alla ${v.incontro_in}ª ora di marcia del blocco`); }
+        else { v.incontro_in = null; log(c, `Incontri casuali (${inc.area.nome}${inc.speciale ? ', ' + inc.speciale : ''}): nessun incontro (${t} su ${inc.perc}%)`); }
+      }
+      if (v.incontro_in !== null && v.incontro_in === Math.floor(v.accumulo) + 1 && !a.incontro_fatto) {
+        const comp = composizione(c, inc.area, rng);
+        a.evento = { tipo: 'incontro', area: inc.area.nome, R: c.tempo.R, meteo: vociAllOra(c, meteo, c.tempo.R), ...comp };
+        a.incontro_fatto = true;
+        log(c, `Incontro casuale (${inc.area.nome}) alle ${formatoData(c).split(', ').pop()}: ${comp.testo}`);
+        return c;
+      }
+    }
+    // un'ora (o il resto) di marcia
+    const { k, motivi } = moltMarcia(c, meteo, a, c.tempo.R), kmh = a.kmh * k;
+    let passo = 60 - (o.min % 60);
+    if (a.resta_min !== null) passo = Math.min(passo, a.resta_min);
+    if (inc && c.viaggio.incontro_in !== null) passo = Math.min(passo, 60 - Math.round((c.viaggio.accumulo % 1) * 60) || 60);
+    if (a.resta_km !== null) { const serve = Math.ceil(a.resta_km / kmh * 60 - 1e-9); passo = Math.min(passo, Math.max(1, serve)); }
+    const km = Math.min(kmh * passo / 60, a.resta_km !== null ? a.resta_km : Infinity);
+    a.km += km; a.min += passo; if (a.resta_min !== null) a.resta_min -= passo; if (a.resta_km !== null) a.resta_km = Math.max(0, a.resta_km - km);
+    a.ultimi = motivi;
+    const R0 = c.tempo.R;
+    c = avanza(c, passo * ROUND_MIN, meteo, rng, null);
+    const o2 = oggiViaggio(c); o2.min = o2.giorno === o.giorno ? o.min + passo : Math.round((c.tempo.R % ROUND_GIORNO) / ROUND_MIN); // dopo la mezzanotte contano i minuti del giorno nuovo
+    if (inc) { const v = c.viaggio; v.accumulo += passo / 60; if (v.accumulo >= 6 - 1e-9) { v.accumulo = 0; v.tirato = false; v.incontro_in = null; c.viaggio.attivo.incontro_fatto = false; } }
+    if (c.tempo.R === R0) break;
+  }
+  return c;
+}
+function fineMarcia(c, motivo) {
+  const a = c.viaggio.attivo; if (!a) return c;
+  const km = Math.round(a.km * 10) / 10;
+  log(c, `Marcia ${motivo === 'arrivo' ? 'finita' : 'interrotta (' + motivo + ')'}: ${String(km).replace('.', ',')} km in ${formatoDurata(a.min * ROUND_MIN)}, ${formatoData(c)}` + (c.viaggio.oggi && c.viaggio.oggi.orientarsi === 'sbagliata' ? ' — nella direzione sbagliata (Orientarsi)' : ''));
+  c.viaggio.ultima = { km, min: a.min, R: c.tempo.R, motivo };
+  c.viaggio.attivo = null; return c;
+}
+// risposte agli eventi: {orientarsi: totale} · {forzata: {falliti:[pg], cavalcature:[id], continua}} · {incontro: 'avvia'|'ignora'} · {riprendi} · {termina}
+function rispondiMarcia(camp, meteo, rng, r) {
+  const c = clona(camp), a = c.viaggio.attivo; if (!a) throw new Error('nessuna marcia in corso');
+  if (r.termina) return fineMarcia(c, 'fermata dal GM');
+  if (r.riprendi) { if (!a.sospesa) throw new Error('la marcia non è sospesa'); a.sospesa = false; log(c, 'La marcia riprende'); return avanzaMarcia(c, meteo, rng); }
+  const e = a.evento; if (!e) throw new Error('niente da rispondere');
+  const o = oggiViaggio(c);
+  if (e.tipo === 'orientarsi') {
+    if (!Number.isInteger(r.orientarsi)) throw new Error('risultato della prova mancante');
+    const sb = pront().viaggi.orientarsi.sbagliata;
+    o.orientarsi = r.orientarsi >= e.cd ? 'ok' : r.orientarsi <= e.cd - sb ? 'sbagliata' : 'perso';
+    log(c, `Orientarsi (Sopravvivenza) ${r.orientarsi} su CD ${e.cd}${e.motivi.length ? ' (' + e.motivi.join(', ') + ')' : ''}: ` + { ok: 'il gruppo non si perde', perso: 'il gruppo si perde, oggi metà della strada', sbagliata: 'tutto il giorno nella direzione sbagliata (la sceglie il GM)' }[o.orientarsi]);
+  } else if (e.tipo === 'forzata') {
+    const f = r.forzata || {}, falliti = f.falliti || [], cav = f.cavalcature || [], V = pront().viaggi;
+    o.forzata = true; o.prove_forzata++;
+    for (const id of falliti) { const p = trova(c, id); nuovoMalus(c, { pg: id }, { tipo: 'altro', nome: `${V.forzata.danno_pg} danno a Costituzione`, fonte: 'marcia forzata', durata: { tipo: 'libera' } }, rng); }
+    for (const id of cav) { const x = compagnia(c).animali.find(y => y.id === id); if (x) log(c, `${x.nome}: ${V.forzata.danno_cavalcatura} danni a Costituzione (cavalcare veloci)`); }
+    log(c, `Marcia forzata, ${e.ora}ª ora: Costituzione CD ${e.cd}` + (falliti.length || cav.length ? `, falliscono ${[...falliti.map(id => trova(c, id).scheda.nome), ...cav.map(id => (compagnia(c).animali.find(y => y.id === id) || {}).nome)].join(', ')}` : ', tutti superano'));
+    if ((falliti.length || cav.length) && !f.continua) { a.evento = null; return fineMarcia(c, 'marcia forzata: c\'è chi deve fermarsi'); }
+    if (falliti.length) { a.lasciati.push(...falliti); log(c, `Restano indietro: ${falliti.map(id => trova(c, id).scheda.nome).join(', ')}`); }
+  } else if (e.tipo === 'incontro') {
+    if (r.incontro === 'avvia') { a.sospesa = true; a.evento = null; log(c, 'La marcia si ferma per l\'incontro'); return c; }
+    log(c, 'Incontro ignorato: la marcia continua');
+  }
+  a.evento = null;
+  return avanzaMarcia(c, meteo, rng);
+}
+// ---- AC6 aree degli incontri casuali e tabelle d%
+function controllaRighe(righe) {
+  const msg = [], usati = new Array(101).fill(0);
+  for (const r of righe) {
+    if (!(Number.isInteger(r.da) && Number.isInteger(r.a) && r.da >= 1 && r.a <= 100 && r.da <= r.a)) { msg.push(`intervallo non valido: ${r.da}-${r.a}`); continue; }
+    for (let i = r.da; i <= r.a; i++) usati[i]++;
+  }
+  const buchi = [], doppi = [];
+  for (let i = 1; i <= 100; i++) { if (!usati[i]) buchi.push(i); if (usati[i] > 1) doppi.push(i); }
+  const intervalli = l => { const out = []; for (const x of l) { const u = out[out.length - 1]; if (u && u[1] === x - 1) u[1] = x; else out.push([x, x]); } return out.map(([a, b]) => a === b ? String(a).padStart(2, '0') : `${String(a).padStart(2, '0')}-${String(b).padStart(2, '0')}`).join(', '); };
+  if (righe.length && buchi.length) msg.push(`buchi: ${intervalli(buchi)}`);
+  if (doppi.length) msg.push(`sovrapposizioni: ${intervalli(doppi)}`);
+  return msg;
+}
+function salvaArea(camp, a) {
+  const nome = String(a.nome || '').trim(); if (!nome) throw new Error('l\'area non ha un nome');
+  if (!(Number.isInteger(a.perc) && a.perc >= 0 && a.perc <= 100)) throw new Error('probabilità non valida');
+  if (a.speciale && !(String(a.speciale.nome || '').trim() && Number.isInteger(a.speciale.perc) && a.speciale.perc >= 0 && a.speciale.perc <= 100)) throw new Error('area speciale non valida');
+  const righe = (a.righe || []).map(r => ({ da: r.da, a: r.a, testo: String(r.testo || '').trim(),
+    partecipanti: (r.partecipanti || []).filter(p => String(p.nome || '').trim()).map(p => ({ nome: String(p.nome).trim(), dadi: String(p.dadi || '1').trim() || '1', rif: pulisciRif(p.rif) })) }));
+  for (const r of righe) { for (const p of r.partecipanti) tira(p.dadi, () => 0); if (!r.testo && !r.partecipanti.length) throw new Error(`riga ${r.da}-${r.a} vuota`); }
+  if (controllaRighe(righe).some(x => x.startsWith('intervallo'))) throw new Error(controllaRighe(righe).join('; '));
+  const c = clona(camp), x = { id: a.id || prossimoId(c, 'area'), nome, perc: a.perc, speciale: a.speciale ? { nome: a.speciale.nome.trim(), perc: a.speciale.perc } : null, righe: righe.sort((p, q) => p.da - q.da) };
+  const i = c.aree.findIndex(y => y.id === x.id); if (i >= 0) c.aree[i] = x; else c.aree.push(x);
+  log(c, `Incontri casuali: area «${x.nome}» salvata (${x.perc}%${x.speciale ? `, ${x.speciale.nome} ${x.speciale.perc}%` : ''}, ${x.righe.length} righe)`); return c;
+}
+function eliminaArea(camp, id) { const c = clona(camp), a = c.aree.find(x => x.id === id); if (!a) throw new Error('area non trovata'); c.aree = c.aree.filter(x => x !== a); if (c.viaggio.area === id) c.viaggio.area = null; log(c, `Incontri casuali: area «${a.nome}» eliminata`); return c; }
+function copiaTabella(camp, daId, aId) { const c = clona(camp), da = c.aree.find(x => x.id === daId), a = c.aree.find(x => x.id === aId); if (!da || !a) throw new Error('area non trovata'); a.righe = clona(da.righe); return c; }
+// composizione: d% sulla tabella dell'area, quantità tirate
+function composizione(c, area, rng) {
+  if (!area.righe.length) return { tiro: null, riga: null, partecipanti: [], testo: 'incontro: scegli tu (l\'area non ha una tabella)' };
+  const t = d(100, rng), r = area.righe.find(x => t >= x.da && t <= x.a);
+  if (!r) return { tiro: t, riga: null, partecipanti: [], testo: `d% ${t}: nessuna riga della tabella (scegli tu)` };
+  const part = r.partecipanti.map(p => ({ nome: p.nome, n: Math.max(1, tira(p.dadi, rng).totale), dadi: p.dadi, rif: p.rif }));
+  return { tiro: t, riga: `${r.da}-${r.a}`, partecipanti: part, testo: `d% ${t}: ` + [part.map(p => `${p.n} ${p.nome}${p.dadi !== '1' ? ` (${p.dadi})` : ''}`).join(', '), r.testo].filter(Boolean).join(' — ') };
+}
+// «Tira incontro» a mano: area, notte al riparo −5%; l'ora è il 2d12 della Guida, come promemoria a quell'ora
+function tiraIncontro(camp, rng, o) {
+  const a = (camp.aree || []).find(x => x.id === o.area); if (!a) throw new Error('scegli l\'area');
+  const I = pront().incontri, base = o.speciale && a.speciale ? a.speciale.perc : a.perc, perc = Math.max(0, base - (o.riparo ? I.riparo : 0)), t = d(100, rng);
+  const c = clona(camp), nome = `${a.nome}${o.speciale && a.speciale ? ', ' + a.speciale.nome : ''}${o.riparo ? ', notte al riparo' : ''}`;
+  if (t > perc) { log(c, `Incontri casuali (${nome}): nessun incontro (${t} su ${perc}%)`); return { camp: c, esce: false, tiro: t, perc }; }
+  const ora = tira(I.ora, rng).totale, oggi = Math.floor(c.tempo.R / ROUND_GIORNO) * ROUND_GIORNO;
+  let R = oggi + (ora % 24) * ROUND_ORA; if (R <= c.tempo.R) R += ROUND_GIORNO;
+  const comp = composizione(c, a, rng);
+  c.promemoria.push({ id: prossimoId(c, 'pr'), testo: `Incontro casuale (${a.nome}): ${comp.testo}`, R, incontro: { area: a.nome, ...comp } });
+  c.promemoria.sort((x, y) => x.R - y.R);
+  log(c, `Incontri casuali (${nome}): d% ${t} su ${perc}% → incontro alle ${String(ora % 24).padStart(2, '0')}:00 (2d12 = ${ora}), ${formatoData(c, R)}: ${comp.testo}`);
+  return { camp: c, esce: true, tiro: t, perc, R, ora, ...comp };
+}
+
+// ---- AC7 Pericoli: cadere, trattenere il fiato, fumo, alta quota
+// metri → dadi della tabella (0 sotto i 3 m; null = morte)
+function dadiCaduta(m) { const C = pront().cadere; if (m < C.righe[0].da) return 0; if (m >= C.morte) return null; return C.righe.find(r => m >= r.da && m <= r.a).dadi; }
+// d: {metri, volontaria, acrobazia (totale), acqua}; restituisce i dadi e i danni tirati (letali e non letali)
+function caduta(d, rng) {
+  const C = pront().cadere; let m = d.metri; if (!(typeof m === 'number' && m >= 0)) throw new Error('metri non validi');
+  const righe = [];
+  if (d.volontaria) { m = Math.max(0, m - C.volontaria.meno); righe.push(`caduta volontaria: −${C.volontaria.meno} m`); }
+  let dl = 0, dnl = 0, morte = false;
+  if (d.acqua) { // AC7-3 (Z3b): fino a 6 m nulla, i 6 successivi non letali, oltre i 12 m la tabella per i metri in più
+    const nl = Math.max(0, Math.min(m, C.acqua.nulla + C.acqua.non_letali) - C.acqua.nulla);
+    dnl = nl > 0 ? dadiCaduta(Math.max(nl, C.righe[0].da)) : 0;
+    const oltre = m - C.acqua.nulla - C.acqua.non_letali;
+    if (oltre > 0) { const x = dadiCaduta(Math.max(oltre, C.righe[0].da)); if (x === null) morte = true; else dl = x; }
+    righe.push(`in acqua: i primi ${C.acqua.nulla} m senza danni, i ${C.acqua.non_letali} successivi non letali`);
+  } else { const x = dadiCaduta(m); if (x === null) morte = true; else dl = x; }
+  if (d.volontaria && !morte && Number.isInteger(d.acrobazia) && d.acrobazia >= C.volontaria.cd && dl > 0) {
+    const sposta = Math.min(dl, 1 + Math.floor((d.acrobazia - C.volontaria.cd) / C.volontaria.ogni)); dl -= sposta; dnl += sposta;
+    righe.push(`Acrobazia ${d.acrobazia}: ${sposta}d6 non letali`);
+  }
+  const tl = Array.from({ length: dl }, () => d6(rng)), tn = Array.from({ length: dnl }, () => d6(rng));
+  return { metri: d.metri, morte, dadi_letali: dl, dadi_non_letali: dnl, letali: tl.reduce((a, b) => a + b, 0), non_letali: tn.reduce((a, b) => a + b, 0), tiri: { letali: tl, non_letali: tn }, note: righe };
+}
+const d6 = rng => d(6, rng);
+function applicaCaduta(camp, chi, e) {
+  let c = clona(camp), fg = null;
+  const x = creaturaDi(c, chi); if (!x) throw new Error('creatura non trovata');
+  log(c, `${x.nome}: caduta da ${e.metri} m` + (e.morte ? ' — morte' : `: ${e.letali} danni${e.dadi_non_letali ? ` e ${e.non_letali} non letali` : ''}`) + (e.note.length ? ` (${e.note.join('; ')})` : ''));
+  if (e.morte) { muore(c, x, 'caduta'); return { camp: c, feritaGrave: null }; }
+  if (chi.pg) {
+    if (e.letali > 0) { const r = danno(c, chi.pg, e.letali); c = r.camp; fg = r.feritaGrave; }
+    if (e.non_letali > 0) c = dannoNonLetale(c, chi.pg, e.non_letali);
+  } else if (e.letali > 0) { const r = c.combattimento.righe[chi.riga]; if (r.pf) { const x2 = dannoRiga(c, r.id, 0, e.letali); c = x2.camp || x2; } }
+  if (e.letali > 0) nuovoMalus(c, chi, { tipo: 'condizione', nome: 'Prono', durata: { tipo: 'libera' }, fonte: 'caduta' });
+  return { camp: c, feritaGrave: fg };
+}
+// trattenere il fiato: N round (2 × Costituzione, ×2 con Grande nuotatore); poi prova di Costituzione CD 10 +1 ogni round; fallita: annega in 3 round
+function trattieniFiato(camp, chi, d) {
+  const A = pront().pericoli.annegamento;
+  if (!(Number.isInteger(d.cos) && d.cos > 0)) throw new Error('scrivi la Costituzione');
+  const n = d.cos * A.per_cos * (d.grande_nuotatore ? A.grande_nuotatore : 1);
+  const c = clona(camp);
+  nuovoMalus(c, chi, { tipo: 'altro', nome: 'Trattenere il fiato', durata: { n, unita: 'round' }, apnea: { fase: 'fiato', cd: A.cd }, fonte: 'annegamento' });
+  return c;
+}
+function menoUnRound(camp, chi, id) {
+  const c = clona(camp), { x, m } = trovaMalus(c, chi, id);
+  if (!m.apnea || m.apnea.fase !== 'fiato') throw new Error('solo mentre trattiene il fiato');
+  m.durata.fine -= 1; log(c, `${x.nome}: azione standard o di round completo, −1 round di fiato (${descriviDurata(c, m)})`);
+  if (m.durata.fine <= c.tempo.R) scadeApnea(c, x, m);
+  return c;
+}
+function scadeApnea(c, x, m) {
+  const A = pront().pericoli.annegamento;
+  if (m.apnea.fase === 'fiato') { // finito il fiato: prova di Costituzione a ogni round, CD +1
+    m.apnea.fase = 'prove'; m.durata = { tipo: 'libera' }; m.nome = 'Senza fiato';
+    m.per = { kind: 'ts', ts: 'Costituzione', cd: A.cd, unita: 'round', ogni: 1, finisce: false, attesa: false, incr: true, prossimo: c.tempo.R };
+    log(c, `${x.nome}: finisce il fiato, prova di Costituzione CD ${A.cd} a ogni round (+1 ogni round)`);
+    dovuto(c, x, m, () => 0);
+    return;
+  }
+  if (m.apnea.fase === 'annega') { togliDaElenco(c, x.elenco, m, null); muore(c, x, 'annegamento'); }
+}
+// esito dei TS dei pericoli (fumo, alta quota, apnea): true se il malus è stato già sistemato
+function pericoloEsito(c, x, m, superato, rng) {
+  if (m.apnea && m.apnea.fase === 'prove') {
+    if (superato) return false;
+    m.apnea.fase = 'annega'; m.per = null; m.nome = 'Annega'; m.durata = { tipo: 'round', fine: c.tempo.R + 2, n: 2 };
+    nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Privo di Sensi', durata: { tipo: 'libera' }, fonte: 'annegamento' });
+    log(c, `${x.nome}: comincia ad annegare (1° round Privo di Sensi, 2° round resta Privo di Sensi, 3° round annega)`);
+    return true;
+  }
+  if (m.fumo) {
+    if (superato) { m.fumo.di_fila = 0; return false; }
+    m.fumo.di_fila = (m.fumo.di_fila || 0) + 1;
+    log(c, `${x.nome}: passa il round a tossire e soffocare`);
+    if (m.fumo.di_fila >= pront().pericoli.fumo.di_fila) {
+      m.fumo.di_fila = 0; const n = tira(pront().pericoli.fumo.danni, rng).totale;
+      if (x.p) { x.p.stato.nonletali += n; log(c, `${x.nome}: soffoca per 2 round di fila, ${n} danni non letali (totale ${x.p.stato.nonletali})`); }
+      else log(c, `${x.nome}: soffoca per 2 round di fila, ${n} danni non letali`);
+    }
+    return false;
+  }
+  if (m.quota && !superato) {
+    const q = pront().pericoli.alta_quota.find(y => y.id === m.quota);
+    if (q.effetto === 'Affaticato') nuovoMalus(c, x.chi, { tipo: 'condizione', nome: 'Affaticato', durata: { tipo: 'libera' }, fonte: 'alta quota' });
+    else nuovoMalus(c, x.chi, { tipo: 'altro', nome: '1 danno a tutte le caratteristiche', durata: { tipo: 'libera' }, fonte: 'infermità d\'alta quota' });
+  }
+  return false;
+}
+// malus pronti dei pericoli (AC7-5)
+function pericoloPronto(tipo) {
+  const PE = pront().pericoli;
+  if (tipo === 'fumo') return { tipo: 'altro', nome: 'Fumo', durata: { tipo: 'libera' }, fumo: { di_fila: 0 }, ts: { tipo: PE.fumo.ts, cd: PE.fumo.cd, ogni: 1, unita: 'round', finisce: false, incr: true }, fonte: 'fumo denso' };
+  const q = PE.alta_quota.find(y => y.id === tipo); if (!q) throw new Error('pericolo sconosciuto');
+  return { tipo: 'altro', nome: q.nome, durata: { tipo: 'libera' }, quota: q.id, ts: { tipo: q.ts, cd: q.cd, ogni: q.ore, unita: 'ore', finisce: false, incr: true }, fonte: 'alta quota' };
+}
+
+// ---- AC9 Riparare (Vol. 3): CD e tempi; artigiano PNG
+function cdRiparare(tipo, chiave, stato) {
+  const T = pront().riparare.tabella[tipo]; if (!T) throw new Error('tipo non valido');
+  if (!['s', 'r'].includes(stato)) throw new Error('stato non valido');
+  let riga;
+  if (tipo === 'vari') { const v = Number(chiave); if (!(v > 0)) throw new Error('valore non valido'); riga = T.find(x => v <= x.fino); if (!riga) throw new Error('valore oltre la tabella (200.000 mo)'); }
+  else { riga = T.find(x => x.voce === chiave); if (!riga) throw new Error('bonus non valido'); }
+  return { cd: riga[stato], voce: riga.voce, minuti: pront().riparare.tempi[stato] };
+}
+function riparaOggetto(camp, meteo, rng, d) {
+  const x = cdRiparare(d.tipo, d.chiave, d.stato);
+  if (!Number.isInteger(d.totale)) throw new Error('risultato della prova mancante');
+  const nome = String(d.nome || '').trim() || 'oggetto', ok = d.totale >= x.cd;
+  const c = avanza(camp, x.minuti * ROUND_MIN, meteo, rng, `Riparare ${nome}`);
+  log(c, `${nome} (${d.stato === 's' ? 'scheggiato' : 'rotto'}, ${x.voce}): Professione ${d.totale} su CD ${x.cd} — ${ok ? 'riparato' : 'peggiora di un grado (' + (d.stato === 's' ? 'rotto' : 'distrutto') + ')'}`);
+  return { camp: c, riuscita: ok, cd: x.cd };
+}
+function artigiano(camp, rng, d) {
+  const A = pront().riparare.artigiano;
+  if (!(typeof d.valore === 'number' && d.valore > 0)) throw new Error('valore non valido');
+  if (!['s', 'r'].includes(d.stato)) throw new Error('stato non valido');
+  const mr = Math.max(A.minimo_mo * 100, Math.ceil(d.valore * 100 / A[d.stato])), c = clona(camp), nome = String(d.nome || '').trim() || 'oggetto';
+  const ore = d.stato === 's' ? d4(rng) : 24, R = c.tempo.R + ore * ROUND_ORA;
+  c.promemoria.push({ id: prossimoId(c, 'pr'), testo: `${nome}: l'artigiano lo riconsegna riparato`, R }); c.promemoria.sort((a, b) => a.R - b.R);
+  log(c, `${nome} all'artigiano (${d.stato === 's' ? 'scheggiato' : 'rotto'}): ${moneta(mr)}, pronto ${formatoData(c, R)}`);
+  return { camp: c, mr, R, ore };
+}
+function moneta(mr) { const mo = Math.floor(mr / 100), ma = Math.floor(mr % 100 / 10), r = mr % 10; return [mo ? mo + ' mo' : '', ma ? ma + ' ma' : '', r ? r + ' mr' : ''].filter(Boolean).join(' ') || '0 mr'; }
+
+// ---- AC10 Locanda: servizi per PG, costo totale, pasti, bagno, compagnia; le stanze dopo il riposo; bevanda; stallaggio
+const POSTI = { stanza_per_4_persone: 4, stanza_per_2_persone: 2, giro_di_bevute_per_quattro_persone: 4 };
+// d: {servizi: {pgId: [id del servizio]}, bere: true}; restituisce {camp, mr, stanze: {pgId: id}}
+function locanda(camp, rng, d) {
+  const L = pront().locanda, c = clona(camp), servizi = d.servizi || {}, conta = {}, stanze = {};
+  for (const [pid, el] of Object.entries(servizi)) { trova(c, pid); for (const s of el) { if (!L.find(x => x.id === s)) throw new Error('servizio sconosciuto'); conta[s] = (conta[s] || 0) + 1; } }
+  for (const [pid, el] of Object.entries(servizi)) if (el.filter(s => L.find(x => x.id === s).app.stanza).length > 1) throw new Error(`${trova(c, pid).scheda.nome}: una stanza sola`);
+  let mr = 0; for (const [s, n] of Object.entries(conta)) mr += L.find(x => x.id === s).mr * Math.ceil(n / (POSTI[s] || 1));
+  const g = giornoDi(c.tempo.R), mezzanotte = (g + 1) * ROUND_GIORNO;
+  for (const [pid, el] of Object.entries(servizi)) {
+    const p = trova(c, pid);
+    for (const s of el) {
+      const x = L.find(y => y.id === s), a = x.app;
+      if (a.stanza) { stanze[pid] = s; continue; }
+      if (a.pasto) p.stato.pasto = { giorno: g, bere: d.bere !== false };
+      if (a.mods) nuovoMalus(c, { pg: pid }, { tipo: a.mods.tempra < 0 ? 'altro' : 'bonus', nome: x.nome + (a.primo ? ` (${a.primo})` : ''), mods: a.mods, fonte: 'locanda',
+        durata: a.fino === 'mezzanotte' ? { n: Math.max(1, Math.ceil((mezzanotte - c.tempo.R) / ROUND_MIN)), unita: 'minuti' } : { n: a.durata_ore, unita: 'ore' } }, rng);
+      if (a.abilita_nome) { const lib = p.scheda.abilita_libere.map(z => z.nome.trim().toLowerCase()), ab = {}, altro = [];
+        for (const [n, v] of Object.entries(a.abilita_nome)) { if (lib.includes(n.toLowerCase())) ab[n] = v; else altro.push(`+${v} ${n}`); }
+        nuovoMalus(c, { pg: pid }, { tipo: 'bonus', nome: x.nome, mods: { abilita_nome: ab, altro: altro.join(', ') }, durata: { n: a.durata_giorni, unita: 'giorni' }, fonte: 'locanda' }, rng); }
+    }
+  }
+  const nomi = Object.entries(servizi).filter(([, el]) => el.length).map(([pid, el]) => `${trova(c, pid).scheda.nome}: ${el.map(s => L.find(x => x.id === s).nome).join(', ')}`);
+  if (nomi.length) log(c, `Locanda (${moneta(mr)}): ${nomi.join('; ')}` + (Object.values(servizi).some(el => el.some(s => L.find(x => x.id === s).app.pasto)) ? ` — il pasto vale come razione di oggi${d.bere !== false ? ' (anche da bere)' : ''}` : ''));
+  return { camp: c, mr, stanze };
+}
+// stanze dopo il riposo (AC10-3): Dormitorio Fatica max −¼; Suite +1 per livello (3–10) su massimi e correnti; 24 ore
+function stanzeLocanda(c, stanze, rng) {
+  const L = pront().locanda;
+  for (const [pid, s] of Object.entries(stanze)) {
+    const p = trova(c, pid), x = L.find(y => y.id === s); if (!x) continue; const a = x.app;
+    if (a.fatica_max_frazione) { const mx = massimi(c, p).fatica, n = Math.floor(mx / -a.fatica_max_frazione);
+      if (n > 0) nuovoMalus(c, { pg: pid }, { tipo: 'altro', nome: x.nome, mods: { fatica_max: -n }, durata: { n: a.durata_ore, unita: 'ore' }, fonte: 'locanda' }, rng); }
+    if (a.fatica_max_liv) { const n = Math.max(a.minimo, Math.min(a.massimo, p.scheda.livello * a.fatica_max_liv));
+      nuovoMalus(c, { pg: pid }, { tipo: 'bonus', nome: 'Suite', mods: { fatica_max: n }, durata: { n: a.durata_ore, unita: 'ore' }, fonte: 'locanda' }, rng);
+      p.stato.fatica = Math.min(massimi(c, p).fatica, p.stato.fatica + n); log(c, `${p.scheda.nome}: Suite, +${n} Punti Fatica massimi e correnti per 24 ore`); }
+  }
+}
+function bevanda(camp, rng, d) {
+  const a = pront().locanda.find(x => x.app.bevanda).app, p = trova(camp, d.pg);
+  if (!(Number.isInteger(d.sorsi) && d.sorsi > 0) || !Number.isInteger(d.cos)) throw new Error('sorsi o bonus di Costituzione non validi');
+  const soglia = a.sorsi_base + 2 * d.cos, c = clona(camp);
+  log(c, `${p.scheda.nome}: ${d.sorsi} sorsi di bevanda alcolica forte (limite ${soglia})`);
+  if (d.sorsi === soglia) nuovoMalus(c, { pg: p.id }, { tipo: 'condizione', nome: 'Barcollante', durata: { n: a.barcollante_ore, unita: 'ore' }, fonte: 'bevanda alcolica forte' }, rng);
+  else if (d.sorsi > soglia) nuovoMalus(c, { pg: p.id }, { tipo: 'condizione', nome: 'Privo di Sensi', durata: { n: a.privo_ore, unita: 'ore' }, fonte: 'bevanda alcolica forte' }, rng);
+  return { camp: c, soglia };
+}
+function stallaggio(camp, ids) {
+  const c = clona(camp), an = compagnia(c).animali.filter(a => ids.includes(a.id)); if (!an.length) throw new Error('scegli gli animali');
+  const g = giornoDi(c.tempo.R), S3 = pront().stalle.stallaggio;
+  c.stallaggio = { giorno: g, ids: an.map(a => a.id) };
+  log(c, `Stallaggio (${moneta(S3.mr * an.length)}): ${an.map(a => a.nome).join(', ')} — oggi non consumano foraggio né acqua`); return c;
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -2752,6 +3324,10 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   usaStrumenti, anteprimaCondizione, divisioneLivelli, tiroConfuso, CONFUSO, fallimentoCritico, descriviFallimento, applicaFallimento, DIREZIONI,
   bonusEffettivi, motivoNonConta, salvaModello, eliminaModello, tiraDadi, testoTiro, ripetiTiro,
   aggiungiLuce, accendiLuce, spegniLuce, ricaricaLuce, riparoLuce, togliLuce, controllaLuci, motivoSpegne, nomeChiLuce, infoLuce, infoDi, FIAMME_PERS,
-  aggiungiPromemoria, togliPromemoria, togliPromemoriaRound, salvaPromemoriaInIncontro, tipoLog, iniziaSessione, righeLog, testoLog };
+  aggiungiPromemoria, togliPromemoria, togliPromemoriaRound, salvaPromemoriaInIncontro, tipoLog, iniziaSessione, righeLog, testoLog,
+  usaProntuario, AREE_GUIDA, areeGuida, impostaContatore, usaMedicinali, puoProntoSoccorso, prontoSoccorso, fermaSanguinamento, trattaVeleno, trattaMalattia,
+  risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
+  avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
+  trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

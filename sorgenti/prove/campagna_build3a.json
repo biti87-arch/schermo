@@ -1,0 +1,674 @@
+{
+ "formato": "schermo-v1",
+ "tipo": "campagna",
+ "dati": {
+  "formato": "schermo-v1",
+  "id": "moiy2ha83qupt412",
+  "nome": "Campagna della Build 3a",
+  "creata": 1777400000000,
+  "modificata": 1777400004000,
+  "calendario": {
+   "tipo": "reale",
+   "mesi": [
+    {
+     "nome": "gennaio",
+     "giorni": 31
+    },
+    {
+     "nome": "febbraio",
+     "giorni": 28
+    },
+    {
+     "nome": "marzo",
+     "giorni": 31
+    },
+    {
+     "nome": "aprile",
+     "giorni": 30
+    },
+    {
+     "nome": "maggio",
+     "giorni": 31
+    },
+    {
+     "nome": "giugno",
+     "giorni": 30
+    },
+    {
+     "nome": "luglio",
+     "giorni": 31
+    },
+    {
+     "nome": "agosto",
+     "giorni": 31
+    },
+    {
+     "nome": "settembre",
+     "giorni": 30
+    },
+    {
+     "nome": "ottobre",
+     "giorni": 31
+    },
+    {
+     "nome": "novembre",
+     "giorni": 30
+    },
+    {
+     "nome": "dicembre",
+     "giorni": 31
+    }
+   ],
+   "settimana": [
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
+   ],
+   "settimana0": 6
+  },
+  "anno": {
+   "base": 1462,
+   "etichetta": "dopo la Caduta"
+  },
+  "tempo": {
+   "R": 1753300
+  },
+  "zona": "1",
+  "varianti": {},
+  "meteo": {
+   "giorno": 121,
+   "zona": "1",
+   "stagione": "primavera",
+   "tiro": null,
+   "testo": "Clima mite",
+   "opzioni": [
+    [
+     "Clima mite"
+    ]
+   ],
+   "scelta": 0,
+   "manuale": true
+  },
+  "previsioni": null,
+  "scorte": {
+   "cibo": 10,
+   "acqua": 10,
+   "foraggio": 4,
+   "cibo_avariato": 0,
+   "acqua_impura": 0,
+   "recipienti": true
+  },
+  "razionamenti": [],
+  "foraggiato": null,
+  "compagnia": {
+   "senza_nome": 1,
+   "persone": [
+    {
+     "id": "a3",
+     "nome": "Mira",
+     "ruolo": "",
+     "rif": null,
+     "stato": {
+      "fame": {
+       "giorni_senza": 0,
+       "penalita": 0
+      },
+      "sete": {
+       "giorni_senza": 0,
+       "penalita": 0
+      }
+     }
+    }
+   ],
+   "animali": []
+  },
+  "pg": [
+   {
+    "id": "p1",
+    "scheda": {
+     "nome": "Aria",
+     "giocatore": "",
+     "razza": "Elfa",
+     "classe": "Ladro 7",
+     "livello": 7,
+     "fatica_max": 42,
+     "ferita_max": 40,
+     "rif_dadi": 7,
+     "rif_tipo": 8,
+     "rif_ripete": false,
+     "ca": 19,
+     "ca_contatto": 14,
+     "ca_sprovvista": 15,
+     "dmc": 21,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 5,
+     "riflessi": 9,
+     "volonta": 3,
+     "ts_note": "",
+     "percezione": 12,
+     "intuizione": 8,
+     "furtivita": 14,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 6,
+     "imp_pen": 3,
+     "velocita": "9 m",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 42,
+     "ferita": 40,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m10",
+       "tipo": "bonus",
+       "nome": "Scudo",
+       "R": 1753200,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {
+        "ca": 4
+       },
+       "etichetta": "",
+       "fonte": "",
+       "tb": "scudo",
+       "durata": {
+        "tipo": "tempo",
+        "fine": 1753800,
+        "n": 1,
+        "unita": "ore"
+       }
+      },
+      {
+       "id": "m11",
+       "tipo": "bonus",
+       "nome": "Scudo della fede",
+       "R": 1753200,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {
+        "ca": 2
+       },
+       "etichetta": "",
+       "fonte": "",
+       "tb": "deviazione",
+       "durata": {
+        "tipo": "tempo",
+        "fine": 1753500,
+        "n": 30,
+        "unita": "minuti"
+       }
+      },
+      {
+       "id": "m12",
+       "tipo": "bonus",
+       "nome": "Anello",
+       "R": 1753200,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {
+        "ca": 1
+       },
+       "etichetta": "",
+       "fonte": "",
+       "tb": "deviazione",
+       "durata": {
+        "tipo": "permanente"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "p2",
+    "scheda": {
+     "nome": "Bruno",
+     "giocatore": "",
+     "razza": "Nano",
+     "classe": "Guerriero 7",
+     "livello": 7,
+     "fatica_max": 48,
+     "ferita_max": 49,
+     "rif_dadi": 7,
+     "rif_tipo": 10,
+     "rif_ripete": false,
+     "ca": 21,
+     "ca_contatto": 11,
+     "ca_sprovvista": 19,
+     "dmc": 24,
+     "rd": "",
+     "resistenze": "",
+     "immunita": "",
+     "tempra": 9,
+     "riflessi": 4,
+     "volonta": 4,
+     "ts_note": "",
+     "percezione": 7,
+     "intuizione": 2,
+     "furtivita": 1,
+     "abilita_libere": [
+      {
+       "nome": "",
+       "valore": 0
+      },
+      {
+       "nome": "",
+       "valore": 0
+      }
+     ],
+     "iniziativa": 2,
+     "imp_pen": 6,
+     "velocita": "6 m",
+     "sensi": "",
+     "note": ""
+    },
+    "stato": {
+     "fatica": 41,
+     "ferita": 41,
+     "temp": [],
+     "nonletali": 0,
+     "eroe": 1,
+     "rif_riserva": 7,
+     "fame": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "sete": {
+      "giorni_senza": 0,
+      "penalita": 0
+     },
+     "malus": [
+      {
+       "id": "m13",
+       "tipo": "condizione",
+       "nome": "Livelli negativi",
+       "R": 1753200,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "n": 1,
+       "durata": {
+        "tipo": "permanente"
+       }
+      },
+      {
+       "id": "m14",
+       "tipo": "condizione",
+       "nome": "Livelli negativi",
+       "R": 1753200,
+       "scadenza": "bersaglio",
+       "causa": null,
+       "mods": {},
+       "etichetta": "",
+       "fonte": "",
+       "n": 2,
+       "durata": {
+        "tipo": "tempo",
+        "fine": 1767600,
+        "n": 1,
+        "unita": "giorni"
+       }
+      }
+     ]
+    }
+   }
+  ],
+  "combattimento": {
+   "round": 1,
+   "ordine": [
+    "r19",
+    "r17",
+    "r18"
+   ],
+   "righe": {
+    "r19": {
+     "id": "r19",
+     "tipo": "nemico",
+     "nome": "Bandito",
+     "bonus": 1,
+     "nat": 20,
+     "totale": 31,
+     "n": 2,
+     "spareggio": 15,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": [],
+     "rif": null,
+     "pf": null,
+     "faticaFinita": false,
+     "alleato": false
+    },
+    "r17": {
+     "id": "r17",
+     "tipo": "pg",
+     "pgId": "p1",
+     "nome": "Aria",
+     "bonus": 6,
+     "nat": null,
+     "totale": 18,
+     "n": 1,
+     "spareggio": 7,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    },
+    "r18": {
+     "id": "r18",
+     "tipo": "pg",
+     "pgId": "p2",
+     "nome": "Bruno",
+     "bonus": 2,
+     "nat": null,
+     "totale": 9,
+     "n": 1,
+     "spareggio": 19,
+     "stato": "attivo",
+     "prepara": null,
+     "nascosta": false,
+     "nomeTv": "",
+     "malus": []
+    }
+   },
+   "turno": 1,
+   "attesa": [],
+   "avvisi": [],
+   "inizioR": 1753300,
+   "storia": [
+    "{\"formato\":\"schermo-v1\",\"id\":\"moiy2ha83qupt412\",\"nome\":\"Campagna della Build 3a\",\"creata\":1777400000000,\"modificata\":1777400000000,\"calendario\":{\"tipo\":\"reale\",\"mesi\":[{\"nome\":\"gennaio\",\"giorni\":31},{\"nome\":\"febbraio\",\"giorni\":28},{\"nome\":\"marzo\",\"giorni\":31},{\"nome\":\"aprile\",\"giorni\":30},{\"nome\":\"maggio\",\"giorni\":31},{\"nome\":\"giugno\",\"giorni\":30},{\"nome\":\"luglio\",\"giorni\":31},{\"nome\":\"agosto\",\"giorni\":31},{\"nome\":\"settembre\",\"giorni\":30},{\"nome\":\"ottobre\",\"giorni\":31},{\"nome\":\"novembre\",\"giorni\":30},{\"nome\":\"dicembre\",\"giorni\":31}],\"settimana\":[\"lunedì\",\"martedì\",\"mercoledì\",\"giovedì\",\"venerdì\",\"sabato\",\"domenica\"],\"settimana0\":6},\"anno\":{\"base\":1462,\"etichetta\":\"dopo la Caduta\"},\"tempo\":{\"R\":1753300},\"zona\":\"1\",\"varianti\":{},\"meteo\":{\"giorno\":121,\"zona\":\"1\",\"stagione\":\"primavera\",\"tiro\":null,\"testo\":\"Clima mite\",\"opzioni\":[[\"Clima mite\"]],\"scelta\":0,\"manuale\":true},\"previsioni\":null,\"scorte\":{\"cibo\":10,\"acqua\":10,\"foraggio\":4,\"cibo_avariato\":0,\"acqua_impura\":0,\"recipienti\":true},\"razionamenti\":[],\"foraggiato\":null,\"compagnia\":{\"senza_nome\":1,\"persone\":[{\"id\":\"a3\",\"nome\":\"Mira\",\"ruolo\":\"\",\"rif\":null,\"stato\":{\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0}}}],\"animali\":[]},\"pg\":[{\"id\":\"p1\",\"scheda\":{\"nome\":\"Aria\",\"giocatore\":\"\",\"razza\":\"Elfa\",\"classe\":\"Ladro 7\",\"livello\":7,\"fatica_max\":42,\"ferita_max\":40,\"rif_dadi\":7,\"rif_tipo\":8,\"rif_ripete\":false,\"ca\":19,\"ca_contatto\":14,\"ca_sprovvista\":15,\"dmc\":21,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":5,\"riflessi\":9,\"volonta\":3,\"ts_note\":\"\",\"percezione\":12,\"intuizione\":8,\"furtivita\":14,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":6,\"imp_pen\":3,\"velocita\":\"9 m\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":42,\"ferita\":40,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m10\",\"tipo\":\"bonus\",\"nome\":\"Scudo\",\"R\":1753200,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{\"ca\":4},\"etichetta\":\"\",\"fonte\":\"\",\"tb\":\"scudo\",\"durata\":{\"tipo\":\"tempo\",\"fine\":1753800,\"n\":1,\"unita\":\"ore\"}},{\"id\":\"m11\",\"tipo\":\"bonus\",\"nome\":\"Scudo della fede\",\"R\":1753200,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{\"ca\":2},\"etichetta\":\"\",\"fonte\":\"\",\"tb\":\"deviazione\",\"durata\":{\"tipo\":\"tempo\",\"fine\":1753500,\"n\":30,\"unita\":\"minuti\"}},{\"id\":\"m12\",\"tipo\":\"bonus\",\"nome\":\"Anello\",\"R\":1753200,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{\"ca\":1},\"etichetta\":\"\",\"fonte\":\"\",\"tb\":\"deviazione\",\"durata\":{\"tipo\":\"permanente\"}}]}},{\"id\":\"p2\",\"scheda\":{\"nome\":\"Bruno\",\"giocatore\":\"\",\"razza\":\"Nano\",\"classe\":\"Guerriero 7\",\"livello\":7,\"fatica_max\":48,\"ferita_max\":49,\"rif_dadi\":7,\"rif_tipo\":10,\"rif_ripete\":false,\"ca\":21,\"ca_contatto\":11,\"ca_sprovvista\":19,\"dmc\":24,\"rd\":\"\",\"resistenze\":\"\",\"immunita\":\"\",\"tempra\":9,\"riflessi\":4,\"volonta\":4,\"ts_note\":\"\",\"percezione\":7,\"intuizione\":2,\"furtivita\":1,\"abilita_libere\":[{\"nome\":\"\",\"valore\":0},{\"nome\":\"\",\"valore\":0}],\"iniziativa\":2,\"imp_pen\":6,\"velocita\":\"6 m\",\"sensi\":\"\",\"note\":\"\"},\"stato\":{\"fatica\":41,\"ferita\":41,\"temp\":[],\"nonletali\":0,\"eroe\":1,\"rif_riserva\":7,\"fame\":{\"giorni_senza\":0,\"penalita\":0},\"sete\":{\"giorni_senza\":0,\"penalita\":0},\"malus\":[{\"id\":\"m13\",\"tipo\":\"condizione\",\"nome\":\"Livelli negativi\",\"R\":1753200,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"n\":1,\"durata\":{\"tipo\":\"permanente\"}},{\"id\":\"m14\",\"tipo\":\"condizione\",\"nome\":\"Livelli negativi\",\"R\":1753200,\"scadenza\":\"bersaglio\",\"causa\":null,\"mods\":{},\"etichetta\":\"\",\"fonte\":\"\",\"n\":2,\"durata\":{\"tipo\":\"tempo\",\"fine\":1767600,\"n\":1,\"unita\":\"giorni\"}}]}}],\"combattimento\":{\"round\":1,\"ordine\":[\"r19\",\"r17\",\"r18\"],\"righe\":{\"r19\":{\"id\":\"r19\",\"tipo\":\"nemico\",\"nome\":\"Bandito\",\"bonus\":1,\"nat\":20,\"totale\":31,\"n\":2,\"spareggio\":15,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[],\"rif\":null,\"pf\":null,\"faticaFinita\":false,\"alleato\":false},\"r17\":{\"id\":\"r17\",\"tipo\":\"pg\",\"pgId\":\"p1\",\"nome\":\"Aria\",\"bonus\":6,\"nat\":null,\"totale\":18,\"n\":1,\"spareggio\":7,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]},\"r18\":{\"id\":\"r18\",\"tipo\":\"pg\",\"pgId\":\"p2\",\"nome\":\"Bruno\",\"bonus\":2,\"nat\":null,\"totale\":9,\"n\":1,\"spareggio\":19,\"stato\":\"attivo\",\"prepara\":null,\"nascosta\":false,\"nomeTv\":\"\",\"malus\":[]}},\"turno\":0,\"attesa\":[],\"avvisi\":[],\"inizioR\":1753300,\"storia\":[],\"timer\":null,\"incontro\":null,\"promemoria\":[{\"round\":3,\"testo\":\"Crolla il ponte\"}]},\"coda\":[],\"log\":[{\"R\":1753200,\"testo\":\"PG aggiunto: Aria\"},{\"R\":1753200,\"testo\":\"PG aggiunto: Bruno\"},{\"R\":1753200,\"testo\":\"Compagnia: Mira si unisce\"},{\"R\":1753200,\"testo\":\"Campagna creata: Campagna della Build 3a, martedì 2 maggio 1462 dopo la Caduta, 18:00\"},{\"R\":1753200,\"testo\":\"Meteo: Clima mite (d% 32, 1. Pianure e colline temperate, Primavera)\"},{\"R\":1753200,\"testo\":\"Meteo impostato: Clima mite\"},{\"R\":1753200,\"testo\":\"— Inizio sessione 1 —\",\"sessione\":1},{\"R\":1753200,\"testo\":\"Luce: Torcia (Aria)\"},{\"R\":1753200,\"testo\":\"Luce: Lanterna (Mira)\"},{\"R\":1753200,\"testo\":\"Luce: Luce (Bruno)\"},{\"R\":1753200,\"testo\":\"Luce: Fiamma perenne (gruppo, permanente)\"},{\"R\":1753200,\"testo\":\"Torcia (Aria) accesa: 1 h\"},{\"R\":1753200,\"testo\":\"Luce (Bruno) accesa: 1 h 10 min\"},{\"R\":1753200,\"testo\":\"Fiamma perenne (gruppo) accesa: permanente\"},{\"R\":1753200,\"testo\":\"Promemoria per martedì 2 maggio 1462 dopo la Caduta, 20:00: Arriva la carovana\"},{\"R\":1753200,\"testo\":\"Aria: bonus Scudo (1 h)\"},{\"R\":1753200,\"testo\":\"Aria: bonus Scudo della fede (30 min)\"},{\"R\":1753200,\"testo\":\"Aria: bonus Anello (permanente)\"},{\"R\":1753200,\"testo\":\"Bruno: livelli negativi, −2 Punti Fatica e −3 Punti Ferita (massimi e correnti)\"},{\"R\":1753200,\"testo\":\"Bruno: malus Livelli negativi 1 (permanente)\"},{\"R\":1753200,\"testo\":\"Bruno: livelli negativi, −5 Punti Fatica e −5 Punti Ferita (massimi e correnti)\"},{\"R\":1753200,\"testo\":\"Bruno: malus Livelli negativi 2 (1 g)\"},{\"R\":1753200,\"testo\":\"Dadi: 1d20+5 [5] = 10\"},{\"R\":1753300,\"testo\":\"+10 minuti: +10 min → martedì 2 maggio 1462 dopo la Caduta, 18:10\"},{\"R\":1753300,\"testo\":\"Inizio del combattimento (Agguato): Bandito ×2 31, Aria 18, Bruno 9\"},{\"R\":1753300,\"testo\":\"Promemoria al round 3: Crolla il ponte\"}],\"impostazioni\":{\"scorte\":true,\"xp\":false,\"pf_nemici\":false,\"timer\":false,\"timer_tv\":false,\"soglia_timer\":0,\"incontri_casuali\":false,\"tv_xn\":true,\"tv_fuori\":\"barrate\",\"tv_ora\":false,\"tv_meteo\":false,\"tv_solo_combattimento\":true,\"f10\":false,\"tema\":\"scuro\"},\"modelli\":[{\"id\":\"mod9\",\"nome\":\"Scudo\",\"dati\":{\"tipo\":\"bonus\",\"nome\":\"Scudo\",\"tb\":\"scudo\",\"mods\":{\"ca\":4},\"durata\":{\"n\":7,\"unita\":\"minuti\"}}}],\"luci\":[{\"id\":\"l4\",\"tipo\":\"torcia\",\"chi\":\"pg:p1\",\"accesa\":true,\"resta\":500,\"riparo\":false,\"avvisata\":false},{\"id\":\"l5\",\"tipo\":\"lanterna\",\"chi\":\"acc:a3\",\"accesa\":false,\"resta\":1800,\"riparo\":true,\"avvisata\":false},{\"id\":\"l6\",\"tipo\":\"personalizzata\",\"nome\":\"Luce\",\"raggio\":6,\"fiamme\":\"nessuna\",\"durata\":700,\"chi\":\"pg:p2\",\"accesa\":true,\"resta\":600,\"riparo\":false,\"avvisata\":false},{\"id\":\"l7\",\"tipo\":\"personalizzata\",\"nome\":\"Fiamma perenne\",\"raggio\":6,\"fiamme\":\"nessuna\",\"durata\":null,\"chi\":\"gruppo\",\"accesa\":true,\"resta\":null,\"riparo\":false,\"avvisata\":false}],\"promemoria\":[{\"id\":\"pr8\",\"testo\":\"Arriva la carovana\",\"R\":1754400}],\"tiri\":[{\"id\":\"t16\",\"espr\":\"2d6+3\",\"modo\":\"libero\",\"vantaggio\":false,\"svantaggio\":false,\"totale\":8,\"dadi\":[{\"facce\":6,\"risultati\":[2,3],\"tenuti\":[2,3]}],\"nat\":null,\"valore\":8,\"fallimento\":false,\"ripetuto\":false,\"ripete\":null,\"R\":1753200},{\"id\":\"t15\",\"espr\":\"1d20+5\",\"modo\":\"prova\",\"vantaggio\":false,\"svantaggio\":false,\"totale\":10,\"dadi\":[{\"facce\":20,\"risultati\":[5],\"tenuti\":[5]}],\"nat\":5,\"valore\":10,\"fallimento\":false,\"ripetuto\":false,\"ripete\":null,\"R\":1753200}],\"contatore\":19}"
+   ],
+   "timer": null,
+   "incontro": null,
+   "promemoria": [
+    {
+     "round": 3,
+     "testo": "Crolla il ponte"
+    }
+   ]
+  },
+  "coda": [],
+  "log": [
+   {
+    "R": 1753200,
+    "testo": "PG aggiunto: Aria"
+   },
+   {
+    "R": 1753200,
+    "testo": "PG aggiunto: Bruno"
+   },
+   {
+    "R": 1753200,
+    "testo": "Compagnia: Mira si unisce"
+   },
+   {
+    "R": 1753200,
+    "testo": "Campagna creata: Campagna della Build 3a, martedì 2 maggio 1462 dopo la Caduta, 18:00"
+   },
+   {
+    "R": 1753200,
+    "testo": "Meteo: Clima mite (d% 32, 1. Pianure e colline temperate, Primavera)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Meteo impostato: Clima mite"
+   },
+   {
+    "R": 1753200,
+    "testo": "— Inizio sessione 1 —",
+    "sessione": 1
+   },
+   {
+    "R": 1753200,
+    "testo": "Luce: Torcia (Aria)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Luce: Lanterna (Mira)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Luce: Luce (Bruno)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Luce: Fiamma perenne (gruppo, permanente)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Torcia (Aria) accesa: 1 h"
+   },
+   {
+    "R": 1753200,
+    "testo": "Luce (Bruno) accesa: 1 h 10 min"
+   },
+   {
+    "R": 1753200,
+    "testo": "Fiamma perenne (gruppo) accesa: permanente"
+   },
+   {
+    "R": 1753200,
+    "testo": "Promemoria per martedì 2 maggio 1462 dopo la Caduta, 20:00: Arriva la carovana"
+   },
+   {
+    "R": 1753200,
+    "testo": "Aria: bonus Scudo (1 h)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Aria: bonus Scudo della fede (30 min)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Aria: bonus Anello (permanente)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Bruno: livelli negativi, −2 Punti Fatica e −3 Punti Ferita (massimi e correnti)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Bruno: malus Livelli negativi 1 (permanente)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Bruno: livelli negativi, −5 Punti Fatica e −5 Punti Ferita (massimi e correnti)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Bruno: malus Livelli negativi 2 (1 g)"
+   },
+   {
+    "R": 1753200,
+    "testo": "Dadi: 1d20+5 [5] = 10"
+   },
+   {
+    "R": 1753300,
+    "testo": "+10 minuti: +10 min → martedì 2 maggio 1462 dopo la Caduta, 18:10"
+   },
+   {
+    "R": 1753300,
+    "testo": "Inizio del combattimento (Agguato): Bandito ×2 31, Aria 18, Bruno 9"
+   },
+   {
+    "R": 1753300,
+    "testo": "Promemoria al round 3: Crolla il ponte"
+   }
+  ],
+  "impostazioni": {
+   "scorte": true,
+   "xp": false,
+   "pf_nemici": false,
+   "timer": false,
+   "timer_tv": false,
+   "soglia_timer": 0,
+   "incontri_casuali": false,
+   "tv_xn": true,
+   "tv_fuori": "barrate",
+   "tv_ora": false,
+   "tv_meteo": false,
+   "tv_solo_combattimento": true,
+   "f10": false,
+   "tema": "scuro"
+  },
+  "png": [],
+  "incontri": [],
+  "modelli": [
+   {
+    "id": "mod9",
+    "nome": "Scudo",
+    "dati": {
+     "tipo": "bonus",
+     "nome": "Scudo",
+     "tb": "scudo",
+     "mods": {
+      "ca": 4
+     },
+     "durata": {
+      "n": 7,
+      "unita": "minuti"
+     }
+    }
+   }
+  ],
+  "luci": [
+   {
+    "id": "l4",
+    "tipo": "torcia",
+    "chi": "pg:p1",
+    "accesa": true,
+    "resta": 500,
+    "riparo": false,
+    "avvisata": false
+   },
+   {
+    "id": "l5",
+    "tipo": "lanterna",
+    "chi": "acc:a3",
+    "accesa": false,
+    "resta": 1800,
+    "riparo": true,
+    "avvisata": false
+   },
+   {
+    "id": "l6",
+    "tipo": "personalizzata",
+    "nome": "Luce",
+    "raggio": 6,
+    "fiamme": "nessuna",
+    "durata": 700,
+    "chi": "pg:p2",
+    "accesa": true,
+    "resta": 600,
+    "riparo": false,
+    "avvisata": false
+   },
+   {
+    "id": "l7",
+    "tipo": "personalizzata",
+    "nome": "Fiamma perenne",
+    "raggio": 6,
+    "fiamme": "nessuna",
+    "durata": null,
+    "chi": "gruppo",
+    "accesa": true,
+    "resta": null,
+    "riparo": false,
+    "avvisata": false
+   }
+  ],
+  "promemoria": [
+   {
+    "id": "pr8",
+    "testo": "Arriva la carovana",
+    "R": 1754400
+   }
+  ],
+  "tiri": [
+   {
+    "id": "t16",
+    "espr": "2d6+3",
+    "modo": "libero",
+    "vantaggio": false,
+    "svantaggio": false,
+    "totale": 8,
+    "dadi": [
+     {
+      "facce": 6,
+      "risultati": [
+       2,
+       3
+      ],
+      "tenuti": [
+       2,
+       3
+      ]
+     }
+    ],
+    "nat": null,
+    "valore": 8,
+    "fallimento": false,
+    "ripetuto": false,
+    "ripete": null,
+    "R": 1753200
+   },
+   {
+    "id": "t15",
+    "espr": "1d20+5",
+    "modo": "prova",
+    "vantaggio": false,
+    "svantaggio": false,
+    "totale": 10,
+    "dadi": [
+     {
+      "facce": 20,
+      "risultati": [
+       5
+      ],
+      "tenuti": [
+       5
+      ]
+     }
+    ],
+    "nat": 5,
+    "valore": 10,
+    "fallimento": false,
+    "ripetuto": false,
+    "ripete": null,
+    "R": 1753200
+   }
+  ],
+  "contatore": 19
+ }
+}
