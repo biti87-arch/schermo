@@ -1,7 +1,8 @@
 """Genera l'app a partire da template.html, motore.js e dai dati JSON.
 Uso: python3 sorgenti/build.py [percorso_versione_web]
 - scrive www/index.html (app Android/Windows, font locali, funziona offline)
-- se indicato, scrive anche la versione web (font di Google) da pubblicare come pagina di prova."""
+- se indicato, scrive anche la versione web (font di Google) da pubblicare come pagina di prova
+- scrive www/adatta_tv.js (adattamento del testo della TV), lo stesso inserito nella pagina, per la finestra TV di Windows (desktop/tv.html)."""
 import json, sys, os, re
 R = os.path.dirname(os.path.abspath(__file__))
 DATI = ['meteo', 'ferite', 'condizioni', 'razze', 'divieti', 'strumenti', 'prontuario']   # sorgenti/<nome>.json → DATI.<nome>
@@ -13,11 +14,14 @@ dati = {k: carica(k) for k in DATI}
 # un "</script" dentro i dati chiuderebbe il blocco: si scrive "<\/"
 js = json.dumps(dati, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
 t = open(os.path.join(R, 'template.html'), encoding='utf8').read()
-for seg in ('__MOTORE__', '__DATI__', '__WEB__'):
+for seg in ('__MOTORE__', '__DATI__', '__WEB__', '__ADATTA__'):
     assert t.count(seg) == 1, seg
 motore = open(os.path.join(R, 'motore.js'), encoding='utf8').read()
 assert '</script' not in motore.lower()
-t = t.replace('__MOTORE__', motore).replace('__DATI__', js)
+adatta = open(os.path.join(R, 'adatta_tv.js'), encoding='utf8').read()
+assert '</script' not in adatta.lower()
+t = t.replace('__MOTORE__', motore).replace('__DATI__', js).replace('__ADATTA__', adatta)
+open(os.path.join(R, '..', 'www', 'adatta_tv.js'), 'w', encoding='utf8').write(adatta)
 if len(sys.argv) > 1:
     open(sys.argv[1], 'w', encoding='utf8').write(t.replace('__WEB__', 'true'))
 t = t.replace('__WEB__', 'false')

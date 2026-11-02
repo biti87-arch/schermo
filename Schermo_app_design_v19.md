@@ -922,6 +922,7 @@ Stile delle altre app (simbolo piatto d'ottone #CCA860 su fondo scuro sfumato da
 | Resto dell'ordine | sotto un filetto, più piccolo; «ROUND N+1» in una capsula dove ricomincia l'ordine |
 | Piede | sotto un filetto: data e ora a sinistra, meteo a destra |
 | Fuori dal combattimento | data e ora in grande al centro e il meteo sotto, fra due righe di rombi |
+| Adattamento alla finestra (correzione dopo la prova di Massy sul secondo schermo, 02/11) | il nome di chi agisce e i prossimi restano **su una riga** e si rimpiccioliscono da soli fino al 30% (vanno a capo solo in una finestra stretta e alta, dove neanche così ci starebbero); il testo del meteo resta **dentro il suo riquadro**: tutto si rimpicciolisce insieme fino al 45% e, se non basta, cedono in ordine il piede, il resto dell'ordine e chi è in attesa, i prossimi |
 
 ### AD9. Il meteo e i suoi effetti sulla TV (richiesta di Massy, 02/11)
 
@@ -932,7 +933,7 @@ Stile delle altre app (simbolo piatto d'ottone #CCA860 su fondo scuro sfumato da
 | In combattimento | round, ora agisce e prossimi restano; il meteo prende il posto del resto dell'ordine |
 | Fuori dal combattimento | data e ora in alto e il meteo sotto, anche con «Solo durante il combattimento» acceso (il pulsante apre la TV se è nascosta) |
 | Quanto resta | finché il GM non lo toglie o cambia campagna; se il tempo cambia si aggiorna da solo |
-| Testo lungo | si rimpicciolisce da solo fino al 60% |
+| Testo lungo | si rimpicciolisce da solo (vedi «Adattamento alla finestra» in AD8) |
 | Piede | col meteo aperto solo data e ora |
 | Più effetti | ognuno con il suo nome in oro; con un solo effetto uguale al tempo il nome non si ripete |
 
@@ -973,6 +974,7 @@ Stile delle altre app (simbolo piatto d'ottone #CCA860 su fondo scuro sfumato da
 - **Z4-11** Riga della versione in fondo alle Impostazioni: «Versione win-1.0.N» nell'app Windows, «Versione di prova (pagina web)» nella pagina di prova, niente altrove.
 - **Z4-12** Elenco delle campagne aperto: la TV si nasconde; con F9 mostra «Nessuna campagna aperta».
 - **Z4-13** Splash dell'APK: lo stesso simbolo su fondo crema chiaro e su fondo scuro come l'app (#15120E).
+- **Z4-14** (correzione del 02/11) L'adattamento del testo sta in un file solo, `sorgenti/adatta_tv.js`: `build.py` lo mette nella pagina e lo scrive in `www/adatta_tv.js`, che la finestra TV di Windows carica; si rifà a ogni cambio di contenuto, a ogni ridimensionamento e quando arrivano i caratteri.
 
 ### Non ancora attivo
 Rilascio su `main` (APK `v1.0.1`, Windows `win-1.0.1`) dopo il via di Massy; prova sul PC con la TV come secondo schermo sopra Foundry.

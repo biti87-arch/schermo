@@ -2410,6 +2410,7 @@ const CSS_TV = `.tv{container-type:size;--k:1;position:relative;width:100%;heigh
 .tv::after{content:'';position:absolute;inset:3.2cqmin;border:.18cqmin solid rgb(212 168 75 / .55);border-radius:.8cqmin;pointer-events:none}
 .tv-ang{position:absolute;width:2.2cqmin;height:2.2cqmin;background:#D4A84B;transform:rotate(45deg);box-shadow:0 0 0 .45cqmin #1A130D;z-index:1}
 .tv-ang.a1{top:1.15cqmin;left:1.15cqmin}.tv-ang.a2{top:1.15cqmin;right:1.15cqmin}.tv-ang.a3{bottom:1.15cqmin;left:1.15cqmin}.tv-ang.a4{bottom:1.15cqmin;right:1.15cqmin}
+.tv-c>*{flex-shrink:0}
 .tv-c{position:relative;display:flex;flex-direction:column;gap:calc(1.8cqmin * var(--k));height:100%;box-sizing:border-box;padding:6.5cqmin 8cqmin 6cqmin;overflow:hidden}
 .tv-tit{display:flex;align-items:center;gap:2.5cqmin;font-family:'Spectral SC',Georgia,serif;font-size:calc(6cqmin * var(--k));color:#D4A84B;letter-spacing:.08em;white-space:nowrap}
 .tv-tit::before,.tv-tit::after{content:'';flex:1;height:.25cqmin;background:linear-gradient(90deg,transparent,#8B6914 30%,#D4A84B)}
@@ -2418,13 +2419,14 @@ const CSS_TV = `.tv{container-type:size;--k:1;position:relative;width:100%;heigh
 .tv-carta{position:relative;border:.35cqmin solid #D4A84B;border-radius:1.4cqmin;background:linear-gradient(180deg,rgb(212 168 75 / .13),rgb(212 168 75 / .04));
   padding:calc(3cqmin * var(--k)) 4cqmin calc(2.4cqmin * var(--k));box-shadow:0 0 3cqmin rgb(212 168 75 / .12) inset}
 .tv-lab{position:absolute;top:0;left:3.5cqmin;transform:translateY(-55%);background:#2B2016;padding:0 1.6cqmin;font-family:'Spectral SC',Georgia,serif;font-size:calc(3.4cqmin * var(--k));color:#D4A84B;letter-spacing:.14em;border-radius:.6cqmin}
-.tv-agisce{display:flex;align-items:center;gap:4cqmin;justify-content:space-between;flex-wrap:wrap;font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:calc(12cqmin * var(--k));line-height:1.05;color:#F2C766;text-shadow:0 .4cqmin 2cqmin rgb(0 0 0 / .7),0 0 3cqmin rgb(212 168 75 / .25)}
+.tv-agisce{display:flex;align-items:center;gap:4cqmin;justify-content:space-between;font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:calc(12cqmin * var(--k));line-height:1.05;color:#F2C766;text-shadow:0 .4cqmin 2cqmin rgb(0 0 0 / .7),0 0 3cqmin rgb(212 168 75 / .25)}
 .tv-agisce .t-pg,.tv-agisce .t-alleato,.tv-agisce .t-nemico{color:inherit}
 .tv-agisce .tv-tipo{display:none}
+.tv-riga{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden}.tv-timer{flex:none}
 .tv-timer{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:calc(6cqmin * var(--k));color:#ECE3D1;text-shadow:none;border:.3cqmin solid #8B6914;border-radius:5cqmin;padding:.3cqmin 2.4cqmin;background:rgb(0 0 0 / .35)}
 .tv-timer.oltre{color:#fff;background:#C00000;border-color:#F07A6E;font-weight:700}.tv-timer .p{font-size:.55em;color:#A5977F;margin-left:1.2cqmin}
 .tv-pross{display:flex;flex-direction:column;gap:calc(.6cqmin * var(--k));font-size:calc(6.4cqmin * var(--k));line-height:1.15;padding-left:1cqmin}
-.tv-pross>div{display:flex;align-items:center;gap:2cqmin}.tv-pross .n{font-family:'Spectral SC',Georgia,serif;font-size:.6em;color:#8B6914;min-width:1.4em}
+.tv-pross>div{display:flex;align-items:center;gap:2cqmin;min-width:0}.tv-pross .n{font-family:'Spectral SC',Georgia,serif;font-size:.6em;color:#8B6914;min-width:1.4em}
 .tv-tipo{display:inline-block;width:1.6cqmin;height:1.6cqmin;transform:rotate(45deg);margin-right:1.6cqmin;vertical-align:.25em;background:#ECE3D1;flex:none}
 .tipo-alleato .tv-tipo{background:#8FC07A}.tipo-nemico .tv-tipo{background:#E07A35}
 .t-pg{color:#ECE3D1}.t-alleato{color:#BFD8B0}.t-nemico{color:#F0B48A}
@@ -2441,7 +2443,7 @@ const CSS_TV = `.tv{container-type:size;--k:1;position:relative;width:100%;heigh
 .tv-meteo{font-size:calc(6cqmin * var(--k));color:#ECE3D1}
 .tv-orn{color:#8B6914;font-size:calc(4cqmin * var(--k));letter-spacing:1.5cqmin}
 .tv-nulla{margin:auto;font-family:'Spectral SC',Georgia,serif;font-size:5cqmin;color:#8B6914;letter-spacing:.08em}
-.tv-cm{display:flex;flex-direction:column;gap:calc(1.6cqmin * var(--k));min-height:0}
+.tv-cm{display:flex;flex-direction:column;gap:calc(1.6cqmin * var(--k))}
 .tv-cm-tit{font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:calc(7cqmin * var(--k));color:#F2C766;line-height:1.1}
 .tv-cm-ef{font-size:calc(3.9cqmin * var(--k));line-height:1.35;color:#E3D8C3}.tv-cm-ef b{font-family:'Spectral SC',Georgia,serif;color:#D4A84B;font-weight:700;margin-right:1.4cqmin}
 .tv-cm-mare{font-size:calc(3.9cqmin * var(--k));color:#9CC3D9}
@@ -2455,7 +2457,7 @@ function htmlTV(st) {
   const piede = [st.data, st.cartaMeteo ? null : st.meteo].filter(Boolean).map(x => `<span>${h(x)}</span>`).join('');
   if (!st.combattimento) {
     if (st.vuota) return cornice('<div class="tv-nulla">Nessun combattimento</div>');
-    if (cm) return cornice(`${st.data ? `<div class="tv-tit lunga"><b>${h(st.data)}</b></div>` : ''}${cm}`);
+    if (cm) return cornice(`${st.data ? `<div class="tv-tit lunga" data-cede="1"><b>${h(st.data)}</b></div>` : ''}${cm}`);
     return cornice(`<div class="tv-quieto"><div class="tv-orn">◆ ◆ ◆</div>${st.data ? `<div class="tv-data">${h(st.data)}</div>` : ''}${st.meteo ? `<div class="tv-meteo">${h(st.meteo)}</div>` : ''}<div class="tv-orn">◆ ◆ ◆</div></div>`);
   }
   const v = x => `<span class="tipo-${x.tipo}"><i class="tv-tipo"></i><span class="t-${x.tipo}${x.fuori ? ' fuori' : ''}">${h(x.nome)}</span></span>`;
@@ -2464,23 +2466,18 @@ function htmlTV(st) {
     if (x.separatore) { sep = x.round; continue; }
     if (x.livello === 'agisce') continue;
     const s = sep !== null ? `<span class="tv-sep">Round ${sep}</span>` : ''; sep = null;
-    if (x.livello === 'prossimo') { if (s) pross.push(s); pross.push(`<div><span class="n">${pross.filter(p => p.startsWith('<div')).length + 2}</span>${v(x)}</div>`); }
+    if (x.livello === 'prossimo') { if (s) pross.push(s); pross.push(`<div><span class="n">${pross.filter(p => p.startsWith('<div')).length + 2}</span><span class="tv-riga">${v(x)}</span></div>`); }
     else { if (s) resto.push(s); resto.push(v(x)); }
   }
   const tm = st.timer ? `<span class="tv-timer${st.timer.oltre ? ' oltre' : ''}">${h(st.timer.testo)}${st.timer.pausa ? '<span class="p">⏸ in pausa</span>' : ''}</span>` : '';
   return cornice(`<div class="tv-tit"><b>Round ${st.round}</b></div>
-    <div class="tv-carta"><span class="tv-lab">Ora agisce</span><div class="tv-agisce">${st.agisce ? v(st.agisce) : '<span>—</span>'}${tm}</div></div>
-    ${pross.length ? `<div class="tv-pross">${pross.join('')}</div>` : ''}
-    ${cm || (resto.length ? `<div class="tv-resto">${resto.join('')}</div>` : '')}
-    ${st.attesa && st.attesa.length ? `<div class="tv-attesa"><b>In attesa</b> ${st.attesa.map(h).join(', ')}</div>` : ''}
-    ${piede ? `<div class="tv-piede">${piede}</div>` : ''}`, ' in-comb');
+    <div class="tv-carta"><span class="tv-lab">Ora agisce</span><div class="tv-agisce"><span class="tv-riga">${st.agisce ? v(st.agisce) : '—'}</span>${tm}</div></div>
+    ${pross.length ? `<div class="tv-pross" data-cede="3">${pross.join('')}</div>` : ''}
+    ${cm || (resto.length ? `<div class="tv-resto" data-cede="2">${resto.join('')}</div>` : '')}
+    ${st.attesa && st.attesa.length ? `<div class="tv-attesa" data-cede="2"><b>In attesa</b> ${st.attesa.map(h).join(', ')}</div>` : ''}
+    ${piede ? `<div class="tv-piede" data-cede="1">${piede}</div>` : ''}`, ' in-comb');
 }
-// se il testo non ci sta (carta del meteo lunga, finestra piccola) si rimpicciolisce fino al 60%
-function adattaTV(radice) {
-  const tv = radice && radice.querySelector('.tv'), c = tv && tv.querySelector('.tv-c'); if (!c) return;
-  let k = 1; tv.style.setProperty('--k', k);
-  while (c.scrollHeight > c.clientHeight + 1 && k > 0.6) { k = Math.round((k - 0.05) * 100) / 100; tv.style.setProperty('--k', k); }
-}
+__ADATTA__
 // stato della TV nella pagina: manuale = F9 o menu, valido fino al prossimo evento automatico (inizio o fine del combattimento, altra campagna)
 const TV = { meteo: false, manuale: null, campId: undefined, comb: null, visibile: false, modo: null, win: null, apertura: null, ultimo: '', ultimoDesk: '', chiudoIo: false };
 const RIQ_DEF = () => window.innerWidth < 600 ? { x: 8, y: window.innerHeight - 228, w: window.innerWidth - 16, h: 220 } : { x: window.innerWidth - 492, y: window.innerHeight - 282, w: 480, h: 270 };

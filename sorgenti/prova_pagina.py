@@ -1000,13 +1000,46 @@ def prova4web(browser):
         t(f'{W} {caso}: nessun errore', not errori, errori[:3])
         ctx.close()
 
+def prova4adatta(browser):
+    """AD8 rivista (prova di Massy sul secondo schermo, 02/11): nome di chi agisce e carta del meteo dentro la cornice a ogni dimensione."""
+    ctx = browser.new_context(viewport={'width': 1920, 'height': 1100}); pg = ctx.new_page()
+    pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna'); pg.evaluate("document.fonts.ready")
+    DIM = [(240, 135), (320, 180), (480, 270), (640, 360), (960, 540), (1920, 1080), (900, 260), (1600, 400), (360, 640), (500, 500)]
+    NOMI = ['Aria', 'Mortimer von Crist, «L\'Imbalsamatore»', 'Figura incappucciata con la lanterna 12', 'Lupo crudele ×5']
+    cattivi = 0
+    for meteo in (False, True):
+        for nome in NOMI:
+            for w, h in DIM:
+                st = {'campagna': 'X', 'combattimento': True, 'round': 3, 'data': 'mercoledì 28 ottobre 1462 dopo la Caduta, 17:30', 'meteo': 'Pioggia battente + Vento molto forte', 'vuota': False,
+                      'agisce': {'nome': nome, 'tipo': 'nemico', 'fuori': False, 'livello': 'agisce'},
+                      'ordine': [{'nome': nome, 'tipo': 'nemico', 'fuori': False, 'livello': 'agisce'}, {'nome': 'Bartolomeo il Grande Cerusico di Valmora', 'tipo': 'pg', 'fuori': False, 'livello': 'prossimo'},
+                                 {'nome': 'Cira', 'tipo': 'pg', 'fuori': False, 'livello': 'prossimo'}, {'separatore': True, 'round': 4}, {'nome': 'Bestie ×3', 'tipo': 'nemico', 'fuori': False, 'livello': 'resto'}],
+                      'attesa': [], 'timer': {'testo': '1:23', 'oltre': False, 'pausa': False},
+                      'cartaMeteo': {'titolo': 'Pioggia battente + Vento molto forte', 'effetti': [{'nome': 'Pioggia battente', 'testo': 'Penalità −2 alle prove di Percezione. Fiamme: vedi la tabella. Seguire tracce: +1 alla CD per ogni ora di pioggia. Chi resta all\'aperto si bagna. Chi ha recipienti raccoglie la razione d\'acqua del giorno.'},
+                                     {'nome': 'Vento molto forte', 'testo': 'Penalità −4 ai tiri per colpire a distanza e −4 alle prove di Percezione basate sull\'udito. Le creature Minuscole o più piccole sono spazzate via; le Piccole sono atterrate. Fiamme: vedi la tabella. Volare: prova di Volare CD 20.'}], 'mare': None} if meteo else None}
+                r = pg.evaluate("""([st, w, h]) => { let d = document.getElementById('prova-tv'); if (!d) { d = document.createElement('div'); d.id = 'prova-tv'; d.style.cssText = 'position:fixed;left:0;top:0;z-index:99'; document.body.appendChild(d); }
+                  d.style.width = w + 'px'; d.style.height = h + 'px'; d.innerHTML = htmlTV(st); adattaTV(d);
+                  const c = d.querySelector('.tv-c'), cr = c.getBoundingClientRect(), out = [];
+                  const nome = d.querySelector('.tv-agisce .tv-riga') || d.querySelector('.tv-agisce > span');
+                  const nr = nome.getBoundingClientRect(), fs = parseFloat(getComputedStyle(nome).fontSize);
+                  if (nome.scrollWidth > nome.clientWidth + 1 || nr.right > cr.right + 1) out.push('nome fuori in larghezza');
+                  if (nr.height > fs * 1.6 && (nome.style.whiteSpace !== 'normal' || parseFloat(nome.style.fontSize) > fs + 0.5)) out.push('nome su più righe');
+                  if (nome.style.whiteSpace === 'normal' && w >= 480 && w > h * 1.2) out.push('a capo in una finestra larga');
+                  for (const x of d.querySelectorAll('.tv-pross .tv-riga')) if (x.scrollWidth > x.clientWidth + 1) out.push('prossimo fuori');
+                  for (const k of d.querySelectorAll('.tv-carta')) { const kr = k.getBoundingClientRect(); for (const e of k.children) { const er = e.getBoundingClientRect(); if (er.bottom > kr.bottom + 1 || er.right > kr.right + 1) { out.push('testo fuori dal riquadro ' + (k.classList.contains('tv-cm') ? 'meteo' : 'agisce')); break; } }
+                    if (kr.bottom > cr.bottom + 1) out.push('riquadro fuori dalla cornice'); }
+                  return out; }""", [st, w, h])
+                if r: cattivi += 1; print('ERRORE adatta', f"{'meteo ' if meteo else ''}{w}×{h} «{nome[:20]}»: {', '.join(sorted(set(r)))}")
+    t('[adatta] AD8 nome e meteo dentro la cornice a 10 dimensioni × 4 nomi × con e senza meteo', cattivi == 0, cattivi)
+    ctx.close()
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (1366, 390):
         for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4):
             try: f(b, w)
             except Exception as e: ko += 1; print('ERRORE', w, f.__name__, 'interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
-    try: prova4web(b)
+    try: prova4web(b); prova4adatta(b)
     except Exception as e: ko += 1; print('ERRORE prova4web interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
     b.close()
 srv.shutdown()

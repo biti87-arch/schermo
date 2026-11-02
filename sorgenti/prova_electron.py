@@ -42,6 +42,15 @@ with sync_playwright() as p:
     main.click('[data-az="impostazioni"]'); t('versione nelle Impostazioni', 'Versione win-1.0.0' in main.locator('.velo').last.inner_text()); main.locator('.velo').last.locator('footer button', has_text='Annulla').click()
     main.click('[data-az="scheda"][data-s="viaggio"]'); main.click('#btn-meteo-tv'); main.wait_for_timeout(500)
     t('carta del meteo nella finestra TV', tv.locator('.tv-cm').count() == 1 and tv.locator('.tv-ang').count() == 4)
+    # finestra TV ridimensionata con un nome lungo e il meteo (prova di Massy sul secondo schermo, 02/11)
+    main.locator('.ordine li', has_text='Lupo').click(); main.click('.azioni-riga [data-az="nomeTv"]')
+    main.locator('.velo').last.locator('[name="n"]').fill('Mortimer von Crist, «L\'Imbalsamatore» il Terzo'); main.locator('.velo').last.locator('footer button', has_text='Salva').click()
+    while 'Mortimer' not in tv.inner_text('.tv-agisce'): main.click('[data-az="cmd"][data-c="avanti"]'); main.wait_for_timeout(200)
+    for w, h in ((320, 180), (640, 360), (960, 540), (1600, 400)):
+        tv.evaluate(f'window.resizeTo({w}, {h})'); main.wait_for_timeout(700)
+        r = tv.evaluate('''() => { const n = document.querySelector('.tv-agisce .tv-riga'), k = document.querySelector('.tv-cm'), kr = k.getBoundingClientRect();
+          return [n.scrollWidth <= n.clientWidth + 1, [...k.children].every(e => e.getBoundingClientRect().bottom <= kr.bottom + 1), innerWidth, innerHeight]; }''')
+        t(f'finestra TV {w}×{h}: nome lungo su una riga e meteo nel riquadro', r[0] and r[1], r)
     main.click('#btn-meteo-tv'); main.wait_for_timeout(500); t('meteo tolto dalla finestra TV', tv.locator('.tv-cm').count() == 0)
     main.click('[data-az="fineComb"]'); main.locator('.velo').last.locator('footer button', has_text='Chiudi il combattimento').click(); main.wait_for_timeout(600)
     t('a fine combattimento si nasconde', not info()['visibile'])
