@@ -3565,13 +3565,22 @@ function stallaggio(camp, ids) {
 // AD1, AD2: nome sulla TV (nome per i giocatori, «×N» se l'impostazione è accesa)
 function nomeTvDi(r, imp) { const base = r.nomeTv || r.nome; return r.n > 1 && (!imp || imp.tv_xn !== false) ? `${base} ×${r.n}` : base; }
 // AD1, AD4: tutto ciò che la TV mostra (mai PF, malus, condizioni, tattiche, nomi veri)
-function statoTV(camp, meteo, oraReale) {
+// opz.meteo: carta del meteo chiesta dal GM («Sulla TV» nel pannello Meteo): tempo in vigore adesso e i suoi effetti
+function cartaMeteoTV(camp, meteo) {
+  let m = null; try { m = meteoCorrente(camp, meteo); } catch (e) { m = null; }
+  if (!m) return null;
+  const voci = m.ora && m.ora.length ? m.ora : m.voci;
+  return { titolo: voci.join(' + '), effetti: effettiMeteo(meteo, voci).map(e => ({ nome: e.nome, testo: e.testo })),
+    mare: m.mare ? `Mare ${m.mare.stato.toLowerCase()} · Nuotare CD ${m.mare.nuotare}` : null };
+}
+function statoTV(camp, meteo, oraReale, opz) {
   if (!camp) return { campagna: null, combattimento: false, data: null, meteo: null, vuota: true };
   const imp = { ...IMPOSTAZIONI, ...(camp.impostazioni || {}) }, cb = camp.combattimento;
   let met = null;
   if (imp.tv_meteo && meteo) { try { const m = meteoCorrente(camp, meteo); if (m) met = (m.ora && m.ora.length ? m.ora : m.voci).join(' + '); } catch (e) { met = null; } }
-  const st = { campagna: camp.nome, combattimento: !!cb, data: imp.tv_ora ? formatoData(camp) : null, meteo: met, vuota: false };
-  if (!cb) { st.vuota = !st.data && !st.meteo; return st; }
+  const st = { campagna: camp.nome, combattimento: !!cb, data: imp.tv_ora ? formatoData(camp) : null, meteo: met, vuota: false,
+    cartaMeteo: opz && opz.meteo && meteo ? cartaMeteoTV(camp, meteo) : null };
+  if (!cb) { st.vuota = !st.data && !st.meteo && !st.cartaMeteo; return st; }
   const n = cb.ordine.length, visibile = r => r && !r.nascosta && !(r.stato === 'fuori' && imp.tv_fuori === 'tolte');
   const agibile = r => visibile(r) && r.stato !== 'fuori';
   const tipo = r => r.tipo === 'pg' ? 'pg' : r.alleato ? 'alleato' : 'nemico';
@@ -3636,7 +3645,7 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
   avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
   trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
-  nomeTvDi, statoTV, tvVisibile, f10Attivo };
+  nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
 
@@ -3947,7 +3956,7 @@ function disegnaViaggio() {
       <div class="fila"><label class="campo" style="flex:1"><span>Zona climatica</span>${selectZona('zona', 'data-az-cambio="zona"', c.zona)}</label></div>
       ${varianti ? `<div class="fila">${varianti}</div>` : ''}
       <div class="fila"><button class="btn" data-az="ritira">${c.zona === MET.sotterraneo.zona ? 'Ritira la condizione' : 'Ritira'}</button><button class="btn" data-az="impostaMeteo">Imposta</button>
-        ${c.zona === MET.sotterraneo.zona ? '<button class="btn" data-az="nuoveGallerie">Nuova zona di gallerie</button>' : '<button class="btn" data-az="predire">Predire il tempo…</button>'}</div>
+        ${c.zona === MET.sotterraneo.zona ? '<button class="btn" data-az="nuoveGallerie">Nuova zona di gallerie</button>' : '<button class="btn" data-az="predire">Predire il tempo…</button>'}${ANDROID || !m ? '' : `<button class="btn${TV.meteo ? ' oro' : ''}" id="btn-meteo-tv" data-az="meteoTV" title="Mostra sulla TV il tempo di adesso con i suoi effetti">${TV.meteo ? 'Togli dalla TV' : 'Sulla TV'}</button>`}</div>
       ${prev}
       <details class="cartella"><summary>${esc(z.n + '. ' + z.nome)}: particolarità</summary><p class="piccolo tenue">${esc(z.descrizione)}</p>${z.particolarita.length ? `<ul class="voci piccolo">${z.particolarita.map(x => `<li>${coloraTutte(esc(x))}</li>`).join('')}</ul>` : ''}</details>
       <details class="cartella"><summary>Fiamme</summary><p class="piccolo tenue">${esc(MET.fiamme.frase)}</p>${regoleHtml([{ tabella: [['Fonte', 'Si spegne con'], ...MET.fiamme.righe.map(r => [r.fonte, r.spegne])] }])}</details>
@@ -5801,63 +5810,98 @@ function disegnaProntuario() {
 // Un solo disegno per tutti i casi (finestra Electron, Picture-in-Picture, finestra del browser, riquadro): htmlTV(statoTV)
 const TVDESK = typeof window !== 'undefined' && window.schermoDesktop && window.schermoDesktop.tv;
 const ANDROID = !!(typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-const CSS_TV = `.tv{container-type:size;width:100%;height:100%;box-sizing:border-box;background:#15120E;color:#ECE3D1;font-family:'IBM Plex Sans',system-ui,sans-serif;overflow:hidden}
-.tv-c{display:flex;flex-direction:column;gap:1.6cqmin;height:100%;box-sizing:border-box;padding:4cqmin 5cqmin;overflow:hidden}
-.tv-round{font-family:'Spectral SC',Georgia,serif;font-size:6.5cqmin;color:#D4A84B;letter-spacing:.04em}
-.tv-lab{font-size:3.6cqmin;color:#A5977F;text-transform:uppercase;letter-spacing:.12em;margin-top:.6cqmin}
-.tv-agisce{display:flex;align-items:baseline;gap:3cqmin;flex-wrap:wrap;font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:13cqmin;line-height:1.05;color:#D4A84B}
-.tv-timer{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:7cqmin;color:#ECE3D1}
-.tv-timer.oltre{color:#C00000;font-weight:700}.tv-timer .p{font-size:3.6cqmin;color:#A5977F;margin-left:1.5cqmin}
-.tv-pross{display:flex;flex-direction:column;gap:.4cqmin;font-size:7cqmin;line-height:1.15}
-.tv-resto{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:3cqmin;row-gap:.3cqmin;font-size:4.6cqmin;line-height:1.35}
-.tv-sep{color:#D4A84B;font-size:3.6cqmin;letter-spacing:.06em;text-transform:uppercase}
-.tv-pross .tv-sep{display:block;margin-top:.6cqmin}
-.tv .fuori{text-decoration:line-through;opacity:.5}
-.tv .t-pg{color:#ECE3D1}.tv .t-alleato{color:#BFD8B0}.tv .t-nemico{color:#F0B48A}
-.tv-agisce .t-pg,.tv-agisce .t-alleato,.tv-agisce .t-nemico{color:#D4A84B}
-.tv-attesa{font-size:4.2cqmin;color:#A5977F}
-.tv-piede{margin-top:auto;font-size:4.4cqmin;color:#A5977F;display:flex;gap:3cqmin;flex-wrap:wrap}
-.tv-quieto{margin:auto 0;display:flex;flex-direction:column;gap:3cqmin;text-align:center}
-.tv-data{font-family:'Spectral SC',Georgia,serif;font-size:9cqmin;color:#D4A84B;line-height:1.15}
-.tv-meteo{font-size:7cqmin}
-.tv-nulla{margin:auto;font-size:5cqmin;color:#6E624F}`;
+const CSS_TV = `.tv{container-type:size;--k:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;color:#ECE3D1;font-family:'IBM Plex Sans',system-ui,sans-serif;
+  background:radial-gradient(ellipse at 50% 38%,#33251A 0%,#21180F 55%,#120D09 100%)}
+.tv::before{content:'';position:absolute;inset:2cqmin;border:.5cqmin solid #8B6914;border-radius:1.2cqmin;pointer-events:none}
+.tv::after{content:'';position:absolute;inset:3.2cqmin;border:.18cqmin solid rgb(212 168 75 / .55);border-radius:.8cqmin;pointer-events:none}
+.tv-ang{position:absolute;width:2.2cqmin;height:2.2cqmin;background:#D4A84B;transform:rotate(45deg);box-shadow:0 0 0 .45cqmin #1A130D;z-index:1}
+.tv-ang.a1{top:1.15cqmin;left:1.15cqmin}.tv-ang.a2{top:1.15cqmin;right:1.15cqmin}.tv-ang.a3{bottom:1.15cqmin;left:1.15cqmin}.tv-ang.a4{bottom:1.15cqmin;right:1.15cqmin}
+.tv-c{position:relative;display:flex;flex-direction:column;gap:calc(1.8cqmin * var(--k));height:100%;box-sizing:border-box;padding:6.5cqmin 8cqmin 6cqmin;overflow:hidden}
+.tv-tit{display:flex;align-items:center;gap:2.5cqmin;font-family:'Spectral SC',Georgia,serif;font-size:calc(6cqmin * var(--k));color:#D4A84B;letter-spacing:.08em;white-space:nowrap}
+.tv-tit::before,.tv-tit::after{content:'';flex:1;height:.25cqmin;background:linear-gradient(90deg,transparent,#8B6914 30%,#D4A84B)}
+.tv-tit::after{background:linear-gradient(90deg,#D4A84B,#8B6914 70%,transparent)}
+.tv-tit b{font-weight:700}.tv-tit.lunga{font-size:calc(4.6cqmin * var(--k));white-space:normal;text-align:center}.tv-tit.lunga b{flex:none;max-width:85%}.tv-tit i{font-style:normal;font-size:.6em;color:#8B6914}
+.tv-carta{position:relative;border:.35cqmin solid #D4A84B;border-radius:1.4cqmin;background:linear-gradient(180deg,rgb(212 168 75 / .13),rgb(212 168 75 / .04));
+  padding:calc(3cqmin * var(--k)) 4cqmin calc(2.4cqmin * var(--k));box-shadow:0 0 3cqmin rgb(212 168 75 / .12) inset}
+.tv-lab{position:absolute;top:0;left:3.5cqmin;transform:translateY(-55%);background:#2B2016;padding:0 1.6cqmin;font-family:'Spectral SC',Georgia,serif;font-size:calc(3.4cqmin * var(--k));color:#D4A84B;letter-spacing:.14em;border-radius:.6cqmin}
+.tv-agisce{display:flex;align-items:center;gap:4cqmin;justify-content:space-between;flex-wrap:wrap;font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:calc(12cqmin * var(--k));line-height:1.05;color:#F2C766;text-shadow:0 .4cqmin 2cqmin rgb(0 0 0 / .7),0 0 3cqmin rgb(212 168 75 / .25)}
+.tv-agisce .t-pg,.tv-agisce .t-alleato,.tv-agisce .t-nemico{color:inherit}
+.tv-agisce .tv-tipo{display:none}
+.tv-timer{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:calc(6cqmin * var(--k));color:#ECE3D1;text-shadow:none;border:.3cqmin solid #8B6914;border-radius:5cqmin;padding:.3cqmin 2.4cqmin;background:rgb(0 0 0 / .35)}
+.tv-timer.oltre{color:#fff;background:#C00000;border-color:#F07A6E;font-weight:700}.tv-timer .p{font-size:.55em;color:#A5977F;margin-left:1.2cqmin}
+.tv-pross{display:flex;flex-direction:column;gap:calc(.6cqmin * var(--k));font-size:calc(6.4cqmin * var(--k));line-height:1.15;padding-left:1cqmin}
+.tv-pross>div{display:flex;align-items:center;gap:2cqmin}.tv-pross .n{font-family:'Spectral SC',Georgia,serif;font-size:.6em;color:#8B6914;min-width:1.4em}
+.tv-tipo{display:inline-block;width:1.6cqmin;height:1.6cqmin;transform:rotate(45deg);margin-right:1.6cqmin;vertical-align:.25em;background:#ECE3D1;flex:none}
+.tipo-alleato .tv-tipo{background:#8FC07A}.tipo-nemico .tv-tipo{background:#E07A35}
+.t-pg{color:#ECE3D1}.t-alleato{color:#BFD8B0}.t-nemico{color:#F0B48A}
+.tv-resto{display:flex;flex-wrap:wrap;align-items:center;column-gap:3cqmin;row-gap:.6cqmin;font-size:calc(4.3cqmin * var(--k));line-height:1.3;padding-top:calc(1.4cqmin * var(--k));border-top:.2cqmin solid rgb(139 105 20 / .6)}
+.tv-resto .tv-tipo{width:1.1cqmin;height:1.1cqmin;margin-right:1.1cqmin}
+.tv-sep{font-family:'Spectral SC',Georgia,serif;color:#D4A84B;font-size:calc(3.2cqmin * var(--k));letter-spacing:.1em;border:.2cqmin solid #8B6914;border-radius:3cqmin;padding:0 1.6cqmin}
+.tv-pross .tv-sep{align-self:flex-start;margin:.4cqmin 0}
+.tv .fuori{text-decoration:line-through;opacity:.45}
+.tv-attesa{font-size:calc(3.8cqmin * var(--k));color:#A5977F}.tv-attesa b{color:#D4A84B;font-weight:500;font-family:'Spectral SC',Georgia,serif}
+.tv-piede{margin-top:auto;display:flex;justify-content:space-between;gap:3cqmin;flex-wrap:wrap;font-size:calc(4cqmin * var(--k));color:#CDBFA6;padding-top:calc(1.2cqmin * var(--k));border-top:.2cqmin solid rgb(139 105 20 / .6)}
+.tv-piede span::before{content:'◆';color:#8B6914;font-size:.6em;margin-right:1.4cqmin;vertical-align:.15em}
+.tv-quieto{margin:auto 0;display:flex;flex-direction:column;align-items:center;gap:calc(3cqmin * var(--k));text-align:center}
+.tv-data{font-family:'Spectral SC',Georgia,serif;font-size:calc(8cqmin * var(--k));color:#F2C766;line-height:1.15;text-shadow:0 .4cqmin 2cqmin rgb(0 0 0 / .7)}
+.tv-meteo{font-size:calc(6cqmin * var(--k));color:#ECE3D1}
+.tv-orn{color:#8B6914;font-size:calc(4cqmin * var(--k));letter-spacing:1.5cqmin}
+.tv-nulla{margin:auto;font-family:'Spectral SC',Georgia,serif;font-size:5cqmin;color:#8B6914;letter-spacing:.08em}
+.tv-cm{display:flex;flex-direction:column;gap:calc(1.6cqmin * var(--k));min-height:0}
+.tv-cm-tit{font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:calc(7cqmin * var(--k));color:#F2C766;line-height:1.1}
+.tv-cm-ef{font-size:calc(3.9cqmin * var(--k));line-height:1.35;color:#E3D8C3}.tv-cm-ef b{font-family:'Spectral SC',Georgia,serif;color:#D4A84B;font-weight:700;margin-right:1.4cqmin}
+.tv-cm-mare{font-size:calc(3.9cqmin * var(--k));color:#9CC3D9}
+.tv.in-comb .tv-cm-tit{font-size:calc(5.2cqmin * var(--k))}`;
 function htmlTV(st) {
-  const h = s => esc(s);
-  if (!st || !st.campagna) return '<div class="tv"><div class="tv-c"><div class="tv-nulla">Nessuna campagna aperta</div></div></div>';
+  const h = s => esc(s), ang = '<i class="tv-ang a1"></i><i class="tv-ang a2"></i><i class="tv-ang a3"></i><i class="tv-ang a4"></i>';
+  const cornice = (corpo, cl = '') => `<div class="tv${cl}">${ang}<div class="tv-c">${corpo}</div></div>`;
+  if (!st || !st.campagna) return cornice('<div class="tv-nulla">Nessuna campagna aperta</div>');
+  const cm = st.cartaMeteo ? `<div class="tv-carta tv-cm"><span class="tv-lab">Meteo</span><div class="tv-cm-tit">${h(st.cartaMeteo.titolo)}</div>
+      ${st.cartaMeteo.effetti.map(e => `<div class="tv-cm-ef">${st.cartaMeteo.effetti.length > 1 || e.nome !== st.cartaMeteo.titolo ? `<b>${h(e.nome)}</b>` : ''}${h(e.testo)}</div>`).join('')}${st.cartaMeteo.mare ? `<div class="tv-cm-mare">${h(st.cartaMeteo.mare)}</div>` : ''}</div>` : '';
+  const piede = [st.data, st.cartaMeteo ? null : st.meteo].filter(Boolean).map(x => `<span>${h(x)}</span>`).join('');
   if (!st.combattimento) {
-    if (st.vuota) return '<div class="tv"><div class="tv-c"><div class="tv-nulla">Nessun combattimento</div></div></div>';
-    return `<div class="tv"><div class="tv-c"><div class="tv-quieto">${st.data ? `<div class="tv-data">${h(st.data)}</div>` : ''}${st.meteo ? `<div class="tv-meteo">${h(st.meteo)}</div>` : ''}</div></div></div>`;
+    if (st.vuota) return cornice('<div class="tv-nulla">Nessun combattimento</div>');
+    if (cm) return cornice(`${st.data ? `<div class="tv-tit lunga"><b>${h(st.data)}</b></div>` : ''}${cm}`);
+    return cornice(`<div class="tv-quieto"><div class="tv-orn">◆ ◆ ◆</div>${st.data ? `<div class="tv-data">${h(st.data)}</div>` : ''}${st.meteo ? `<div class="tv-meteo">${h(st.meteo)}</div>` : ''}<div class="tv-orn">◆ ◆ ◆</div></div>`);
   }
-  const v = x => `<span class="t-${x.tipo}${x.fuori ? ' fuori' : ''}">${h(x.nome)}</span>`;
+  const v = x => `<span class="tipo-${x.tipo}"><i class="tv-tipo"></i><span class="t-${x.tipo}${x.fuori ? ' fuori' : ''}">${h(x.nome)}</span></span>`;
   let sep = null; const pross = [], resto = [];
   for (const x of st.ordine) {
     if (x.separatore) { sep = x.round; continue; }
     if (x.livello === 'agisce') continue;
     const s = sep !== null ? `<span class="tv-sep">Round ${sep}</span>` : ''; sep = null;
-    if (x.livello === 'prossimo') pross.push(s + v(x)); else { if (s) resto.push(s); resto.push(v(x)); }
+    if (x.livello === 'prossimo') { if (s) pross.push(s); pross.push(`<div><span class="n">${pross.filter(p => p.startsWith('<div')).length + 2}</span>${v(x)}</div>`); }
+    else { if (s) resto.push(s); resto.push(v(x)); }
   }
   const tm = st.timer ? `<span class="tv-timer${st.timer.oltre ? ' oltre' : ''}">${h(st.timer.testo)}${st.timer.pausa ? '<span class="p">⏸ in pausa</span>' : ''}</span>` : '';
-  const piede = [st.data, st.meteo].filter(Boolean).map(x => `<span>${h(x)}</span>`).join('');
-  return `<div class="tv"><div class="tv-c"><div class="tv-round">Round ${st.round}</div>
-    <div class="tv-lab">Ora agisce</div><div class="tv-agisce">${st.agisce ? v(st.agisce) : '<span>—</span>'}${tm}</div>
-    ${pross.length ? `<div class="tv-lab">Prossimi</div><div class="tv-pross">${pross.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
-    ${resto.length ? `<div class="tv-resto">${resto.join('')}</div>` : ''}
-    ${st.attesa && st.attesa.length ? `<div class="tv-attesa">In attesa: ${st.attesa.map(h).join(', ')}</div>` : ''}
-    ${piede ? `<div class="tv-piede">${piede}</div>` : ''}</div></div>`;
+  return cornice(`<div class="tv-tit"><b>Round ${st.round}</b></div>
+    <div class="tv-carta"><span class="tv-lab">Ora agisce</span><div class="tv-agisce">${st.agisce ? v(st.agisce) : '<span>—</span>'}${tm}</div></div>
+    ${pross.length ? `<div class="tv-pross">${pross.join('')}</div>` : ''}
+    ${cm || (resto.length ? `<div class="tv-resto">${resto.join('')}</div>` : '')}
+    ${st.attesa && st.attesa.length ? `<div class="tv-attesa"><b>In attesa</b> ${st.attesa.map(h).join(', ')}</div>` : ''}
+    ${piede ? `<div class="tv-piede">${piede}</div>` : ''}`, ' in-comb');
+}
+// se il testo non ci sta (carta del meteo lunga, finestra piccola) si rimpicciolisce fino al 60%
+function adattaTV(radice) {
+  const tv = radice && radice.querySelector('.tv'), c = tv && tv.querySelector('.tv-c'); if (!c) return;
+  let k = 1; tv.style.setProperty('--k', k);
+  while (c.scrollHeight > c.clientHeight + 1 && k > 0.6) { k = Math.round((k - 0.05) * 100) / 100; tv.style.setProperty('--k', k); }
 }
 // stato della TV nella pagina: manuale = F9 o menu, valido fino al prossimo evento automatico (inizio o fine del combattimento, altra campagna)
-const TV = { manuale: null, campId: undefined, comb: null, visibile: false, modo: null, win: null, apertura: null, ultimo: '', ultimoDesk: '', chiudoIo: false };
-const RIQ_DEF = () => window.innerWidth < 600 ? { x: 8, y: window.innerHeight - 228, w: window.innerWidth - 16, h: 220 } : { x: window.innerWidth - 492, y: 72, w: 480, h: 270 };
+const TV = { meteo: false, manuale: null, campId: undefined, comb: null, visibile: false, modo: null, win: null, apertura: null, ultimo: '', ultimoDesk: '', chiudoIo: false };
+const RIQ_DEF = () => window.innerWidth < 600 ? { x: 8, y: window.innerHeight - 228, w: window.innerWidth - 16, h: 220 } : { x: window.innerWidth - 492, y: window.innerHeight - 282, w: 480, h: 270 };
 const Riq = (() => { let p = null; try { p = JSON.parse(leggiPref('tv-riquadro') || 'null'); } catch (e) { p = null; } return { pos: p && p.pos || null, bloccata: !!(p && p.bloccata), usa: leggiPref('tv-usa-riquadro') === '1' }; })();
 function salvaRiq() { scriviPref('tv-riquadro', JSON.stringify({ pos: Riq.pos, bloccata: Riq.bloccata })); }
 function campTV() { return S.schermata === 'campagne' ? null : S.camp; }
 function aggiornaTV() {
   if (ANDROID) return;
   const c = campTV(), id = c ? c.id : null, comb = !!(c && c.combattimento);
+  if (TV.campId !== id) TV.meteo = false;
   if (TV.campId !== id || TV.comb !== comb) { TV.manuale = null; TV.campId = id; TV.comb = comb; }
-  const st = M.statoTV(c, MET, Date.now()), vis = M.tvVisibile(st, c, TV.manuale), html = htmlTV(st);
+  const st = M.statoTV(c, MET, Date.now(), { meteo: TV.meteo }), vis = M.tvVisibile(st, c, TV.manuale), html = htmlTV(st);
   TV.visibile = vis;
   const b = $('#btn-tv'); if (b) b.classList.toggle('oro', vis);
+  const bm = $('#btn-meteo-tv'); if (bm) { bm.classList.toggle('oro', TV.meteo); bm.textContent = TV.meteo ? 'Togli dalla TV' : 'Sulla TV'; }
   if (TVDESK) { const k = JSON.stringify([vis, html, M.f10Attivo(c)]); if (k !== TV.ultimoDesk) { TV.ultimoDesk = k; TVDESK.stato({ visibile: vis, html, css: CSS_TV, f10: M.f10Attivo(c) }); } return; }
   if (vis) mostraWeb(html); else nascondiWeb();
 }
@@ -5868,7 +5912,7 @@ function corpoWeb() {
 }
 function mostraWeb(html) {
   const cor = corpoWeb();
-  if (cor) { if (TV.ultimo !== html) { cor.innerHTML = html; TV.ultimo = html; } return; }
+  if (cor) { if (TV.ultimo !== html) { cor.innerHTML = html; TV.ultimo = html; adattaTV(cor); } return; }
   if (TV.apertura) return;
   TV.apertura = apriWeb().then(() => { TV.apertura = null; TV.ultimo = ''; aggiornaTV(); }, () => { TV.apertura = null; });
 }
@@ -5883,6 +5927,7 @@ function preparaDocTV(w) {
   const s = d.createElement('style'); s.textContent = CSS_TV + 'html,body{margin:0;height:100%;background:#15120E}#tv-corpo{height:100%}'; d.head.appendChild(s);
   d.body.innerHTML = '<div id="tv-corpo"></div>';
   d.addEventListener('keydown', tastoTV);
+  w.addEventListener('resize', () => adattaTV(d.getElementById('tv-corpo')));
 }
 async function apriWeb() {
   if (Riq.usa) return apriRiquadro();
@@ -5918,7 +5963,7 @@ function attivaRiquadro(r) {
   barra.addEventListener('pointerdown', ev => { if (Riq.bloccata) return; tr = { x: ev.clientX, y: ev.clientY, l: r.offsetLeft, t: r.offsetTop }; barra.setPointerCapture(ev.pointerId); });
   barra.addEventListener('pointermove', ev => { if (!tr) return; r.style.left = Math.max(0, tr.l + ev.clientX - tr.x) + 'px'; r.style.top = Math.max(0, tr.t + ev.clientY - tr.y) + 'px'; });
   barra.addEventListener('pointerup', () => { if (!tr) return; tr = null; ricordaRiq(r); });
-  if (window.ResizeObserver) new ResizeObserver(() => { if (!r.hidden && TV.modo === 'riquadro') ricordaRiq(r); }).observe(r);
+  if (window.ResizeObserver) new ResizeObserver(() => { if (!r.hidden && TV.modo === 'riquadro') { ricordaRiq(r); adattaTV(r.querySelector('.tv-riq-corpo')); } }).observe(r);
 }
 function ricordaRiq(r) { const p = { x: r.offsetLeft, y: r.offsetTop, w: r.offsetWidth, h: r.offsetHeight }; if (p.w && p.h) { Riq.pos = p; salvaRiq(); } }
 function tastoTV(ev) {
@@ -5927,6 +5972,8 @@ function tastoTV(ev) {
   else if (ev.key === 'F10' && M.f10Attivo(campTV())) { ev.preventDefault(); prova(() => AZ.cmd({ dataset: { c: 'avanti' } })); }
 }
 function mostraNascondiTV() { TV.manuale = !TV.visibile; aggiornaTV(); }
+// carta del meteo sulla TV (richiesta di Massy, 02/11): tempo in vigore adesso con i suoi effetti, finché il GM non la toglie
+function meteoSullaTV() { TV.meteo = !TV.meteo; if (TV.meteo && !TV.visibile) TV.manuale = true; aggiornaTV(); avviso(TV.meteo ? 'Meteo sulla TV' : 'Meteo tolto dalla TV'); }
 document.addEventListener('keydown', tastoTV);
 if (TVDESK) {
   TVDESK.suTasto(k => { if (k === 'F9') mostraNascondiTV(); else if (k === 'F10' && M.f10Attivo(campTV())) prova(() => AZ.cmd({ dataset: { c: 'avanti' } })); });
@@ -5946,6 +5993,7 @@ async function finestraTV() {
         <button class="btn" type="button" data-tv="ripristina">Ripristina</button></div>
       ${!TVDESK ? '<p class="tenue piccolo">«Sposta sulla TV» c\'è solo nell\'app Windows.</p>' : info.schermi < 2 ? '<p class="tenue piccolo">Un solo schermo collegato.</p>' : ''}
       <label class="spunta"><input type="checkbox" name="blocca" ${info.bloccata ? 'checked' : ''}> Blocca posizione</label>
+      <label class="spunta"><input type="checkbox" name="meteo" ${TV.meteo ? 'checked' : ''}> Meteo sulla TV <span class="tenue piccolo">(tempo di adesso e i suoi effetti; anche dal pannello Meteo)</span></label>
       ${TVDESK ? '' : `<label class="spunta"><input type="checkbox" name="riq" ${Riq.usa ? 'checked' : ''}> Usa il riquadro <span class="tenue piccolo">(al posto del Picture-in-Picture)</span></label>`}`,
     dopo: el => {
       el.addEventListener('click', async ev => { const b = ev.target.closest('[data-tv]'); if (!b) return;
@@ -5958,6 +6006,7 @@ async function finestraTV() {
         } catch (e) { avviso(e.message, true); } });
       el.addEventListener('change', async ev => {
         if (ev.target.name === 'blocca') { if (TVDESK) await TVDESK.comando(ev.target.checked ? 'blocca' : 'sblocca'); else { Riq.bloccata = ev.target.checked; salvaRiq(); const r = $('#tv-riquadro'); if (r) r.classList.toggle('bloccata', Riq.bloccata); } }
+        if (ev.target.name === 'meteo' && ev.target.checked !== TV.meteo) meteoSullaTV();
         if (ev.target.name === 'riq') { Riq.usa = ev.target.checked; scriviPref('tv-usa-riquadro', Riq.usa ? '1' : ''); if (TV.visibile) { nascondiWeb(); aggiornaTV(); } }
       });
     } });
@@ -5969,7 +6018,7 @@ function finestraNomeTv(id) {
       <label class="campo"><span>Nome TV</span><input type="text" name="n" value="${esc(r.nomeTv || '')}" placeholder="es. Figura incappucciata"></label>`,
     azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => applica(M.comando(S.camp, 'nomeTv', { id, nomeTv: testo(f, 'n') }, MET, rng, Date.now())) }] });
 }
-Object.assign(AZ, { menuTV() { return finestraTV(); }, nomeTv(el) { finestraNomeTv(el.dataset.id); } });
+Object.assign(AZ, { menuTV() { return finestraTV(); }, nomeTv(el) { finestraNomeTv(el.dataset.id); }, meteoTV() { meteoSullaTV(); } });
 
 // ================================================================= avvio
 async function ricaricaElenco() {

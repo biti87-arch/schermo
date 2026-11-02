@@ -1499,6 +1499,22 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_buil
   // AD3 F10 solo in combattimento con l'impostazione accesa
   t('AD3 F10 spento di default', !M.f10Attivo(k)); k.impostazioni.f10 = true; t('AD3 F10 acceso in combattimento', M.f10Attivo(k));
   t('AD3 F10 fuori dal combattimento non fa nulla', !M.f10Attivo({ ...c, impostazioni: { ...c.impostazioni, f10: true } }));
+  // AD9 carta del meteo sulla TV (tempo in vigore adesso e i suoi effetti)
+  { let w = M.impostaMeteo(M.clona(c), meteo, 'Pioggia battente', rng); w.impostazioni.tv_ora = false; w.impostazioni.tv_meteo = false;
+    let s0 = M.statoTV(w, meteo, 0, { meteo: true });
+    t('AD9 fuori combattimento: carta del meteo con l\'effetto', s0.cartaMeteo && s0.cartaMeteo.titolo === 'Pioggia battente' && s0.cartaMeteo.effetti.length === 1 && s0.cartaMeteo.effetti[0].testo === meteo.effetti['Pioggia battente'], s0.cartaMeteo);
+    t('AD9 con la carta la TV non è vuota (si mostra con «Solo durante…» spento)', !s0.vuota && M.tvVisibile(s0, { ...w, impostazioni: { ...w.impostazioni, tv_solo_combattimento: false } }, null));
+    t('AD9 senza la richiesta niente carta', M.statoTV(w, meteo, 0).cartaMeteo === null);
+    const wk = M.avviaCombattimento(w, [{ tipo: 'pg', pgId: A, totale: 20 }], rng, 0); const s1 = M.statoTV(wk, meteo, 0, { meteo: true });
+    t('AD9 in combattimento: carta e iniziativa insieme', s1.cartaMeteo && s1.agisce && s1.round === 1); }
+  { // più effetti insieme: una riga con due voci di effetti diversi, in una zona qualsiasi
+    let trovata = null;
+    for (const z of Object.keys(meteo.tabelle)) for (const [sz, righe] of Object.entries(meteo.tabelle[z])) for (const r of righe)
+      if (!trovata && / \+ /.test(r.testo) && new Set(r.testo.split(' + ').map(v => meteo.voci[v])).size === 2) trovata = { z, sz, r };
+    let w = M.cambiaZona(M.clona(c), meteo, trovata.z); const mesi = { primavera: 3, estate: 6, autunno: 9, inverno: 0, 'primavera-estate': 5, 'autunno-inverno': 11 };
+    w = M.vaiA(w, M.tempoAssoluto(w, M.scomponi(w).anno + 1, mesi[trovata.sz] ?? 3, 15) + 12 * M.ROUND_ORA, meteo, rng);
+    if (M.stagione(w, meteo, w.tempo.R) === trovata.sz) { w = M.impostaMeteo(w, meteo, trovata.r.testo, rng); const x = M.cartaMeteoTV(w, meteo);
+      t('AD9 più effetti: uno per voce, con il nome', x.effetti.length >= 1 && x.effetti.every(e => e.nome && e.testo), [trovata.r.testo, x]); } else ok++; }
   t('AD1 nessuna campagna: niente da mostrare', M.statoTV(null).vuota && !M.tvVisibile(M.statoTV(null), null, null)); }
 
 console.log(`test: ${ok} superati, ${ko} falliti`);

@@ -40,6 +40,9 @@ with sync_playwright() as p:
     # F10 acceso: il processo principale lo registra; Avanti via il ponte
     main.click('[data-az="impostazioni"]'); main.locator('.velo').last.locator('[name="f10"]').check(); main.locator('.velo').last.locator('footer button', has_text='Salva').click()
     main.click('[data-az="impostazioni"]'); t('versione nelle Impostazioni', 'Versione win-1.0.0' in main.locator('.velo').last.inner_text()); main.locator('.velo').last.locator('footer button', has_text='Annulla').click()
+    main.click('[data-az="scheda"][data-s="viaggio"]'); main.click('#btn-meteo-tv'); main.wait_for_timeout(500)
+    t('carta del meteo nella finestra TV', tv.locator('.tv-cm').count() == 1 and tv.locator('.tv-ang').count() == 4)
+    main.click('#btn-meteo-tv'); main.wait_for_timeout(500); t('meteo tolto dalla finestra TV', tv.locator('.tv-cm').count() == 0)
     main.click('[data-az="fineComb"]'); main.locator('.velo').last.locator('footer button', has_text='Chiudi il combattimento').click(); main.wait_for_timeout(600)
     t('a fine combattimento si nasconde', not info()['visibile'])
     t('nessun errore nelle pagine', not err, err[:3])

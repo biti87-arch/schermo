@@ -3314,13 +3314,22 @@ function stallaggio(camp, ids) {
 // AD1, AD2: nome sulla TV (nome per i giocatori, «×N» se l'impostazione è accesa)
 function nomeTvDi(r, imp) { const base = r.nomeTv || r.nome; return r.n > 1 && (!imp || imp.tv_xn !== false) ? `${base} ×${r.n}` : base; }
 // AD1, AD4: tutto ciò che la TV mostra (mai PF, malus, condizioni, tattiche, nomi veri)
-function statoTV(camp, meteo, oraReale) {
+// opz.meteo: carta del meteo chiesta dal GM («Sulla TV» nel pannello Meteo): tempo in vigore adesso e i suoi effetti
+function cartaMeteoTV(camp, meteo) {
+  let m = null; try { m = meteoCorrente(camp, meteo); } catch (e) { m = null; }
+  if (!m) return null;
+  const voci = m.ora && m.ora.length ? m.ora : m.voci;
+  return { titolo: voci.join(' + '), effetti: effettiMeteo(meteo, voci).map(e => ({ nome: e.nome, testo: e.testo })),
+    mare: m.mare ? `Mare ${m.mare.stato.toLowerCase()} · Nuotare CD ${m.mare.nuotare}` : null };
+}
+function statoTV(camp, meteo, oraReale, opz) {
   if (!camp) return { campagna: null, combattimento: false, data: null, meteo: null, vuota: true };
   const imp = { ...IMPOSTAZIONI, ...(camp.impostazioni || {}) }, cb = camp.combattimento;
   let met = null;
   if (imp.tv_meteo && meteo) { try { const m = meteoCorrente(camp, meteo); if (m) met = (m.ora && m.ora.length ? m.ora : m.voci).join(' + '); } catch (e) { met = null; } }
-  const st = { campagna: camp.nome, combattimento: !!cb, data: imp.tv_ora ? formatoData(camp) : null, meteo: met, vuota: false };
-  if (!cb) { st.vuota = !st.data && !st.meteo; return st; }
+  const st = { campagna: camp.nome, combattimento: !!cb, data: imp.tv_ora ? formatoData(camp) : null, meteo: met, vuota: false,
+    cartaMeteo: opz && opz.meteo && meteo ? cartaMeteoTV(camp, meteo) : null };
+  if (!cb) { st.vuota = !st.data && !st.meteo && !st.cartaMeteo; return st; }
   const n = cb.ordine.length, visibile = r => r && !r.nascosta && !(r.stato === 'fuori' && imp.tv_fuori === 'tolte');
   const agibile = r => visibile(r) && r.stato !== 'fuori';
   const tipo = r => r.tipo === 'pg' ? 'pg' : r.alleato ? 'alleato' : 'nemico';
@@ -3385,6 +3394,6 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
   avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
   trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
-  nomeTvDi, statoTV, tvVisibile, f10Attivo };
+  nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
