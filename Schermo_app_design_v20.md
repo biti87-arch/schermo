@@ -39,7 +39,7 @@
 *v19 (02/11/2026): decisioni della **Build 4** (finestra TV, icona, primo rilascio) confermate da Massy in chat, passi 1–7 (sezione AD): contenuto della TV anche fuori dal combattimento, turno di una nascosta che non si vede, nome per i giocatori e «nascosti» anche nei rinforzi e negli incontri casuali, comando «Nome TV…», menu TV con F9 e F10 (F10 solo in combattimento), posizione in `tv.json`, timer solo nei turni dei PG e degli alleati, versione web con Picture-in-Picture → finestra → riquadro, icona con lo schermo a tre ante e il d20, primo rilascio `v1.0.1` / `win-1.0.1` dopo il via di Massy. Sezioni L, K5, U, V2, V9, V10 e X aggiornate. Codice, test e pagina di prova fatti: scelte di applicazione nella sezione Z4. Dopo la prima prova di Massy: aspetto nuovo della TV (AD8) e meteo con i suoi effetti sulla TV (AD9). Rilasci `v1.0.1` / `win-1.0.1` e, dopo la prova sul secondo schermo (testo che si adatta alla finestra), **`v1.0.2` / `win-1.0.2`**, provati da Massy: **Build 4 chiusa**.*
 
 
-*v20 (03/11/2026): richieste di Massy dopo l'uso della `v1.0.2`, confermate in chat: **colonne che scorrono da sole** sul PC (sezione AE) e **bestiario dalla pagina iniziale** con «Esporta bestiario» a caselle e l'importazione dei PNG delle campagne (sezione AF). Build 4b, rilascio `v1.0.3` / `win-1.0.3` dopo la pagina di prova.*
+*v20 (03/11/2026): richieste di Massy dopo l'uso della `v1.0.2`, confermate in chat: **colonne che scorrono da sole** sul PC (sezione AE) e **bestiario dalla pagina iniziale** con «Esporta bestiario» a caselle e l'importazione dei PNG delle campagne (sezione AF). Build 4b, pagina di prova confermata il 03/11 (Z5), rilascio `v1.0.3` / `win-1.0.3`.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -80,7 +80,7 @@
 | Passo 11.8 — Aspetto della TV e meteo sulla TV (AD8, AD9; dopo la prima prova) | ✅ 02/11 |
 | Passo 12.1 — Colonne che scorrono da sole (AE) | ✅ 03/11 |
 | Passo 12.2 — Bestiario dalla pagina iniziale, esportazione e importazione (AF) | ✅ 03/11 |
-| Build 4b — Colonne e bestiario (AE, AF) | ⬜ codice fatto, pagina di prova pubblicata (artifact v17), scelte Z5 da confermare; poi `v1.0.3` / `win-1.0.3` |
+| Build 4b — Colonne e bestiario (AE, AF) | ✅ pagina di prova confermata il 03/11 (artifact v17, Z5-1…Z5-7); rilascio `v1.0.3` / `win-1.0.3` |
 | Build 4 — Finestra TV in Electron, icona, primo rilascio APK e Windows | ✅ pagina di prova confermata il 02/11 (Z4-1…Z4-14, AD8, AD9); rilasci `v1.0.1` / `win-1.0.1` (commit `714317b`) e `v1.0.2` / `win-1.0.2` (commit `0af5b65`, testo della TV che si adatta), provati da Massy il 02/11 |
 
 Una chat per fase. Ogni build finisce con la pagina di prova (artifact) confermata da Massy; le versioni native solo dopo la conferma della Build 4.
@@ -579,7 +579,7 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - Build 3a: confermata il 01/11 (Z3a-1…Z3a-15); sorgenti nel ramo `sviluppo` (commit `018f06c`), nessuna build.
 - Build 3b: chiusa il 02/11 (AC1–AC10, Z3b confermate). Prossima: Build 4 (finestra TV in Electron, icona, primo rilascio).
 - Build 4: chiusa il 02/11 (AD1–AD9, Z4-1…Z4-14); release `v1.0.2` / `win-1.0.2` provate da Massy («va tutto bene»). L'app è completa: nuove richieste in una chat nuova, partendo dal ramo `sviluppo` (commit `0af5b65`, uguale a `main`).
-- Build 4b (AE, AF): decisioni confermate il 03/11; codice e pagina di prova fatti (artifact v17), scelte Z5 da confermare, poi rilascio `v1.0.3` / `win-1.0.3`.
+- Build 4b (AE, AF): confermata il 03/11 (Z5-1…Z5-7, «funziona bene»); rilascio `v1.0.3` / `win-1.0.3`.
 - Repo: il ramo predefinito è ancora `sviluppo`; da impostare a `main` nelle impostazioni del repo (a cura di Massy).
 - Guida del DM, divergenze con il Vol. 3 e refusi (AC1-3, AC1-4, AC7-1): da correggere nella Guida se si aggiorna.
 - Tabelle del Tempo Atmosferico v1.0, effetto «Tormenta»: il testo dice «Fiamme: come con il Vento molto forte», ma vale la tabella delle Fiamme (spegne anche la lanterna impermeabile; Massy, 01/11): da correggere nella prossima versione delle Tabelle.
@@ -991,7 +991,7 @@ Prima: «Esporta tutto» esportava già campagne e bestiario condiviso (i PNG de
 - **Interfaccia**: colonne che scorrono da sole sul PC (AE) con la posizione ripresa dopo ogni azione e per scheda nella terza colonna; pagina «Bestiario» dalla pagina iniziale, «Esporta bestiario» a caselle (pagina iniziale, pagina Bestiario, scheda Bestiario di una campagna), destinazione dei PNG delle campagne all'importazione.
 - **Prove**: pagina 727 controlli a 1366 e 390 px (42 nuovi), prova dell'app Windows 22 controlli; pagina di prova sullo stesso artifact (versione 17).
 
-### Scelte di applicazione (da confermare sulla pagina di prova)
+### Scelte di applicazione (confermate da Massy il 03/11)
 - **Z5-1** Lo spazio delle colonne è l'altezza della finestra meno la testata, misurata a ogni ridisegno (la testata si allunga quando c'è la coda delle cose da fare); la barra di scorrimento delle colonne è sottile.
 - **Z5-2** La posizione ripresa vale finché resti nella stessa campagna; aprendo un'altra campagna (o la stessa da capo) le colonne ripartono dall'alto.
 - **Z5-3** Pagina Bestiario: elenco a sinistra e stat block a destra (sotto i 900 px uno sotto l'altro, e toccando una scheda la pagina scende allo stat block); in testa «Importa», «Esporta bestiario» e «+ Scheda».
