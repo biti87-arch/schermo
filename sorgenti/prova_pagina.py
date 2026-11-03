@@ -1033,10 +1033,88 @@ def prova4adatta(browser):
     t('[adatta] AD8 nome e meteo dentro la cornice a 10 dimensioni × 4 nomi × con e senza meteo', cattivi == 0, cattivi)
     ctx.close()
 
+def prova4b(browser, larghezza):
+    """Build 4b: colonne che scorrono da sole (AE) e bestiario dalla pagina iniziale (AF)."""
+    ctx = browser.new_context(viewport={'width': larghezza, 'height': 820 if larghezza > 500 else 780})
+    pg = ctx.new_page(); errori = []
+    pg.on('console', lambda m: m.type == 'error' and errori.append(m.text))
+    pg.on('pageerror', lambda e: errori.append(str(e)))
+    pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna')
+    W = f'[{larghezza} 4b]'
+    def fin(): return pg.locator('.velo').last
+    def premi(testo): fin().locator('footer button', has_text=re.compile('^' + testo + '$')).click()
+    def largo(nome):
+        sw = pg.evaluate('document.documentElement.scrollWidth'); t(f'{W} niente scorrimento orizzontale: {nome}', sw <= larghezza, sw)
+    def col(i): return f'document.querySelectorAll(".colonne > .col")[{i}]'
+    pg.click('text=Carica una campagna d\'esempio'); pg.wait_for_timeout(300)
+    pg.locator('.camp', has_text='esempio').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+    # ---------- AE
+    if larghezza >= 900:
+        t(f'{W} AE la pagina non scorre, scorrono le colonne', pg.evaluate('document.scrollingElement.scrollHeight <= innerHeight + 1') and pg.evaluate(f'getComputedStyle({col(0)}).overflowY') == 'auto')
+        t(f'{W} AE il Tavolo ha più contenuto della sua altezza', pg.evaluate(f'{col(0)}.scrollHeight > {col(0)}.clientHeight'))
+        s0 = pg.evaluate(f'Math.min(300, Math.floor(({col(0)}.scrollHeight - {col(0)}.clientHeight) / 2))'); pg.evaluate(f'{col(0)}.scrollTop = {s0}')
+        t(f'{W} AE scorrere il Tavolo non muove le altre colonne', s0 > 20 and pg.evaluate(f'[{col(0)}.scrollTop, {col(1)}.scrollTop, {col(2)}.scrollTop]') == [s0, 0, 0], s0)
+        tc = pg.evaluate(f'{col(0)}.querySelector(".col-testa").getBoundingClientRect().top - {col(0)}.getBoundingClientRect().top')
+        t(f'{W} AE il titolo «Tavolo» resta in cima', abs(tc) <= 3, tc)
+        t(f'{W} AE la testata resta ferma', pg.evaluate('document.querySelector("header.testa").getBoundingClientRect().top') >= 0)
+        pg.click('[data-az="tempo"][data-r="1"]'); pg.wait_for_timeout(150)
+        t(f'{W} AE dopo un\'azione il Tavolo resta dove era', pg.evaluate(f'{col(0)}.scrollTop') == s0, pg.evaluate(f'{col(0)}.scrollTop'))
+        pg.click('[data-az="scheda"][data-s="prontuario"]'); pg.wait_for_timeout(150)
+        pg.evaluate(f'{col(2)}.scrollTop = 400'); pg.wait_for_timeout(50); pr = pg.evaluate(f'{col(2)}.scrollTop')
+        pg.click('[data-az="scheda"][data-s="log"]'); pg.wait_for_timeout(150)
+        t(f'{W} AE il Log parte dalla sua posizione', pg.evaluate(f'{col(2)}.scrollTop') == 0)
+        pg.click('[data-az="scheda"][data-s="prontuario"]'); pg.wait_for_timeout(150)
+        t(f'{W} AE il Prontuario ritrova la sua posizione', pr > 0 and pg.evaluate(f'{col(2)}.scrollTop') == pr, [pr, pg.evaluate(f'{col(2)}.scrollTop')])
+        t(f'{W} AE le schede della terza colonna restano in cima', abs(pg.evaluate(f'{col(2)}.querySelector(".schede").getBoundingClientRect().top - {col(2)}.getBoundingClientRect().top')) <= 3)
+        pg.click('[data-az="scheda"][data-s="viaggio"]')
+    else:
+        t(f'{W} AE finestra stretta: scorre tutta la pagina', pg.evaluate('document.scrollingElement.scrollHeight > innerHeight') and pg.evaluate(f'getComputedStyle({col(0)}).overflowY') == 'visible')
+    largo('colonne')
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'colonne_{larghezza}.png'), full_page=False)
+    # ---------- AF: bestiario dalla pagina iniziale
+    pg.click('[data-az="campagne"]'); pg.wait_for_selector('text=Crea Schermo campagna')
+    t(f'{W} AE fuori dalla campagna la pagina torna normale', not pg.evaluate('document.documentElement.classList.contains("a-colonne")'))
+    pg.click('[data-az="bestiarioHome"]'); pg.wait_for_selector('.best-home')
+    t(f'{W} AF Bestiario dalla pagina iniziale', pg.locator('.titolo-app h1', has_text='Bestiario').count() == 1 and pg.locator('[data-az="bestFonte"]', has_text='PNG delle campagne').count() == 1)
+    pg.click('[data-az="bestFonte"][data-f="mostro"]'); pg.locator('#best-lista [data-az="vediScheda"]').first.click(); pg.wait_for_timeout(100)
+    t(f'{W} AF mostro: stat block, Modifica, niente «In un incontro» né «+ Al combattimento»', pg.locator('#best-vista .sb').count() == 1 and pg.locator('#best-vista [data-az="modificaScheda"]').count() == 1 and pg.locator('#best-vista [data-az="schedaInIncontro"]').count() == 0 and pg.locator('#best-vista [data-az="schedaRinforzi"]').count() == 0)
+    pg.click('#best-vista [data-az="modificaScheda"]'); t(f'{W} AF modifica di un mostro dalla pagina iniziale', pg.locator('.velo').count() == 1); premi('Annulla') if fin().locator('footer button', has_text=re.compile('^Annulla$')).count() else pg.keyboard.press('Escape')
+    pg.click('[data-az="bestFonte"][data-f="png"]'); pg.wait_for_timeout(100)
+    t(f'{W} AF PNG delle campagne: menu della campagna, niente «+ Scheda»', pg.locator('[data-az-cambio="bestCamp"]').count() == 1 and pg.locator('.best-home [data-az="nuovaScheda"]').count() == 0)
+    pg.locator('#best-lista [data-az="vediScheda"]').first.click(); pg.wait_for_timeout(100)
+    nome_png = pg.inner_text('#best-vista h3')
+    t(f'{W} AF PNG in sola lettura con «Apri la campagna»', pg.locator('#best-vista [data-az="apriDaBest"]').count() == 1 and pg.locator('#best-vista [data-az="modificaScheda"]').count() == 0 and pg.locator('#best-vista [data-az="eliminaScheda"]').count() == 0 and pg.locator('#best-vista button[data-az="preferito"]').count() == 0)
+    pg.click('#best-vista [data-az="copiaAltrove"]')
+    t(f'{W} AF «Copia in…» da un PNG: solo nelle raccolte condivise', fin().locator('[name="d"] option').count() == 2 and fin().locator('[name="d"] option[value="png"]').count() == 0); premi('Annulla')
+    largo('Bestiario della pagina iniziale')
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'bestiario_home_{larghezza}.png'), full_page=False)
+    # esporta e importa
+    pg.click('.titolo-app [data-az="esportaBest"]'); pg.wait_for_timeout(300); f = fin()
+    t(f'{W} AF Esporta bestiario: caselle', f.locator('[name="mostri"]').is_checked() and f.locator('input[name^="c_"]').count() >= 1 and (f.locator('[name="generici"]').is_checked() or f.locator('[name="generici"]').is_disabled()))
+    for n in ('mostri', 'generici'):
+        if f.locator(f'[name="{n}"]').is_enabled(): f.locator(f'[name="{n}"]').uncheck()
+    f.locator('input[name^="c_"]').first.check(); premi('Esporta'); pg.wait_for_timeout(200)
+    testo = fin().locator('[name="t"]').input_value(); premi('Chiudi')
+    import json as _j
+    d = _j.loads(testo)['dati']
+    t(f'{W} AF il file ha solo i PNG della campagna scelta', 'mostri' not in d and 'generici' not in d and len(d['png']) == 1 and any(s['nome'] == nome_png for s in d['png'][0]['schede']))
+    ng = pg.evaluate('Best.generici.length')
+    pg.click('.titolo-app [data-az="importa"]'); fin().locator('[name="t"]').fill(testo); premi('Importa'); pg.wait_for_timeout(300)
+    t(f'{W} AF Importa: si sceglie dove vanno i PNG (la stessa campagna proposta)', 'PNG delle campagne' in fin().inner_text() and fin().locator('select[name="d0"]').input_value() != 'generico')
+    fin().locator('select[name="d0"]').select_option('generico'); premi('Importa'); pg.wait_for_timeout(400)
+    t(f'{W} AF PNG della campagna importati nei PNG generici', pg.evaluate('Best.generici.length') == ng + len(d['png'][0]['schede']) and 'PNG delle campagne' in pg.inner_text('#avviso'), [ng, pg.evaluate('Best.generici.length')])
+    pg.click('.titolo-app [data-az="importa"]'); fin().locator('[name="t"]').fill(testo); premi('Importa'); pg.wait_for_timeout(300); premi('Importa'); pg.wait_for_timeout(400)
+    t(f'{W} AF di nuovo nella stessa campagna: niente doppioni', '0 nuovi' in pg.inner_text('#avviso'), pg.inner_text('#avviso'))
+    # apri la campagna dal PNG
+    pg.click('[data-az="bestFonte"][data-f="png"]'); pg.locator('#best-lista [data-az="vediScheda"]', has_text=nome_png).first.click(); pg.click('#best-vista [data-az="apriDaBest"]'); pg.wait_for_selector('.pg')
+    t(f'{W} AF «Apri la campagna» apre il PNG nella terza colonna', nome_png in pg.inner_text('#col-terza') and pg.locator('#col-terza [data-az="modificaScheda"]').count() == 1)
+    t(f'{W} nessun errore in console', not errori, errori[:3])
+    ctx.close()
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (1366, 390):
-        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4):
+        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4, prova4b):
             try: f(b, w)
             except Exception as e: ko += 1; print('ERRORE', w, f.__name__, 'interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
     try: prova4web(b); prova4adatta(b)

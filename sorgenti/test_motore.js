@@ -1517,5 +1517,26 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_buil
       t('AD9 più effetti: uno per voce, con il nome', x.effetti.length >= 1 && x.effetti.every(e => e.nome && e.testo), [trovata.r.testo, x]); } else ok++; }
   t('AD1 nessuna campagna: niente da mostrare', M.statoTV(null).vuota && !M.tvVisibile(M.statoTV(null), null, null)); }
 
+// ================================================================ Build 4b: bestiario (sezione AF)
+{ const s = (id, nome) => ({ ...M.schedaVuota('png'), id, nome });
+  const best = { mostri: [s('m1', 'Lupo')], generici: [s('g1', 'Guardia'), s('g2', 'Bandito')] };
+  const campi = [{ id: 'cA', nome: 'Alfa', png: [s('p1', 'Mira'), s('p2', 'Tobia')] }, { id: 'cB', nome: 'Beta', png: [] }];
+  lancia('AF niente scelto', () => M.esportaBestiario(best, campi, { mostri: false, generici: false, campagne: [] }), 'almeno');
+  let f = M.esportaBestiario(best, campi, { mostri: true, generici: false, campagne: ['cA', 'cB'] }), j = JSON.parse(f);
+  t('AF esporta solo le raccolte scelte (campagne senza PNG saltate)', j.tipo === 'bestiario' && j.dati.mostri.length === 1 && !j.dati.generici && j.dati.png.length === 1 && j.dati.png[0].campagna.nome === 'Alfa' && j.dati.png[0].schede.length === 2);
+  let r = M.importa(f);
+  t('AF importa: mostri e PNG della campagna', r.tipo === 'bestiario' && r.mostri.length === 1 && r.generici.length === 0 && r.png.length === 1 && r.png[0].campagna.id === 'cA');
+  r = M.importa(M.esporta({ mostri: best.mostri, generici: best.generici }, 'bestiario'));
+  t('AF file vecchio di solo bestiario: come prima, senza PNG delle campagne', r.mostri.length === 1 && r.generici.length === 2 && r.png.length === 0);
+  const bad = JSON.parse(f); bad.dati.png[0].schede[0] = { nome: 'senza id' };
+  lancia('AF PNG non validi', () => M.importa(JSON.stringify(bad)), 'PNG delle campagne');
+  let c = M.clona(c1); c.png = [s('p1', 'Mira')];
+  let x = M.importaPNG(c, campi[0].png, rng, 5);
+  t('AF importaPNG: uguale salta, mancante entra', x.camp.png.length === 2 && x.aggiunti === 1 && x.copie === 0 && x.camp.log.some(e => /PNG importati: 1 nuovi/.test(e.testo)));
+  const diverso = [{ ...s('p1', 'Mira'), ca: 17 }];
+  x = M.importaPNG(x.camp, diverso, rng, 6);
+  t('AF importaPNG: stesso id ma diverso → copia «(importato)»', x.copie === 1 && x.camp.png.some(p => p.nome === 'Mira (importato)' && p.id !== 'p1'));
+  const g = M.unisciMostri(best.generici, campi[0].png, rng, 7, false, 'g');
+  t('AF PNG di una campagna nei PNG generici', g.lista.length === 4 && g.aggiunti === 2); }
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

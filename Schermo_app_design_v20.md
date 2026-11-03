@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v19
+# Schermo del Narratore — design dell'app v20
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -36,8 +36,10 @@
 
 *v18 (01/11/2026, notte): decisioni della **Build 3b** (Prontuario e incontri casuali) confermate da Massy in chat, passi 1–5 (sezione AC): fonti in ordine volume > Tabelle del Tempo > Guida, Abilità e Conoscenze come nel Vol. 1, Cure e recupero con il riposo totale e le Professioni cerusico ed erborista (medicinali ed erbe miste), calcolatore di marcia con marcia forzata e Orientarsi, incontri casuali per area ogni 6 ore di marcia, Pericoli con Cadere e Trattenere il fiato, Meteo consultabile, Riparare e Locanda del Vol. 3. Codice, test e pagina di prova confermati da Massy il 02/11 (Z3b).*
 
-*v19 (02/11/2026): decisioni della **Build 4** (finestra TV, icona, primo rilascio) confermate da Massy in chat, passi 1–7 (sezione AD): contenuto della TV anche fuori dal combattimento, turno di una nascosta che non si vede, nome per i giocatori e «nascosti» anche nei rinforzi e negli incontri casuali, comando «Nome TV…», menu TV con F9 e F10 (F10 solo in combattimento), posizione in `tv.json`, timer solo nei turni dei PG e degli alleati, versione web con Picture-in-Picture → finestra → riquadro, icona con lo schermo a tre ante e il d20, primo rilascio `v1.0.1` / `win-1.0.1` dopo il via di Massy. Sezioni L, K5, U, V2, V9, V10 e X aggiornate. Codice, test e pagina di prova fatti: scelte di applicazione nella sezione Z4. Dopo la prima prova di Massy: aspetto nuovo della TV (AD8) e meteo con i suoi effetti sulla TV (AD9).*
+*v19 (02/11/2026): decisioni della **Build 4** (finestra TV, icona, primo rilascio) confermate da Massy in chat, passi 1–7 (sezione AD): contenuto della TV anche fuori dal combattimento, turno di una nascosta che non si vede, nome per i giocatori e «nascosti» anche nei rinforzi e negli incontri casuali, comando «Nome TV…», menu TV con F9 e F10 (F10 solo in combattimento), posizione in `tv.json`, timer solo nei turni dei PG e degli alleati, versione web con Picture-in-Picture → finestra → riquadro, icona con lo schermo a tre ante e il d20, primo rilascio `v1.0.1` / `win-1.0.1` dopo il via di Massy. Sezioni L, K5, U, V2, V9, V10 e X aggiornate. Codice, test e pagina di prova fatti: scelte di applicazione nella sezione Z4. Dopo la prima prova di Massy: aspetto nuovo della TV (AD8) e meteo con i suoi effetti sulla TV (AD9). Rilasci `v1.0.1` / `win-1.0.1` e, dopo la prova sul secondo schermo (testo che si adatta alla finestra), **`v1.0.2` / `win-1.0.2`**, provati da Massy: **Build 4 chiusa**.*
 
+
+*v20 (03/11/2026): richieste di Massy dopo l'uso della `v1.0.2`, confermate in chat: **colonne che scorrono da sole** sul PC (sezione AE) e **bestiario dalla pagina iniziale** con «Esporta bestiario» a caselle e l'importazione dei PNG delle campagne (sezione AF). Build 4b, rilascio `v1.0.3` / `win-1.0.3` dopo la pagina di prova.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -76,7 +78,10 @@
 | Passo 11.6 — Icona (AD6) | ✅ 02/11 |
 | Passo 11.7 — Numeri di versione del primo rilascio (AD7) | ✅ 02/11 |
 | Passo 11.8 — Aspetto della TV e meteo sulla TV (AD8, AD9; dopo la prima prova) | ✅ 02/11 |
-| Build 4 — Finestra TV in Electron, icona, primo rilascio APK e Windows | ⬜ pagina di prova confermata il 02/11 (artifact v15, Z4-1…Z4-13, AD8, AD9); push su `sviluppo`; da fare: `main` dopo il via di Massy e prova di APK e Windows |
+| Passo 12.1 — Colonne che scorrono da sole (AE) | ✅ 03/11 |
+| Passo 12.2 — Bestiario dalla pagina iniziale, esportazione e importazione (AF) | ✅ 03/11 |
+| Build 4b — Colonne e bestiario (AE, AF) | ⬜ codice fatto, pagina di prova pubblicata (artifact v17), scelte Z5 da confermare; poi `v1.0.3` / `win-1.0.3` |
+| Build 4 — Finestra TV in Electron, icona, primo rilascio APK e Windows | ✅ pagina di prova confermata il 02/11 (Z4-1…Z4-14, AD8, AD9); rilasci `v1.0.1` / `win-1.0.1` (commit `714317b`) e `v1.0.2` / `win-1.0.2` (commit `0af5b65`, testo della TV che si adatta), provati da Massy il 02/11 |
 
 Una chat per fase. Ogni build finisce con la pagina di prova (artifact) confermata da Massy; le versioni native solo dopo la conferma della Build 4.
 
@@ -573,7 +578,9 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - Build 2c: confermata il 01/11 (Z2c-1…Z2c-26); sorgenti nel ramo `sviluppo` (commit `767bed6`), nessuna build.
 - Build 3a: confermata il 01/11 (Z3a-1…Z3a-15); sorgenti nel ramo `sviluppo` (commit `018f06c`), nessuna build.
 - Build 3b: chiusa il 02/11 (AC1–AC10, Z3b confermate). Prossima: Build 4 (finestra TV in Electron, icona, primo rilascio).
-- Build 4: decisioni AD1–AD9 e scelte Z4-1…Z4-13 confermate il 02/11 sulla pagina di prova (artifact v15); push sul ramo `sviluppo`. Da fare: `main` (release `v1.0.1` / `win-1.0.1`) dopo il via di Massy e la sua prova di APK e Windows.
+- Build 4: chiusa il 02/11 (AD1–AD9, Z4-1…Z4-14); release `v1.0.2` / `win-1.0.2` provate da Massy («va tutto bene»). L'app è completa: nuove richieste in una chat nuova, partendo dal ramo `sviluppo` (commit `0af5b65`, uguale a `main`).
+- Build 4b (AE, AF): decisioni confermate il 03/11; codice e pagina di prova fatti (artifact v17), scelte Z5 da confermare, poi rilascio `v1.0.3` / `win-1.0.3`.
+- Repo: il ramo predefinito è ancora `sviluppo`; da impostare a `main` nelle impostazioni del repo (a cura di Massy).
 - Guida del DM, divergenze con il Vol. 3 e refusi (AC1-3, AC1-4, AC7-1): da correggere nella Guida se si aggiorna.
 - Tabelle del Tempo Atmosferico v1.0, effetto «Tormenta»: il testo dice «Fiamme: come con il Vento molto forte», ma vale la tabella delle Fiamme (spegne anche la lanterna impermeabile; Massy, 01/11): da correggere nella prossima versione delle Tabelle.
 - Stat block dei documenti d'avventura (segnalazioni dell'app, nessuna correzione fatta: i documenti della campagna non si toccano da qui): 7 da correggere e 25 da verificare, elenco in `Schermo_build2b_segnalazioni_documenti.txt` (es. Leccapece e Sirena con la CA diversa dalla scomposizione, Bevek con Competenza nelle armi esotiche, cinque non morti senza tattiche).
@@ -951,6 +958,48 @@ Stile delle altre app (simbolo piatto d'ottone #CCA860 su fondo scuro sfumato da
 | Salvataggi | portatile e installata usano la stessa cartella (`%APPDATA%\Schermo del Narratore`) |
 
 
+## AE. Colonne che scorrono da sole (richiesta di Massy, confermata il 03/11/2026)
+
+| Punto | Scelta |
+|---|---|
+| Finestra larga (900 px e oltre: PC, tablet orizzontale) | la testata (data, ora, meteo, pulsanti del tempo, TV, ⚙) resta ferma; Tavolo, Iniziativa e la terza colonna occupano il resto dello schermo e **ognuna scorre per conto suo** (rotellina sopra la colonna o dito) |
+| Titoli di colonna | restano fermi in cima alla loro colonna: «Tavolo» con «+ PG», «Iniziativa» con il round e il timer, nella terza colonna la fila delle schede (Viaggio, Bestiario, Incontri, Prontuario, Log) |
+| Posizione dopo un'azione | quando si preme un pulsante ogni colonna resta dove era (l'app ridisegna lo schermo a ogni azione) |
+| Schede della terza colonna | ogni scheda ricorda la sua posizione |
+| Finestra stretta (sotto 900 px: telefono, finestra piccola) | come prima: colonne una sotto l'altra e tutto scorre insieme |
+| Finestre di dialogo, riquadro TV | invariati |
+
+## AF. Bestiario dalla pagina iniziale ed esportazione (richiesta di Massy, confermata il 03/11/2026)
+
+Prima: «Esporta tutto» esportava già campagne e bestiario condiviso (i PNG delle campagne dentro le campagne); il bestiario condiviso si esportava solo da dentro una campagna; «Importa» della pagina iniziale accettava già un file di solo bestiario; dalla pagina iniziale non si consultava il bestiario.
+
+| Punto | Scelta |
+|---|---|
+| Pulsante **Bestiario** nella pagina iniziale | apre il bestiario a tutto schermo con «◂ Campagne» |
+| Mostri e PNG generici | come dentro una campagna: ricerca, filtri (tipo, etichetta, GS, preferiti), stat block, «+ Scheda», «Incolla», modifica, «Copia in…», elimina |
+| PNG delle campagne | terza sottoscheda con il menu «Campagna»: si consultano e si aprono gli stat block, per modificarli «Apri la campagna» (sola lettura, per non scrivere in una campagna chiusa senza volerlo; per aggiungerne resta «+ PNG» sulla campagna) |
+| Senza campagna aperta | niente «+ Al combattimento» né «In un incontro», niente XP (impostazione della campagna); il GS c'è |
+| **Esporta bestiario** (pagina iniziale e scheda Bestiario di una campagna) | finestra con le caselle: Mostri condivisi (N), PNG generici (N) e i PNG di ogni campagna che ne ha (N); dentro una campagna la sua è già spuntata |
+| **Importa** (pagina iniziale) | lo stesso pulsante; per i PNG di una campagna un menu sceglie dove vanno: la campagna da cui vengono (se c'è), un'altra campagna, i PNG generici o da nessuna parte; doppioni come prima (mancanti aggiunti, stesso identificativo ma diversi → copia «(importato)») |
+| «Esporta tutto» | invariato |
+| File vecchi | i bestiari esportati prima si importano come prima; un file nuovo aperto da una versione vecchia perde solo i PNG delle campagne |
+
+## Z5. Build 4b — come è stata applicata (03/11/2026)
+
+### Fatto
+- **Motore**: `esportaBestiario` (raccolte a scelta, campagne senza PNG saltate, errore se non si sceglie niente), `importa` con i PNG delle campagne (`png: [{ campagna: { id, nome }, schede }]`, controllati), `importaPNG` (come i mostri: mancanti aggiunti, stesso id ma diverso → copia «(importato)», riga nel log). 834 test (8 nuovi, con il file vecchio di solo bestiario).
+- **Interfaccia**: colonne che scorrono da sole sul PC (AE) con la posizione ripresa dopo ogni azione e per scheda nella terza colonna; pagina «Bestiario» dalla pagina iniziale, «Esporta bestiario» a caselle (pagina iniziale, pagina Bestiario, scheda Bestiario di una campagna), destinazione dei PNG delle campagne all'importazione.
+- **Prove**: pagina 727 controlli a 1366 e 390 px (42 nuovi), prova dell'app Windows 22 controlli; pagina di prova sullo stesso artifact (versione 17).
+
+### Scelte di applicazione (da confermare sulla pagina di prova)
+- **Z5-1** Lo spazio delle colonne è l'altezza della finestra meno la testata, misurata a ogni ridisegno (la testata si allunga quando c'è la coda delle cose da fare); la barra di scorrimento delle colonne è sottile.
+- **Z5-2** La posizione ripresa vale finché resti nella stessa campagna; aprendo un'altra campagna (o la stessa da capo) le colonne ripartono dall'alto.
+- **Z5-3** Pagina Bestiario: elenco a sinistra e stat block a destra (sotto i 900 px uno sotto l'altro, e toccando una scheda la pagina scende allo stat block); in testa «Importa», «Esporta bestiario» e «+ Scheda».
+- **Z5-4** PNG delle campagne dalla pagina iniziale: stella dei preferiti visibile ma non cliccabile; restano «Segnalazioni», «Copia come testo» e «Copia in…» (solo verso PNG generici o mostri condivisi: è una copia nuova, la campagna non cambia); «Apri la campagna» apre la campagna con quel PNG nella terza colonna.
+- **Z5-5** Mostri e PNG generici dalla pagina iniziale: «Copia in…» solo fra le due raccolte condivise (per copiarli nei PNG di una campagna si apre la campagna); eliminando una scheda l'avviso elenca gli incontri di tutte le campagne in cui compare.
+- **Z5-6** «Esporta bestiario»: le raccolte vuote hanno la casella grigia; nella pagina iniziale mostri e PNG generici partono spuntati; dentro una campagna parte spuntata la sua (e mostri e PNG generici se non si sta guardando i PNG della campagna).
+- **Z5-7** Importa: la finestra delle destinazioni arriva dopo l'importazione del resto del file; per ogni gruppo propone la campagna da cui vengono se c'è, altrimenti i PNG generici; «Non importarli» li salta tutti.
+
 ## Z4. Build 4 — come è stata applicata (02/11/2026)
 
 ### Fatto
@@ -976,8 +1025,10 @@ Stile delle altre app (simbolo piatto d'ottone #CCA860 su fondo scuro sfumato da
 - **Z4-13** Splash dell'APK: lo stesso simbolo su fondo crema chiaro e su fondo scuro come l'app (#15120E).
 - **Z4-14** (correzione del 02/11) L'adattamento del testo sta in un file solo, `sorgenti/adatta_tv.js`: `build.py` lo mette nella pagina e lo scrive in `www/adatta_tv.js`, che la finestra TV di Windows carica; si rifà a ogni cambio di contenuto, a ogni ridimensionamento e quando arrivano i caratteri.
 
-### Non ancora attivo
-Rilascio su `main` (APK `v1.0.1`, Windows `win-1.0.1`) dopo il via di Massy; prova sul PC con la TV come secondo schermo sopra Foundry.
+### Rilascio (02/11/2026)
+- `main` creato dal commit `714317b`: la creazione del ramo non ha avviato i workflow, le build 1 sono partite con «Run workflow» → `v1.0.1` / `win-1.0.1`.
+- Prova di Massy sul secondo schermo: nome lungo di chi agisce fuori schermo o a capo, testo del meteo fuori dal suo riquadro → correzione (AD8, Z4-14), commit `0af5b65` → **`v1.0.2` / `win-1.0.2`** (partite dal push), provate da Massy: tutto bene.
+- Copie sul PC: `Applicazioni/APK/Schermo-2.apk`, `Applicazioni/Windows/Schermo-1.0.2-portatile.exe` e `-installazione.exe` (sha256 uguali alle release).
 
 ## Z3b. Build 3b — come è stata applicata (02/11/2026)
 

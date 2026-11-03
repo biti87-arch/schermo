@@ -64,6 +64,17 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media (max-width:899px){.colonne{grid-template-columns:minmax(0,1fr)}header.testa{position:static}}
 .col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .col-testa{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--riga);padding-bottom:6px}
+/* AE: sul PC le tre colonne scorrono ognuna per conto suo, la testata resta ferma */
+@media (min-width:900px){
+  html.a-colonne,html.a-colonne body{height:100%;overflow:hidden}
+  html.a-colonne .wrap{padding-bottom:0}
+  html.a-colonne .colonne{height:calc(100dvh - var(--testa-h,140px) - 12px);margin-top:12px;align-items:stretch}
+  html.a-colonne .col{overflow-y:auto;overscroll-behavior:contain;padding:0 8px 28px 2px;scrollbar-width:thin;scrollbar-color:var(--riga) transparent}
+  html.a-colonne .col>.col-testa,html.a-colonne #col-terza>.schede{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:2px}
+}
+/* AF: bestiario dalla pagina iniziale */
+.best-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start;margin-top:12px}
+@media (max-width:899px){.best-home{grid-template-columns:minmax(0,1fr)}}
 .vuoto{border:1px dashed var(--riga);border-radius:8px;padding:16px;color:var(--tenue)}
 
 /* riquadro del PG */
@@ -340,14 +351,34 @@ const testo = (el, n) => val(el, n).value.trim();
 const spunta = (el, n) => val(el, n).checked;
 
 // ================================================================= disegno
+// AE: posizione di scorrimento delle colonne (la terza per scheda), ripresa dopo ogni ridisegno
+const SC = { camp: null, scheda: null, terza: {} };
+function memScroll() {
+  const cs = document.querySelectorAll('.colonne > .col'); if (cs.length !== 3) return null;
+  if (SC.scheda) SC.terza[SC.scheda] = cs[2].scrollTop;
+  return [cs[0].scrollTop, cs[1].scrollTop];
+}
+function rimettiScroll(prima) {
+  const cs = document.querySelectorAll('.colonne > .col'); if (cs.length !== 3) return;
+  if (SC.camp !== S.camp.id) { SC.camp = S.camp.id; SC.terza = {}; prima = null; }
+  if (prima) { cs[0].scrollTop = prima[0]; cs[1].scrollTop = prima[1]; }
+  cs[2].scrollTop = SC.terza[S.ui.scheda] || 0; SC.scheda = S.ui.scheda;
+}
+function altezzaTesta() { const h = document.querySelector('header.testa'); if (h) document.documentElement.style.setProperty('--testa-h', Math.ceil(h.getBoundingClientRect().bottom) + 'px'); }
+window.addEventListener('resize', altezzaTesta);
 function disegna() {
   tema();
   const app = $('#app');
+  const campagnaAperta = S.schermata !== 'campagne' && S.schermata !== 'bestiario' && !!S.camp;
+  document.documentElement.classList.toggle('a-colonne', campagnaAperta);
+  if (S.schermata === 'bestiario') { app.innerHTML = disegnaBestiarioHome(); disegnaFine(); return; }
   if (S.schermata === 'campagne' || !S.camp) { app.innerHTML = disegnaElenco(); disegnaFine(); return; }
+  const prima = memScroll();
   app.innerHTML = disegnaTesta() + `<div class="colonne">
     <section class="col" aria-label="Tavolo">${disegnaTavolo()}</section>
     <section class="col" aria-label="Iniziativa">${disegnaIniziativa()}</section>
     <section class="col" id="col-terza" aria-label="Viaggio, bestiario, incontri e log">${disegnaTerza()}</section></div>`;
+  altezzaTesta(); rimettiScroll(prima);
   aggiornaTimer(); disegnaFine();
 }
 function disegnaFine() { aggiornaTV(); }
@@ -368,7 +399,8 @@ function disegnaElenco() {
     <p class="tenue">Ogni campagna è uno schermo a sé: PG, calendario, orologio, meteo, scorte e iniziativa.</p>
     <div class="fila"><button class="btn prim grande" data-az="crea">Crea Schermo campagna</button>
       <button class="btn" data-az="importa">Importa</button><button class="btn" data-az="esportaTutto" ${S.elenco.length ? '' : 'disabled'}>Esporta tutto</button>
-      <button class="btn" data-az="esempio">Carica una campagna d'esempio</button><button class="btn prim" data-az="schedaHome" title="PNG generici e mostri condivisi da tutte le campagne, o PNG di una campagna">+ Scheda</button></div>
+      <button class="btn" data-az="esempio">Carica una campagna d'esempio</button><button class="btn prim" data-az="schedaHome" title="PNG generici e mostri condivisi da tutte le campagne, o PNG di una campagna">+ Scheda</button>
+      <button class="btn oro" data-az="bestiarioHome" title="Mostri condivisi, PNG generici e PNG delle campagne">Bestiario</button><button class="btn" data-az="esportaBest">Esporta bestiario</button></div>
     ${Archivio.problema ? `<div class="banda">${esc(Archivio.problema)}</div>` : ''}
     <div class="lista-camp">${carte || '<div class="vuoto">Nessuna campagna. Crea uno schermo nuovo o carica la campagna d\'esempio per provare l\'app.</div>'}</div>`;
 }
@@ -616,8 +648,8 @@ const AZ = {
         else if (k === 'png') { await caricaHome(cid); finestraScheda('png', null); }
         else { await caricaHome(cid); finestraIncolla(cid ? 'png' : 'generico'); } })().catch(e => avviso(e.message, true)); });
   },
-  async apri(el) { const c = await Archivio.leggi(el.dataset.id); if (!c) return avviso('Campagna non trovata', true); S.camp = M.migra(c); S.schermata = 'campagna'; S.ui.sel = null; S.ui.avvio = null; disegna(); },
-  async campagne() { salvaOra(); S.camp = null; S.schermata = 'campagne'; await ricaricaElenco(); },
+  async apri(el) { const c = await Archivio.leggi(el.dataset.id); if (!c) return avviso('Campagna non trovata', true); S.camp = M.migra(c); S.schermata = 'campagna'; S.ui.sel = null; S.ui.avvio = null; S.ui.vista = null; if (S.ui.scheda === 'vista') S.ui.scheda = 'bestiario'; disegna(); },
+  async campagne() { salvaOra(); S.camp = null; S.ui.vista = null; S.schermata = 'campagne'; await ricaricaElenco(); },
   temaElenco() { scriviPref('tema', leggiPref('tema') === 'chiaro' ? 'scuro' : 'chiaro'); disegna(); },
   crea() { procedura(); },
   async duplica(el) { const c = await Archivio.leggi(el.dataset.id); await Archivio.scrivi(M.duplicaCampagna(c, rng, Date.now())); await ricaricaElenco(); avviso('Campagna duplicata'); },
@@ -1174,7 +1206,7 @@ function finestraEsporta(nome, contenuto, tipo = 'application/json') {
       ...(WEB ? [] : [{ testo: 'Scarica', classe: 'prim', fn: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([contenuto], { type: tipo + ';charset=utf-8' })); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); return false; } }])] });
 }
 function finestraImporta() {
-  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna, tutte o il bestiario). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già. I mostri condivisi e i PNG generici che mancano entrano nel bestiario; con una campagna arrivano anche quelli dei suoi incontri.</p>
+  apri({ titolo: 'Importa', larga: true, corpo: `<p class="piccolo tenue">Un file esportato da Schermo del Narratore (una campagna, tutte o il bestiario; per i PNG delle campagne si sceglie poi dove metterli). Le campagne con lo stesso nome restano: quella importata entra come copia se l'identificativo esiste già. I mostri condivisi e i PNG generici che mancano entrano nel bestiario; con una campagna arrivano anche quelli dei suoi incontri.</p>
       <input type="file" name="f" accept=".json,application/json"><label class="campo"><span>Oppure incolla il JSON</span><textarea name="t" rows="8"></textarea></label>`,
     azioni: [{ testo: 'Annulla' }, { testo: 'Importa', classe: 'prim', fn: f => {
       const file = val(f, 'f').files[0];
@@ -1185,6 +1217,7 @@ function finestraImporta() {
         if (r.generici.length) { const u = M.unisciMostri(Best.generici, r.generici, rng, Date.now(), r.tipo === 'campagna', 'g'); Best.generici = u.lista; salvaBestiario();
           mo += ` · PNG generici: ${u.aggiunti} nuovi` + (u.copie ? `, ${u.copie} come copia` : ''); }
         if (S.camp) disegna(); else await ricaricaElenco();
+        if (r.png && r.png.length) { mo += await importaPNGCampagne(r.png); if (!S.camp) await ricaricaElenco(); }
         avviso((r.tipo === 'bestiario' ? 'Bestiario importato' : `Importate ${r.campagne.length} campagne` + (copie ? ` (${copie} come copia)` : '')) + mo); };
       if (file) { file.text().then(fai).catch(e => avviso(e.message, true)); return; }
       const t = testo(f, 't'); if (!t) throw new Error('Scegli un file o incolla il JSON');
@@ -1347,7 +1380,10 @@ const FONTI = {
   generico: { nome: 'PNG generici', una: 'PNG generico condiviso', pref: 'g', nuovo: 'Nuovo PNG generico', vuoto: 'Nessun PNG generico: sono PNG senza nome, adatti a ogni campagna (guardia cittadina, bandito, accolito…).' },
   mostro: { nome: 'Mostri condivisi', una: 'Mostro condiviso', pref: 'm', nuovo: 'Nuovo mostro condiviso', vuoto: 'Nessun mostro condiviso.' } };
 const condivisa = f => f === 'mostro' || f === 'generico';
-const listaDi = f => f === 'mostro' ? Best.mostri : f === 'generico' ? Best.generici : ((S.camp && S.camp.png) || []);
+// AF: dalla pagina iniziale i PNG sono quelli della campagna scelta nel menu (sola lettura)
+const campBest = () => { const e = S.elenco.find(x => x.id === S.ui.bestCamp && x.c); return e ? e.c : null; };
+const listaDi = f => f === 'mostro' ? Best.mostri : f === 'generico' ? Best.generici : S.camp ? (S.camp.png || []) : ((campBest() || {}).png || []);
+const soloLettura = f => f === 'png' && !S.camp;
 function aggiornaCondivise(f, lista) { if (f === 'generico') Best.generici = lista; else Best.mostri = lista; salvaBestiario(); disegna(); }
 // salva una scheda nella sua raccolta (e ridisegna)
 function salvaIn(f, s, ora) { if (condivisa(f)) aggiornaCondivise(f, M.salvaScheda(listaDi(f), s, ora)); else applica(M.salvaPNG(S.camp, s, ora)); if (S.schermata === 'campagne') fuoriHome(); }
@@ -1407,7 +1443,9 @@ function elencoSegn(s) {
 function disegnaBestiario() {
   const c = S.camp, f = S.ui.best;
   return `<div class="pannello"><div class="fila"><div class="schede piccole" role="tablist">
-      ${['png', 'generico', 'mostro'].map(k => `<button role="tab" class="${f.fonte === k ? 'on' : ''}" data-az="bestFonte" data-f="${k}">${FONTI[k].nome} (${listaDi(k).length})</button>`).join('')}</div></div>
+      ${['png', 'generico', 'mostro'].map(k => `<button role="tab" class="${f.fonte === k ? 'on' : ''}" data-az="bestFonte" data-f="${k}">${k === 'png' && !c ? 'PNG delle campagne' : FONTI[k].nome} (${listaDi(k).length})</button>`).join('')}</div></div>
+    ${soloLettura(f.fonte) ? `<div class="fila"><label class="campo" style="flex:1"><span>Campagna</span><select data-az-cambio="bestCamp">${S.elenco.filter(e => e.c).map(e => `<option value="${e.id}" ${e.id === S.ui.bestCamp ? 'selected' : ''}>${esc(e.nome)} (${(e.c.png || []).length})</option>`).join('') || '<option value="">nessuna campagna</option>'}</select></label></div>
+      <p class="tenue piccolo">Sola lettura: per modificare un PNG usa «Apri la campagna»; per aggiungerne uno, «+ PNG» sulla campagna.</p>` : ''}
     <div class="griglia">
       <label class="campo" style="grid-column:span 2"><span>Cerca per nome</span><input type="text" data-best="testo" value="${esc(f.testo)}" placeholder="es. imbalsamato"></label>
       <label class="campo"><span>Tipo</span><input type="text" data-best="tipo" value="${esc(f.tipo)}" placeholder="es. non morto"></label>
@@ -1415,8 +1453,8 @@ function disegnaBestiario() {
       <label class="campo"><span>GS da</span><input type="number" data-best="gs_min" value="${esc(f.gs_min)}"></label>
       <label class="campo"><span>GS a</span><input type="number" data-best="gs_max" value="${esc(f.gs_max)}"></label></div>
     <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-best="preferiti" ${f.preferiti ? 'checked' : ''}> solo preferiti ★</label><span class="spazio"></span>
-      <button class="btn min prim" data-az="nuovaScheda">+ Scheda</button><button class="btn min oro" data-az="incolla">Incolla</button>
-      ${condivisa(f.fonte) ? '<button class="btn min" data-az="esportaBest" title="Esporta il bestiario condiviso (mostri e PNG generici)">Esporta</button>' : ''}</div>
+      ${soloLettura(f.fonte) ? '' : '<button class="btn min prim" data-az="nuovaScheda">+ Scheda</button><button class="btn min oro" data-az="incolla">Incolla</button>'}
+      <button class="btn min" data-az="esportaBest" title="Esporta il bestiario: mostri, PNG generici e PNG delle campagne, a scelta">Esporta…</button></div>
     <div id="best-lista">${listaSchede()}</div></div>`;
 }
 function listaSchede() {
@@ -1424,7 +1462,7 @@ function listaSchede() {
   if (!lista.length) return `<div class="vuoto">${FONTI[f.fonte].vuoto} Crea una scheda con «+ Scheda» o incolla uno stat block da un documento d'avventura.</div>`;
   if (!res.length) return '<p class="tenue piccolo">Nessuna scheda con questi filtri.</p>';
   return `<ul class="voci">${res.map(s => { const xp = usaXP() && M.xpDi(s) ? ` · ${migl(M.xpDi(s))} XP` : '';
-    return `<li class="voce${S.ui.vista && S.ui.vista.rif.id === s.id ? ' sel' : ''}"><button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${f.fonte}:${s.id}" title="Preferito" aria-label="Preferito">${s.preferito ? '★' : '☆'}</button>
+    return `<li class="voce${S.ui.vista && S.ui.vista.rif.id === s.id ? ' sel' : ''}">${soloLettura(f.fonte) ? `<span class="stella${s.preferito ? ' on' : ''}">${s.preferito ? '★' : '☆'}</span>` : `<button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${f.fonte}:${s.id}" title="Preferito" aria-label="Preferito">${s.preferito ? '★' : '☆'}</button>`}
       <button class="voce-corpo" data-az="vediScheda" data-rif="${f.fonte}:${s.id}"><span class="voce-nome">${esc(s.nome)}</span>
         <span class="tenue piccolo">${esc([s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs + xp : ''].filter(Boolean).join(' · '))}</span>
         ${(s.etichette || []).length ? `<span class="piccolo">${s.etichette.map(e => `<span class="chip">${esc(e)}</span>`).join(' ')}</span>` : ''}</button>
@@ -1432,21 +1470,22 @@ function listaSchede() {
 }
 // ---------- terza colonna: la scheda (stat block di lato, O1)
 function disegnaVista() {
-  const v = S.ui.vista, s = v && schedaDi(v.rif), c = S.camp, cb = c.combattimento;
+  const v = S.ui.vista, s = v && schedaDi(v.rif), c = S.camp, cb = c && c.combattimento, ro = v && soloLettura(v.rif.fonte);
   if (!s) return `<div class="pannello"><p class="tenue">Scheda non trovata${v && condivisa(v.rif.fonte) ? ' nel bestiario condiviso' : ''}.</p></div>`;
   const r = v.riga && cb && cb.righe[v.riga];
   const fonte = FONTI[v.rif.fonte].una;
-  return `<div class="pannello"><div class="fila"><button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${rifStr(v.rif)}">${s.preferito ? '★' : '☆'}</button><h3>${esc(s.nome)}</h3>
-      <span class="tenue piccolo">${fonte}${r ? ` · riga «${esc(M.etichetta(r))}»` : ''}</span></div>
+  const camp = ro ? campBest() : null;
+  return `<div class="pannello" id="best-vista"><div class="fila">${ro ? `<span class="stella${s.preferito ? ' on' : ''}">${s.preferito ? '★' : '☆'}</span>` : `<button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${rifStr(v.rif)}">${s.preferito ? '★' : '☆'}</button>`}<h3>${esc(s.nome)}</h3>
+      <span class="tenue piccolo">${ro && camp ? `PNG di «${esc(camp.nome)}»` : fonte}${r ? ` · riga «${esc(M.etichetta(r))}»` : ''}</span></div>
     <div class="fila">${badgeSegn(s)}<span class="spazio"></span><button class="btn min" data-az="segnScheda" data-rif="${rifStr(v.rif)}">Segnalazioni</button>
-      <button class="btn min prim" data-az="modificaScheda" data-rif="${rifStr(v.rif)}">Modifica</button><button class="btn min oro" data-az="copiaTesto" data-rif="${rifStr(v.rif)}">Copia come testo</button></div>
+      ${ro ? `<button class="btn min prim" data-az="apriDaBest" data-id="${camp ? camp.id : ''}">Apri la campagna</button>` : `<button class="btn min prim" data-az="modificaScheda" data-rif="${rifStr(v.rif)}">Modifica</button>`}<button class="btn min oro" data-az="copiaTesto" data-rif="${rifStr(v.rif)}">Copia come testo</button></div>
     <div class="sb">${htmlStatBlock(s)}</div>
-    <div class="fila"><button class="btn min" data-az="duplicaScheda" data-rif="${rifStr(v.rif)}">Duplica</button>
+    <div class="fila">${ro ? '' : `<button class="btn min" data-az="duplicaScheda" data-rif="${rifStr(v.rif)}">Duplica</button>`}
       <button class="btn min" data-az="copiaAltrove" data-rif="${rifStr(v.rif)}">Copia in…</button>
-      ${v.rif.fonte === 'png' ? `<button class="btn min" data-az="copiaCampagna" data-rif="${rifStr(v.rif)}">Copia in un'altra campagna</button>` : ''}
-      <button class="btn min" data-az="schedaInIncontro" data-rif="${rifStr(v.rif)}">In un incontro</button>
+      ${v.rif.fonte === 'png' && c ? `<button class="btn min" data-az="copiaCampagna" data-rif="${rifStr(v.rif)}">Copia in un'altra campagna</button>` : ''}
+      ${c ? `<button class="btn min" data-az="schedaInIncontro" data-rif="${rifStr(v.rif)}">In un incontro</button>` : ''}
       ${cb ? `<button class="btn min oro" data-az="schedaRinforzi" data-rif="${rifStr(v.rif)}">+ Al combattimento</button>` : ''}
-      <span class="spazio"></span><button class="btn min peric" data-az="eliminaScheda" data-rif="${rifStr(v.rif)}">Elimina</button></div></div>`;
+      ${ro ? '' : `<span class="spazio"></span><button class="btn min peric" data-az="eliminaScheda" data-rif="${rifStr(v.rif)}">Elimina</button>`}</div></div>`;
 }
 // ---------- terza colonna: Incontri (N)
 function disegnaIncontri() {
@@ -1700,7 +1739,8 @@ function finestraIncontro(id, iniziale) {
   return el;
 }
 // riferimenti di una scheda negli incontri (prima di eliminarla)
-const incontriCon = rif => S.camp.incontri.filter(i => i.partecipanti.some(p => p.rif && p.rif.fonte === rif.fonte && p.rif.id === rif.id));
+const incontriCon = rif => (S.camp ? S.camp.incontri : S.elenco.flatMap(e => e.c ? (e.c.incontri || []).map(i => ({ ...i, titolo: `${i.titolo} («${e.nome}»)` })) : []))
+  .filter(i => i.partecipanti.some(p => p.rif && p.rif.fonte === rif.fonte && p.rif.id === rif.id));
 function finestraStatBlock(rif) {
   const s = schedaDi(rif); if (!s) return avviso('Scheda non trovata', true);
   apri({ titolo: esc(s.nome), larga: true, corpo: `<div class="fila">${badgeSegn(s)}</div><div class="sb">${htmlStatBlock(s)}</div>`,
@@ -1720,8 +1760,10 @@ Object.assign(AZ, {
     el.addEventListener('click', ev => { const b = ev.target.closest('[data-agg]'); if (!b) return; el.querySelector('[data-fazione="0"]').click();
       if (b.dataset.agg === 'incolla') finestraIncolla('png'); else finestraScheda(b.dataset.agg, null); });
   },
-  esportaBest() { finestraEsporta('schermo-bestiario.json', M.esporta(docBest(), 'bestiario')); },
-  vediScheda(el) { S.ui.vista = { rif: rifDa(el.dataset.rif) }; S.ui.scheda = 'vista'; disegna(); const v = $('#col-terza'); if (v && window.innerWidth < 900) v.scrollIntoView({ block: 'start' }); },
+  esportaBest() { return finestraEsportaBest(); },
+  bestiarioHome() { S.schermata = 'bestiario'; S.camp = null; S.ui.vista = null; if (!campBest()) S.ui.bestCamp = (S.elenco.find(e => e.c) || {}).id || null; disegna(); window.scrollTo(0, 0); },
+  async apriDaBest(el) { const rif = S.ui.vista && S.ui.vista.rif; if (!el.dataset.id) return; await AZ.apri(el); if (rif) { S.ui.vista = { rif }; S.ui.scheda = 'vista'; S.ui.best.fonte = 'png'; disegna(); } },
+  vediScheda(el) { S.ui.vista = { rif: rifDa(el.dataset.rif) }; if (S.camp) S.ui.scheda = 'vista'; disegna(); const v = S.camp ? $('#col-terza') : $('#best-vista'); if (v && window.innerWidth < 900) v.scrollIntoView({ block: 'start' }); },
   vediRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; if (!r || !r.rif) return; S.ui.vista = { rif: r.rif, riga: r.id }; S.ui.scheda = 'vista'; disegna(); },
   statBlockRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; finestraStatBlock(r.rif); },
   modificaScheda(el) { const r = rifDa(el.dataset.rif); finestraScheda(r.fonte, r.id); },
@@ -1732,13 +1774,13 @@ Object.assign(AZ, {
   duplicaScheda(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), ora = Date.now(), x = M.nuovaScheda({ ...s, nome: s.nome + ' (copia)' }, rng, ora, FONTI[r.fonte].pref);
     S.ui.vista = { rif: { fonte: r.fonte, id: x.id } }; salvaIn(r.fonte, x, ora); avviso('Scheda duplicata'); },
   // copia indipendente in un'altra raccolta; da un PNG generico ai PNG della campagna gli si dà un nome
-  copiaAltrove(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), altre = ['png', 'generico', 'mostro'].filter(k => k !== r.fonte);
+  copiaAltrove(el) { const r = rifDa(el.dataset.rif), s = schedaDi(r), altre = ['png', 'generico', 'mostro'].filter(k => k !== r.fonte && (k !== 'png' || S.camp));
     apri({ titolo: `Copia «${esc(s.nome)}»`, corpo: `<label class="campo"><span>In</span><select name="d">${altre.map(k => `<option value="${k}">${FONTI[k].nome}</option>`).join('')}</select></label>
         <label class="campo"><span>Nome della copia</span><input type="text" name="n" value="${esc(s.nome)}"></label>
         <p class="piccolo tenue">${r.fonte === 'generico' ? 'Copiando un PNG generico nei PNG della campagna puoi dargli un nome: il generico resta com\'è.' : 'La copia è indipendente: cambiarla non cambia l\'originale.'}</p>`,
       azioni: [{ testo: 'Annulla' }, { testo: 'Copia', classe: 'prim', fn: f => { const dove = val(f, 'd').value, nome = testo(f, 'n'); if (!nome) throw new Error('Scrivi il nome');
         const ora = Date.now(), x = M.nuovaScheda({ ...M.clona(s), nome }, rng, ora, FONTI[dove].pref);
-        S.ui.best.fonte = dove; S.ui.vista = { rif: { fonte: dove, id: x.id } }; S.ui.scheda = 'vista'; salvaIn(dove, x, ora); avviso('Copiata in ' + FONTI[dove].nome); } }] }); },
+        S.ui.best.fonte = dove; S.ui.vista = { rif: { fonte: dove, id: x.id } }; if (S.camp) S.ui.scheda = 'vista'; salvaIn(dove, x, ora); avviso('Copiata in ' + FONTI[dove].nome); } }] }); },
   async copiaCampagna(el) {
     const s = schedaDi(rifDa(el.dataset.rif)), altre = (await Archivio.lista()).filter(e => e.c && e.id !== S.camp.id);
     if (!altre.length) return avviso('Non ci sono altre campagne', true);
@@ -1758,7 +1800,7 @@ Object.assign(AZ, {
   eliminaScheda(el) {
     const r = rifDa(el.dataset.rif), s = schedaDi(r), usi = incontriCon(r);
     conferma('Elimina la scheda', `Eliminare <b>${esc(s.nome)}</b>${r.fonte === 'mostro' ? ' dai mostri condivisi (vale per tutte le campagne)' : r.fonte === 'generico' ? ' dai PNG generici condivisi (vale per tutte le campagne)' : ''}?${usi.length ? ` Compare in ${usi.length} ${usi.length === 1 ? 'incontro' : 'incontri'} (${esc(usi.map(i => i.titolo).join(', '))}): lì resterà il nome, senza scheda.` : ''}`, () => {
-      S.ui.vista = null; S.ui.scheda = 'bestiario';
+      S.ui.vista = null; if (S.camp) S.ui.scheda = 'bestiario';
       if (condivisa(r.fonte)) aggiornaCondivise(r.fonte, listaDi(r.fonte).filter(m => m.id !== r.id)); else applica(M.eliminaPNG(S.camp, r.id)); avviso('Scheda eliminata'); }, 'Elimina', 'peric');
   },
   nuovoIncontro() { finestraIncontro(null); },
@@ -2381,6 +2423,7 @@ Object.assign(AZ, {
 Object.assign(CAMBI, {
   contatore(el) { applica(M.impostaContatore(S.camp, el.dataset.k, { attivo: el.checked })); },
   prontZona(el) { S.ui.pront.zona = el.value; disegna(); },
+  bestCamp(el) { S.ui.bestCamp = el.value; S.ui.vista = null; disegna(); },
 });
 
 // prezzi delle fonti di luce dal Vol. 3 (Z3b): la tabella degli strumenti resta quella della Build 3a
@@ -2610,6 +2653,50 @@ function finestraNomeTv(id) {
     azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => applica(M.comando(S.camp, 'nomeTv', { id, nomeTv: testo(f, 'n') }, MET, rng, Date.now())) }] });
 }
 Object.assign(AZ, { menuTV() { return finestraTV(); }, nomeTv(el) { finestraNomeTv(el.dataset.id); }, meteoTV() { meteoSullaTV(); } });
+
+// ================================================================= Build 4b: bestiario dalla pagina iniziale (sezione AF)
+function disegnaBestiarioHome() {
+  return `<div class="titolo-app"><button class="btn min" data-az="campagne">◂ Campagne</button><h1><b>Bestiario</b></h1><span class="spazio"></span>
+      <button class="btn" data-az="importa">Importa</button><button class="btn" data-az="esportaBest">Esporta bestiario</button><button class="btn prim" data-az="schedaHome">+ Scheda</button></div>
+    <p class="tenue">Mostri e PNG generici sono condivisi da tutte le campagne; i PNG di una campagna si consultano qui e si modificano aprendo la campagna.</p>
+    <div class="best-home">${disegnaBestiario()}${S.ui.vista ? disegnaVista() : '<div class="pannello" id="best-vista"><p class="tenue">Tocca una scheda per vederne lo stat block.</p></div>'}</div>`;
+}
+// «Esporta bestiario»: caselle per mostri, PNG generici e PNG di ogni campagna (dentro una campagna la sua è già spuntata)
+async function finestraEsportaBest() {
+  let camps = (await Archivio.lista()).filter(e => e.c).map(e => ({ id: e.id, nome: e.nome, png: e.c.png || [] }));
+  if (S.camp) camps = camps.map(x => x.id === S.camp.id ? { id: S.camp.id, nome: S.camp.nome, png: S.camp.png || [] } : x);
+  const conPNG = camps.filter(x => x.png.length);
+  const casella = (n, testo, k, si) => `<label class="spunta"><input type="checkbox" name="${n}" ${si && k ? 'checked' : ''} ${k ? '' : 'disabled'}> ${testo} <span class="tenue piccolo">(${k})</span></label>`;
+  apri({ titolo: 'Esporta bestiario', corpo: `<p class="piccolo tenue">Scegli cosa mettere nel file. Si importa con «Importa» nella pagina iniziale; i PNG delle campagne si possono mettere in una campagna qualsiasi o nei PNG generici.</p>
+      <fieldset><legend>Condivisi da tutte le campagne</legend>${casella('mostri', 'Mostri condivisi', Best.mostri.length, !S.camp || S.ui.best.fonte !== 'png')}${casella('generici', 'PNG generici', Best.generici.length, !S.camp || S.ui.best.fonte !== 'png')}</fieldset>
+      <fieldset><legend>PNG delle campagne</legend>${conPNG.length ? conPNG.map(x => casella('c_' + x.id, `«${esc(x.nome)}»`, x.png.length, S.camp && S.camp.id === x.id)).join('') : '<p class="piccolo tenue">Nessuna campagna ha PNG.</p>'}</fieldset>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Esporta', classe: 'prim', fn: f => {
+      const scelta = { mostri: spunta(f, 'mostri'), generici: spunta(f, 'generici'), campagne: conPNG.filter(x => spunta(f, 'c_' + x.id)).map(x => x.id) };
+      finestraEsporta('schermo-bestiario.json', M.esportaBestiario({ mostri: Best.mostri, generici: Best.generici }, camps, scelta)); } }] });
+}
+// «Importa»: dove vanno i PNG delle campagne di un file di bestiario
+function finestraDestinazioniPNG(gruppi) {
+  return new Promise(ok => {
+    const camps = S.elenco.filter(e => e.c);
+    const opz = g => `<option value="">non importare</option><option value="generico">PNG generici</option>${camps.map(e => `<option value="${e.id}" ${e.id === g.campagna.id ? 'selected' : ''}>campagna «${esc(e.nome)}»${e.id === g.campagna.id ? ' (la stessa)' : ''}</option>`).join('')}`;
+    const pred = g => camps.some(e => e.id === g.campagna.id) ? g.campagna.id : 'generico';
+    const el = apri({ titolo: 'PNG delle campagne', corpo: `<p class="piccolo tenue">Il file contiene i PNG di ${gruppi.length === 1 ? 'una campagna' : gruppi.length + ' campagne'}: scegli dove metterli. I PNG che ci sono già restano; uno con lo stesso identificativo ma diverso entra come copia «(importato)».</p>
+        ${gruppi.map((g, i) => `<label class="campo"><span>${g.schede.length} PNG di «${esc(g.campagna.nome)}»</span><select name="d${i}">${opz(g)}</select></label>`).join('')}`,
+      azioni: [{ testo: 'Non importarli', fn: () => ok(null) }, { testo: 'Importa', classe: 'prim', fn: f => ok(gruppi.map((g, i) => val(f, 'd' + i).value)) }] });
+    gruppi.forEach((g, i) => { val(el, 'd' + i).value = pred(g); });
+  });
+}
+async function importaPNGCampagne(gruppi) {
+  const dest = await finestraDestinazioniPNG(gruppi); if (!dest) return '';
+  let n = 0, cp = 0;
+  for (let i = 0; i < gruppi.length; i++) {
+    const d = dest[i], g = gruppi[i]; if (!d) continue;
+    if (d === 'generico') { const u = M.unisciMostri(Best.generici, g.schede, rng, Date.now(), false, 'g'); Best.generici = u.lista; salvaBestiario(); n += u.aggiunti; cp += u.copie; continue; }
+    const c0 = await Archivio.leggi(d); if (!c0) continue;
+    const x = M.importaPNG(M.migra(c0), g.schede, rng, Date.now()); x.camp.modificata = Date.now(); await Archivio.scrivi(x.camp); n += x.aggiunti; cp += x.copie;
+  }
+  return ` · PNG delle campagne: ${n} nuovi` + (cp ? `, ${cp} come copia` : '');
+}
 
 // ================================================================= avvio
 async function ricaricaElenco() {

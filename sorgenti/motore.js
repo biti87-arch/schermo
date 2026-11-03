@@ -380,7 +380,26 @@ function importa(testo) {
   const da = k => j.tipo === 'bestiario' ? (j.dati && j.dati[k]) : j.tipo === 'tutto' ? (j.dati.bestiario && j.dati.bestiario[k]) : j[k];
   const mostri = da('mostri'), generici = da('generici');
   for (const [l, n] of [[mostri, 'mostri'], [generici, 'PNG generici']]) if (l && (!Array.isArray(l) || l.some(m => !m || !m.id || !m.nome))) throw new Error(n + ' non validi nel file');
-  return { tipo: j.tipo, campagne: lista.map(migra), mostri: mostri || [], generici: generici || [] };
+  // AF: PNG delle campagne in un file di solo bestiario: [{ campagna: { id, nome }, schede: [...] }]
+  const png = j.tipo === 'bestiario' && j.dati && Array.isArray(j.dati.png) ? j.dati.png : [];
+  for (const g of png) if (!g || !g.campagna || !g.campagna.id || !Array.isArray(g.schede) || g.schede.some(m => !m || !m.id || !m.nome)) throw new Error('PNG delle campagne non validi nel file');
+  return { tipo: j.tipo, campagne: lista.map(migra), mostri: mostri || [], generici: generici || [], png: clona(png) };
+}
+// AF «Esporta bestiario»: scelta = { mostri: bool, generici: bool, campagne: [id…] }; campagne = [{ id, nome, png }]
+function esportaBestiario(best, campagne, scelta) {
+  const dati = {};
+  if (scelta.mostri) dati.mostri = clona(best.mostri || []);
+  if (scelta.generici) dati.generici = clona(best.generici || []);
+  const png = (campagne || []).filter(c => (scelta.campagne || []).includes(c.id) && (c.png || []).length).map(c => ({ campagna: { id: c.id, nome: c.nome }, schede: clona(c.png) }));
+  if (png.length) dati.png = png;
+  if (!dati.mostri && !dati.generici && !png.length) throw new Error('scegli almeno una raccolta');
+  return JSON.stringify({ formato: FORMATO, tipo: 'bestiario', dati }, null, 1);
+}
+// AF: PNG importati in una campagna (come i mostri: i mancanti entrano, quelli diversi con lo stesso id entrano come copia «(importato)»)
+function importaPNG(camp, schede, rng, ora) {
+  const c = clona(camp), u = unisciMostri(c.png || [], schede, rng, ora, false, 'p');
+  c.png = u.lista; if (u.aggiunti || u.copie) log(c, `PNG importati: ${u.aggiunti} nuovi` + (u.copie ? `, ${u.copie} come copia` : ''));
+  return { camp: c, aggiunti: u.aggiunti, copie: u.copie };
 }
 function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 → v2…)
   const x = clona(c);
@@ -3394,6 +3413,6 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
   avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
   trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
-  nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo };
+  nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
