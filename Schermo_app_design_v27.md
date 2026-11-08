@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v26
+# Schermo del Narratore — design dell'app v27
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -52,6 +52,8 @@
 *v25 (08/11/2026): **Build 5b confermata** da Massy (Z7-1…Z7-10, «confermo tutto anche le scelte da te fatte»): push su `sviluppo` e `main`, release. Prossima: Build 5c (AG4) in una chat nuova.*
 
 *v26 (08/11/2026): **Build 5c fatta** (AG4): scelte di applicazione confermate in chat in 3 passi (Z8-1…Z8-17, con il formato JSON `schermo-eventi`), motore 970 test (59 nuovi), pagina 909 controlli a 1366 e 390 px, artifact versione 20; altre scelte Z8-18…Z8-24 da confermare sulla pagina di prova; dopo la prima prova di Massy il riscontro dei tiri automatici (Z8-25…Z8-28, confermato). Commit locale sul ramo `sviluppo`, niente push.*
+
+*v27 (08/11/2026): **Build 5c confermata** da Massy (Z8-1…Z8-28, «confermo tutto anche le proposte da Z8-18 a Z8-24»): push su `sviluppo` e `main`, release.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -100,7 +102,7 @@
 | Passo 13.4 — Eventi casuali e importazione (AG4) | ✅ 08/11 |
 | Build 5a — PG e bestiario (AG1, AG2) | ✅ confermata l'08/11 (Z6), rilasciata |
 | Build 5b — Incontri (AG3) | ✅ confermata l'08/11 (Z7), rilasciata |
-| Build 5c — Eventi casuali e importazione (AG4) | 🔶 fatta l'08/11 (Z8), da confermare sulla pagina di prova |
+| Build 5c — Eventi casuali e importazione (AG4) | ✅ confermata l'08/11 (Z8), rilasciata |
 
 Una chat per fase. Ogni build finisce con la pagina di prova (artifact) confermata da Massy; le versioni native solo dopo la conferma della Build 4.
 
@@ -603,7 +605,7 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - Build 3b: chiusa il 02/11 (AC1–AC10, Z3b confermate). Prossima: Build 4 (finestra TV in Electron, icona, primo rilascio).
 - Build 4: chiusa il 02/11 (AD1–AD9, Z4-1…Z4-14); release `v1.0.2` / `win-1.0.2` provate da Massy («va tutto bene»). L'app è completa: nuove richieste in una chat nuova, partendo dal ramo `sviluppo` (commit `0af5b65`, uguale a `main`).
 - Build 4b (AE, AF): confermata il 03/11 (Z5-1…Z5-7, «funziona bene»); rilascio `v1.0.3` / `win-1.0.3`.
-- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a confermata (Z6), 5b confermata (Z7); 5c fatta (Z8), da confermare.
+- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a confermata (Z6), 5b confermata (Z7); 5c confermata (Z8), rilasciata.
 - Repo: il ramo predefinito è ancora `sviluppo`; da impostare a `main` nelle impostazioni del repo (a cura di Massy).
 - Guida del DM, divergenze con il Vol. 3 e refusi (AC1-3, AC1-4, AC7-1): da correggere nella Guida se si aggiorna.
 - Tabelle del Tempo Atmosferico v1.0, effetto «Tormenta»: il testo dice «Fiamme: come con il Vento molto forte», ma vale la tabella delle Fiamme (spegne anche la lanterna impermeabile; Massy, 01/11): da correggere nella prossima versione delle Tabelle.
@@ -1204,7 +1206,7 @@ Prima (E, F6, F7): classe e livello in testo libero, livello numerico per il rip
 - **Motore**: tabelle (`salvaTabella`, `eliminaTabella`, `impostaAuto`, `impostaTerritorio`, `azzeraUscite`, `tabellaDallaGuida`), schede evento (`salvaSchedaEvento`, `eliminaSchedaEvento`, `segnaEventoGiocato`), tiri (`tiraVoce`, `tiraEvento`, `rispondiEvento`), frequenze nella marcia, nell'orologio (`eventiTempo` dentro `avanza`) e nel riposo (`riprendiRiposo`, `interrompiRiposo`), migrazione delle aree (`migraEventi`), docx (`voceZip`, `leggiDocxXml`, `leggiEventiDocx`), JSON (`leggiEventiJson`, `esportaEventi`), `applicaImportazione`. Tolte le funzioni delle aree (AC6). 970 test (59 nuovi, sui due documenti veri in `sorgenti/prove/`).
 - **Interfaccia**: scheda Eventi, editor della tabella e della scheda evento, finestra della scheda evento, «Tira», avvisi nella coda e nella marcia, riposo fermato, importazione con l'anteprima, Esporta, tabelle `| … |` anche negli incontri. Pagina 909 controlli a 1366 e 390 px (`prova5c` nuova, AC6 di `prova3b` rifatta), artifact versione 20.
 
-### Scelte di applicazione (da confermare sulla pagina di prova)
+### Scelte di applicazione (confermate da Massy l'08/11)
 - **Z8-18** Negli intervalli del d% il 100 si scrive «00» («buchi: 91-00»), come sul dado.
 - **Z8-19** Nell'editor della tabella le creature di una voce si scrivono in una riga, «2d4 Lupo, 1 Capobranco»: i nomi si cercano nel bestiario (PNG della campagna > generici > mostri).
 - **Z8-20** «Apri» toglie l'avviso dalla coda (l'evento è successo; la scheda resta nella scheda Eventi). Gli avvisi degli eventi e del riposo fermato non si tolgono con «tutti fatti»: chiedono una risposta.
