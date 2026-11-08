@@ -311,7 +311,7 @@ function cambiMeteoNelGiorno(c, meteo, da, a) {
 }
 
 // ------------------------------------------------------------------ campagne
-const IMPOSTAZIONI = { scorte: true, xp: false, pf_nemici: false, timer: false, timer_tv: false, soglia_timer: 0, incontri_casuali: false,
+const IMPOSTAZIONI = { scorte: true, xp: false, pf_nemici: false, timer: false, timer_tv: false, soglia_timer: 0,
   tv_xn: true, tv_fuori: 'barrate', tv_ora: false, tv_meteo: false, tv_solo_combattimento: true, f10: false, tema: 'scuro' };
 // dati: {nome, calendario, anno:{numero, etichetta}, partenza:{mese, giorno, ore, min, sett}, zona, pg:[schede], accompagnatori (senza nome),
 //        persone:[nomi degli accompagnatori], cibo, acqua, foraggio, impostazioni}
@@ -334,7 +334,7 @@ function creaCampagna(dati, meteo, rng, oraReale) {
     scorte: { cibo: dati.cibo, acqua: dati.acqua, foraggio: dati.foraggio, cibo_avariato: 0, acqua_impura: 0, recipienti: true }, razionamenti: [], foraggiato: null,
     compagnia: { senza_nome: dati.accompagnatori, persone: [], animali: [] },
     pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) }, png: [], incontri: [],
-    modelli: [], luci: [], promemoria: [], tiri: [],
+    modelli: [], luci: [], promemoria: [], tiri: [], eventi: { tabelle: [], schede: [], attesa: [] },
     ...CAMPI_3B(),
   };
   camp.tempo.R = tempoAssoluto(camp, dati.anno.numero, p.mese || 0, p.giorno || 1, p.ore || 0, p.min || 0);
@@ -351,7 +351,7 @@ const AREE_GUIDA = [['Terre selvagge', 20, null], ['Caverne e sotterranei', 15, 
   ['Campagna e colline; strade di collegamento', 5, null], ['Deserto o desolazione', 5, ['in oasi e rovine', 30]]];
 function areeGuida() { return AREE_GUIDA.map(([nome, perc, sp], i) => ({ id: 'ar' + (i + 1), nome, perc, speciale: sp ? { nome: sp[0], perc: sp[1] } : null, righe: [] })); }
 function CAMPI_3B() { return { medicinali: { attivo: false, n: 0 }, erbe: { attivo: false, n: 0, med_giorno: null, enigma_R: null }, n_comb: 0,
-  viaggio: { oggi: null, accumulo: 0, tirato: false, incontro_in: null, area: null, speciale: false, attivo: null, ultima: null }, aree: areeGuida(), stallaggio: null }; }
+  viaggio: { oggi: null, accumulo: 0, tirato: false, incontro_in: null, area: null, speciale: false, attivo: null, ultima: null }, stallaggio: null }; }
 function duplicaCampagna(camp, rng, oraReale) {
   const c = clona(camp); c.id = (oraReale || 0).toString(36) + nuovoId(rng); c.nome = camp.nome + ' (copia)'; c.creata = c.modificata = oraReale || 0; return c;
 }
@@ -444,6 +444,7 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   // Build 5b: descrizione e ricompense degli incontri, ordine
   for (const i of x.incontri || []) migraIncontro(i); if (!x.ordine_incontri) x.ordine_incontri = 'manuale';
   for (const p of x.pg) for (const [k, v] of [['cerusico', 0], ['erborista', false], ['erborista_gradi', 0]]) if (p.scheda[k] === undefined) p.scheda[k] = v;
+  migraEventi(x); // Build 5c
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -593,6 +594,7 @@ function avanza(camp, dR, meteo, rng, motivo, opz) {
     luciTempo(c, meteo, STRUMENTI, prec, t, rng);
     promemoriaTempo(c, prec, t);
     contatoriTempo(c, prec, t); // AG1-D
+    eventiTempo(c, prec, t, rng, !!(opz && opz.marcia)); // AG4-B
     if (t % ROUND_GIORNO === 0 && t > prec) { c = cambioGiorno(c, meteo, rng); }
     prec = t;
   }
@@ -643,7 +645,20 @@ function riposo(camp, meteo, rng, ids, opz) {
     for (const x of paz) { if (!scelti.some(p => p.id === x)) throw new Error('i pazienti devono riposare'); if (!Number.isInteger(as.esiti[x])) throw new Error('risultato della prova mancante'); }
   }
   const inizio = camp.tempo.R;
+  // AG4-B: un tiro per ogni riposo sulle tabelle con i tiri automatici; se esce un evento il riposo si ferma a quell'ora
+  const c0 = clona(camp), ev = riposoEventi(c0, rng, DUR / ROUND_ORA);
+  if (ev) {
+    let c = avanza(c0, ev.h * ROUND_ORA, meteo, rng, `${totale ? 'Riposo totale' : 'Riposo'} fermato alla ${ev.h}ª ora`);
+    const q = avvisoEvento(c, ev.t, rng, c.tempo.R, 'riposo');
+    c.riposo_sospeso = { ids: scelti.map(p => p.id), opz: { totale, assistenza: opz.assistenza || null, stanze: opz.stanze || null }, inizio, resta: DUR - ev.h * ROUND_ORA, q: q.id };
+    c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'riposo', testo: `Riposo fermato dall'evento alla ${ev.h}ª ora (${scelti.map(p => p.scheda.nome).join(', ')}): riprendilo per il recupero, oppure interrompilo.` });
+    return c;
+  }
   let c = avanza(camp, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
+  return concludiRiposo(c, scelti.map(p => p.id), opz, inizio, DUR, k, as, rng);
+}
+function concludiRiposo(c, ids, opz, inizio, DUR, k, as, rng) {
+  const totale = !!opz.totale, scelti = c.pg.filter(p => ids.includes(p.id));
   const assistiti = new Set(), recCar = {};
   if (as) {
     const paz = Object.keys(as.esiti), cd = pront().cerusico.assistenza.cd_base + paz.length, med = usaMedicinali(c, paz.length);
@@ -670,6 +685,19 @@ function riposo(camp, meteo, rng, ids, opz) {
   ricaricaContatori(c, 'riposo', scelti.map(p => p.id)); // AG1-C
   if (opz.stanze) stanzeLocanda(c, opz.stanze, rng);
   return c;
+}
+// Z8-8: «Riprendi il riposo» (finisce le ore che mancano, recupero pieno) · «Interrompi» (niente recupero, non conta per il limite)
+function riprendiRiposo(camp, meteo, rng) {
+  const s = camp.riposo_sospeso; if (!s) throw new Error('nessun riposo fermato');
+  let c = clona(camp); c.riposo_sospeso = null; c.coda = c.coda.filter(q => q.tipo !== 'riposo');
+  const DUR = s.opz.totale ? ROUND_GIORNO : DURATA_RIPOSO, k = s.opz.totale ? 2 : 1;
+  c = avanza(c, s.resta, meteo, rng, 'Il riposo riprende');
+  const as = s.opz.assistenza && Object.keys(s.opz.assistenza.esiti || {}).length ? s.opz.assistenza : null;
+  return concludiRiposo(c, s.ids.filter(id => c.pg.some(p => p.id === id)), s.opz, s.inizio, DUR, k, as, rng);
+}
+function interrompiRiposo(camp) {
+  if (!camp.riposo_sospeso) throw new Error('nessun riposo fermato');
+  const c = clona(camp); c.riposo_sospeso = null; c.coda = c.coda.filter(q => q.tipo !== 'riposo'); log(c, 'Riposo interrotto: nessun recupero'); return c;
 }
 
 // ------------------------------------------------------------------ scorte (Tabelle del Tempo Atmosferico, Cap. 4; AA2) e compagnia (AA3)
@@ -1014,6 +1042,7 @@ function togliDallaCoda(camp, i) {
   if (camp.coda[i] && camp.coda[i].tipo === 'razionamento') throw new Error('prima scegli chi usa la scorta');
   if (camp.coda[i] && ['ts', 'veleno'].includes(camp.coda[i].tipo)) throw new Error('rispondi Superato o Fallito');
   if (camp.coda[i] && camp.coda[i].tipo === 'morte') throw new Error('scegli cosa succede');
+  if (camp.coda[i] && camp.coda[i].tipo === 'riposo') throw new Error('riprendi o interrompi il riposo');
   const c = clona(camp); c.coda.splice(i, 1); return c;
 }
 
@@ -2858,7 +2887,7 @@ const TIPI_LOG = [
   ['tempo', /^Meteo|[Cc]omincia:|^Finisce |Nebbia|→ \S+ \d+ \S+ \d+|Riposo|Predire|[Zz]ona|[Vv]ariante|[Ll]uce|accesa|spent[ao]|si spegne|consumata|Promemoria|Inizio sessione/],
   ['tiri', /^Dadi:/],
 ];
-function tipoLog(testo) { if (/^Dadi:/.test(testo)) return 'tiri'; for (const [k, re] of TIPI_LOG) if (re.test(testo)) return k; return 'altro'; }
+function tipoLog(testo) { if (/^Dadi:/.test(testo)) return 'tiri'; if (/^Event[oi]\b/.test(testo)) return 'tempo'; for (const [k, re] of TIPI_LOG) if (re.test(testo)) return k; return 'altro'; }
 function iniziaSessione(camp) {
   const c = clona(camp), n = c.log.filter(e => e.sessione).length + 1;
   c.log.push({ R: c.tempo.R, testo: `— Inizio sessione ${n} —`, sessione: n }); return c;
@@ -3048,10 +3077,6 @@ function cdOrientarsi(c, meteo) {
   for (const m of O.mods) { const v = voci.find(x => m.voci.includes(x)); if (v) { cd += m.cd; mot.push(`${v} +${m.cd}`); } }
   return { cd, motivi: mot };
 }
-function probIncontro(c) {
-  const a = (c.aree || []).find(x => x.id === c.viaggio.area); if (!a) return null;
-  return { area: a, perc: c.viaggio.speciale && a.speciale ? a.speciale.perc : a.perc, speciale: c.viaggio.speciale && a.speciale ? a.speciale.nome : null };
-}
 // d: {mezzo: 'piedi'|'cavallo'|'pony'|'carro'|'barca'|'libera', kmh (libera o a piedi corretto), terreno, fuori_strada, racchette, suolo, ore | km, area, speciale}
 function avviaMarcia(camp, meteo, rng, d) {
   const V = pront().viaggi;
@@ -3065,7 +3090,6 @@ function avviaMarcia(camp, meteo, rng, d) {
   const ore = d.ore, km = d.km;
   if (!(ore > 0) && !(km > 0)) throw new Error('scrivi le ore o i km');
   const c = clona(camp);
-  if (d.area !== undefined) { c.viaggio.area = d.area || null; c.viaggio.speciale = !!d.speciale; }
   c.viaggio.attivo = { mezzo, kmh, terreno: d.terreno || 'pianura', fuori_strada: !!d.fuori_strada, racchette: !!d.racchette, suolo: d.suolo || 'nessuno',
     resta_min: ore > 0 ? Math.round(ore * 60) : null, resta_km: ore > 0 ? null : km, min: 0, km: 0, R0: c.tempo.R, evento: null, sospesa: false, lasciati: [] };
   log(c, `Marcia: ${mezzo === 'libera' ? kmh + ' km/h' : V.mezzi.find(x => x.id === mezzo).nome + ' (' + kmh + ' km/h)'}` + (mezzo !== 'barca' ? `, ${V.terreni.find(x => x.id === c.viaggio.attivo.terreno).nome}${d.fuori_strada ? ' fuori strada' : ''}` : '') + `, ${ore > 0 ? ore + ' ore' : km + ' km'}`);
@@ -3087,36 +3111,22 @@ function avanzaMarcia(c, meteo, rng) {
       a.evento = { tipo: 'forzata', cd, ora: o.prove_forzata + V.ore_giorno + 1, pg: c.pg.filter(p => !a.lasciati.includes(p.id)).map(p => ({ id: p.id, nome: p.scheda.nome })), cavalcature: a.mezzo === 'piedi' || a.mezzo === 'barca' ? [] : cav };
       return c;
     }
-    // incontri casuali: all'inizio di ogni blocco di 6 ore di marcia il d%; l'incontro a un'ora del blocco (1d6)
-    const inc = c.impostazioni.incontri_casuali ? probIncontro(c) : null;
-    if (inc) {
-      const v = c.viaggio;
-      if (v.accumulo === 0 && !v.tirato) {
-        v.tirato = true; const t = d(100, rng);
-        if (t <= inc.perc) { v.incontro_in = d(6, rng); log(c, `Incontri casuali (${inc.area.nome}${inc.speciale ? ', ' + inc.speciale : ''}): d% ${t} su ${inc.perc}% → incontro alla ${v.incontro_in}ª ora di marcia del blocco`); }
-        else { v.incontro_in = null; log(c, `Incontri casuali (${inc.area.nome}${inc.speciale ? ', ' + inc.speciale : ''}): nessun incontro (${t} su ${inc.perc}%)`); }
-      }
-      if (v.incontro_in !== null && v.incontro_in === Math.floor(v.accumulo) + 1 && !a.incontro_fatto) {
-        const comp = composizione(c, inc.area, rng);
-        a.evento = { tipo: 'incontro', area: inc.area.nome, R: c.tempo.R, meteo: vociAllOra(c, meteo, c.tempo.R), ...comp };
-        a.incontro_fatto = true;
-        log(c, `Incontro casuale (${inc.area.nome}) alle ${formatoData(c).split(', ').pop()}: ${comp.testo}`);
-        return c;
-      }
-    }
+    // AG4-B eventi casuali delle tabelle con i tiri automatici: la marcia si ferma all'ora dell'evento
+    const qe = marciaEventi(c, rng);
+    if (qe) { a.evento = { tipo: 'evento', q: qe.id }; return c; }
     // un'ora (o il resto) di marcia
     const { k, motivi } = moltMarcia(c, meteo, a, c.tempo.R), kmh = a.kmh * k;
     let passo = 60 - (o.min % 60);
     if (a.resta_min !== null) passo = Math.min(passo, a.resta_min);
-    if (inc && c.viaggio.incontro_in !== null) passo = Math.min(passo, 60 - Math.round((c.viaggio.accumulo % 1) * 60) || 60);
+    passo = Math.min(passo, passoMarciaEventi(c));
     if (a.resta_km !== null) { const serve = Math.ceil(a.resta_km / kmh * 60 - 1e-9); passo = Math.min(passo, Math.max(1, serve)); }
     const km = Math.min(kmh * passo / 60, a.resta_km !== null ? a.resta_km : Infinity);
     a.km += km; a.min += passo; if (a.resta_min !== null) a.resta_min -= passo; if (a.resta_km !== null) a.resta_km = Math.max(0, a.resta_km - km);
     a.ultimi = motivi;
     const R0 = c.tempo.R;
-    c = avanza(c, passo * ROUND_MIN, meteo, rng, null);
+    c = avanza(c, passo * ROUND_MIN, meteo, rng, null, { marcia: true });
     const o2 = oggiViaggio(c); o2.min = o2.giorno === o.giorno ? o.min + passo : Math.round((c.tempo.R % ROUND_GIORNO) / ROUND_MIN); // dopo la mezzanotte contano i minuti del giorno nuovo
-    if (inc) { const v = c.viaggio; v.accumulo += passo / 60; if (v.accumulo >= 6 - 1e-9) { v.accumulo = 0; v.tirato = false; v.incontro_in = null; c.viaggio.attivo.incontro_fatto = false; } }
+    dopoPassoMarcia(c, passo);
     if (c.tempo.R === R0) break;
   }
   return c;
@@ -3132,7 +3142,7 @@ function fineMarcia(c, motivo) {
 function rispondiMarcia(camp, meteo, rng, r) {
   const c = clona(camp), a = c.viaggio.attivo; if (!a) throw new Error('nessuna marcia in corso');
   if (r.termina) return fineMarcia(c, 'fermata dal GM');
-  if (r.riprendi) { if (!a.sospesa) throw new Error('la marcia non è sospesa'); a.sospesa = false; log(c, 'La marcia riprende'); return avanzaMarcia(c, meteo, rng); }
+  if (r.riprendi) { if (a.evento) throw new Error('prima rispondi all\'evento'); if (a.sospesa) log(c, 'La marcia riprende'); a.sospesa = false; return avanzaMarcia(c, meteo, rng); }
   const e = a.evento; if (!e) throw new Error('niente da rispondere');
   const o = oggiViaggio(c);
   if (e.tipo === 'orientarsi') {
@@ -3156,56 +3166,6 @@ function rispondiMarcia(camp, meteo, rng, r) {
   return avanzaMarcia(c, meteo, rng);
 }
 // ---- AC6 aree degli incontri casuali e tabelle d%
-function controllaRighe(righe) {
-  const msg = [], usati = new Array(101).fill(0);
-  for (const r of righe) {
-    if (!(Number.isInteger(r.da) && Number.isInteger(r.a) && r.da >= 1 && r.a <= 100 && r.da <= r.a)) { msg.push(`intervallo non valido: ${r.da}-${r.a}`); continue; }
-    for (let i = r.da; i <= r.a; i++) usati[i]++;
-  }
-  const buchi = [], doppi = [];
-  for (let i = 1; i <= 100; i++) { if (!usati[i]) buchi.push(i); if (usati[i] > 1) doppi.push(i); }
-  const intervalli = l => { const out = []; for (const x of l) { const u = out[out.length - 1]; if (u && u[1] === x - 1) u[1] = x; else out.push([x, x]); } return out.map(([a, b]) => a === b ? String(a).padStart(2, '0') : `${String(a).padStart(2, '0')}-${String(b).padStart(2, '0')}`).join(', '); };
-  if (righe.length && buchi.length) msg.push(`buchi: ${intervalli(buchi)}`);
-  if (doppi.length) msg.push(`sovrapposizioni: ${intervalli(doppi)}`);
-  return msg;
-}
-function salvaArea(camp, a) {
-  const nome = String(a.nome || '').trim(); if (!nome) throw new Error('l\'area non ha un nome');
-  if (!(Number.isInteger(a.perc) && a.perc >= 0 && a.perc <= 100)) throw new Error('probabilità non valida');
-  if (a.speciale && !(String(a.speciale.nome || '').trim() && Number.isInteger(a.speciale.perc) && a.speciale.perc >= 0 && a.speciale.perc <= 100)) throw new Error('area speciale non valida');
-  const righe = (a.righe || []).map(r => ({ da: r.da, a: r.a, testo: String(r.testo || '').trim(),
-    partecipanti: (r.partecipanti || []).filter(p => String(p.nome || '').trim()).map(p => ({ nome: String(p.nome).trim(), dadi: String(p.dadi || '1').trim() || '1', rif: pulisciRif(p.rif) })) }));
-  for (const r of righe) { for (const p of r.partecipanti) tira(p.dadi, () => 0); if (!r.testo && !r.partecipanti.length) throw new Error(`riga ${r.da}-${r.a} vuota`); }
-  if (controllaRighe(righe).some(x => x.startsWith('intervallo'))) throw new Error(controllaRighe(righe).join('; '));
-  const c = clona(camp), x = { id: a.id || prossimoId(c, 'area'), nome, perc: a.perc, speciale: a.speciale ? { nome: a.speciale.nome.trim(), perc: a.speciale.perc } : null, righe: righe.sort((p, q) => p.da - q.da) };
-  const i = c.aree.findIndex(y => y.id === x.id); if (i >= 0) c.aree[i] = x; else c.aree.push(x);
-  log(c, `Incontri casuali: area «${x.nome}» salvata (${x.perc}%${x.speciale ? `, ${x.speciale.nome} ${x.speciale.perc}%` : ''}, ${x.righe.length} righe)`); return c;
-}
-function eliminaArea(camp, id) { const c = clona(camp), a = c.aree.find(x => x.id === id); if (!a) throw new Error('area non trovata'); c.aree = c.aree.filter(x => x !== a); if (c.viaggio.area === id) c.viaggio.area = null; log(c, `Incontri casuali: area «${a.nome}» eliminata`); return c; }
-function copiaTabella(camp, daId, aId) { const c = clona(camp), da = c.aree.find(x => x.id === daId), a = c.aree.find(x => x.id === aId); if (!da || !a) throw new Error('area non trovata'); a.righe = clona(da.righe); return c; }
-// composizione: d% sulla tabella dell'area, quantità tirate
-function composizione(c, area, rng) {
-  if (!area.righe.length) return { tiro: null, riga: null, partecipanti: [], testo: 'incontro: scegli tu (l\'area non ha una tabella)' };
-  const t = d(100, rng), r = area.righe.find(x => t >= x.da && t <= x.a);
-  if (!r) return { tiro: t, riga: null, partecipanti: [], testo: `d% ${t}: nessuna riga della tabella (scegli tu)` };
-  const part = r.partecipanti.map(p => ({ nome: p.nome, n: Math.max(1, tira(p.dadi, rng).totale), dadi: p.dadi, rif: p.rif }));
-  return { tiro: t, riga: `${r.da}-${r.a}`, partecipanti: part, testo: `d% ${t}: ` + [part.map(p => `${p.n} ${p.nome}${p.dadi !== '1' ? ` (${p.dadi})` : ''}`).join(', '), r.testo].filter(Boolean).join(' — ') };
-}
-// «Tira incontro» a mano: area, notte al riparo −5%; l'ora è il 2d12 della Guida, come promemoria a quell'ora
-function tiraIncontro(camp, rng, o) {
-  const a = (camp.aree || []).find(x => x.id === o.area); if (!a) throw new Error('scegli l\'area');
-  const I = pront().incontri, base = o.speciale && a.speciale ? a.speciale.perc : a.perc, perc = Math.max(0, base - (o.riparo ? I.riparo : 0)), t = d(100, rng);
-  const c = clona(camp), nome = `${a.nome}${o.speciale && a.speciale ? ', ' + a.speciale.nome : ''}${o.riparo ? ', notte al riparo' : ''}`;
-  if (t > perc) { log(c, `Incontri casuali (${nome}): nessun incontro (${t} su ${perc}%)`); return { camp: c, esce: false, tiro: t, perc }; }
-  const ora = tira(I.ora, rng).totale, oggi = Math.floor(c.tempo.R / ROUND_GIORNO) * ROUND_GIORNO;
-  let R = oggi + (ora % 24) * ROUND_ORA; if (R <= c.tempo.R) R += ROUND_GIORNO;
-  const comp = composizione(c, a, rng);
-  c.promemoria.push({ id: prossimoId(c, 'pr'), testo: `Incontro casuale (${a.nome}): ${comp.testo}`, R, incontro: { area: a.nome, ...comp } });
-  c.promemoria.sort((x, y) => x.R - y.R);
-  log(c, `Incontri casuali (${nome}): d% ${t} su ${perc}% → incontro alle ${String(ora % 24).padStart(2, '0')}:00 (2d12 = ${ora}), ${formatoData(c, R)}: ${comp.testo}`);
-  return { camp: c, esce: true, tiro: t, perc, R, ora, ...comp };
-}
-
 // ---- AC7 Pericoli: cadere, trattenere il fiato, fumo, alta quota
 // metri → dadi della tabella (0 sotto i 3 m; null = morte)
 function dadiCaduta(m) { const C = pront().cadere; if (m < C.righe[0].da) return 0; if (m >= C.morte) return null; return C.righe.find(r => m >= r.da && m <= r.a).dadi; }
@@ -3715,7 +3675,7 @@ function leggiIncontro(testo, trova) {
   const blocchi = leggiStatBlock(testo), inBlocco = new Array(righe.length).fill(false);
   const inizi = righe.map((r, i) => eTestata(r) ? i : -1).filter(i => i >= 0);
   inizi.forEach((i, j) => { const fine = j + 1 < inizi.length ? inizi[j + 1] : righe.length;
-    for (let k = i; k < fine; k++) { const t = righe[k].trim(); if (k > i && (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t) || (sezIncDi(t) && !/^NOTE$/i.test(t)) || RE_PARTE.test(t))) break; inBlocco[k] = true; } });
+    for (let k = i; k < fine; k++) { const t = righe[k].trim(); if (k > i && (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t) || (sezIncDi(t) && !/^NOTE$/i.test(t) && !/^Ambiente\s*:/i.test(t)) || RE_PARTE.test(t))) break; inBlocco[k] = true; } });
   let sez = null, titolo = '', altroTit = '';
   const parti = [], agg = (k, x) => { inc[k] = inc[k] ? inc[k] + '\n' + x : x; };
   for (let i = 0; i < righe.length; i++) {
@@ -3732,10 +3692,7 @@ function leggiIncontro(testo, trova) {
       parti.push({ nome: m[1].replace(/^[-•]\s*/, '').trim(), n: +m[2], nota: extra, riga: i }); continue; }
     if (sez === 'partecipanti' && (m = t.match(/^[-•]\s*(.+?)(?:\s*[×x]\s*(\d+))?(?:\s*·\s*(.*))?$/))) { parti.push({ nome: m[1].trim(), n: m[2] ? +m[2] : 1, nota: m[3] || '', riga: i }); continue; }
     if (sez === 'ricompense') {
-      if (/^💰\s*TESORO/i.test(t)) { const tz = { livello: '', quantita: '', dove: '', note: '' };
-        for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Livello(?: di riferimento)?|Quantità|Dove|Note)\s*:\s*(.*)$/i);
-          if (mm) tz[{ livello: 'livello', 'livello di riferimento': 'livello', 'quantità': 'quantita', dove: 'dove', note: 'note' }[mm[1].toLowerCase()]] = mm[2].trim(); }
-        inc.ricompense.tesoro = tz; continue; }
+      if (/^💰\s*TESORO/i.test(t)) { inc.ricompense.tesoro = leggiTesoroRiga(t); continue; }
       let resto = t;
       if (/^XP\s*:/i.test(t)) { // le righe «+N motivo» diventano XP in più; il resto resta nel testo
         const pezzi = t.replace(/^XP\s*:\s*/i, '').split(/\s*·\s*/), tenuti = [];
@@ -3774,6 +3731,706 @@ function leggiIncontro(testo, trova) {
   return { incontro: inc, voci, avvisi };
 }
 
+// ------------------------------------------------------------------ AG4 eventi casuali (Build 5c)
+const TIPI_EVENTO = [
+  { id: 'sociale', icona: '🗣', nome: 'Incontro PNG' }, { id: 'ostacolo', icona: '🧱', nome: 'Ostacolo' }, { id: 'pericolo', icona: '🌿', nome: 'Pericolo naturale' },
+  { id: 'scoperta', icona: '🔍', nome: 'Scoperta' }, { id: 'combattimento', icona: '⚔', nome: 'Combattimento' }, { id: 'libero', icona: '🎲', nome: 'A discrezione' }];
+const DADI_EVENTI = [4, 6, 8, 10, 12, 20, 100];
+const iconaTipo = t => (TIPI_EVENTO.find(x => x.id === t) || { icona: '' }).icona;
+const nomeDado = f => f === 100 ? 'd%' : 'd' + f;
+const fmtNum = (n, f) => f === 100 ? (n === 100 ? '00' : String(n).padStart(2, '0')) : String(n);
+function tipoDaTesto(t) {
+  const s = String(t || '');
+  if (/🗣|social|\bPNG\b/i.test(s)) return 'sociale';
+  if (/🧱|ostacol/i.test(s)) return 'ostacolo';
+  if (/🌿|pericol/i.test(s)) return 'pericolo';
+  if (/🔍|scopert/i.test(s)) return 'scoperta';
+  if (/⚔|combatt/i.test(s)) return 'combattimento';
+  if (/🎲|discrezion|liber/i.test(s)) return 'libero';
+  return '';
+}
+const CAMPI_PROFILO = [
+  ['nome', 'Nome'], ['titolo', 'Titolo o soprannome'], ['ruolo', 'Ruolo'], ['allineamento', 'Allineamento'], ['razza', 'Razza'],
+  ['gancio', 'Gancio visivo'], ['aspetto', 'Aspetto'], ['voce', 'Voce e modo di muoversi'],
+  ['bisogno', 'Bisogno profondo'], ['paura', 'Paura principale'], ['umore', 'Stato d\'animo'],
+  ['aggettivi', 'Tre aggettivi'], ['tic', 'Tic verbale'], ['frase', 'Frase d\'apertura'], ['pressione', 'Sotto pressione'],
+  ['obiettivo', 'Obiettivo'], ['metodo', 'Metodo'], ['leva', 'Leva'], ['limite', 'Limite'], ['informazioni', 'Informazioni'], ['altro', 'Altro del profilo']];
+const GRUPPI_PROFILO = [['', ['ruolo', 'allineamento', 'razza']], ['Descrizione fisica', ['gancio', 'aspetto', 'voce']], ['Profilo emotivo', ['bisogno', 'paura', 'umore']],
+  ['Profilo caratteriale', ['aggettivi', 'tic', 'frase', 'pressione']], ['Ruolo nell\'evento', ['obiettivo', 'metodo', 'leva', 'limite', 'informazioni']], ['', ['altro']]];
+function profiloVuoto() { const p = {}; for (const [k] of CAMPI_PROFILO) p[k] = ''; return p; }
+function schedaEventoVuota() { return { id: '', numero: '', titolo: '', tipo: '', difficolta: '', terreno: '', descrizione: '', nota_gm: '', indizi: '', profili: [], ricompense: ricompenseVuote(), altro: [], stato: 'da giocare', giocato_R: null, tabella: null }; }
+function vocePorta(p) { return p && ['evento', 'incontro', 'creature', 'testo'].includes(p.tipo) ? p : { tipo: 'testo' }; }
+function tabellaVuota() { return { id: '', nome: '', dado: 20, note: '', no_ripetere: false, territori: [], territorio: '', quando: [], auto: false, voci: [], uscite: [], conta: {}, origine: '' }; }
+// Z8-7: righe del «Quando»: tipo marcia | tempo | riposo; ogni N ore o giorni (non per il riposo); % oppure dado con i valori
+function oreQuando(q) { return q.tipo === 'riposo' ? 0 : q.unita === 'giorni' ? q.ogni * (q.tipo === 'marcia' ? pront().viaggi.ore_giorno : 24) : q.ogni; }
+function controllaQuando(q) {
+  if (!['marcia', 'tempo', 'riposo'].includes(q.tipo)) return 'tipo del «Quando» non valido';
+  if (q.tipo !== 'riposo' && !(q.ogni > 0 && ['ore', 'giorni'].includes(q.unita))) return '«ogni» non valido';
+  if (q.perc !== null && q.perc !== undefined) { if (!(Number.isInteger(q.perc) && q.perc >= 0 && q.perc <= 100)) return 'probabilità non valida'; return null; }
+  const m = String(q.dado || '').match(/^(\d*)d(\d+)$/i); if (!m) return 'scrivi la probabilità (% o dado)';
+  const v = valoriDado(q.valori, +(m[1] || 1) * +m[2]); if (!v) return 'valori del dado non validi';
+  return null;
+}
+// «4-6», «5–6», «6», «1, 3-4»
+function valoriDado(t, max) {
+  const out = new Set(), s = String(t || '').replace(/[–—]/g, '-').trim(); if (!s) return null;
+  for (const pz of s.split(/\s*[,;e]\s*/)) { const m = pz.match(/^(\d+)(?:\s*-\s*(\d+))?$/); if (!m) return null;
+    const a = +m[1], b = m[2] ? +m[2] : a; if (a > b || a < 1 || (max && b > max)) return null; for (let i = a; i <= b; i++) out.add(i); }
+  return out;
+}
+function testoQuando(q) {
+  const p = q.perc !== null && q.perc !== undefined ? `${q.perc}%` : `${q.dado} ${String(q.valori).replace(/-/g, '–')}`;
+  if (q.tipo === 'riposo') return `a ogni riposo: ${p}`;
+  return `ogni ${q.ogni} ${q.unita === 'giorni' ? (q.ogni === 1 ? 'giorno' : 'giorni') : (q.ogni === 1 ? 'ora' : 'ore')} di ${q.tipo === 'marcia' ? 'marcia' : 'tempo'}: ${p}`;
+}
+function esitoProbabilita(q, rng) {
+  if (q.perc !== null && q.perc !== undefined) { const t = d(100, rng); return { esce: t <= q.perc, testo: `d% ${t} su ${q.perc}%` }; }
+  const m = q.dado.match(/^(\d*)d(\d+)$/i), t = tira(q.dado, rng).totale, v = valoriDado(q.valori, +(m[1] || 1) * +m[2]);
+  return { esce: v.has(t), testo: `${q.dado} = ${t} su ${String(q.valori).replace(/-/g, '–')}` };
+}
+function controllaVoci(voci, facce) {
+  const msg = [], usati = new Array(facce + 1).fill(0);
+  for (const r of voci) {
+    if (!(Number.isInteger(r.da) && Number.isInteger(r.a) && r.da >= 1 && r.a <= facce && r.da <= r.a)) { msg.push(`intervallo non valido: ${r.da}-${r.a}`); continue; }
+    for (let i = r.da; i <= r.a; i++) usati[i]++;
+  }
+  const buchi = [], doppi = [];
+  for (let i = 1; i <= facce; i++) { if (!usati[i]) buchi.push(i); if (usati[i] > 1) doppi.push(i); }
+  const intervalli = l => { const out = []; for (const x of l) { const u = out[out.length - 1]; if (u && u[1] === x - 1) u[1] = x; else out.push([x, x]); }
+    return out.map(([a, b]) => a === b ? fmtNum(a, facce) : `${fmtNum(a, facce)}-${fmtNum(b, facce)}`).join(', '); };
+  if (voci.length && buchi.length) msg.push(`buchi: ${intervalli(buchi)}`);
+  if (doppi.length) msg.push(`sovrapposizioni: ${intervalli(doppi)}`);
+  return msg;
+}
+function controllaRighe(righe) { return controllaVoci(righe, 100); }
+function intervalloVoce(v, facce) { return v.da === v.a ? fmtNum(v.da, facce) : `${fmtNum(v.da, facce)}–${fmtNum(v.a, facce)}`; }
+function pulisciVoce(v, c) {
+  const x = { id: v.id || prossimoId(c, 'vo'), da: v.da, a: v.a, titolo: String(v.titolo || '').trim(), tipo: TIPI_EVENTO.some(t => t.id === v.tipo) ? v.tipo : '',
+    difficolta: String(v.difficolta || '').trim(), dove: String(v.dove || '').trim(), territori: (v.territori || []).map(String).filter(Boolean), ripetibile: !!v.ripetibile,
+    note: String(v.note || '').trim(), testo: String(v.testo || '').trim(), porta: vocePorta(v.porta ? clona(v.porta) : null) };
+  if (x.porta.tipo === 'creature') { x.porta.creature = (x.porta.creature || []).filter(p => String(p.nome || '').trim()).map(p => ({ nome: String(p.nome).trim(), dadi: String(p.dadi || '1').trim() || '1', rif: pulisciRif(p.rif) }));
+    for (const p of x.porta.creature) tira(p.dadi, () => 0); if (!x.porta.creature.length) throw new Error(`voce ${x.da}-${x.a}: nessuna creatura`); }
+  if ((x.porta.tipo === 'evento' || x.porta.tipo === 'incontro') && !x.porta.id) throw new Error(`voce ${x.da}-${x.a}: scegli ${x.porta.tipo === 'evento' ? 'la scheda evento' : 'l\'incontro'}`);
+  if (x.porta.tipo === 'testo' && !x.testo && !x.titolo) throw new Error(`voce ${x.da}-${x.a} vuota`);
+  return x;
+}
+function salvaTabella(camp, t) {
+  const nome = String(t.nome || '').trim(); if (!nome) throw new Error('la tabella non ha un nome');
+  if (!DADI_EVENTI.includes(t.dado)) throw new Error('dado non valido');
+  const c = clona(camp); c.eventi = c.eventi || { tabelle: [], schede: [] };
+  for (const q of t.quando || []) { const e = controllaQuando(q); if (e) throw new Error(e); }
+  const voci = (t.voci || []).map(v => pulisciVoce(v, c)).sort((p, q) => p.da - q.da);
+  const err = controllaVoci(voci, t.dado).filter(x => x.startsWith('intervallo')); if (err.length) throw new Error(err.join('; '));
+  const vecchia = t.id ? c.eventi.tabelle.find(x => x.id === t.id) : null;
+  const territori = [...new Set((t.territori || []).map(x => String(x).trim()).filter(Boolean))];
+  const x = { ...tabellaVuota(), id: t.id || prossimoId(c, 'tb'), nome, dado: t.dado, note: String(t.note || '').trim(), no_ripetere: !!t.no_ripetere, territori,
+    territorio: territori.includes(t.territorio) ? t.territorio : '',
+    quando: (t.quando || []).map(q => ({ tipo: q.tipo, ogni: q.tipo === 'riposo' ? null : q.ogni, unita: q.tipo === 'riposo' ? null : q.unita, perc: q.perc !== null && q.perc !== undefined ? q.perc : null, dado: q.perc !== null && q.perc !== undefined ? null : q.dado, valori: q.perc !== null && q.perc !== undefined ? null : String(q.valori).replace(/[–—]/g, '-') })),
+    auto: vecchia ? vecchia.auto : !!t.auto, voci, uscite: (t.uscite !== undefined ? t.uscite : vecchia ? vecchia.uscite : []).filter(id => voci.some(v => v.id === id)), conta: {}, origine: t.origine || (vecchia && vecchia.origine) || '' };
+  // i conteggi restano se il «Quando» non cambia
+  if (vecchia && JSON.stringify(vecchia.quando) === JSON.stringify(x.quando)) x.conta = vecchia.conta || {};
+  else if (x.auto) x.conta = contaNuovi(x, c.tempo.R);
+  for (const v of x.voci) v.territori = v.territori.filter(k => territori.includes(k));
+  const i = c.eventi.tabelle.findIndex(y => y.id === x.id); if (i >= 0) c.eventi.tabelle[i] = x; else c.eventi.tabelle.push(x);
+  log(c, `Eventi: tabella «${x.nome}» salvata (${nomeDado(x.dado)}, ${x.voci.length} voci)`); return c;
+}
+function contaNuovi(t, R) { const o = {}; t.quando.forEach((q, i) => { o[i] = q.tipo === 'marcia' ? { acc: 0, tirato: false, in: null, fatto: false } : q.tipo === 'tempo' ? { inizio: R } : {}; }); return o; }
+function tabellaDi(c, id) { const t = ((c.eventi && c.eventi.tabelle) || []).find(x => x.id === id); if (!t) throw new Error('tabella non trovata'); return t; }
+function eliminaTabella(camp, id) {
+  const c = clona(camp), t = tabellaDi(c, id); c.eventi.tabelle = c.eventi.tabelle.filter(x => x !== t);
+  c.coda = c.coda.filter(q => !(q.tipo === 'evento' && q.ev.tabella === id)); c.eventi.attesa = (c.eventi.attesa || []).filter(a => a.tabella !== id);
+  log(c, `Eventi: tabella «${t.nome}» eliminata`); return c;
+}
+function impostaAuto(camp, id, on) {
+  const c = clona(camp), t = tabellaDi(c, id); t.auto = !!on; t.conta = on ? contaNuovi(t, c.tempo.R) : {};
+  if (!on) c.eventi.attesa = (c.eventi.attesa || []).filter(a => a.tabella !== id || a.manuale);
+  log(c, `Eventi: tiri automatici ${on ? 'accesi' : 'spenti'} su «${t.nome}»`); return c;
+}
+function impostaTerritorio(camp, id, terr) { const c = clona(camp), t = tabellaDi(c, id); if (terr && !t.territori.includes(terr)) throw new Error('territorio non valido'); t.territorio = terr || ''; return c; }
+function azzeraUscite(camp, id) { const c = clona(camp), t = tabellaDi(c, id); const n = t.uscite.length; t.uscite = []; log(c, `Eventi: «${t.nome}», uscite azzerate (${n})`); return c; }
+function salvaSchedaEvento(camp, s) {
+  const titolo = String(s.titolo || '').trim(); if (!titolo) throw new Error('la scheda evento non ha un titolo');
+  const c = clona(camp); c.eventi = c.eventi || { tabelle: [], schede: [] };
+  const x = { ...schedaEventoVuota(), ...clona(s), id: s.id || prossimoId(c, 'ev'), titolo };
+  x.profili = (x.profili || []).map(p => ({ ...profiloVuoto(), ...p })).filter(p => CAMPI_PROFILO.some(([k]) => String(p[k] || '').trim()));
+  x.altro = (x.altro || []).filter(a => String(a.titolo || '').trim() || String(a.testo || '').trim());
+  x.ricompense = x.ricompense || ricompenseVuote(); const er = controllaRicompense(x.ricompense); if (er) throw new Error(er);
+  const i = c.eventi.schede.findIndex(y => y.id === x.id); if (i >= 0) c.eventi.schede[i] = x; else c.eventi.schede.push(x);
+  return c;
+}
+function eliminaSchedaEvento(camp, id) {
+  const c = clona(camp), s = c.eventi.schede.find(x => x.id === id); if (!s) throw new Error('scheda evento non trovata');
+  c.eventi.schede = c.eventi.schede.filter(x => x !== s);
+  for (const t of c.eventi.tabelle) for (const v of t.voci) if (v.porta.tipo === 'evento' && v.porta.id === id) { v.porta = { tipo: 'testo' }; if (!v.titolo) v.titolo = s.titolo; }
+  return c;
+}
+function segnaEventoGiocato(camp, id, giocato) {
+  const c = clona(camp), s = c.eventi.schede.find(x => x.id === id); if (!s) throw new Error('scheda evento non trovata');
+  s.stato = giocato ? 'giocato' : 'da giocare'; s.giocato_R = giocato ? c.tempo.R : null;
+  if (giocato) { const xp = xpExtra(s); log(c, `Evento «${titoloEvento(s)}» giocato${xp ? ` (XP ${migliaia(xp)})` : ''}`); }
+  return c;
+}
+const titoloEvento = s => (s.numero ? s.numero + ' — ' : '') + s.titolo;
+// «+ Tabella → Dalla Guida»: le 6 aree della Guida del DM come tabelle d% vuote (Z8-5)
+function tabellaDallaGuida(camp, i) {
+  const a = pront().incontri.aree[i]; if (!a) throw new Error('area non trovata');
+  return salvaTabella(camp, { nome: a.nome, dado: 100, quando: [{ tipo: 'marcia', ogni: pront().incontri.ogni_ore, unita: 'ore', perc: a.perc }], voci: [], origine: 'guida',
+    note: `Guida del DM: ${a.perc}% ogni ${pront().incontri.ogni_ore} ore di marcia${a.speciale ? `; ${a.speciale.nome} ${a.speciale.perc}%` : ''}. Tiro a mano la notte al riparo: −${pront().incontri.riparo}% (Sopravvivenza CD 15).` });
+}
+
+// ---- tiri sulla tabella (Z8-10)
+function vocePerTiro(t, n) { return t.voci.find(v => n >= v.da && n <= v.a) || null; }
+function motivoScarto(t, v, terr) {
+  if (!v) return null;
+  if (t.no_ripetere && !v.ripetibile && t.uscite.includes(v.id)) return 'già uscita';
+  if (terr && v.territori.length && !v.territori.includes(terr)) return 'fuori dal territorio';
+  return null;
+}
+function tiraVoce(t, rng, opz = {}) {
+  const terr = opz.territorio !== undefined ? opz.territorio : t.territorio, escludi = opz.escludi || null;
+  const valida = n => { const v = vocePerTiro(t, n); return v && !motivoScarto(t, v, terr) && v.id !== escludi; };
+  const valide = []; for (let n = 1; n <= t.dado; n++) if (valida(n)) valide.push(n);
+  const ritirati = [];
+  if (!valide.length) return { tiro: null, voce: null, ritirati, testo: 'nessuna voce disponibile: scegli tu' };
+  let n = d(t.dado, rng), giri = 0;
+  while (!valida(n)) { const v = vocePerTiro(t, n); ritirati.push(`${fmtNum(n, t.dado)} (${v ? (v.id === escludi ? 'appena uscita' : motivoScarto(t, v, terr)) : 'nessuna voce'}, si ritira)`);
+    n = ++giri < 30 ? d(t.dado, rng) : valide[Math.floor(rng() * valide.length)]; }
+  const v = vocePerTiro(t, n);
+  return { tiro: n, voce: v.id, ritirati, testo: `${ritirati.length ? ritirati.join(' → ') + ' → ' : ''}${fmtNum(n, t.dado)} su ${nomeDado(t.dado)}` };
+}
+function composizioneVoce(v, rng) { return v.porta.tipo === 'creature' ? v.porta.creature.map(p => ({ nome: p.nome, n: Math.max(1, tira(p.dadi, rng).totale), dadi: p.dadi, rif: p.rif })) : []; }
+function nomeVoce(c, v) {
+  if (v.titolo) return v.titolo;
+  if (v.porta.tipo === 'evento') { const s = ((c.eventi && c.eventi.schede) || []).find(x => x.id === v.porta.id); if (s) return titoloEvento(s); }
+  if (v.porta.tipo === 'incontro') { const i = (c.incontri || []).find(x => x.id === v.porta.id); if (i) return i.titolo; }
+  if (v.porta.tipo === 'creature') return v.porta.creature.map(p => `${p.dadi !== '1' ? p.dadi + ' ' : ''}${p.nome}`).join(', ');
+  return v.testo.slice(0, 60);
+}
+// crea l'avviso dell'evento nella coda (la voce conta come uscita dal momento del tiro, Z8-9)
+function avvisoEvento(c, t, rng, R, origine, terr) {
+  const tv = tiraVoce(t, rng, { territorio: terr }), v = tv.voce ? t.voci.find(x => x.id === tv.voce) : null;
+  const comp = v ? composizioneVoce(v, rng) : [];
+  if (v && !t.uscite.includes(v.id)) t.uscite.push(v.id);
+  const ora = formatoData(c, R).split(', ').pop(), nome = v ? nomeVoce(c, v) : '';
+  const q = { id: prossimoId(c, 'q'), R, tipo: 'evento', ev: { tabella: t.id, voce: v ? v.id : null, tiro: tv.tiro, comp, origine, terr: terr !== undefined ? terr : t.territorio },
+    testo: v ? `${nome} (${fmtNum(tv.tiro, t.dado)} su ${nomeDado(t.dado)}) alle ${ora}${comp.length ? ' — ' + comp.map(p => `${p.n} ${p.nome}`).join(', ') : ''}` : `${t.nome}: ${tv.testo} (alle ${ora})` };
+  q.ev.senza_terr = !!(t.territori.length && !q.ev.terr);
+  c.coda.push(q);
+  log(c, `Eventi (${t.nome}, ${origine}): ${tv.testo}${v ? ` → ${nome}` : ''}, alle ${ora}${comp.length ? ` (${comp.map(p => `${p.n} ${p.nome}`).join(', ')})` : ''}`);
+  return q;
+}
+// «Tira» a mano (Z8-6): prob = prima la probabilità (prima riga del «Quando» con una probabilità); entro = ore (ora a caso) oppure adesso
+function tiraEvento(camp, rng, o = {}) {
+  const c = clona(camp), t = tabellaDi(c, o.tabella);
+  if (o.territorio !== undefined && o.territorio && !t.territori.includes(o.territorio)) throw new Error('territorio non valido');
+  if (o.prob) { const q = t.quando[0]; if (!q) throw new Error('la tabella non ha una probabilità nel «Quando»');
+    const e = esitoProbabilita(q, rng); if (!e.esce) { log(c, `Eventi (${t.nome}, a mano): nessun evento (${e.testo})`); return { camp: c, esce: false, testo: e.testo }; }
+    log(c, `Eventi (${t.nome}, a mano): ${e.testo} → evento`); }
+  if (o.entro > 0) {
+    const R = c.tempo.R + 1 + Math.floor(rng() * o.entro * ROUND_ORA);
+    c.eventi.attesa = c.eventi.attesa || []; c.eventi.attesa.push({ tabella: t.id, R, origine: 'a mano', terr: o.territorio, manuale: true }); c.eventi.attesa.sort((a, b) => a.R - b.R);
+    log(c, `Eventi (${t.nome}, a mano): evento alle ${formatoData(c, R)}`); return { camp: c, esce: true, R };
+  }
+  const q = avvisoEvento(c, t, rng, c.tempo.R, 'a mano', o.territorio);
+  return { camp: c, esce: true, q };
+}
+// Apri · Avvia · Ritira · Ignora (Z8-9)
+function rispondiEvento(camp, qid, azione, rng) {
+  const c = clona(camp), i = c.coda.findIndex(q => q.id === qid); if (i < 0) throw new Error('avviso non trovato');
+  const q = c.coda[i], t = ((c.eventi && c.eventi.tabelle) || []).find(x => x.id === q.ev.tabella);
+  if (azione === 'ritira') {
+    if (!t) throw new Error('tabella non trovata');
+    const vecchia = q.ev.voce; if (vecchia) t.uscite = t.uscite.filter(x => x !== vecchia);
+    const tv = tiraVoce(t, rng, { territorio: q.ev.terr, escludi: vecchia }), v = tv.voce ? t.voci.find(x => x.id === tv.voce) : null;
+    q.ev.voce = v ? v.id : null; q.ev.tiro = tv.tiro; q.ev.comp = v ? composizioneVoce(v, rng) : [];
+    if (v && !t.uscite.includes(v.id)) t.uscite.push(v.id);
+    const ora = formatoData(c, q.R).split(', ').pop();
+    q.testo = v ? `${nomeVoce(c, v)} (${fmtNum(tv.tiro, t.dado)} su ${nomeDado(t.dado)}) alle ${ora}${q.ev.comp.length ? ' — ' + q.ev.comp.map(p => `${p.n} ${p.nome}`).join(', ') : ''}` : `${t.nome}: ${tv.testo} (alle ${ora})`;
+    log(c, `Eventi (${t.nome}): ritirato → ${tv.testo}${v ? ' → ' + nomeVoce(c, v) : ''}`);
+    return c;
+  }
+  c.coda.splice(i, 1);
+  if (azione === 'ignora') { if (t && q.ev.voce) t.uscite = t.uscite.filter(x => x !== q.ev.voce); log(c, `Evento ignorato: ${q.testo}`); }
+  else log(c, `Evento ${azione === 'avvia' ? 'avviato' : 'aperto'}: ${q.testo}`);
+  const a = c.viaggio && c.viaggio.attivo;
+  if (a && a.evento && a.evento.tipo === 'evento' && a.evento.q === qid) {
+    if (azione === 'ignora') { a.evento = null; return { camp: c, riprendi: true }; }
+    a.evento = null; a.sospesa = true; log(c, 'La marcia si ferma per l\'evento');
+  }
+  return { camp: c, voce: t && q.ev.voce ? t.voci.find(x => x.id === q.ev.voce) : null, comp: q.ev.comp, tabella: t || null };
+}
+// Tempo (Z8-8): a ogni inizio d'intervallo si tira; l'evento arriva a un minuto a caso dell'intervallo
+function eventiTempo(c, da, a, rng, inMarcia) {
+  if (!c.eventi) return;
+  const dR = a - da;
+  for (const t of c.eventi.tabelle) {
+    if (!t.auto) continue;
+    const conMarcia = t.quando.some(q => q.tipo === 'marcia');
+    t.quando.forEach((q, i) => {
+      if (q.tipo !== 'tempo') return;
+      const st = t.conta[i] = t.conta[i] || { inizio: da };
+      if (inMarcia && conMarcia) { st.inizio += dR; return; } // le ore di marcia non contano per il Tempo
+      const L = oreQuando(q) * ROUND_ORA;
+      while (st.inizio < a) {
+        const e = esitoProbabilita(q, rng);
+        if (e.esce) { const R = st.inizio + Math.floor(rng() * L); c.eventi.attesa = c.eventi.attesa || []; c.eventi.attesa.push({ tabella: t.id, R, origine: 'tempo' });
+          log(c, `Eventi (${t.nome}, tempo): ${e.testo} → evento alle ${formatoData(c, R)}`); }
+        else log(c, `Eventi (${t.nome}, tempo): nessun evento (${e.testo})`);
+        st.inizio += L;
+      }
+    });
+  }
+  const att = (c.eventi.attesa || []).filter(x => x.R <= a).sort((x, y) => x.R - y.R);
+  for (const x of att) { const t = c.eventi.tabelle.find(y => y.id === x.tabella); if (t) avvisoEvento(c, t, rng, Math.max(x.R, da), x.origine, x.terr); }
+  if (att.length) c.eventi.attesa = c.eventi.attesa.filter(x => !att.includes(x));
+}
+// Marcia (Z8-8): per ogni tabella e riga «marcia», blocchi di N ore di marcia; il tiro all'inizio del blocco, l'evento a un'ora a caso del blocco
+function righeMarcia(c) {
+  const out = [];
+  for (const t of (c.eventi && c.eventi.tabelle) || []) if (t.auto) t.quando.forEach((q, i) => { if (q.tipo === 'marcia') { t.conta[i] = t.conta[i] || { acc: 0, tirato: false, in: null, fatto: false }; out.push({ t, q, st: t.conta[i], N: oreQuando(q) }); } });
+  return out;
+}
+function marciaEventi(c, rng) { // restituisce l'avviso se l'evento scatta adesso
+  for (const r of righeMarcia(c)) {
+    const { t, q, st, N } = r;
+    if (st.acc === 0 && !st.tirato) { st.tirato = true; const e = esitoProbabilita(q, rng);
+      if (e.esce) { st.in = 1 + Math.floor(rng() * Math.ceil(N)); log(c, `Eventi (${t.nome}, marcia): ${e.testo} → evento alla ${st.in}ª ora del blocco di ${N} ore`); }
+      else { st.in = null; log(c, `Eventi (${t.nome}, marcia): nessun evento (${e.testo})`); } }
+    if (st.in !== null && st.in === Math.floor(st.acc + 1e-9) + 1 && !st.fatto) { st.fatto = true; return avvisoEvento(c, t, rng, c.tempo.R, 'marcia'); }
+  }
+  return null;
+}
+function passoMarciaEventi(c) { let p = 60; for (const r of righeMarcia(c)) if (r.st.in !== null && !r.st.fatto) p = Math.min(p, 60 - Math.round((r.st.acc % 1) * 60) || 60); return p; }
+function dopoPassoMarcia(c, passo) {
+  for (const r of righeMarcia(c)) { r.st.acc += passo / 60; if (r.st.acc >= r.N - 1e-9) { r.st.acc = 0; r.st.tirato = false; r.st.in = null; r.st.fatto = false; } }
+}
+// Riposo (Z8-8): un tiro per ogni «Riposa»; l'evento a un'ora a caso, il riposo si ferma lì
+function riposoEventi(c, rng, ore) {
+  for (const t of (c.eventi && c.eventi.tabelle) || []) {
+    if (!t.auto) continue;
+    for (const q of t.quando) { if (q.tipo !== 'riposo') continue;
+      const e = esitoProbabilita(q, rng);
+      if (e.esce) { const h = 1 + Math.floor(rng() * ore); log(c, `Eventi (${t.nome}, riposo): ${e.testo} → evento alla ${h}ª ora del riposo`); return { t, h }; }
+      log(c, `Eventi (${t.nome}, riposo): nessun evento (${e.testo})`); }
+  }
+  return null;
+}
+function eventiInfo(c) { return ((c.eventi && c.eventi.tabelle) || []).filter(t => t.auto).map(t => t.nome); }
+
+// Build 5c: le aree degli incontri casuali (AC6) diventano tabelle d% (Z8-5)
+function notaGuida(a) { const I = pront().incontri; return `Guida del DM: ${a.perc}% ogni ${I.ogni_ore} ore di marcia${a.speciale ? `; ${a.speciale.nome} ${a.speciale.perc}%` : ''}. Tiro a mano la notte al riparo: −${I.riparo}% (Sopravvivenza CD 15).`; }
+function migraEventi(x) {
+  if (x.eventi) { x.eventi.tabelle = x.eventi.tabelle || []; x.eventi.schede = x.eventi.schede || []; x.eventi.attesa = x.eventi.attesa || [];
+    for (const t of x.eventi.tabelle) { t.conta = t.conta || {}; t.uscite = t.uscite || []; t.territori = t.territori || []; }
+    if (x.riposo_sospeso === undefined) x.riposo_sospeso = null; return; }
+  x.eventi = { tabelle: [], schede: [], attesa: [] }; x.riposo_sospeso = null;
+  const aree = x.aree || [], v = x.viaggio || {}, accesi = !!(x.impostazioni && x.impostazioni.incontri_casuali);
+  for (const a of aree) {
+    const g = AREE_GUIDA.find(y => y[0] === a.nome);
+    const intatta = /^ar[1-6]$/.test(a.id) && g && g[1] === a.perc && JSON.stringify(g[2]) === JSON.stringify(a.speciale ? [a.speciale.nome, a.speciale.perc] : null) && !(a.righe || []).length;
+    if (intatta && v.area !== a.id) continue; // aree della Guida mai toccate: si ricreano con «Dalla Guida»
+    const voci = (a.righe || []).map(r => ({ id: prossimoId(x, 'vo'), da: r.da, a: r.a, titolo: '', tipo: (r.partecipanti || []).length ? 'combattimento' : 'libero', difficolta: '', dove: '', territori: [], ripetibile: false,
+      note: '', testo: r.testo || '', porta: (r.partecipanti || []).length ? { tipo: 'creature', creature: r.partecipanti.map(p => ({ nome: p.nome, dadi: p.dadi || '1', rif: p.rif || null })) } : { tipo: 'testo' } }));
+    const note = g ? notaGuida(a) : 'Dall\'area degli incontri casuali.';
+    const mk = (nome, perc, sel) => {
+      const t = { ...tabellaVuota(), id: prossimoId(x, 'tb'), nome, dado: 100, note, quando: [{ tipo: 'marcia', ogni: 6, unita: 'ore', perc, dado: null, valori: null }], voci: clona(voci), origine: 'area', auto: accesi && sel };
+      if (t.auto) t.conta = { 0: { acc: v.accumulo || 0, tirato: !!v.tirato, in: v.incontro_in === undefined ? null : v.incontro_in, fatto: !!(v.attivo && v.attivo.incontro_fatto) } };
+      x.eventi.tabelle.push(t);
+    };
+    mk(a.nome, a.perc, v.area === a.id && !(v.speciale && a.speciale));
+    if (a.speciale) mk(`${a.nome} — ${a.speciale.nome}`, a.speciale.perc, v.area === a.id && !!v.speciale);
+  }
+  delete x.aree; if (x.impostazioni) delete x.impostazioni.incontri_casuali;
+}
+
+// ---- AG4-D importazione da docx (Z8-13…Z8-16): lo zip si apre nella pagina, l'XML si legge qui
+function voceZip(u, nome) { // u: Uint8Array del .docx → { metodo (0 = nessuna compressione, 8 = deflate), dati }
+  const le16 = i => u[i] | (u[i + 1] << 8), le32 = i => (u[i] | (u[i + 1] << 8) | (u[i + 2] << 16) | (u[i + 3] << 24)) >>> 0;
+  let e = -1; for (let i = u.length - 22; i >= Math.max(0, u.length - 65557); i--) if (le32(i) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('il file non è un docx valido');
+  const n = le16(e + 10); let p = le32(e + 16);
+  for (let k = 0; k < n && le32(p) === 0x02014b50; k++) {
+    const metodo = le16(p + 10), dim = le32(p + 20), ln = le16(p + 28), lx = le16(p + 30), lc = le16(p + 32), off = le32(p + 42);
+    const nm = new TextDecoder().decode(u.subarray(p + 46, p + 46 + ln));
+    if (nm === nome) { const ini = off + 30 + le16(off + 26) + le16(off + 28); return { metodo, dati: u.subarray(ini, ini + dim) }; }
+    p += 46 + ln + lx + lc;
+  }
+  throw new Error(`nel docx manca ${nome}`);
+}
+const entitaXml = t => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, '\'')
+  .replace(/&#(\d+);/g, (m, n) => String.fromCodePoint(+n)).replace(/&#x([0-9a-f]+);/gi, (m, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&amp;/g, '&');
+// document.xml → blocchi: { t: 'p', testo, stile } | { t: 'tab', righe: [[celle: righe di testo]] } (tabelle annidate come righe «A | B»)
+function leggiDocxXml(xml) {
+  const re = /<(\/?)w:(p|tbl|tr|tc|t|tab|br|cr|pStyle|delText|instrText)\b([^>]*?)(\/?)>/g;
+  const root = { figli: [] }, pila = [root]; let p = null, tIni = -1, m;
+  const top = () => pila[pila.length - 1];
+  while ((m = re.exec(xml))) {
+    const [tutto, chiude, tag, attr, auto] = m;
+    if (tag === 't') { if (chiude) { if (tIni >= 0 && p) p.testo += entitaXml(xml.slice(tIni, m.index)); tIni = -1; } else if (!auto) tIni = m.index + tutto.length; continue; }
+    if (tag === 'delText' || tag === 'instrText') { if (!chiude && !auto) { const f = xml.indexOf(`</w:${tag}>`, m.index); if (f > 0) re.lastIndex = f; } continue; }
+    if ((tag === 'tab' || tag === 'br' || tag === 'cr') && p && !chiude) { if (tag === 'tab' && /w:val=/.test(attr)) continue; p.testo += tag === 'tab' ? '\t' : '\n'; continue; }
+    if (tag === 'pStyle' && p) { const v = attr.match(/w:val="([^"]*)"/); if (v) p.stile = v[1]; continue; }
+    if (tag === 'p') { if (auto) continue; if (chiude) { p = null; continue; } p = { t: 'p', testo: '', stile: '' }; const x = top(); if (x.figli) x.figli.push(p); continue; }
+    if (tag === 'tbl') { if (chiude) { pila.pop(); continue; } const t = { t: 'tab', righe: [] }; const x = top(); if (x.figli) x.figli.push(t); pila.push(t); continue; }
+    if (tag === 'tr') { if (chiude) { pila.pop(); continue; } const r = { celle: [] }; top().righe.push(r); pila.push(r); continue; }
+    if (tag === 'tc') { if (chiude) { pila.pop(); continue; } const c = { figli: [] }; top().celle.push(c); pila.push(c); continue; }
+  }
+  const righeCella = cella => { const out = []; for (const f of cella.figli) { if (f.t === 'p') out.push(...f.testo.split('\n')); else for (const r of f.righe) out.push(r.celle.map(c => righeCella(c).join(' ').replace(/\s+/g, ' ').trim()).join(' | ')); } return out.map(r => r.replace(/ /g, ' ')); };
+  return root.figli.map(b => b.t === 'p' ? { t: 'p', testo: b.testo.replace(/ /g, ' '), stile: b.stile } : { t: 'tab', righe: b.righe.map(r => r.celle.map(righeCella)) });
+}
+// riquadro: tabella a una colonna → righe non vuote
+function boxDi(b) { if (b.t !== 'tab' || !b.righe.length || b.righe.some(r => r.length !== 1)) return null; return b.righe.flatMap(r => r[0]).map(x => x.trim()).filter(Boolean); }
+const BOX_SCARTATI = /FILE SORGENTE|RAZZE DEI PNG|^INDICE|CHECKLIST|PROPOSTE DI QUESTO DOCUMENTO/i; // dati di produzione del documento (Z8-13)
+const eTitolo = b => b.t === 'p' && /^(Heading|Titolo|Intestazione)/i.test(b.stile || '');
+const eTitolo1 = b => b.t === 'p' && /^(Heading|Titolo|Intestazione)\s*1$/i.test(b.stile || '');
+const RE_EVENTO = /^((?:EI|E)\s*(\d+)|(\d+))\s*[—–]\s*(.+)$/;
+function titoloEventoDi(b) { if (b.t !== 'p') return null; const m = b.testo.trim().match(RE_EVENTO); if (!m) return null; if (m[3] && !eTitolo(b)) return null;
+  return { numero: m[1].replace(/\s+/g, ' '), n: +(m[2] || m[3]), titolo: m[4].trim() }; }
+const RE_DADO_COL = /^d\s*(4|6|8|10|12|20|%|100)$/i;
+const eTabellaDado = b => b.t === 'tab' && b.righe.length > 1 && b.righe[0].length >= 2 && RE_DADO_COL.test(b.righe[0][0].join(' ').trim());
+const cellaT = c => c.join(' ').replace(/\s+/g, ' ').trim();
+const pulisciTitolo = t => String(t).replace(/^[^\p{L}\p{N}«"]+/u, '').trim();
+function tabellaDaDocx(blocchi, i) {
+  const b = blocchi[i], intest = b.righe[0].map(cellaT), m = intest[0].match(RE_DADO_COL), dado = m[1] === '%' || m[1] === '100' ? 100 : +m[1];
+  let nome = ''; for (let k = i - 1; k >= 0 && !nome; k--) if (blocchi[k].t === 'p' && blocchi[k].testo.trim()) nome = blocchi[k].testo.trim(); else if (blocchi[k].t === 'tab') break;
+  nome = pulisciTitolo(nome).replace(/\s*[—–-]\s*d\s*(\d+|%)\s*$/i, '').trim() || 'Eventi importati';
+  const col = k => intest.findIndex(h => k.test(h));
+  const cTipo = col(/^tipo/i), cEv = col(/^(evento|voce|risultato|incontro)/i), cDiff = col(/^difficolt/i), cDove = col(/^(dove|luogo|terreno|territorio)/i), cChi = col(/^chi lo risolve/i);
+  const voci = [], avvisi = [];
+  for (const r of b.righe.slice(1)) {
+    const c = r.map(cellaT), mr = c[0].replace(/\s/g, '').match(/^(\d+)(?:[–—-](\d+))?$/);
+    if (!mr) { if (c.some(Boolean)) avvisi.push(`riga della tabella non letta: ${c.join(' | ')}`); continue; }
+    const num = x => { const n = +x; return dado === 100 && (x === '00' || n === 0) ? 100 : n; };
+    const ev = c[cEv >= 0 ? cEv : 1] || '', sep = ev.match(/^(.+?)\s+[—–]\s+(.+)$/);
+    const note = []; c.forEach((x, k) => { if (k > 0 && ![cTipo, cEv, cDiff, cDove].includes(k) && x && !(cEv < 0 && k === 1)) note.push(k === cChi ? `Chi lo risolve: ${x}` : `${intest[k]}: ${x}`); });
+    voci.push({ da: num(mr[1]), a: num(mr[2] || mr[1]), titolo: sep ? sep[1].trim() : ev, testo: sep ? sep[2].trim() : '', tipo: tipoDaTesto(cTipo >= 0 ? c[cTipo] : ''), difficolta: cDiff >= 0 ? c[cDiff] : '',
+      dove: cDove >= 0 ? c[cDove] : '', territori: [], ripetibile: false, note: note.join('\n'), porta: { tipo: 'testo' } });
+  }
+  return { nome, dado, voci, avvisi };
+}
+// Z8-15 «Come si tira»: frequenza e ripetizioni riconosciute, il resto segnalato
+function leggiComeSiTira(righe, tab) {
+  const quando = [], non = [], controlla = []; let dadoPrec = null;
+  for (const r of righe) {
+    const t = r.trim(); let mm;
+    if ((mm = t.match(/^Ripetizion\w*\s*:\s*(.*)$/i))) {
+      if (/già uscit|non si ripet|si ritira/i.test(mm[1])) { tab.no_ripetere = true;
+        const sv = mm[1].match(/salvo\s+([\d\s,e–-]+)/i); if (sv) for (const n of (sv[1].match(/\d+/g) || []).map(Number)) for (const v of tab.voci) if (n >= v.da && n <= v.a) v.ripetibile = true; }
+      else non.push(t);
+      continue;
+    }
+    if (!(mm = t.match(/^Quando\s*:\s*(.*)$/i))) continue;
+    const pezzi = mm[1].split(/\s+·\s+/).flatMap(x => x.split(/\.\s+(?=[A-ZÀ-Ú])/)).map(x => x.trim()).filter(Boolean);
+    for (const pz of pezzi) {
+      if (/tacca|orologio/i.test(pz)) { non.push(pz); continue; }
+      const dm = pz.match(/\b(\d*)d(\d+)\b/i); if (dm) dadoPrec = (dm[1] || '1') + 'd' + dm[2];
+      const tipo = /nott|ripos|campo|accamp|dorm/i.test(pz) ? 'riposo' : /tapp|viagg|marci|cammin/i.test(pz) ? 'marcia' : /ogni\s+\d+\s*(or[ae]|giorn)/i.test(pz) ? 'tempo' : null;
+      const rng = [...pz.matchAll(/(\d+)\s*[–—-]\s*(\d+)/g)].filter(x => !/^[\s,;:)]*(non succede|nulla|niente|tranquill)/i.test(pz.slice(x.index + x[0].length)));
+      const perc = pz.match(/(\d+)\s*%/);
+      if (!tipo || (!perc && (!rng.length || !dadoPrec))) { non.push(pz); continue; }
+      const q = { tipo, ogni: null, unita: null, perc: perc ? +perc[1] : null, dado: perc ? null : dadoPrec, valori: perc ? null : `${rng[0][1]}-${rng[0][2]}` };
+      if (tipo !== 'riposo') {
+        let o;
+        if (/mezza\s+giornata/i.test(pz)) { q.ogni = tipo === 'marcia' ? pront().viaggi.ore_giorno / 2 : 12; q.unita = 'ore'; }
+        else if ((o = pz.match(/ogni\s+(\d+)\s*(or[ae]|giorn\w*)/i))) { q.ogni = +o[1]; q.unita = /^or/i.test(o[2]) ? 'ore' : 'giorni'; }
+        else if (/(al|per|ogni)\s+giorn(o|ata)/i.test(pz)) { q.ogni = 1; q.unita = 'giorni'; }
+        else { q.ogni = 1; q.unita = 'giorni'; controlla.push(`«${pz}»: ogni quanto non è scritto, proposto 1 giorno di ${tipo === 'marcia' ? 'marcia' : 'tempo'}`); }
+      }
+      quando.push(q);
+    }
+  }
+  tab.quando = quando; tab.non_riconosciuti = non; tab.da_controllare = controlla;
+}
+// Profilo PNG (§20): etichette nei campi, il resto in «Altro del profilo»
+const ETICH_PROFILO = [[/^ruolo$/, 'ruolo'], [/^allineamento$/, 'allineamento'], [/^razza$/, 'razza'], [/^gancio( visivo)?$/, 'gancio'], [/^aspetto$/, 'aspetto'],
+  [/^(voce( e modo di muoversi)?|comunica|modo di muoversi)$/, 'voce'], [/^bisogno( profondo)?$/, 'bisogno'], [/^paura( principale)?$/, 'paura'], [/^(stato d.animo( attuale)?|umore)$/, 'umore'],
+  [/^((tre )?aggettivi( chiave)?|carattere)$/, 'aggettivi'], [/^tic( verbale)?$/, 'tic'], [/^frase( d.apertura)?( tipica)?$/, 'frase'], [/^((come reagisce )?sotto pressione)$/, 'pressione'],
+  [/^obiettivo$/, 'obiettivo'], [/^metodo$/, 'metodo'], [/^leva$/, 'leva'], [/^limite$/, 'limite'], [/^informazioni( che possiede)?$/, 'informazioni'], [/^(profilo emotivo|descrizione fisica|profilo caratteriale|ruolo nell.evento)$/, '']];
+const campoProfilo = et => { const n = String(et).toLowerCase().replace(/[’']/g, '\'').trim(); for (const [re, k] of ETICH_PROFILO) if (re.test(n)) return k; return null; };
+const RE_SOTTO = /(?:^|[.;]\s+)(Bisogno(?: profondo)?|Paura(?: principale)?|Stato d['’]animo|Tic verbale|Sotto pressione|Gancio visivo|Frase d['’]apertura|Tre aggettivi|Obiettivo|Leva|Limite|Metodo|Informazioni)\s*:?\s+/gi;
+function metti(p, k, v) { v = String(v || '').trim(); if (!v) return; if (!k) { p.altro = p.altro ? p.altro + '\n' + v : v; return; } p[k] = p[k] ? p[k] + ' ' + v : v; }
+function mettiEtichetta(p, et, val) {
+  const k = campoProfilo(et), tagli = []; let m; RE_SOTTO.lastIndex = 0;
+  while ((m = RE_SOTTO.exec(val))) { const punto = /^[.;]/.test(m[0]) ? 1 : 0; tagli.push({ ini: m.index + punto, dopo: m.index + m[0].length, k: campoProfilo(m[1]) }); }
+  if (!tagli.length) { if (k === null) metti(p, '', `${et}: ${val}`); else metti(p, k, val); return; }
+  let prima = val.slice(0, tagli[0].ini);
+  const parti = tagli.map((x, i) => ({ k: x.k, v: val.slice(x.dopo, i + 1 < tagli.length ? tagli[i + 1].ini : val.length) }));
+  if (!prima.trim() && k && parti.length === 1) { const sp = parti[0].v.match(/^(.+?[.!?»])\s+(.+)$/); if (sp) { parti[0].v = sp[1]; prima = sp[2]; } }
+  metti(p, k || '', k === null && prima.trim() ? `${et}: ${prima}` : prima); for (const x of parti) metti(p, x.k, x.v);
+}
+function leggiProfilo(righe) {
+  const p = profiloVuoto(); let h = righe[0].replace(/^PROFILO\s*[—–-]\s*/i, '').trim();
+  const tit = h.match(/«([^»]+)»/); if (tit) { p.titolo = tit[1].trim(); }
+  const nm = h.split(/\s*(?:,|«|\s[—–]\s)\s*/)[0].trim(); p.nome = nomeProprio(nm);
+  let resto = h.slice(nm.length).replace(/^\s*,?\s*/, '').replace(/«[^»]+»/, '').replace(/^\s*[—–]\s*/, '').trim();
+  if (!tit && resto) { p.titolo = resto; resto = ''; }
+  if (resto) metti(p, '', resto);
+  for (const r of righe.slice(1)) {
+    const t = r.trim(); if (!t || /^[═=]{2,}/.test(t)) continue;
+    if (t.includes(' | ')) { const [et, ...v] = t.split(' | '); mettiEtichetta(p, et, v.join(' · ')); continue; }
+    const pezzi = t.split(/\s+·\s+/); let cur = null, buf = [];
+    const chiudi = () => { if (cur !== null) mettiEtichetta(p, cur, buf.join(' · ')); else if (buf.length) metti(p, '', buf.join(' · ')); };
+    for (const pz of pezzi) { const m = pz.match(/^([^:]{2,40}):\s*(.*)$/); if (m && campoProfilo(m[1]) !== null) { chiudi(); cur = m[1]; buf = [m[2]]; } else buf.push(pz); }
+    chiudi();
+  }
+  return p;
+}
+function testoProfilo(p) {
+  const L = [`${p.nome}${p.titolo ? ', «' + p.titolo + '»' : ''}`];
+  for (const [k, et] of CAMPI_PROFILO) if (!['nome', 'titolo'].includes(k) && String(p[k] || '').trim()) L.push(k === 'altro' ? p[k] : `${et}: ${p[k]}`);
+  return L.join('\n');
+}
+// tabelle delle prove → righe «| … |» (con l'intestazione dalle 3 colonne in su)
+function righeTabellaPipe(b, titolo) {
+  const L = titolo ? [`**${titolo}**`] : [], righe = b.righe.map(r => r.map(c => cellaT(c).replace(/\|/g, '/')));
+  righe.forEach((r, k) => { L.push(`| ${r.join(' | ')} |`); if (k === 0 && r.length >= 3) L.push(`|${r.map(() => '---').join('|')}|`); });
+  return L;
+}
+// Ricompense di una scheda evento: XP (anche senza «+»), tesoro, testo
+function leggiRighePremio(righe, base) {
+  const r = ricompenseVuote(), testo = [];
+  for (const riga of righe) {
+    const t = riga.trim(); if (!t) continue;
+    if (/^💰\s*TESORO/i.test(t)) { r.tesoro = leggiTesoroRiga(t); continue; }
+    const mx = t.match(/^XP\b\s*:?\s*(.*)$/i);
+    if (!mx) { testo.push(t); continue; }
+    const tenuti = [];
+    mx[1].split(/\s+·\s+/).forEach((pz, k) => {
+      const m = pz.match(/^(\+)?\s*(\d[\d.]*)\s*(?:XP\b)?\s*(.*)$/i);
+      if (m && (m[1] || (base && k === 0))) { let mot = m[3], dopo = ''; const sp = mot.match(/^(.*?[.)])\s+(.+)$/); if (sp && !m[1]) { mot = sp[1]; dopo = sp[2]; }
+        r.xp_extra.push({ xp: +m[2].replace(/\./g, ''), motivo: mot.replace(/^\((.*)\)\.?$/, '$1').replace(/\.$/, '').trim() }); if (dopo) tenuti.push(dopo); }
+      else tenuti.push(pz);
+    });
+    if (tenuti.length) testo.push(tenuti.join(' · '));
+  }
+  r.testo = testo.join('\n'); return r;
+}
+function leggiTesoroRiga(t) {
+  const tz = { livello: '', quantita: '', dove: '', note: '' };
+  for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Livello(?: di riferimento)?|Quantità|Dove(?:\/chi lo porta)?|Note(?: di contesto)?)\s*:\s*(.*)$/i);
+    if (mm) tz[/^liv/i.test(mm[1]) ? 'livello' : /^quant/i.test(mm[1]) ? 'quantita' : /^dove/i.test(mm[1]) ? 'dove' : 'note'] = mm[2].trim(); }
+  return tz;
+}
+// un evento del documento → sezioni
+function sezioniEvento(bl) {
+  const ev = { ...titoloEventoDi(bl[0]), riga: '', tipo: '', difficolta: '', terreno: '', descrizione: [], nota: [], profili: [], premio: [], tesoro: null, stat: [], altro: [], indizi: [] };
+  let partePend = null, titoloPend = null, ultimoProf = null;
+  const prossimo = i => { for (let k = i + 1; k < bl.length; k++) if (bl[k].t === 'tab' || bl[k].testo.trim()) return bl[k]; return null; };
+  for (let i = 1; i < bl.length; i++) {
+    const b = bl[i];
+    if (b.t === 'p') {
+      const t = b.testo.trim(); if (!t) continue;
+      if (!ev.riga && !ev.descrizione.length && (/Difficolt|Terreno/i.test(t) || (tipoDaTesto(t.split('·')[0]) && t.includes('·')))) {
+        ev.riga = t; for (const pz of t.split(/\s+·\s+/)) { let m;
+          if ((m = pz.match(/^Difficolt\S*\s*:\s*(.*)$/i))) ev.difficolta = m[1].trim(); else if ((m = pz.match(/^Terreno\s*:\s*(.*)$/i))) ev.terreno = m[1].trim(); else if (!ev.tipo) ev.tipo = tipoDaTesto(pz); }
+        continue; }
+      const nx = prossimo(i), nxBox = nx && boxDi(nx);
+      if (nxBox && eTestata(nxBox[0])) { let m; partePend = RE_PARTE.test(t) ? t : (m = t.match(/^(.+?)\s*\((\d*d\d+(?:[+-]\d+)?)\)\s*,?\s*(.*?)\s*:?\s*$/i)) ? `${m[1]} (×1, ${m[2]}) ${m[3]}:` : null; if (partePend) continue; }
+      if (nx && nx.t === 'tab' && !nxBox) { titoloPend = t; continue; }
+      ev.nota.push(t); continue;
+    }
+    const box = boxDi(b);
+    if (!box) { // tabella a più colonne: righe del profilo appena letto o tabella delle prove
+      const et = b.righe.map(r => cellaT(r[0]));
+      if (ultimoProf && b.righe[0].length === 2 && et.every(x => campoProfilo(x) !== null || /^carattere$/i.test(x))) { for (const r of b.righe) mettiEtichetta(ultimoProf, cellaT(r[0]), cellaT(r[1])); continue; }
+      ev.nota.push(...righeTabellaPipe(b, titoloPend)); titoloPend = null; ultimoProf = null; continue;
+    }
+    if (titoloPend) { ev.nota.push(titoloPend); titoloPend = null; }
+    const h = box[0]; ultimoProf = null;
+    if (BOX_SCARTATI.test(h)) continue;
+    if (eTestata(h)) { ev.stat.push({ righe: box, parte: partePend }); partePend = null; continue; }
+    if (/^(📖\s*)?(DESCRIZIONE|TESTO DA LEGGERE)\b/i.test(h)) { ev.descrizione.push(...box.slice(1)); continue; }
+    if (/^(⚠️?\s*)?NOTA (PER IL |DEL )?GM\b/i.test(h)) { ev.nota.push(...box.slice(1)); continue; }
+    if (/^PROFILO\b/i.test(h)) { ev.profili.push(ultimoProf = leggiProfilo(box)); continue; }
+    if (/^[🏅💰]?\s*RICOMPENS/u.test(h)) { ev.premio.push(...box.slice(1)); continue; }
+    if (/^💰\s*TESORO/u.test(h)) { ev.tesoro = [h.replace(/\s*\/\s*$/, ''), ...box.slice(1)].join(' · '); continue; }
+    if (/^(🔍\s*)?(INDIZI|INFORMAZIONI)\b/iu.test(h)) { ev.indizi.push(...box.slice(1)); continue; }
+    const lettere = (h.match(/\p{L}/gu) || []); const maiusc = lettere.length >= 3 && lettere.every(l => l === l.toUpperCase());
+    if (maiusc && box.slice(1).every(r => r.includes(' | ')) && box.length >= 1) { ev.profili.push(ultimoProf = leggiProfilo(box)); continue; }
+    ev.altro.push({ titolo: pulisciTitolo(h), testo: box.slice(1).join('\n') });
+  }
+  if (titoloPend) ev.nota.push(titoloPend);
+  return ev;
+}
+// scheda del bestiario per un partecipante importato (come l'Incolla della 5b)
+function statoScheda(nome, s, primaRiga, trova) {
+  const trovata = trova ? trova(nome) : null;
+  const diverso = !!(trovata && s) && testoStatBlock({ ...trovata.scheda, descrizione_estesa: '' }, { xp: true }) !== testoStatBlock({ ...s, descrizione_estesa: '' }, { xp: true });
+  const dest = s && (s.ambiente || s.tipo_scheda === 'mostro_pf1' || /·\s*Mostro\b|—\s*Mostro\b/i.test(primaRiga || '')) ? 'mostro' : 'png';
+  return { stato: trovata ? 'trovata' : s ? 'nuova' : 'manca', rif: trovata ? trovata.rif : null, diverso, dest, scelta: diverso ? 'usa' : '' };
+}
+function aggiungiSchedaImp(ant, v, primaRiga, evTitolo, trova) {
+  const k = normNome(v.nome); let x = ant.schede.find(y => y.chiave === k);
+  if (!x) { x = { chiave: k, nome: v.nome, scheda: v.scheda || null, eventi: [], ...(v.stato ? { stato: v.stato, rif: v.rif, diverso: v.diverso, dest: v.dest, scelta: v.scelta } : statoScheda(v.nome, v.scheda, primaRiga, trova)) }; ant.schede.push(x); }
+  else if (!x.scheda && v.scheda) Object.assign(x, { scheda: v.scheda, ...statoScheda(v.nome, v.scheda, primaRiga, trova) });
+  if (!x.eventi.includes(evTitolo)) x.eventi.push(evTitolo);
+  return k;
+}
+function leggiEventiDocx(blocchi, trova) {
+  const avvisi = [], iTab = blocchi.findIndex(eTabellaDado);
+  const iniziEv = blocchi.map((b, i) => titoloEventoDi(b) ? i : -1).filter(i => i >= 0);
+  if (iTab < 0 && !iniziEv.length) throw new Error('nel documento non ci sono né una tabella col dado nella prima colonna né eventi «EI N — Titolo»');
+  const tab = iTab >= 0 ? tabellaDaDocx(blocchi, iTab) : { nome: 'Eventi importati', dado: 20, voci: [], avvisi: [] };
+  avvisi.push(...tab.avvisi); delete tab.avvisi;
+  const primo = iniziEv.length ? iniziEv[0] : blocchi.length, h1 = blocchi.findIndex(eTitolo);
+  const note = [], cst = []; let indice = false;
+  for (let i = 0; i < primo; i++) {
+    const b = blocchi[i]; if (i === iTab) continue;
+    if (b.t === 'p') { const t = b.testo.trim(); if (!t) continue;
+      if (eTitolo(b)) { indice = /^(indice|sommario)$/i.test(t); continue; }
+      if (indice || /\t\s*\d*\s*$/.test(b.testo) || (iTab >= 0 && i === iTab - 1)) continue;
+      if ((h1 < 0 || i < h1) && !/^[⚠📌]/u.test(t)) continue;
+      note.push(t); continue; }
+    const box = boxDi(b);
+    if (box) { if (BOX_SCARTATI.test(box[0])) continue;
+      if (/COME SI TIRA/i.test(box[0])) cst.push(...box.slice(1));
+      note.push([`**${pulisciTitolo(box[0])}**`, ...box.slice(1)].join('\n')); continue; }
+    for (const r of b.righe) { const c = r.map(cellaT); if (/^frequenza/i.test(c[0])) cst.push('Quando: ' + c.slice(1).join(' ')); note.push(c.length > 1 ? `${c[0]}: ${c.slice(1).join(' · ')}` : c[0]); }
+  }
+  tab.note = note.join('\n\n'); tab.no_ripetere = false; tab.territori = [];
+  leggiComeSiTira(cst, tab);
+  const ant = { tabella: tab, eventi: [], schede: [], avvisi };
+  iniziEv.forEach((ini, j) => {
+    let fine = j + 1 < iniziEv.length ? iniziEv[j + 1] : blocchi.length;
+    for (let k = ini + 1; k < fine; k++) if (eTitolo1(blocchi[k]) && !titoloEventoDi(blocchi[k])) { fine = k; break; }
+    ant.eventi.push(eventoDaSezioni(sezioniEvento(blocchi.slice(ini, fine)), tab.nome, ant, trova));
+  });
+  collegaVoci(ant);
+  return ant;
+}
+function rigaTesta(ev) { return ev.riga || [ev.tipo ? iconaTipo(ev.tipo) + ' ' + (TIPI_EVENTO.find(t => t.id === ev.tipo) || {}).nome : '', ev.difficolta ? 'Difficoltà: ' + ev.difficolta : '', ev.terreno ? 'Terreno: ' + ev.terreno : ''].filter(Boolean).join(' · '); }
+function eventoDaSezioni(ev, nomeTab, ant, trova) {
+  const titEv = `${ev.numero} — ${ev.titolo}`;
+  if (!ev.stat.length) {
+    const premio = leggiRighePremio(ev.premio, true); if (ev.tesoro) premio.tesoro = leggiTesoroRiga(ev.tesoro);
+    return { numero: ev.numero, n: ev.n, titolo: ev.titolo, dest: 'evento', scheda: { ...schedaEventoVuota(), numero: ev.numero, titolo: ev.titolo, tipo: ev.tipo, difficolta: ev.difficolta, terreno: ev.terreno,
+      descrizione: ev.descrizione.join('\n'), nota_gm: ev.nota.join('\n'), indizi: ev.indizi.join('\n'), profili: ev.profili, ricompense: premio, altro: ev.altro } };
+  }
+  // con stat block: un incontro (Z8-14), letto come l'Incolla della 5b
+  const L = [titEv]; if (ev.riga) L.push(ev.riga);
+  if (ev.descrizione.length) L.push('📖 DESCRIZIONE', ...ev.descrizione);
+  const note = [...ev.nota, ...ev.altro.flatMap(a => [`**${a.titolo}**`, ...a.testo.split('\n')]), ...(ev.indizi.length ? ['**Indizi e informazioni**', ...ev.indizi] : [])];
+  if (note.length) L.push('NOTA PER IL GM', ...note);
+  for (const s of ev.stat) { if (s.parte) L.push(s.parte); L.push(...s.righe); }
+  if (ev.premio.length || ev.tesoro) L.push('💰 RICOMPENSE', ...ev.premio.map(r => /^💰\s*TESORO/u.test(r) ? r : r), ...(ev.tesoro ? [ev.tesoro] : []));
+  const r = leggiIncontro(L.join('\n'), trova), inc = r.incontro;
+  inc.titolo = titEv; inc.atto = nomeTab;
+  const prime = new Map(ev.stat.map(s => [normNome(leggiStatBlock(s.righe.join('\n'))[0] ? leggiStatBlock(s.righe.join('\n'))[0].scheda.nome : ''), s.righe[0]]));
+  for (const p of ev.profili) {
+    const k = normNome(p.nome), v = r.voci.find(x => { const n = normNome(x.nome); return n && k && (n === k || n.startsWith(k + ' ') || k.startsWith(n + ' ')); });
+    if (v && v.scheda && v.stato === 'nuova') v.scheda.descrizione_estesa = testoProfilo(p);
+    else inc.note = (inc.note ? inc.note + '\n' : '') + `**Profilo — ${p.nome}**\n` + testoProfilo(p).split('\n').slice(1).join('\n');
+  }
+  const partecipanti = r.voci.map(v => ({ chiave: aggiungiSchedaImp(ant, v, prime.get(normNome(v.nome)), titEv, trova), nome: v.nome, n: v.n, nota: v.nota }));
+  return { numero: ev.numero, n: ev.n, titolo: ev.titolo, dest: 'incontro', tipo: ev.tipo, incontro: { ...inc, partecipanti } };
+}
+function collegaVoci(ant) {
+  const voci = ant.tabella.voci, usati = new Set();
+  for (const v of voci) { const k = normNome(v.titolo); const j = ant.eventi.findIndex((e, i) => !usati.has(i) && normNome(e.titolo) === k); if (j >= 0) { v.evento = j; usati.add(j); } }
+  for (const v of voci) if (v.evento === undefined) { const j = ant.eventi.findIndex((e, i) => !usati.has(i) && Number.isInteger(e.n) && v.da === v.a && e.n === v.da); if (j >= 0) { v.evento = j; usati.add(j); } }
+  for (const v of voci) { if (v.evento === undefined) v.evento = null; else { const e = ant.eventi[v.evento]; if (!v.tipo) v.tipo = e.tipo || (e.scheda && e.scheda.tipo) || ''; if (e.scheda && !e.scheda.tipo) e.scheda.tipo = v.tipo; if (e.scheda && !e.scheda.difficolta && v.difficolta) e.scheda.difficolta = v.difficolta; } }
+  ant.eventi.forEach((e, i) => { if (!usati.has(i) && voci.length) ant.avvisi.push(`${e.numero} — ${e.titolo}: nessuna voce della tabella, diventa una scheda sciolta`); });
+  for (const v of voci) if (v.evento === null && ant.eventi.length) ant.avvisi.push(`voce ${intervalloVoce(v, ant.tabella.dado)} «${v.titolo}»: nessun evento collegato (resta un testo)`);
+}
+
+// ---- JSON «schermo-eventi» v1 (Z8-17): importazione con la stessa anteprima, esportazione di una tabella con i suoi eventi
+const FORMATO_EVENTI = 'schermo-eventi';
+function leggiEventiJson(testo, trova) {
+  let j; try { j = typeof testo === 'string' ? JSON.parse(testo) : testo; } catch (e) { throw new Error('il file non è un JSON valido'); }
+  if (!j || j.formato !== FORMATO_EVENTI) throw new Error(`formato non riconosciuto (atteso ${FORMATO_EVENTI})`);
+  const tj = (j.tabelle || [])[0]; if (!tj && !(j.eventi || []).length) throw new Error('il file non contiene tabelle né eventi');
+  const avvisi = []; if ((j.tabelle || []).length > 1) avvisi.push(`il file ha ${j.tabelle.length} tabelle: si importa la prima`);
+  const dado = tj ? (tj.dado === 'd%' || tj.dado === 100 || tj.dado === '100' ? 100 : +String(tj.dado || 20).replace(/^d/i, '')) : 20;
+  if (!DADI_EVENTI.includes(dado)) throw new Error('dado della tabella non valido');
+  const tab = { nome: String((tj && tj.nome) || 'Eventi importati').trim(), dado, note: String((tj && tj.note) || ''), no_ripetere: !!(tj && tj.ripetizioni === false || tj && tj.no_ripetere),
+    territori: (tj && tj.territori) || [], quando: ((tj && tj.quando) || []).map(q => ({ tipo: q.tipo, ogni: q.tipo === 'riposo' ? null : +q.ogni, unita: q.tipo === 'riposo' ? null : (q.unita || 'ore'),
+      perc: q.perc !== undefined && q.perc !== null ? +q.perc : null, dado: q.perc !== undefined && q.perc !== null ? null : q.dado, valori: q.perc !== undefined && q.perc !== null ? null : String(q.valori || '') })),
+    non_riconosciuti: [], da_controllare: [], voci: [] };
+  for (const q of tab.quando) { const e = controllaQuando(q); if (e) avvisi.push(`«Quando»: ${e}`); }
+  // stat block in testo (come nei documenti)
+  const blocchi = [];
+  for (const x of j.schede || []) { const t = typeof x === 'string' ? x : x.testo; const b = leggiStatBlock(t || '')[0]; if (!b) { avvisi.push('uno stat block del file non si legge'); continue; }
+    if (typeof x === 'object' && x.descrizione_estesa) b.scheda.descrizione_estesa = x.descrizione_estesa; else b.scheda.descrizione_estesa = b.scheda.descrizione_estesa || '';
+    blocchi.push({ scheda: b.scheda, prima: String(t).split('\n')[0] }); }
+  const bloccoDi = nome => blocchi.find(b => normNome(b.scheda.nome) === normNome(nome));
+  const ant = { tabella: tab, eventi: [], schede: [], avvisi };
+  const chiaveEv = {};
+  (j.eventi || []).forEach((e, i) => {
+    const numero = String(e.numero || '').trim(), titolo = String(e.titolo || '').trim() || `Evento ${i + 1}`, tit = numero ? `${numero} — ${titolo}` : titolo;
+    chiaveEv[numero || '#' + (i + 1)] = i;
+    const r = e.ricompense || {}, ric = { ...ricompenseVuote(), xp_extra: (r.xp_extra || []).map(x => ({ xp: +x.xp, motivo: String(x.motivo || '') })), testo: String(r.testo || ''), tesoro: r.tesoro || null };
+    const tipo = TIPI_EVENTO.some(t => t.id === e.tipo) ? e.tipo : tipoDaTesto(e.tipo);
+    if ((e.partecipanti || []).length) {
+      const testa = rigaTesta({ tipo, difficolta: e.difficolta, terreno: e.terreno });
+      const inc = { ...incontroVuoto(), titolo: tit, atto: tab.nome, descrizione: String(e.descrizione || ''), note: [testa, String(e.nota_gm || ''), ...(e.profili || []).map(p => `**Profilo — ${p.nome}**\n` + testoProfilo({ ...profiloVuoto(), ...p }).split('\n').slice(1).join('\n'))].filter(Boolean).join('\n'),
+        ricompense: ric, promemoria: (e.promemoria || []).map(p => ({ round: +p.round, testo: String(p.testo) })) };
+      const partecipanti = e.partecipanti.map(p => { const b = bloccoDi(p.nome), s = b ? clona(b.scheda) : null;
+        const pr = (e.profili || []).find(x => s && normNome(x.nome) === normNome(s.nome)); if (pr && s && !s.descrizione_estesa) s.descrizione_estesa = testoProfilo({ ...profiloVuoto(), ...pr });
+        return { chiave: aggiungiSchedaImp(ant, { nome: s ? s.nome : p.nome, scheda: s }, b ? b.prima : '', tit, trova), nome: s ? s.nome : p.nome, n: Math.max(1, +p.n || 1), nota: String(p.nota || '') }; });
+      ant.eventi.push({ numero, n: parseInt(numero.replace(/\D+/g, ''), 10), titolo, dest: 'incontro', tipo, incontro: { ...inc, partecipanti } });
+    } else ant.eventi.push({ numero, n: parseInt(numero.replace(/\D+/g, ''), 10), titolo, dest: 'evento', scheda: { ...schedaEventoVuota(), numero, titolo, tipo, difficolta: String(e.difficolta || ''), terreno: String(e.terreno || ''),
+      descrizione: String(e.descrizione || ''), nota_gm: String(e.nota_gm || ''), indizi: String(e.indizi || ''), profili: (e.profili || []).map(p => ({ ...profiloVuoto(), ...p })), ricompense: ric, altro: (e.altro || []).map(a => ({ titolo: String(a.titolo || ''), testo: String(a.testo || '') })) } });
+  });
+  for (const v of (tj && tj.voci) || []) {
+    const x = { da: +v.da, a: +(v.a !== undefined ? v.a : v.da), titolo: String(v.titolo || ''), testo: String(v.testo || ''), tipo: TIPI_EVENTO.some(t => t.id === v.tipo) ? v.tipo : tipoDaTesto(v.tipo), difficolta: String(v.difficolta || ''),
+      dove: String(v.dove || ''), territori: v.territori || [], ripetibile: !!v.ripetibile, note: String(v.note || ''), porta: { tipo: 'testo' }, evento: null };
+    if (v.evento !== undefined && v.evento !== null) { const k = chiaveEv[String(v.evento)]; if (k === undefined) avvisi.push(`voce ${x.da}-${x.a}: l'evento «${v.evento}» non c'è nel file`); else x.evento = k; }
+    else if ((v.creature || []).length) x.porta = { tipo: 'creature', creature: v.creature.map(p => { const t = trova ? trova(p.nome) : null; return { nome: String(p.nome), dadi: String(p.dadi || '1'), rif: t ? t.rif : null }; }) };
+    tab.voci.push(x);
+  }
+  // le creature delle voci senza scheda si creano dagli stat block del file
+  for (const v of tab.voci) if (v.porta.tipo === 'creature') for (const p of v.porta.creature) if (!p.rif) { const b = bloccoDi(p.nome); if (b) p.chiave = aggiungiSchedaImp(ant, { nome: b.scheda.nome, scheda: clona(b.scheda) }, b.prima, `voce ${v.da}-${v.a}`, trova); }
+  ant.eventi.forEach((e, i) => { if (tab.voci.length && !tab.voci.some(v => v.evento === i)) avvisi.push(`${e.numero ? e.numero + ' — ' : ''}${e.titolo}: nessuna voce della tabella, diventa una scheda sciolta`); });
+  return ant;
+}
+function esportaEventi(camp, tabId, schedaDi) {
+  const t = tabellaDi(camp, tabId), eventi = [], schede = new Map(), chiavi = {};
+  const aggScheda = rif => { const s = rif && schedaDi ? schedaDi(rif) : null; if (s && !schede.has(s.nome)) schede.set(s.nome, { testo: testoStatBlock({ ...s, descrizione_estesa: '' }, { xp: true }), descrizione_estesa: s.descrizione_estesa || '' }); };
+  const evDaScheda = s => ({ numero: s.numero, titolo: s.titolo, tipo: s.tipo, difficolta: s.difficolta, terreno: s.terreno, descrizione: s.descrizione, nota_gm: s.nota_gm, indizi: s.indizi,
+    profili: s.profili, ricompense: s.ricompense, altro: s.altro });
+  const chiave = (k, fn) => { if (chiavi[k] === undefined) { const e = fn(); if (!e.numero) e.numero = '#' + (eventi.length + 1); chiavi[k] = e.numero; eventi.push(e); } return chiavi[k]; };
+  const voci = t.voci.map(v => {
+    const x = { da: v.da, a: v.a, titolo: v.titolo, tipo: v.tipo, difficolta: v.difficolta, dove: v.dove, territori: v.territori, ripetibile: v.ripetibile, note: v.note, testo: v.testo };
+    if (v.porta.tipo === 'evento') { const s = camp.eventi.schede.find(y => y.id === v.porta.id); if (s) x.evento = chiave('e' + s.id, () => evDaScheda(s)); }
+    if (v.porta.tipo === 'incontro') { const inc = camp.incontri.find(y => y.id === v.porta.id);
+      if (inc) x.evento = chiave('i' + inc.id, () => { const m = inc.titolo.match(RE_EVENTO); inc.partecipanti.forEach(p => aggScheda(p.rif));
+        return { numero: m ? m[1] : '', titolo: m ? m[4] : inc.titolo, tipo: v.tipo, descrizione: inc.descrizione, nota_gm: inc.note, ricompense: inc.ricompense, promemoria: inc.promemoria,
+          partecipanti: inc.partecipanti.map(p => ({ nome: p.nome, n: p.n, nota: p.nota || '' })) }; }); }
+    if (v.porta.tipo === 'creature') { x.creature = v.porta.creature.map(p => ({ nome: p.nome, dadi: p.dadi })); v.porta.creature.forEach(p => aggScheda(p.rif)); }
+    return x;
+  });
+  for (const s of camp.eventi.schede.filter(y => y.tabella === t.id)) chiave('e' + s.id, () => evDaScheda(s));
+  return JSON.stringify({ formato: FORMATO_EVENTI, versione: 1, tabelle: [{ nome: t.nome, dado: nomeDado(t.dado), note: t.note, no_ripetere: t.no_ripetere, territori: t.territori,
+    quando: t.quando.map(q => q.tipo === 'riposo' ? { tipo: q.tipo, ...(q.perc !== null ? { perc: q.perc } : { dado: q.dado, valori: q.valori }) } : { tipo: q.tipo, ogni: q.ogni, unita: q.unita, ...(q.perc !== null ? { perc: q.perc } : { dado: q.dado, valori: q.valori }) }), voci }],
+    eventi, schede: [...schede.values()] }, null, 1);
+}
+// «Crea tutto» (Z8-16): le schede del bestiario sono già state create dalla pagina (ant.schede[].rif); opz: { sostituisci: id della tabella | null, nome }
+function applicaImportazione(camp, ant, opz = {}) {
+  let c = clona(camp); c.eventi = c.eventi || { tabelle: [], schede: [], attesa: [] };
+  const vecchia = opz.sostituisci ? tabellaDi(c, opz.sostituisci) : null, T = ant.tabella;
+  const nome = vecchia ? vecchia.nome : String(opz.nome || T.nome).trim() || 'Eventi importati';
+  const tabId = vecchia ? vecchia.id : prossimoId(c, 'tb');
+  if (vecchia) { c.eventi.schede = c.eventi.schede.filter(s => s.tabella !== vecchia.id); c.incontri = c.incontri.filter(i => !(i.da_tabella === vecchia.id && i.stato !== 'giocato')); }
+  const rifDi = k => { const s = ant.schede.find(x => x.chiave === k); return s && s.rif ? s.rif : null; };
+  const nomeDi = (k, n) => { const s = ant.schede.find(x => x.chiave === k); return s && s.nome_finale ? s.nome_finale : n; };
+  const porte = ant.eventi.map(e => {
+    if (e.dest === 'evento') { const id = prossimoId(c, 'ev'); c.eventi.schede.push({ ...schedaEventoVuota(), ...clona(e.scheda), id, tabella: tabId }); return { tipo: 'evento', id }; }
+    const inc = { ...clona(e.incontro), atto: nome, da_tabella: tabId, id: '', partecipanti: e.incontro.partecipanti.map(p => ({ rif: rifDi(p.chiave), nome: nomeDi(p.chiave, p.nome), n: p.n, nota: p.nota || '', modo: 'tipo', nascosto: false, nomeTv: '', imp: false })) };
+    c = salvaIncontro(c, inc); return { tipo: 'incontro', id: c.incontri[c.incontri.length - 1].id };
+  });
+  const voci = T.voci.map(v => { const x = { ...clona(v), id: prossimoId(c, 'vo') }; delete x.evento;
+    if (v.evento !== null && v.evento !== undefined && porte[v.evento]) x.porta = porte[v.evento];
+    if (x.porta.tipo === 'creature') x.porta.creature = x.porta.creature.map(p => ({ nome: p.chiave ? nomeDi(p.chiave, p.nome) : p.nome, dadi: p.dadi, rif: p.rif || (p.chiave ? rifDi(p.chiave) : null) }));
+    if (vecchia) { const w = vecchia.voci.find(y => y.da === v.da && y.a === v.a); if (w) x.territori = w.territori; }
+    return x; });
+  const t = { id: tabId, nome, dado: T.dado, note: T.note, no_ripetere: T.no_ripetere, territori: vecchia ? vecchia.territori : (T.territori || []), territorio: vecchia ? vecchia.territorio : '',
+    quando: T.quando, voci, origine: 'importata', auto: false,
+    uscite: vecchia ? voci.filter(x => vecchia.voci.some(w => w.da === x.da && w.a === x.a && vecchia.uscite.includes(w.id))).map(x => x.id) : [] };
+  c = salvaTabella(c, t);
+  log(c, `Eventi: importata la tabella «${nome}» (${voci.length} voci, ${porte.filter(p => p.tipo === 'evento').length} schede evento, ${porte.filter(p => p.tipo === 'incontro').length} incontri)${vecchia ? ' al posto della precedente' : ''}`);
+  return { camp: c, tabella: tabId };
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -3795,13 +4452,17 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   aggiungiLuce, accendiLuce, spegniLuce, ricaricaLuce, riparoLuce, togliLuce, controllaLuci, motivoSpegne, nomeChiLuce, infoLuce, infoDi, FIAMME_PERS,
   aggiungiPromemoria, togliPromemoria, togliPromemoriaRound, salvaPromemoriaInIncontro, tipoLog, iniziaSessione, righeLog, testoLog,
   usaProntuario, AREE_GUIDA, areeGuida, impostaContatore, usaMedicinali, puoProntoSoccorso, prontoSoccorso, fermaSanguinamento, trattaVeleno, trattaMalattia,
-  risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
-  avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
+  risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi,
+  avviaMarcia, rispondiMarcia, controllaRighe, dadiCaduta, caduta, applicaCaduta,
   trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
   nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG,
   DV_CLASSI, DADI_DV, dvClasse, testoClassi, riserveMax, sincronizzaClassi, riservaRif, testoRiserva, sceltaRifiatare,
   UNITA_CONT, NOMI_UNITA, RICARICHE, salvaContatore, eliminaContatore, cambiaContatore, ricaricaContatore, pausaContatore, descriviTempoCont,
   TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette,
-  ricompenseVuote, migraIncontro, xpExtra, impostaOrdineIncontri, spostaIncontro, testoIncontro, testoTesoro, leggiIncontro, normNome };
+  ricompenseVuote, migraIncontro, xpExtra, impostaOrdineIncontri, spostaIncontro, testoIncontro, testoTesoro, leggiIncontro, normNome,
+  TIPI_EVENTO, DADI_EVENTI, CAMPI_PROFILO, GRUPPI_PROFILO, iconaTipo, nomeDado, fmtNum, tipoDaTesto, profiloVuoto, schedaEventoVuota, tabellaVuota, oreQuando, controllaQuando, valoriDado, testoQuando,
+  esitoProbabilita, controllaVoci, intervalloVoce, salvaTabella, eliminaTabella, impostaAuto, impostaTerritorio, azzeraUscite, salvaSchedaEvento, eliminaSchedaEvento, segnaEventoGiocato, titoloEvento,
+  tabellaDallaGuida, tiraVoce, nomeVoce, tiraEvento, rispondiEvento, eventiInfo, riprendiRiposo, interrompiRiposo, migraEventi,
+  voceZip, leggiDocxXml, leggiEventiDocx, leggiProfilo, testoProfilo, leggiRighePremio, leggiTesoroRiga, leggiEventiJson, esportaEventi, applicaImportazione, FORMATO_EVENTI };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

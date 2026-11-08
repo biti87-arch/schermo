@@ -1192,7 +1192,7 @@ const aria3 = { ...aria, velocita: '9 m', cerusico: 8, abilita_libere: [{ nome: 
 const bruno3 = { ...bruno, velocita: '6 m (4 caselle)', erborista: true, erborista_gradi: 5 };
 let h0 = M.impostaMeteo(M.aggiungiPG(M.aggiungiPG(camp, aria3, rng), bruno3, rng), meteo, 'Clima mite', rng);
 const HA = h0.pg[0].id, HB = h0.pg[1].id, pgH = (c, id) => c.pg.find(p => p.id === id);
-t('AC campagna nuova: medicinali ed erbe spenti, aree della Guida, niente marcia', !h0.medicinali.attivo && !h0.erbe.attivo && h0.aree.length === 6 && h0.viaggio.attivo === null && h0.n_comb === 0);
+t('AC campagna nuova: medicinali ed erbe spenti, nessuna tabella degli eventi, niente marcia', !h0.medicinali.attivo && !h0.erbe.attivo && h0.eventi.tabelle.length === 0 && h0.aree === undefined && h0.viaggio.attivo === null && h0.n_comb === 0);
 lancia('AC gradi del cerusico non validi', () => M.aggiungiPG(camp, { ...aria, cerusico: -1 }, rng), 'cerusico');
 // ---- AC3-2/AC3-3 riposo totale e assistenza continua
 { let c = M.clona(h0); pgH(c, HA).stato.ferita = 10; pgH(c, HB).stato.ferita = 10;
@@ -1315,31 +1315,30 @@ lancia('AC gradi del cerusico non validi', () => M.aggiungiPG(camp, { ...aria, c
   // marcia oltre la mezzanotte: le ore di oggi ripartono
   let n = M.vaiA(h0, (M.scomponi(h0).N + 1) * M.ROUND_GIORNO - 2 * M.ROUND_ORA, meteo, rng); n = M.avviaMarcia(n, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 4 });
   t('AC5-5 a cavallo della mezzanotte: niente marcia forzata, 2 ore nel giorno nuovo', !n.viaggio.attivo && n.viaggio.oggi.min === 120); }
-// ---- AC6 incontri casuali
-{ t('AC6-3 tabella: buchi e sovrapposizioni', JSON.stringify(M.controllaRighe([{ da: 1, a: 50 }, { da: 40, a: 90 }])) === JSON.stringify(['buchi: 91-100', 'sovrapposizioni: 40-50']) && !M.controllaRighe([{ da: 1, a: 100 }]).length);
-  let c = M.salvaArea(h0, { nome: 'Strada dei lupi', perc: 100, righe: [{ da: 1, a: 100, partecipanti: [{ nome: 'Lupo', dadi: '2d4' }], testo: 'ululati' }] });
-  const ar = c.aree.at(-1);
-  lancia('AC6-2 probabilità non valida', () => M.salvaArea(h0, { nome: 'X', perc: 120, righe: [] }), 'probabilità');
-  lancia('AC6-3 dadi non validi', () => M.salvaArea(h0, { nome: 'X', perc: 10, righe: [{ da: 1, a: 100, partecipanti: [{ nome: 'Lupo', dadi: '2x' }] }] }), 'non valida');
-  const comp = M.composizione(c, ar, semi(9)); t('AC6-3 composizione: 2d4 lupi', comp.partecipanti[0].n >= 2 && comp.partecipanti[0].n <= 8 && /ululati/.test(comp.testo));
-  t('AC6-3 senza tabella: «scegli tu»', /scegli tu/.test(M.composizione(c, c.aree[0], rng).testo));
-  c.impostazioni.incontri_casuali = true;
-  let m = M.avviaMarcia(c, meteo, semi(11), { mezzo: 'piedi', terreno: 'pianura', ore: 6, area: ar.id });
-  const e = m.viaggio.attivo && m.viaggio.attivo.evento;
-  t('AC6-4 incontro dentro le 6 ore: la marcia si ferma', e && e.tipo === 'incontro' && e.partecipanti.length === 1 && m.viaggio.attivo.min === (m.viaggio.incontro_in - 1) * 60, [e, m.viaggio]);
-  m = M.rispondiMarcia(m, meteo, rng, { incontro: 'avvia' }); t('AC6-4 Avvia: marcia sospesa', m.viaggio.attivo.sospesa);
-  m = M.rispondiMarcia(m, meteo, rng, { riprendi: true }); t('AC6-4 Riprendi la marcia fino alla fine', !m.viaggio.attivo && m.viaggio.ultima.min === 360);
-  let s = M.avviaMarcia(c, meteo, semi(11), { mezzo: 'piedi', terreno: 'pianura', ore: 6, area: ar.id }); s = M.rispondiMarcia(s, meteo, rng, { incontro: 'ignora' });
-  t('AC6-4 Ignora: la marcia continua', !s.viaggio.attivo && s.viaggio.ultima.min === 360);
-  const spento = M.avviaMarcia({ ...c, impostazioni: { ...c.impostazioni, incontri_casuali: false } }, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 6, area: ar.id });
-  t('AC6-1 con l\'impostazione spenta niente tiri', !spento.viaggio.attivo && !spento.log.some(e => /Incontri casuali \(/.test(e.testo)));
-  const ma = M.salvaArea(c, { nome: 'Mai', perc: 0, righe: [] }), mai = ma.aree.at(-1);
-  const mm = M.avviaMarcia(ma, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 13, area: mai.id }); // ore 9–13: marcia forzata
-  t('AC6-6 nessun incontro nel log (a ogni blocco di 6 ore)', mm.log.filter(e => /Incontri casuali \(Mai\): nessun incontro \(\d+ su 0%\)/.test(e.testo)).length >= 1);
-  let tm = M.tiraIncontro(c, semi(5), { area: ar.id }); t('AC6-5 a mano: ora 2d12 come promemoria con l\'incontro', tm.esce && tm.camp.promemoria.some(p => p.incontro && p.R === tm.R) && tm.R > c.tempo.R && tm.ora >= 2 && tm.ora <= 24);
-  tm = M.tiraIncontro(c, rng, { area: c.aree[0].id, riparo: true }); t('AC6-5 notte al riparo −5%', tm.perc === 15);
-  const sp = M.tiraIncontro(c, rng, { area: c.aree[2].id, speciale: true }); t('AC6-2 speciale (nelle grotte 20%)', sp.perc === 20);
-  c = M.eliminaArea(c, ar.id); t('AC6-2 elimina area', !c.aree.some(a => a.id === ar.id)); }
+// ---- AC6 incontri casuali → AG4 (Build 5c): tabelle degli eventi con i tiri nella marcia
+{ t('AC6-3 tabella: buchi e sovrapposizioni', JSON.stringify(M.controllaRighe([{ da: 1, a: 50 }, { da: 40, a: 90 }])) === JSON.stringify(['buchi: 91-00', 'sovrapposizioni: 40-50']) && !M.controllaRighe([{ da: 1, a: 100 }]).length);
+  let c = M.salvaTabella(h0, { nome: 'Strada dei lupi', dado: 100, quando: [{ tipo: 'marcia', ogni: 6, unita: 'ore', perc: 100 }], voci: [{ da: 1, a: 100, testo: 'ululati', porta: { tipo: 'creature', creature: [{ nome: 'Lupo', dadi: '2d4' }] } }] });
+  const tb = c.eventi.tabelle.at(-1);
+  lancia('AG4 probabilità non valida', () => M.salvaTabella(h0, { nome: 'X', dado: 100, quando: [{ tipo: 'marcia', ogni: 6, unita: 'ore', perc: 120 }], voci: [] }), 'probabilità');
+  lancia('AG4 dadi non validi', () => M.salvaTabella(h0, { nome: 'X', dado: 100, voci: [{ da: 1, a: 100, porta: { tipo: 'creature', creature: [{ nome: 'Lupo', dadi: '2x' }] } }] }), 'non valida');
+  t('AG4-B tiri automatici spenti di default', !tb.auto);
+  c = M.impostaAuto(c, tb.id, true);
+  let m = M.avviaMarcia(c, meteo, semi(11), { mezzo: 'piedi', terreno: 'pianura', ore: 6 });
+  const e = m.viaggio.attivo && m.viaggio.attivo.evento, q = e && m.coda.find(x => x.id === e.q), st = m.eventi.tabelle.at(-1).conta[0];
+  t('AG4-B evento dentro le 6 ore: la marcia si ferma, avviso con 2d4 lupi', e && e.tipo === 'evento' && q && q.ev.comp[0].n >= 2 && q.ev.comp[0].n <= 8 && m.viaggio.attivo.min === (st.in - 1) * 60, [e, st]);
+  let r = M.rispondiEvento(m, e.q, 'avvia', rng); m = r.camp; t('AG4 Avvia: marcia sospesa, composizione', m.viaggio.attivo.sospesa && r.comp.length === 1 && !m.coda.some(x => x.id === e.q));
+  m = M.rispondiMarcia(m, meteo, rng, { riprendi: true }); t('AG4 Riprendi la marcia fino alla fine', !m.viaggio.attivo && m.viaggio.ultima.min === 360);
+  let s2 = M.avviaMarcia(c, meteo, semi(11), { mezzo: 'piedi', terreno: 'pianura', ore: 6 }); r = M.rispondiEvento(s2, s2.viaggio.attivo.evento.q, 'ignora', rng);
+  t('AG4 Ignora: la marcia continua (riprendi), la voce non conta come uscita', r.riprendi && !r.camp.viaggio.attivo.evento && r.camp.eventi.tabelle.at(-1).uscite.length === 0);
+  s2 = M.rispondiMarcia(r.camp, meteo, rng, { riprendi: true }); t('AG4 Ignora poi la marcia arriva', !s2.viaggio.attivo && s2.viaggio.ultima.min === 360);
+  const spento = M.avviaMarcia(M.impostaAuto(c, tb.id, false), meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 6 });
+  t('AG4-B tiri automatici spenti: niente tiri', !spento.viaggio.attivo && !spento.log.some(e => /Eventi \(Strada/.test(e.testo)));
+  let ma = M.salvaTabella(h0, { nome: 'Mai', dado: 100, quando: [{ tipo: 'marcia', ogni: 6, unita: 'ore', perc: 0 }], voci: [] }); ma = M.impostaAuto(ma, ma.eventi.tabelle[0].id, true);
+  const mm = M.avviaMarcia(ma, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 13 });
+  t('AG4 «nessun evento» nel log a ogni blocco di 6 ore di marcia', mm.log.filter(e => /Eventi \(Mai, marcia\): nessun evento \(d% \d+ su 0%\)/.test(e.testo)).length >= 2);
+  const tm = M.tiraEvento(c, semi(5), { tabella: tb.id, entro: 24 }); t('AG4 a mano entro 24 ore: in attesa', tm.esce && tm.camp.eventi.attesa.length === 1 && tm.R > c.tempo.R && tm.R <= c.tempo.R + 24 * M.ROUND_ORA);
+  const arr = M.vaiA(tm.camp, tm.R, meteo, rng); t('AG4 l\'evento in attesa arriva nella coda alla sua ora', arr.coda.some(x => x.tipo === 'evento' && x.R === tm.R) && !arr.eventi.attesa.length);
+  c = M.eliminaTabella(c, tb.id); t('AG4 elimina tabella', !c.eventi.tabelle.some(a => a.id === tb.id)); }
 // ---- AC7 pericoli
 { t('AC7-3 tabella di Cadere', [2.9, 3, 5, 8, 10, 33].map(M.dadiCaduta).join() === '0,1,2,4,12,40' && M.dadiCaduta(34) === null);
   let e = M.caduta({ metri: 6, volontaria: true }, rng); t('AC7-3 volontaria: −3 m', e.dadi_letali === 1);
@@ -1404,7 +1403,7 @@ lancia('AC gradi del cerusico non validi', () => M.aggiungiPG(camp, { ...aria, c
 // ---- migrazione: le campagne salvate con le build precedenti si aprono (con i campi della 3b spenti); la 3a con tutto
 for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_build2b.json', 'campagna_build2c.json', 'campagna_build3a.json']) {
   const c = M.importa(fs.readFileSync(path.join(__dirname, 'prove', f), 'utf8')).campagne[0];
-  t(`AC migrazione ${f}: medicinali ed erbe spenti, aree della Guida, viaggio vuoto`, !c.medicinali.attivo && !c.erbe.attivo && c.aree.length === 6 && c.viaggio.attivo === null && c.pg.every(p => p.scheda.cerusico === 0 && p.scheda.erborista === false));
+  t(`AC migrazione ${f}: medicinali ed erbe spenti, nessuna tabella (aree della Guida intatte), viaggio vuoto`, !c.medicinali.attivo && !c.erbe.attivo && c.eventi.tabelle.length === 0 && c.aree === undefined && c.viaggio.attivo === null && c.pg.every(p => p.scheda.cerusico === 0 && p.scheda.erborista === false));
   const m = M.avviaMarcia(c.combattimento ? M.fineCombattimento(c, 0).camp : c, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 1 });
   t(`AC migrazione ${f}: si marcia`, m.viaggio.ultima && m.viaggio.ultima.min === 60);
 }
@@ -1418,7 +1417,7 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_buil
 
 // ================================================================ Build 4: finestra TV (sezione AD)
 { const c3 = M.importa(fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build3b.json'), 'utf8')).campagne[0];
-  t('Build 3b: marcia in corso fermata da Orientarsi, area con tabella', c3.viaggio.attivo && c3.viaggio.attivo.evento.tipo === 'orientarsi' && c3.aree.length === 7 && c3.aree[6].righe.length === 2);
+  t('Build 3b: marcia in corso fermata da Orientarsi; l\'area con la tabella diventa una tabella d% (Z8-5)', c3.viaggio.attivo && c3.viaggio.attivo.evento.tipo === 'orientarsi' && c3.eventi.tabelle.some(t => t.dado === 100 && t.voci.length === 2 && t.quando[0].tipo === 'marcia' && t.quando[0].ogni === 6), c3.eventi.tabelle.map(t => [t.nome, t.voci.length, t.auto]));
   t('Build 3b: medicinali ed erbe accesi, mistura e Trattenere il fiato', c3.medicinali.attivo && c3.medicinali.n === 4 && c3.erbe.attivo && c3.erbe.n === 5 && c3.pg[0].stato.malus.some(m => m.nome === 'Trattenere il fiato' && m.apnea));
   t('Build 3b: promemoria con l\'incontro casuale', c3.promemoria.length === 1 && c3.promemoria[0].incontro && c3.promemoria[0].incontro.partecipanti.length === 1);
   const r = M.rispondiMarcia(c3, meteo, rng, { orientarsi: 20 }); t('Build 3b: la marcia riprende', !r.viaggio.attivo || r.viaggio.attivo.evento.tipo !== 'orientarsi');
@@ -1746,6 +1745,122 @@ XP: 7.200 (6 × 1.200) · 3.600 con tre lupi · +200 se li allontanano col fuoco
   c2 = M.salvaIncontro(c2, { titolo: 'Beta', atto: 'Atto III', capitolo: 'Eventi', partecipanti: [], promemoria: [] });
   t('AG3 alfabetico: i nuovi al loro posto', nomi(c2) === 'Alfa|Beta|Il branco|Zeta', nomi(c2));
   c2 = M.impostaOrdineIncontri(c2, 'manuale'); t('AG3 di nuovo manuale: si parte dall\'alfabetico', nomi(c2) === 'Alfa|Beta|Il branco|Zeta' && c2.ordine_incontri === 'manuale', nomi(c2));
+}
+// ================================================================ Build 5c: eventi casuali e importazione (sezione AG4, Z8)
+{ const zlib = require('zlib');
+  const docx = f => { const u = new Uint8Array(fs.readFileSync(path.join(__dirname, 'prove', f))), z = M.voceZip(u, 'word/document.xml');
+    return M.leggiDocxXml((z.metodo === 8 ? zlib.inflateRawSync(z.dati) : Buffer.from(z.dati)).toString('utf8')); };
+  t('Z8-7 valori del dado', [...M.valoriDado('4–6', 6)].join() === '4,5,6' && M.valoriDado('7', 6) === null && [...M.valoriDado('1, 3-4', 6)].join() === '1,3,4');
+  t('Z8-7 testo del «Quando»', M.testoQuando({ tipo: 'marcia', ogni: 4, unita: 'ore', perc: null, dado: '1d6', valori: '4-6' }) === 'ogni 4 ore di marcia: 1d6 4–6' && M.testoQuando({ tipo: 'riposo', perc: 30 }) === 'a ogni riposo: 30%');
+  lancia('Z8-2 voce che porta a una scheda evento senza sceglierla', () => M.salvaTabella(h0, { nome: 'X', dado: 6, voci: [{ da: 1, a: 6, porta: { tipo: 'evento' } }] }), 'scheda evento');
+  lancia('Z8-2 intervallo oltre il dado', () => M.salvaTabella(h0, { nome: 'X', dado: 6, voci: [{ da: 1, a: 8, testo: 'x' }] }), 'intervallo');
+  t('Z8-2 d% con 00', M.controllaVoci([{ da: 1, a: 50 }, { da: 51, a: 99 }], 100).join() === 'buchi: 00');
+  // ---- Isola (EI 1–20)
+  const I = M.leggiEventiDocx(docx('UltimaSoglia_AttoIII_Eventi_Isola.docx'), () => null), T = I.tabella;
+  t('Z8-13 Isola: tabella d20 a 20 voci col nome dal titolo', T.nome === 'Tabella degli Eventi dell\'Isola' && T.dado === 20 && T.voci.length === 20 && T.voci.every((v, i) => v.da === i + 1 && v.a === i + 1), T.nome);
+  t('Z8-13 Isola: tipo, difficoltà e Dove dalle colonne', T.voci[0].tipo === 'sociale' && T.voci[7].tipo === 'pericolo' && T.voci[9].tipo === 'ostacolo' && T.voci[15].tipo === 'combattimento' && T.voci[19].tipo === 'libero' && T.voci[1].difficolta === 'Facile' && T.voci[1].dove === 'Boschi, Palude, margini');
+  t('Z8-15 Isola: marcia 1d6 4–6 (ogni da controllare) e riposo 1d6 5–6', JSON.stringify(T.quando.map(q => [q.tipo, q.ogni, q.unita, q.dado, q.valori])) === JSON.stringify([['marcia', 1, 'giorni', '1d6', '4-6'], ['riposo', null, null, '1d6', '5-6']]) && T.da_controllare.length === 1, T.quando);
+  t('Z8-15 Isola: l\'orologio a tacche resta nelle note, segnalato', T.non_riconosciuti.length === 1 && /tacca/.test(T.non_riconosciuti[0]));
+  t('Z8-15 Isola: senza ripetizioni, salvo 8, 16, 18 e 19', T.no_ripetere && T.voci.filter(v => v.ripetibile).map(v => v.da).join() === '8,16,18,19');
+  t('Z8-13 Isola: note con «Come si tira» e stagione, senza file sorgente né razze', /COME SI TIRA/.test(T.note) && /STAGIONE, CLIMA/.test(T.note) && !/FILE SORGENTE|RAZZE DEI PNG/.test(T.note) && /Doppioni/.test(T.note));
+  t('Z8-14 Isola: 20 eventi, 5 incontri (7, 8, 16, 17, 18), tutti collegati alle voci', I.eventi.length === 20 && I.eventi.filter(e => e.dest === 'incontro').map(e => e.n).join() === '7,8,16,17,18' && T.voci.every((v, i) => v.evento === i) && !I.avvisi.length, I.avvisi);
+  const e2 = I.eventi[1].scheda;
+  t('Z8-13 EI 2: testata, descrizione, Nota GM con la tabella «Se i PG…»', e2.numero === 'EI 2' && e2.tipo === 'sociale' && e2.difficolta === 'Facile' && /^boschi, Palude/.test(e2.terreno) && /^Un ramo spezzato/.test(e2.descrizione) && /\| Se i PG… \| Prova \| Cosa succede \|\n\|---\|---\|---\|/.test(e2.nota_gm) && /Stat block: nessuno/.test(e2.nota_gm));
+  const pv = e2.profili[0];
+  t('Z8-4 EI 2: profilo nei campi del §20', pv.titolo === 'la volpe di Olga' && /alleato possibile/.test(pv.ruolo) && pv.allineamento === 'Neutrale' && /kitsune/.test(pv.razza) && /nastro nero/.test(pv.gancio) && /trent'anni/.test(pv.aspetto) && /Olga/.test(pv.bisogno) && pv.aggettivi === 'preciso, cortese, testardo' && /Tornano col buio/.test(pv.frase) && /taccuino/.test(pv.obiettivo), pv);
+  t('Z8-16 EI 2: XP 1.600 e +1.600 nelle ricompense', JSON.stringify(e2.ricompense.xp_extra.map(x => x.xp)) === '[1600,1600]', e2.ricompense);
+  t('Z8-13 EI 12: tesoro da generare', I.eventi[11].scheda.ricompense.tesoro && I.eventi[11].scheda.ricompense.tesoro.dove === 'la cassa del medico');
+  t('Z8-13 EI 20: checklist e proposte del documento scartate', !I.eventi[19].scheda.altro.some(a => /CHECKLIST|PROPOSTE/.test(a.titolo)));
+  const e16 = I.eventi[15].incontro, e8 = I.eventi[7].incontro, e7 = I.eventi[6].incontro;
+  t('Z8-14 EI 16: incontro «EI 16 — Il branco» nella cartella della tabella, 6 lupi «o ×3»', e16.titolo === 'EI 16 — Il branco' && e16.atto === T.nome && e16.partecipanti[0].n === 6 && e16.partecipanti[0].nota === 'o ×3' && /^Prima arriva l'odore/.test(e16.descrizione) && /Combattimento · Difficoltà/.test(e16.note));
+  t('Z8-13 EI 8: Folgorati (1d4) → 1 con la nota', e8.partecipanti[0].n === 1 && e8.partecipanti[0].nota === '1d4 se escono');
+  t('Z8-14 EI 7: profilo di Nia nelle note (lo stat block è dell\'Imbalsamato)', /\*\*Profilo — Nia Sabbadin\*\*/.test(e7.note) && e7.partecipanti[0].nome === 'Imbalsamato');
+  t('Z8-14 una scheda sola per l\'Imbalsamato (EI 7 ed EI 18)', I.schede.length === 5 && I.schede.find(s => s.chiave === 'imbalsamato').eventi.length === 2 && I.schede.every(s => s.stato === 'nuova'));
+  // ---- Thronestep (voci con intervallo, E1–E4)
+  const P = M.leggiEventiDocx(docx('Prova_EventiCasuali_Thronestep.docx'), n => /lupo invernale/i.test(n) ? { rif: { fonte: 'mostro', id: 'm1' }, scheda: { nome: 'Lupo invernale' } } : null), TP = P.tabella;
+  t('Z8-13 Thronestep: voci 1–7…19–20, titolo e testo divisi, «Chi lo risolve» nelle note', TP.voci.map(v => `${v.da}-${v.a}`).join() === '1-7,8-11,12-15,16-18,19-20' && TP.voci[0].titolo === 'La maschera in vendita' && /^un ex sacerdote/.test(TP.voci[0].testo) && /^Chi lo risolve: Diplomazia/.test(TP.voci[0].note));
+  t('Z8-13 Thronestep: collegati per titolo, 19–20 resta un testo (avviso)', TP.voci.map(v => v.evento).join() === '0,1,2,3,' && P.avvisi.length === 1 && /19–20/.test(P.avvisi[0]), P.avvisi);
+  t('Z8-15 Thronestep: mezza giornata di viaggio = ogni 4 ore di marcia, 1d6 4–6; ripetizioni permesse', JSON.stringify(TP.quando) === JSON.stringify([{ tipo: 'marcia', ogni: 4, unita: 'ore', perc: null, dado: '1d6', valori: '4-6' }]) && !TP.no_ripetere);
+  const pi = P.eventi[0].scheda.profili[0];
+  t('Z8-4 E1: profilo in tabella (riquadro col nome + righe)', pi.nome === 'Ilvar Grigiomanto' && /mezzelfo/.test(pi.razza) && /striscia di pelle/.test(pi.gancio) && /^Sulla quarantina/.test(pi.aspetto) && /perdonato/.test(pi.bisogno) && pi.tic === '«se mi è permesso».' && pi.pressione === 'supplica, poi si chiude.' && /si scusa/.test(pi.metodo) && /maschera intera/.test(pi.limite), pi);
+  t('Z8-13 E1: prove verticali con il titolo sopra; difficoltà «nessuna»', /\*\*Ascoltarlo e rassicurarlo\*\*\n\| Prova \| Diplomazia CD 18/.test(P.eventi[0].scheda.nota_gm) && P.eventi[0].scheda.difficolta === 'nessuna');
+  t('Z8-16 E1: «XP 1.600 (incontro con PNG).» → XP in più col motivo', JSON.stringify(P.eventi[0].scheda.ricompense.xp_extra) === JSON.stringify([{ xp: 1600, motivo: 'incontro con PNG' }]));
+  t('Z8-13 E3: 💰 TESORO in un riquadro a parte («Dove/chi lo porta», «Note di contesto»)', JSON.stringify(P.eventi[2].scheda.ricompense.tesoro) === JSON.stringify({ livello: '12', quantita: '1 secondario', dove: 'nelle sacche dei disertori', note: 'equipaggiamento militare razmirano di truppa' }));
+  const e4 = P.eventi[3].incontro;
+  t('Z8-14 E4: capobranco nuovo (mostro), lupo invernale trovato nel bestiario; tattiche negli stat block, non nella descrizione', P.schede.find(s => s.chiave === 'capobranco').stato === 'nuova' && P.schede.find(s => s.chiave === 'capobranco').dest === 'mostro' && P.schede.find(s => s.chiave === 'lupo invernale').stato === 'trovata' && !/TATTICHE/.test(e4.descrizione) && e4.partecipanti[1].n === 7);
+  // ---- «Crea tutto»
+  for (const s of I.schede) s.rif = { fonte: s.dest === 'mostro' ? 'mostro' : 'png', id: 'x-' + s.chiave };
+  let ci = M.applicaImportazione(h0, I).camp; const ti = ci.eventi.tabelle.at(-1);
+  t('Z8-16 Crea tutto: tabella, 15 schede evento, 5 incontri nella cartella della tabella', ti.nome === T.nome && ti.voci.length === 20 && ci.eventi.schede.length === 15 && ci.incontri.filter(i => i.atto === T.nome && i.da_tabella === ti.id).length === 5 && !ti.auto);
+  t('Z8-16 voci collegate (scheda evento / incontro) e partecipanti col riferimento', ti.voci[0].porta.tipo === 'evento' && ti.voci[15].porta.tipo === 'incontro' && ci.incontri.find(i => i.id === ti.voci[17].porta.id).partecipanti.every(p => p.rif && p.rif.id.startsWith('x-')));
+  t('Z8-16 il «Quando» e le ripetizioni passano nella tabella', ti.quando.length === 2 && ti.no_ripetere && ti.voci[7].ripetibile);
+  // tiri con le ripetizioni (Z8-10)
+  ci = M.impostaAuto(ci, ti.id, true);
+  let r = M.tiraEvento(ci, semi(1), { tabella: ti.id }); let cc = r.camp; const q1 = r.q;
+  t('Z8-9 «Tira» a mano: avviso con la voce, uscita segnata', q1 && q1.tipo === 'evento' && cc.eventi.tabelle.at(-1).uscite.includes(q1.ev.voce) && /su d20\) alle/.test(q1.testo));
+  const rr = M.rispondiEvento(cc, q1.id, 'ritira', semi(2)); const q1b = rr.coda.find(q => q.id === q1.id), tb2 = rr.eventi.tabelle.at(-1);
+  t('Z8-9 Ritira: voce diversa alla stessa ora, la vecchia non è più uscita', q1b.ev.voce !== q1.ev.voce && q1b.R === q1.R && !tb2.uscite.includes(q1.ev.voce) && tb2.uscite.includes(q1b.ev.voce));
+  let usc = M.clona(ci); const tu = usc.eventi.tabelle.at(-1); tu.uscite = tu.voci.filter(v => !v.ripetibile).map(v => v.id);
+  const prove = Array.from({ length: 40 }, (_, k) => M.tiraVoce(tu, semi(100 + k))); const vv = new Set(prove.map(x => tu.voci.find(v => v.id === x.voce).da));
+  t('Z8-10 uscite tutte tranne le ripetibili: escono solo 8, 16, 18, 19 (e il log dice «già uscita»)', [...vv].every(n => [8, 16, 18, 19].includes(n)) && prove.some(x => /già uscita, si ritira/.test(x.testo)), [...vv]);
+  tu.voci.forEach(v => v.ripetibile = false); tu.uscite = tu.voci.map(v => v.id);
+  t('Z8-10 nessuna voce disponibile: scegli tu', M.tiraVoce(tu, rng).voce === null && /scegli tu/.test(M.tiraVoce(tu, rng).testo));
+  usc = M.salvaTabella(h0, { nome: 'Terre', dado: 6, territori: ['Bosco', 'Palude'], voci: [{ da: 1, a: 3, titolo: 'Orso', territori: ['Bosco'] }, { da: 4, a: 6, titolo: 'Coccodrillo', territori: ['Palude'] }] });
+  const tt = usc.eventi.tabelle.at(-1);
+  t('Z8-10 territorio: la voce fuori posto si ritira da sola', Array.from({ length: 20 }, (_, k) => M.tiraVoce(tt, semi(k), { territorio: 'Palude' })).every(x => tt.voci.find(v => v.id === x.voce).titolo === 'Coccodrillo'));
+  t('Z8-10 senza territorio valgono tutte', new Set(Array.from({ length: 30 }, (_, k) => M.tiraVoce(tt, semi(k)).voce)).size === 2);
+  // Sostituisci (Z8-16)
+  let cs = M.clona(ci); const tsv = cs.eventi.tabelle.at(-1); tsv.uscite = [tsv.voci[2].id]; cs.incontri.find(i => i.id === tsv.voci[16].porta.id).stato = 'giocato';
+  const prima = cs.incontri.length; cs = M.applicaImportazione(cs, I, { sostituisci: tsv.id }).camp; const tn = cs.eventi.tabelle.find(x => x.id === tsv.id);
+  t('Z8-16 Sostituisci: stessa tabella, tiri automatici e uscite (per numero) restano', cs.eventi.tabelle.filter(x => x.nome === T.nome).length === 1 && tn.auto && tn.uscite.length === 1 && tn.voci.find(v => v.id === tn.uscite[0]).da === 3);
+  t('Z8-16 Sostituisci: schede evento rifatte, incontri da giocare rifatti, il giocato resta', cs.eventi.schede.length === 15 && cs.incontri.length === prima + 1 && cs.incontri.some(i => i.stato === 'giocato' && i.da_tabella === tsv.id), [prima, cs.incontri.length]);
+  // JSON (Z8-17)
+  const schedaDi = rif => rif && rif.id === 'x-imbalsamato' ? M.leggiStatBlock(I.eventi[17].incontro && 'IMBALSAMATO · GS 5 · XP 1.600\nNon morto Medio | Legale Malvagio\nIniziativa +0 | Sensi: scurovisione 18 m | Percezione +16')[0].scheda : null;
+  const js = M.esportaEventi(ci, ti.id, schedaDi), J = JSON.parse(js);
+  t('Z8-17 esporta: formato, tabella con il «Quando», 20 eventi, stat block in testo', J.formato === 'schermo-eventi' && J.tabelle[0].dado === 'd20' && J.tabelle[0].quando.length === 2 && J.eventi.length === 20 && J.schede.length === 1 && /^IMBALSAMATO · GS 5/.test(J.schede[0].testo));
+  const A2 = M.leggiEventiJson(js, () => null);
+  t('Z8-17 reimporta il proprio JSON: stesse voci, stessi collegamenti, 5 incontri', A2.tabella.voci.length === 20 && A2.tabella.voci.every((v, i) => v.evento !== null) && A2.eventi.filter(e => e.dest === 'incontro').length === 5 && A2.tabella.no_ripetere && A2.tabella.voci[7].ripetibile, A2.avvisi);
+  t('Z8-17 JSON: profili e ricompense delle schede evento', A2.eventi[1].scheda.profili[0].titolo === 'la volpe di Olga' && A2.eventi[1].scheda.ricompense.xp_extra.length === 2);
+  lancia('Z8-17 JSON di un altro formato', () => M.leggiEventiJson('{"formato":"schermo-v1"}'), 'formato');
+  const mini = M.leggiEventiJson(JSON.stringify({ formato: 'schermo-eventi', versione: 1, tabelle: [{ nome: 'Strada', dado: 'd6', quando: [{ tipo: 'tempo', ogni: 12, unita: 'ore', perc: 25 }],
+    voci: [{ da: 1, a: 3, evento: '1' }, { da: 4, a: 6, titolo: 'Lupi', creature: [{ nome: 'Lupo', dadi: '1d4+1' }] }] }],
+    eventi: [{ numero: '1', titolo: 'Il mercante', tipo: 'sociale', descrizione: 'Un carro.', profili: [{ nome: 'Ugo', ruolo: 'neutrale' }] }], schede: ['LUPO · GS 1 · XP 400\nAnimale Medio | Neutrale\nIniziativa +2'] }), () => null);
+  t('Z8-17 JSON scritto a mano: evento collegato, creature con lo stat block del file', mini.tabella.voci[0].evento === 0 && mini.tabella.voci[1].porta.tipo === 'creature' && mini.tabella.voci[1].porta.creature[0].chiave === 'lupo' && mini.schede[0].stato === 'nuova');
+  // ---- Tempo (Z8-8)
+  let ct = M.salvaTabella(h0, { nome: 'Orologio', dado: 6, quando: [{ tipo: 'tempo', ogni: 2, unita: 'ore', perc: 100 }], voci: [{ da: 1, a: 6, titolo: 'Rumore', ripetibile: true }] });
+  const tid = ct.eventi.tabelle.at(-1).id; ct = M.impostaAuto(ct, tid, true); const R0 = ct.tempo.R;
+  const c6 = M.avanza(ct, 6 * M.ROUND_ORA, meteo, rng); const ev6 = c6.coda.filter(q => q.tipo === 'evento');
+  t('Z8-8 Tempo: ogni 2 ore al 100% in 6 ore escono 3 eventi, ognuno nel suo intervallo', ev6.length === 3 && ev6.every((q, k) => q.R >= R0 + k * 2 * M.ROUND_ORA && q.R < R0 + (k + 1) * 2 * M.ROUND_ORA), ev6.map(q => q.R - R0));
+  let cm = M.salvaTabella(h0, { nome: 'Doppia', dado: 6, quando: [{ tipo: 'marcia', ogni: 1, unita: 'giorni', perc: 0 }, { tipo: 'tempo', ogni: 1, unita: 'ore', perc: 100 }], voci: [{ da: 1, a: 6, titolo: 'X', ripetibile: true }] });
+  cm = M.impostaAuto(cm, cm.eventi.tabelle.at(-1).id, true); cm = M.avviaMarcia(cm, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 3 });
+  t('Z8-8 le ore di marcia non contano per il Tempo se la tabella ha anche la Marcia', !cm.coda.some(q => q.tipo === 'evento') && !cm.viaggio.attivo);
+  // ---- Riposo (Z8-8)
+  let cr = M.salvaTabella(h0, { nome: 'Notte', dado: 6, quando: [{ tipo: 'riposo', dado: '1d6', valori: '1-6' }], voci: [{ da: 1, a: 6, titolo: 'Lupi nella notte' }] });
+  cr = M.impostaAuto(cr, cr.eventi.tabelle.at(-1).id, true); cr.pg[0].stato.fatica = 1;
+  const rs = M.riposo(cr, meteo, semi(4), null);
+  t('Z8-8 Riposo: l\'evento ferma il riposo, niente recupero, coda con evento e riposo', rs.riposo_sospeso && rs.pg[0].stato.fatica === 1 && rs.coda.some(q => q.tipo === 'evento') && rs.coda.some(q => q.tipo === 'riposo') && rs.tempo.R - cr.tempo.R === (8 * M.ROUND_ORA - rs.riposo_sospeso.resta));
+  lancia('Z8-8 il riposo fermato non si toglie con «Fatto»', () => M.togliDallaCoda(rs, rs.coda.findIndex(q => q.tipo === 'riposo')), 'riposo');
+  const rp = M.riprendiRiposo(rs, meteo, rng);
+  t('Z8-8 Riprendi il riposo: finisce le ore, recupero pieno, inizio del riposo di prima', !rp.riposo_sospeso && rp.pg[0].stato.fatica === M.massimi(rp, rp.pg[0]).fatica && rp.tempo.R - cr.tempo.R === 8 * M.ROUND_ORA && rp.pg[0].stato.ultimo_riposo.inizio === cr.tempo.R && !rp.coda.some(q => q.tipo === 'riposo'));
+  const ri = M.interrompiRiposo(rs);
+  t('Z8-8 Interrompi: niente recupero, non conta per il limite', !ri.riposo_sospeso && ri.pg[0].stato.fatica === 1 && M.puoRiposare(ri, ri.pg[0]).ok);
+  // ---- migrazione delle aree (Z8-5)
+  const vecchia = M.clona(h0); delete vecchia.eventi; vecchia.aree = M.areeGuida(); vecchia.aree[2].righe = [{ da: 1, a: 100, testo: '', partecipanti: [{ nome: 'Orco', dadi: '1d6', rif: null }] }];
+  vecchia.aree.push({ id: 'area7', nome: 'Bosco nero', perc: 30, speciale: null, righe: [] }); vecchia.impostazioni.incontri_casuali = true; vecchia.viaggio.area = 'ar3'; vecchia.viaggio.speciale = true; vecchia.viaggio.accumulo = 2;
+  const mg = M.migra(vecchia), tbs = mg.eventi.tabelle;
+  t('Z8-5 migrazione: Montagna (con righe) + «Montagna — nelle grotte», Bosco nero; Guida intatte via', tbs.map(t => t.nome).join('|') === 'Montagna|Montagna — nelle grotte|Bosco nero' && mg.aree === undefined && mg.impostazioni.incontri_casuali === undefined, tbs.map(t => t.nome));
+  t('Z8-5 migrazione: d% ogni 6 ore di marcia con la %, voce ⚔ con le creature', tbs[0].dado === 100 && tbs[0].quando[0].perc === 10 && tbs[1].quando[0].perc === 20 && tbs[0].voci[0].tipo === 'combattimento' && tbs[0].voci[0].porta.creature[0].dadi === '1d6');
+  t('Z8-5 migrazione: tiri automatici solo sulla tabella scelta (la speciale), col conteggio delle ore', !tbs[0].auto && tbs[1].auto && tbs[1].conta[0].acc === 2 && !tbs[2].auto && /−5%/.test(tbs[0].note));
+  const gd = M.tabellaDallaGuida(h0, 2).eventi.tabelle.at(-1); t('Z8-5 «Dalla Guida»: Montagna 10%, nota del riparo', gd.nome === 'Montagna' && gd.quando[0].perc === 10 && /nelle grotte 20%/.test(gd.note) && /−5%/.test(gd.note));
+  // ---- schede evento
+  let se = M.salvaSchedaEvento(h0, { titolo: 'Il ponte', tipo: 'pericolo', profili: [{ nome: 'Ugo' }, { nome: '' }], ricompense: { xp_extra: [{ xp: 2400, motivo: 'pericolo' }], tesoro: null, testo: '' } });
+  const sid = se.eventi.schede[0].id; t('Z8-3 scheda evento: profili vuoti tolti', se.eventi.schede[0].profili.length === 1);
+  se = M.segnaEventoGiocato(se, sid, true); t('Z8 evento giocato con gli XP nel log', se.eventi.schede[0].stato === 'giocato' && se.log.some(e => /Evento «Il ponte» giocato \(XP 2\.400\)/.test(e.testo)));
+  se = M.salvaTabella(se, { nome: 'T', dado: 4, voci: [{ da: 1, a: 4, porta: { tipo: 'evento', id: sid } }] }); se = M.eliminaSchedaEvento(se, sid);
+  t('Z8 eliminare la scheda: la voce resta col titolo come testo', se.eventi.tabelle[0].voci[0].porta.tipo === 'testo' && se.eventi.tabelle[0].voci[0].titolo === 'Il ponte');
+  // 5b: «Ambiente:» dell'Ecologia non chiude lo stat block nell'Incolla incontro
+  const li = M.leggiIncontro('Lupi\nLUPO · GS 1 · XP 400\nAnimale Medio | Neutrale\nIniziativa +2\n── ECOLOGIA ──\nAmbiente: pianure\n── TATTICHE ──\nRound 1: morde', () => null);
+  t('5b corretto: «Ambiente:» resta nello stat block', !li.incontro.descrizione && li.voci[0].scheda && li.voci[0].scheda.ambiente === 'pianure', li.incontro);
 }
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

@@ -286,6 +286,13 @@ details.cartella>summary{cursor:pointer;font-family:var(--f-titolo);color:var(--
 .tv-riq-barra{display:flex;gap:10px;align-items:center;padding:3px 10px;background:#28211A;cursor:move;user-select:none;touch-action:none;font-size:.8rem;color:var(--oro)}
 .tv-riq.bloccata .tv-riq-barra{cursor:default}.tv-riq-corpo{flex:1;min-height:0}
 .nemico .nome-tv{grid-column:1/-1}
+/* Build 5c: eventi */
+.voce.uscita .voce-nome{opacity:.55}.voce.uscita .voce-nome b{text-decoration:line-through}
+.md-blocchi{display:none}.md-blocco{border-left:3px solid var(--oro-scuro);padding:2px 6px;margin:3px 0;font-size:.85rem}
+@media (max-width:600px){.md-tab{display:none}.md-blocchi{display:block}}
+.profilo{border:1px solid var(--riga);border-radius:6px;padding:6px 8px;margin:6px 0}.sotto-prof{font-weight:600;color:var(--oro);font-size:.8rem;margin-top:4px;text-transform:uppercase;letter-spacing:.03em}
+.riga-q{flex-wrap:wrap;gap:4px;margin:3px 0}.riga-v .fila{flex-wrap:wrap}.avvertenza{color:var(--oro)}.link-ev{margin-top:4px}
+.tab-ev .chip.promem{white-space:normal}
 </style>
 </head>
 <body>
@@ -607,7 +614,7 @@ function cambiMeteoNelGiorno(c, meteo, da, a) {
 }
 
 // ------------------------------------------------------------------ campagne
-const IMPOSTAZIONI = { scorte: true, xp: false, pf_nemici: false, timer: false, timer_tv: false, soglia_timer: 0, incontri_casuali: false,
+const IMPOSTAZIONI = { scorte: true, xp: false, pf_nemici: false, timer: false, timer_tv: false, soglia_timer: 0,
   tv_xn: true, tv_fuori: 'barrate', tv_ora: false, tv_meteo: false, tv_solo_combattimento: true, f10: false, tema: 'scuro' };
 // dati: {nome, calendario, anno:{numero, etichetta}, partenza:{mese, giorno, ore, min, sett}, zona, pg:[schede], accompagnatori (senza nome),
 //        persone:[nomi degli accompagnatori], cibo, acqua, foraggio, impostazioni}
@@ -630,7 +637,7 @@ function creaCampagna(dati, meteo, rng, oraReale) {
     scorte: { cibo: dati.cibo, acqua: dati.acqua, foraggio: dati.foraggio, cibo_avariato: 0, acqua_impura: 0, recipienti: true }, razionamenti: [], foraggiato: null,
     compagnia: { senza_nome: dati.accompagnatori, persone: [], animali: [] },
     pg: [], combattimento: null, coda: [], log: [], impostazioni: { ...IMPOSTAZIONI, ...(dati.impostazioni || {}) }, png: [], incontri: [],
-    modelli: [], luci: [], promemoria: [], tiri: [],
+    modelli: [], luci: [], promemoria: [], tiri: [], eventi: { tabelle: [], schede: [], attesa: [] },
     ...CAMPI_3B(),
   };
   camp.tempo.R = tempoAssoluto(camp, dati.anno.numero, p.mese || 0, p.giorno || 1, p.ore || 0, p.min || 0);
@@ -647,7 +654,7 @@ const AREE_GUIDA = [['Terre selvagge', 20, null], ['Caverne e sotterranei', 15, 
   ['Campagna e colline; strade di collegamento', 5, null], ['Deserto o desolazione', 5, ['in oasi e rovine', 30]]];
 function areeGuida() { return AREE_GUIDA.map(([nome, perc, sp], i) => ({ id: 'ar' + (i + 1), nome, perc, speciale: sp ? { nome: sp[0], perc: sp[1] } : null, righe: [] })); }
 function CAMPI_3B() { return { medicinali: { attivo: false, n: 0 }, erbe: { attivo: false, n: 0, med_giorno: null, enigma_R: null }, n_comb: 0,
-  viaggio: { oggi: null, accumulo: 0, tirato: false, incontro_in: null, area: null, speciale: false, attivo: null, ultima: null }, aree: areeGuida(), stallaggio: null }; }
+  viaggio: { oggi: null, accumulo: 0, tirato: false, incontro_in: null, area: null, speciale: false, attivo: null, ultima: null }, stallaggio: null }; }
 function duplicaCampagna(camp, rng, oraReale) {
   const c = clona(camp); c.id = (oraReale || 0).toString(36) + nuovoId(rng); c.nome = camp.nome + ' (copia)'; c.creata = c.modificata = oraReale || 0; return c;
 }
@@ -740,6 +747,7 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   // Build 5b: descrizione e ricompense degli incontri, ordine
   for (const i of x.incontri || []) migraIncontro(i); if (!x.ordine_incontri) x.ordine_incontri = 'manuale';
   for (const p of x.pg) for (const [k, v] of [['cerusico', 0], ['erborista', false], ['erborista_gradi', 0]]) if (p.scheda[k] === undefined) p.scheda[k] = v;
+  migraEventi(x); // Build 5c
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
@@ -889,6 +897,7 @@ function avanza(camp, dR, meteo, rng, motivo, opz) {
     luciTempo(c, meteo, STRUMENTI, prec, t, rng);
     promemoriaTempo(c, prec, t);
     contatoriTempo(c, prec, t); // AG1-D
+    eventiTempo(c, prec, t, rng, !!(opz && opz.marcia)); // AG4-B
     if (t % ROUND_GIORNO === 0 && t > prec) { c = cambioGiorno(c, meteo, rng); }
     prec = t;
   }
@@ -939,7 +948,20 @@ function riposo(camp, meteo, rng, ids, opz) {
     for (const x of paz) { if (!scelti.some(p => p.id === x)) throw new Error('i pazienti devono riposare'); if (!Number.isInteger(as.esiti[x])) throw new Error('risultato della prova mancante'); }
   }
   const inizio = camp.tempo.R;
+  // AG4-B: un tiro per ogni riposo sulle tabelle con i tiri automatici; se esce un evento il riposo si ferma a quell'ora
+  const c0 = clona(camp), ev = riposoEventi(c0, rng, DUR / ROUND_ORA);
+  if (ev) {
+    let c = avanza(c0, ev.h * ROUND_ORA, meteo, rng, `${totale ? 'Riposo totale' : 'Riposo'} fermato alla ${ev.h}ª ora`);
+    const q = avvisoEvento(c, ev.t, rng, c.tempo.R, 'riposo');
+    c.riposo_sospeso = { ids: scelti.map(p => p.id), opz: { totale, assistenza: opz.assistenza || null, stanze: opz.stanze || null }, inizio, resta: DUR - ev.h * ROUND_ORA, q: q.id };
+    c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'riposo', testo: `Riposo fermato dall'evento alla ${ev.h}ª ora (${scelti.map(p => p.scheda.nome).join(', ')}): riprendilo per il recupero, oppure interrompilo.` });
+    return c;
+  }
   let c = avanza(camp, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
+  return concludiRiposo(c, scelti.map(p => p.id), opz, inizio, DUR, k, as, rng);
+}
+function concludiRiposo(c, ids, opz, inizio, DUR, k, as, rng) {
+  const totale = !!opz.totale, scelti = c.pg.filter(p => ids.includes(p.id));
   const assistiti = new Set(), recCar = {};
   if (as) {
     const paz = Object.keys(as.esiti), cd = pront().cerusico.assistenza.cd_base + paz.length, med = usaMedicinali(c, paz.length);
@@ -966,6 +988,19 @@ function riposo(camp, meteo, rng, ids, opz) {
   ricaricaContatori(c, 'riposo', scelti.map(p => p.id)); // AG1-C
   if (opz.stanze) stanzeLocanda(c, opz.stanze, rng);
   return c;
+}
+// Z8-8: «Riprendi il riposo» (finisce le ore che mancano, recupero pieno) · «Interrompi» (niente recupero, non conta per il limite)
+function riprendiRiposo(camp, meteo, rng) {
+  const s = camp.riposo_sospeso; if (!s) throw new Error('nessun riposo fermato');
+  let c = clona(camp); c.riposo_sospeso = null; c.coda = c.coda.filter(q => q.tipo !== 'riposo');
+  const DUR = s.opz.totale ? ROUND_GIORNO : DURATA_RIPOSO, k = s.opz.totale ? 2 : 1;
+  c = avanza(c, s.resta, meteo, rng, 'Il riposo riprende');
+  const as = s.opz.assistenza && Object.keys(s.opz.assistenza.esiti || {}).length ? s.opz.assistenza : null;
+  return concludiRiposo(c, s.ids.filter(id => c.pg.some(p => p.id === id)), s.opz, s.inizio, DUR, k, as, rng);
+}
+function interrompiRiposo(camp) {
+  if (!camp.riposo_sospeso) throw new Error('nessun riposo fermato');
+  const c = clona(camp); c.riposo_sospeso = null; c.coda = c.coda.filter(q => q.tipo !== 'riposo'); log(c, 'Riposo interrotto: nessun recupero'); return c;
 }
 
 // ------------------------------------------------------------------ scorte (Tabelle del Tempo Atmosferico, Cap. 4; AA2) e compagnia (AA3)
@@ -1310,6 +1345,7 @@ function togliDallaCoda(camp, i) {
   if (camp.coda[i] && camp.coda[i].tipo === 'razionamento') throw new Error('prima scegli chi usa la scorta');
   if (camp.coda[i] && ['ts', 'veleno'].includes(camp.coda[i].tipo)) throw new Error('rispondi Superato o Fallito');
   if (camp.coda[i] && camp.coda[i].tipo === 'morte') throw new Error('scegli cosa succede');
+  if (camp.coda[i] && camp.coda[i].tipo === 'riposo') throw new Error('riprendi o interrompi il riposo');
   const c = clona(camp); c.coda.splice(i, 1); return c;
 }
 
@@ -3154,7 +3190,7 @@ const TIPI_LOG = [
   ['tempo', /^Meteo|[Cc]omincia:|^Finisce |Nebbia|→ \S+ \d+ \S+ \d+|Riposo|Predire|[Zz]ona|[Vv]ariante|[Ll]uce|accesa|spent[ao]|si spegne|consumata|Promemoria|Inizio sessione/],
   ['tiri', /^Dadi:/],
 ];
-function tipoLog(testo) { if (/^Dadi:/.test(testo)) return 'tiri'; for (const [k, re] of TIPI_LOG) if (re.test(testo)) return k; return 'altro'; }
+function tipoLog(testo) { if (/^Dadi:/.test(testo)) return 'tiri'; if (/^Event[oi]\b/.test(testo)) return 'tempo'; for (const [k, re] of TIPI_LOG) if (re.test(testo)) return k; return 'altro'; }
 function iniziaSessione(camp) {
   const c = clona(camp), n = c.log.filter(e => e.sessione).length + 1;
   c.log.push({ R: c.tempo.R, testo: `— Inizio sessione ${n} —`, sessione: n }); return c;
@@ -3344,10 +3380,6 @@ function cdOrientarsi(c, meteo) {
   for (const m of O.mods) { const v = voci.find(x => m.voci.includes(x)); if (v) { cd += m.cd; mot.push(`${v} +${m.cd}`); } }
   return { cd, motivi: mot };
 }
-function probIncontro(c) {
-  const a = (c.aree || []).find(x => x.id === c.viaggio.area); if (!a) return null;
-  return { area: a, perc: c.viaggio.speciale && a.speciale ? a.speciale.perc : a.perc, speciale: c.viaggio.speciale && a.speciale ? a.speciale.nome : null };
-}
 // d: {mezzo: 'piedi'|'cavallo'|'pony'|'carro'|'barca'|'libera', kmh (libera o a piedi corretto), terreno, fuori_strada, racchette, suolo, ore | km, area, speciale}
 function avviaMarcia(camp, meteo, rng, d) {
   const V = pront().viaggi;
@@ -3361,7 +3393,6 @@ function avviaMarcia(camp, meteo, rng, d) {
   const ore = d.ore, km = d.km;
   if (!(ore > 0) && !(km > 0)) throw new Error('scrivi le ore o i km');
   const c = clona(camp);
-  if (d.area !== undefined) { c.viaggio.area = d.area || null; c.viaggio.speciale = !!d.speciale; }
   c.viaggio.attivo = { mezzo, kmh, terreno: d.terreno || 'pianura', fuori_strada: !!d.fuori_strada, racchette: !!d.racchette, suolo: d.suolo || 'nessuno',
     resta_min: ore > 0 ? Math.round(ore * 60) : null, resta_km: ore > 0 ? null : km, min: 0, km: 0, R0: c.tempo.R, evento: null, sospesa: false, lasciati: [] };
   log(c, `Marcia: ${mezzo === 'libera' ? kmh + ' km/h' : V.mezzi.find(x => x.id === mezzo).nome + ' (' + kmh + ' km/h)'}` + (mezzo !== 'barca' ? `, ${V.terreni.find(x => x.id === c.viaggio.attivo.terreno).nome}${d.fuori_strada ? ' fuori strada' : ''}` : '') + `, ${ore > 0 ? ore + ' ore' : km + ' km'}`);
@@ -3383,36 +3414,22 @@ function avanzaMarcia(c, meteo, rng) {
       a.evento = { tipo: 'forzata', cd, ora: o.prove_forzata + V.ore_giorno + 1, pg: c.pg.filter(p => !a.lasciati.includes(p.id)).map(p => ({ id: p.id, nome: p.scheda.nome })), cavalcature: a.mezzo === 'piedi' || a.mezzo === 'barca' ? [] : cav };
       return c;
     }
-    // incontri casuali: all'inizio di ogni blocco di 6 ore di marcia il d%; l'incontro a un'ora del blocco (1d6)
-    const inc = c.impostazioni.incontri_casuali ? probIncontro(c) : null;
-    if (inc) {
-      const v = c.viaggio;
-      if (v.accumulo === 0 && !v.tirato) {
-        v.tirato = true; const t = d(100, rng);
-        if (t <= inc.perc) { v.incontro_in = d(6, rng); log(c, `Incontri casuali (${inc.area.nome}${inc.speciale ? ', ' + inc.speciale : ''}): d% ${t} su ${inc.perc}% → incontro alla ${v.incontro_in}ª ora di marcia del blocco`); }
-        else { v.incontro_in = null; log(c, `Incontri casuali (${inc.area.nome}${inc.speciale ? ', ' + inc.speciale : ''}): nessun incontro (${t} su ${inc.perc}%)`); }
-      }
-      if (v.incontro_in !== null && v.incontro_in === Math.floor(v.accumulo) + 1 && !a.incontro_fatto) {
-        const comp = composizione(c, inc.area, rng);
-        a.evento = { tipo: 'incontro', area: inc.area.nome, R: c.tempo.R, meteo: vociAllOra(c, meteo, c.tempo.R), ...comp };
-        a.incontro_fatto = true;
-        log(c, `Incontro casuale (${inc.area.nome}) alle ${formatoData(c).split(', ').pop()}: ${comp.testo}`);
-        return c;
-      }
-    }
+    // AG4-B eventi casuali delle tabelle con i tiri automatici: la marcia si ferma all'ora dell'evento
+    const qe = marciaEventi(c, rng);
+    if (qe) { a.evento = { tipo: 'evento', q: qe.id }; return c; }
     // un'ora (o il resto) di marcia
     const { k, motivi } = moltMarcia(c, meteo, a, c.tempo.R), kmh = a.kmh * k;
     let passo = 60 - (o.min % 60);
     if (a.resta_min !== null) passo = Math.min(passo, a.resta_min);
-    if (inc && c.viaggio.incontro_in !== null) passo = Math.min(passo, 60 - Math.round((c.viaggio.accumulo % 1) * 60) || 60);
+    passo = Math.min(passo, passoMarciaEventi(c));
     if (a.resta_km !== null) { const serve = Math.ceil(a.resta_km / kmh * 60 - 1e-9); passo = Math.min(passo, Math.max(1, serve)); }
     const km = Math.min(kmh * passo / 60, a.resta_km !== null ? a.resta_km : Infinity);
     a.km += km; a.min += passo; if (a.resta_min !== null) a.resta_min -= passo; if (a.resta_km !== null) a.resta_km = Math.max(0, a.resta_km - km);
     a.ultimi = motivi;
     const R0 = c.tempo.R;
-    c = avanza(c, passo * ROUND_MIN, meteo, rng, null);
+    c = avanza(c, passo * ROUND_MIN, meteo, rng, null, { marcia: true });
     const o2 = oggiViaggio(c); o2.min = o2.giorno === o.giorno ? o.min + passo : Math.round((c.tempo.R % ROUND_GIORNO) / ROUND_MIN); // dopo la mezzanotte contano i minuti del giorno nuovo
-    if (inc) { const v = c.viaggio; v.accumulo += passo / 60; if (v.accumulo >= 6 - 1e-9) { v.accumulo = 0; v.tirato = false; v.incontro_in = null; c.viaggio.attivo.incontro_fatto = false; } }
+    dopoPassoMarcia(c, passo);
     if (c.tempo.R === R0) break;
   }
   return c;
@@ -3428,7 +3445,7 @@ function fineMarcia(c, motivo) {
 function rispondiMarcia(camp, meteo, rng, r) {
   const c = clona(camp), a = c.viaggio.attivo; if (!a) throw new Error('nessuna marcia in corso');
   if (r.termina) return fineMarcia(c, 'fermata dal GM');
-  if (r.riprendi) { if (!a.sospesa) throw new Error('la marcia non è sospesa'); a.sospesa = false; log(c, 'La marcia riprende'); return avanzaMarcia(c, meteo, rng); }
+  if (r.riprendi) { if (a.evento) throw new Error('prima rispondi all\'evento'); if (a.sospesa) log(c, 'La marcia riprende'); a.sospesa = false; return avanzaMarcia(c, meteo, rng); }
   const e = a.evento; if (!e) throw new Error('niente da rispondere');
   const o = oggiViaggio(c);
   if (e.tipo === 'orientarsi') {
@@ -3452,56 +3469,6 @@ function rispondiMarcia(camp, meteo, rng, r) {
   return avanzaMarcia(c, meteo, rng);
 }
 // ---- AC6 aree degli incontri casuali e tabelle d%
-function controllaRighe(righe) {
-  const msg = [], usati = new Array(101).fill(0);
-  for (const r of righe) {
-    if (!(Number.isInteger(r.da) && Number.isInteger(r.a) && r.da >= 1 && r.a <= 100 && r.da <= r.a)) { msg.push(`intervallo non valido: ${r.da}-${r.a}`); continue; }
-    for (let i = r.da; i <= r.a; i++) usati[i]++;
-  }
-  const buchi = [], doppi = [];
-  for (let i = 1; i <= 100; i++) { if (!usati[i]) buchi.push(i); if (usati[i] > 1) doppi.push(i); }
-  const intervalli = l => { const out = []; for (const x of l) { const u = out[out.length - 1]; if (u && u[1] === x - 1) u[1] = x; else out.push([x, x]); } return out.map(([a, b]) => a === b ? String(a).padStart(2, '0') : `${String(a).padStart(2, '0')}-${String(b).padStart(2, '0')}`).join(', '); };
-  if (righe.length && buchi.length) msg.push(`buchi: ${intervalli(buchi)}`);
-  if (doppi.length) msg.push(`sovrapposizioni: ${intervalli(doppi)}`);
-  return msg;
-}
-function salvaArea(camp, a) {
-  const nome = String(a.nome || '').trim(); if (!nome) throw new Error('l\'area non ha un nome');
-  if (!(Number.isInteger(a.perc) && a.perc >= 0 && a.perc <= 100)) throw new Error('probabilità non valida');
-  if (a.speciale && !(String(a.speciale.nome || '').trim() && Number.isInteger(a.speciale.perc) && a.speciale.perc >= 0 && a.speciale.perc <= 100)) throw new Error('area speciale non valida');
-  const righe = (a.righe || []).map(r => ({ da: r.da, a: r.a, testo: String(r.testo || '').trim(),
-    partecipanti: (r.partecipanti || []).filter(p => String(p.nome || '').trim()).map(p => ({ nome: String(p.nome).trim(), dadi: String(p.dadi || '1').trim() || '1', rif: pulisciRif(p.rif) })) }));
-  for (const r of righe) { for (const p of r.partecipanti) tira(p.dadi, () => 0); if (!r.testo && !r.partecipanti.length) throw new Error(`riga ${r.da}-${r.a} vuota`); }
-  if (controllaRighe(righe).some(x => x.startsWith('intervallo'))) throw new Error(controllaRighe(righe).join('; '));
-  const c = clona(camp), x = { id: a.id || prossimoId(c, 'area'), nome, perc: a.perc, speciale: a.speciale ? { nome: a.speciale.nome.trim(), perc: a.speciale.perc } : null, righe: righe.sort((p, q) => p.da - q.da) };
-  const i = c.aree.findIndex(y => y.id === x.id); if (i >= 0) c.aree[i] = x; else c.aree.push(x);
-  log(c, `Incontri casuali: area «${x.nome}» salvata (${x.perc}%${x.speciale ? `, ${x.speciale.nome} ${x.speciale.perc}%` : ''}, ${x.righe.length} righe)`); return c;
-}
-function eliminaArea(camp, id) { const c = clona(camp), a = c.aree.find(x => x.id === id); if (!a) throw new Error('area non trovata'); c.aree = c.aree.filter(x => x !== a); if (c.viaggio.area === id) c.viaggio.area = null; log(c, `Incontri casuali: area «${a.nome}» eliminata`); return c; }
-function copiaTabella(camp, daId, aId) { const c = clona(camp), da = c.aree.find(x => x.id === daId), a = c.aree.find(x => x.id === aId); if (!da || !a) throw new Error('area non trovata'); a.righe = clona(da.righe); return c; }
-// composizione: d% sulla tabella dell'area, quantità tirate
-function composizione(c, area, rng) {
-  if (!area.righe.length) return { tiro: null, riga: null, partecipanti: [], testo: 'incontro: scegli tu (l\'area non ha una tabella)' };
-  const t = d(100, rng), r = area.righe.find(x => t >= x.da && t <= x.a);
-  if (!r) return { tiro: t, riga: null, partecipanti: [], testo: `d% ${t}: nessuna riga della tabella (scegli tu)` };
-  const part = r.partecipanti.map(p => ({ nome: p.nome, n: Math.max(1, tira(p.dadi, rng).totale), dadi: p.dadi, rif: p.rif }));
-  return { tiro: t, riga: `${r.da}-${r.a}`, partecipanti: part, testo: `d% ${t}: ` + [part.map(p => `${p.n} ${p.nome}${p.dadi !== '1' ? ` (${p.dadi})` : ''}`).join(', '), r.testo].filter(Boolean).join(' — ') };
-}
-// «Tira incontro» a mano: area, notte al riparo −5%; l'ora è il 2d12 della Guida, come promemoria a quell'ora
-function tiraIncontro(camp, rng, o) {
-  const a = (camp.aree || []).find(x => x.id === o.area); if (!a) throw new Error('scegli l\'area');
-  const I = pront().incontri, base = o.speciale && a.speciale ? a.speciale.perc : a.perc, perc = Math.max(0, base - (o.riparo ? I.riparo : 0)), t = d(100, rng);
-  const c = clona(camp), nome = `${a.nome}${o.speciale && a.speciale ? ', ' + a.speciale.nome : ''}${o.riparo ? ', notte al riparo' : ''}`;
-  if (t > perc) { log(c, `Incontri casuali (${nome}): nessun incontro (${t} su ${perc}%)`); return { camp: c, esce: false, tiro: t, perc }; }
-  const ora = tira(I.ora, rng).totale, oggi = Math.floor(c.tempo.R / ROUND_GIORNO) * ROUND_GIORNO;
-  let R = oggi + (ora % 24) * ROUND_ORA; if (R <= c.tempo.R) R += ROUND_GIORNO;
-  const comp = composizione(c, a, rng);
-  c.promemoria.push({ id: prossimoId(c, 'pr'), testo: `Incontro casuale (${a.nome}): ${comp.testo}`, R, incontro: { area: a.nome, ...comp } });
-  c.promemoria.sort((x, y) => x.R - y.R);
-  log(c, `Incontri casuali (${nome}): d% ${t} su ${perc}% → incontro alle ${String(ora % 24).padStart(2, '0')}:00 (2d12 = ${ora}), ${formatoData(c, R)}: ${comp.testo}`);
-  return { camp: c, esce: true, tiro: t, perc, R, ora, ...comp };
-}
-
 // ---- AC7 Pericoli: cadere, trattenere il fiato, fumo, alta quota
 // metri → dadi della tabella (0 sotto i 3 m; null = morte)
 function dadiCaduta(m) { const C = pront().cadere; if (m < C.righe[0].da) return 0; if (m >= C.morte) return null; return C.righe.find(r => m >= r.da && m <= r.a).dadi; }
@@ -4011,7 +3978,7 @@ function leggiIncontro(testo, trova) {
   const blocchi = leggiStatBlock(testo), inBlocco = new Array(righe.length).fill(false);
   const inizi = righe.map((r, i) => eTestata(r) ? i : -1).filter(i => i >= 0);
   inizi.forEach((i, j) => { const fine = j + 1 < inizi.length ? inizi[j + 1] : righe.length;
-    for (let k = i; k < fine; k++) { const t = righe[k].trim(); if (k > i && (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t) || (sezIncDi(t) && !/^NOTE$/i.test(t)) || RE_PARTE.test(t))) break; inBlocco[k] = true; } });
+    for (let k = i; k < fine; k++) { const t = righe[k].trim(); if (k > i && (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t) || (sezIncDi(t) && !/^NOTE$/i.test(t) && !/^Ambiente\s*:/i.test(t)) || RE_PARTE.test(t))) break; inBlocco[k] = true; } });
   let sez = null, titolo = '', altroTit = '';
   const parti = [], agg = (k, x) => { inc[k] = inc[k] ? inc[k] + '\n' + x : x; };
   for (let i = 0; i < righe.length; i++) {
@@ -4028,10 +3995,7 @@ function leggiIncontro(testo, trova) {
       parti.push({ nome: m[1].replace(/^[-•]\s*/, '').trim(), n: +m[2], nota: extra, riga: i }); continue; }
     if (sez === 'partecipanti' && (m = t.match(/^[-•]\s*(.+?)(?:\s*[×x]\s*(\d+))?(?:\s*·\s*(.*))?$/))) { parti.push({ nome: m[1].trim(), n: m[2] ? +m[2] : 1, nota: m[3] || '', riga: i }); continue; }
     if (sez === 'ricompense') {
-      if (/^💰\s*TESORO/i.test(t)) { const tz = { livello: '', quantita: '', dove: '', note: '' };
-        for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Livello(?: di riferimento)?|Quantità|Dove|Note)\s*:\s*(.*)$/i);
-          if (mm) tz[{ livello: 'livello', 'livello di riferimento': 'livello', 'quantità': 'quantita', dove: 'dove', note: 'note' }[mm[1].toLowerCase()]] = mm[2].trim(); }
-        inc.ricompense.tesoro = tz; continue; }
+      if (/^💰\s*TESORO/i.test(t)) { inc.ricompense.tesoro = leggiTesoroRiga(t); continue; }
       let resto = t;
       if (/^XP\s*:/i.test(t)) { // le righe «+N motivo» diventano XP in più; il resto resta nel testo
         const pezzi = t.replace(/^XP\s*:\s*/i, '').split(/\s*·\s*/), tenuti = [];
@@ -4070,6 +4034,706 @@ function leggiIncontro(testo, trova) {
   return { incontro: inc, voci, avvisi };
 }
 
+// ------------------------------------------------------------------ AG4 eventi casuali (Build 5c)
+const TIPI_EVENTO = [
+  { id: 'sociale', icona: '🗣', nome: 'Incontro PNG' }, { id: 'ostacolo', icona: '🧱', nome: 'Ostacolo' }, { id: 'pericolo', icona: '🌿', nome: 'Pericolo naturale' },
+  { id: 'scoperta', icona: '🔍', nome: 'Scoperta' }, { id: 'combattimento', icona: '⚔', nome: 'Combattimento' }, { id: 'libero', icona: '🎲', nome: 'A discrezione' }];
+const DADI_EVENTI = [4, 6, 8, 10, 12, 20, 100];
+const iconaTipo = t => (TIPI_EVENTO.find(x => x.id === t) || { icona: '' }).icona;
+const nomeDado = f => f === 100 ? 'd%' : 'd' + f;
+const fmtNum = (n, f) => f === 100 ? (n === 100 ? '00' : String(n).padStart(2, '0')) : String(n);
+function tipoDaTesto(t) {
+  const s = String(t || '');
+  if (/🗣|social|\bPNG\b/i.test(s)) return 'sociale';
+  if (/🧱|ostacol/i.test(s)) return 'ostacolo';
+  if (/🌿|pericol/i.test(s)) return 'pericolo';
+  if (/🔍|scopert/i.test(s)) return 'scoperta';
+  if (/⚔|combatt/i.test(s)) return 'combattimento';
+  if (/🎲|discrezion|liber/i.test(s)) return 'libero';
+  return '';
+}
+const CAMPI_PROFILO = [
+  ['nome', 'Nome'], ['titolo', 'Titolo o soprannome'], ['ruolo', 'Ruolo'], ['allineamento', 'Allineamento'], ['razza', 'Razza'],
+  ['gancio', 'Gancio visivo'], ['aspetto', 'Aspetto'], ['voce', 'Voce e modo di muoversi'],
+  ['bisogno', 'Bisogno profondo'], ['paura', 'Paura principale'], ['umore', 'Stato d\'animo'],
+  ['aggettivi', 'Tre aggettivi'], ['tic', 'Tic verbale'], ['frase', 'Frase d\'apertura'], ['pressione', 'Sotto pressione'],
+  ['obiettivo', 'Obiettivo'], ['metodo', 'Metodo'], ['leva', 'Leva'], ['limite', 'Limite'], ['informazioni', 'Informazioni'], ['altro', 'Altro del profilo']];
+const GRUPPI_PROFILO = [['', ['ruolo', 'allineamento', 'razza']], ['Descrizione fisica', ['gancio', 'aspetto', 'voce']], ['Profilo emotivo', ['bisogno', 'paura', 'umore']],
+  ['Profilo caratteriale', ['aggettivi', 'tic', 'frase', 'pressione']], ['Ruolo nell\'evento', ['obiettivo', 'metodo', 'leva', 'limite', 'informazioni']], ['', ['altro']]];
+function profiloVuoto() { const p = {}; for (const [k] of CAMPI_PROFILO) p[k] = ''; return p; }
+function schedaEventoVuota() { return { id: '', numero: '', titolo: '', tipo: '', difficolta: '', terreno: '', descrizione: '', nota_gm: '', indizi: '', profili: [], ricompense: ricompenseVuote(), altro: [], stato: 'da giocare', giocato_R: null, tabella: null }; }
+function vocePorta(p) { return p && ['evento', 'incontro', 'creature', 'testo'].includes(p.tipo) ? p : { tipo: 'testo' }; }
+function tabellaVuota() { return { id: '', nome: '', dado: 20, note: '', no_ripetere: false, territori: [], territorio: '', quando: [], auto: false, voci: [], uscite: [], conta: {}, origine: '' }; }
+// Z8-7: righe del «Quando»: tipo marcia | tempo | riposo; ogni N ore o giorni (non per il riposo); % oppure dado con i valori
+function oreQuando(q) { return q.tipo === 'riposo' ? 0 : q.unita === 'giorni' ? q.ogni * (q.tipo === 'marcia' ? pront().viaggi.ore_giorno : 24) : q.ogni; }
+function controllaQuando(q) {
+  if (!['marcia', 'tempo', 'riposo'].includes(q.tipo)) return 'tipo del «Quando» non valido';
+  if (q.tipo !== 'riposo' && !(q.ogni > 0 && ['ore', 'giorni'].includes(q.unita))) return '«ogni» non valido';
+  if (q.perc !== null && q.perc !== undefined) { if (!(Number.isInteger(q.perc) && q.perc >= 0 && q.perc <= 100)) return 'probabilità non valida'; return null; }
+  const m = String(q.dado || '').match(/^(\d*)d(\d+)$/i); if (!m) return 'scrivi la probabilità (% o dado)';
+  const v = valoriDado(q.valori, +(m[1] || 1) * +m[2]); if (!v) return 'valori del dado non validi';
+  return null;
+}
+// «4-6», «5–6», «6», «1, 3-4»
+function valoriDado(t, max) {
+  const out = new Set(), s = String(t || '').replace(/[–—]/g, '-').trim(); if (!s) return null;
+  for (const pz of s.split(/\s*[,;e]\s*/)) { const m = pz.match(/^(\d+)(?:\s*-\s*(\d+))?$/); if (!m) return null;
+    const a = +m[1], b = m[2] ? +m[2] : a; if (a > b || a < 1 || (max && b > max)) return null; for (let i = a; i <= b; i++) out.add(i); }
+  return out;
+}
+function testoQuando(q) {
+  const p = q.perc !== null && q.perc !== undefined ? `${q.perc}%` : `${q.dado} ${String(q.valori).replace(/-/g, '–')}`;
+  if (q.tipo === 'riposo') return `a ogni riposo: ${p}`;
+  return `ogni ${q.ogni} ${q.unita === 'giorni' ? (q.ogni === 1 ? 'giorno' : 'giorni') : (q.ogni === 1 ? 'ora' : 'ore')} di ${q.tipo === 'marcia' ? 'marcia' : 'tempo'}: ${p}`;
+}
+function esitoProbabilita(q, rng) {
+  if (q.perc !== null && q.perc !== undefined) { const t = d(100, rng); return { esce: t <= q.perc, testo: `d% ${t} su ${q.perc}%` }; }
+  const m = q.dado.match(/^(\d*)d(\d+)$/i), t = tira(q.dado, rng).totale, v = valoriDado(q.valori, +(m[1] || 1) * +m[2]);
+  return { esce: v.has(t), testo: `${q.dado} = ${t} su ${String(q.valori).replace(/-/g, '–')}` };
+}
+function controllaVoci(voci, facce) {
+  const msg = [], usati = new Array(facce + 1).fill(0);
+  for (const r of voci) {
+    if (!(Number.isInteger(r.da) && Number.isInteger(r.a) && r.da >= 1 && r.a <= facce && r.da <= r.a)) { msg.push(`intervallo non valido: ${r.da}-${r.a}`); continue; }
+    for (let i = r.da; i <= r.a; i++) usati[i]++;
+  }
+  const buchi = [], doppi = [];
+  for (let i = 1; i <= facce; i++) { if (!usati[i]) buchi.push(i); if (usati[i] > 1) doppi.push(i); }
+  const intervalli = l => { const out = []; for (const x of l) { const u = out[out.length - 1]; if (u && u[1] === x - 1) u[1] = x; else out.push([x, x]); }
+    return out.map(([a, b]) => a === b ? fmtNum(a, facce) : `${fmtNum(a, facce)}-${fmtNum(b, facce)}`).join(', '); };
+  if (voci.length && buchi.length) msg.push(`buchi: ${intervalli(buchi)}`);
+  if (doppi.length) msg.push(`sovrapposizioni: ${intervalli(doppi)}`);
+  return msg;
+}
+function controllaRighe(righe) { return controllaVoci(righe, 100); }
+function intervalloVoce(v, facce) { return v.da === v.a ? fmtNum(v.da, facce) : `${fmtNum(v.da, facce)}–${fmtNum(v.a, facce)}`; }
+function pulisciVoce(v, c) {
+  const x = { id: v.id || prossimoId(c, 'vo'), da: v.da, a: v.a, titolo: String(v.titolo || '').trim(), tipo: TIPI_EVENTO.some(t => t.id === v.tipo) ? v.tipo : '',
+    difficolta: String(v.difficolta || '').trim(), dove: String(v.dove || '').trim(), territori: (v.territori || []).map(String).filter(Boolean), ripetibile: !!v.ripetibile,
+    note: String(v.note || '').trim(), testo: String(v.testo || '').trim(), porta: vocePorta(v.porta ? clona(v.porta) : null) };
+  if (x.porta.tipo === 'creature') { x.porta.creature = (x.porta.creature || []).filter(p => String(p.nome || '').trim()).map(p => ({ nome: String(p.nome).trim(), dadi: String(p.dadi || '1').trim() || '1', rif: pulisciRif(p.rif) }));
+    for (const p of x.porta.creature) tira(p.dadi, () => 0); if (!x.porta.creature.length) throw new Error(`voce ${x.da}-${x.a}: nessuna creatura`); }
+  if ((x.porta.tipo === 'evento' || x.porta.tipo === 'incontro') && !x.porta.id) throw new Error(`voce ${x.da}-${x.a}: scegli ${x.porta.tipo === 'evento' ? 'la scheda evento' : 'l\'incontro'}`);
+  if (x.porta.tipo === 'testo' && !x.testo && !x.titolo) throw new Error(`voce ${x.da}-${x.a} vuota`);
+  return x;
+}
+function salvaTabella(camp, t) {
+  const nome = String(t.nome || '').trim(); if (!nome) throw new Error('la tabella non ha un nome');
+  if (!DADI_EVENTI.includes(t.dado)) throw new Error('dado non valido');
+  const c = clona(camp); c.eventi = c.eventi || { tabelle: [], schede: [] };
+  for (const q of t.quando || []) { const e = controllaQuando(q); if (e) throw new Error(e); }
+  const voci = (t.voci || []).map(v => pulisciVoce(v, c)).sort((p, q) => p.da - q.da);
+  const err = controllaVoci(voci, t.dado).filter(x => x.startsWith('intervallo')); if (err.length) throw new Error(err.join('; '));
+  const vecchia = t.id ? c.eventi.tabelle.find(x => x.id === t.id) : null;
+  const territori = [...new Set((t.territori || []).map(x => String(x).trim()).filter(Boolean))];
+  const x = { ...tabellaVuota(), id: t.id || prossimoId(c, 'tb'), nome, dado: t.dado, note: String(t.note || '').trim(), no_ripetere: !!t.no_ripetere, territori,
+    territorio: territori.includes(t.territorio) ? t.territorio : '',
+    quando: (t.quando || []).map(q => ({ tipo: q.tipo, ogni: q.tipo === 'riposo' ? null : q.ogni, unita: q.tipo === 'riposo' ? null : q.unita, perc: q.perc !== null && q.perc !== undefined ? q.perc : null, dado: q.perc !== null && q.perc !== undefined ? null : q.dado, valori: q.perc !== null && q.perc !== undefined ? null : String(q.valori).replace(/[–—]/g, '-') })),
+    auto: vecchia ? vecchia.auto : !!t.auto, voci, uscite: (t.uscite !== undefined ? t.uscite : vecchia ? vecchia.uscite : []).filter(id => voci.some(v => v.id === id)), conta: {}, origine: t.origine || (vecchia && vecchia.origine) || '' };
+  // i conteggi restano se il «Quando» non cambia
+  if (vecchia && JSON.stringify(vecchia.quando) === JSON.stringify(x.quando)) x.conta = vecchia.conta || {};
+  else if (x.auto) x.conta = contaNuovi(x, c.tempo.R);
+  for (const v of x.voci) v.territori = v.territori.filter(k => territori.includes(k));
+  const i = c.eventi.tabelle.findIndex(y => y.id === x.id); if (i >= 0) c.eventi.tabelle[i] = x; else c.eventi.tabelle.push(x);
+  log(c, `Eventi: tabella «${x.nome}» salvata (${nomeDado(x.dado)}, ${x.voci.length} voci)`); return c;
+}
+function contaNuovi(t, R) { const o = {}; t.quando.forEach((q, i) => { o[i] = q.tipo === 'marcia' ? { acc: 0, tirato: false, in: null, fatto: false } : q.tipo === 'tempo' ? { inizio: R } : {}; }); return o; }
+function tabellaDi(c, id) { const t = ((c.eventi && c.eventi.tabelle) || []).find(x => x.id === id); if (!t) throw new Error('tabella non trovata'); return t; }
+function eliminaTabella(camp, id) {
+  const c = clona(camp), t = tabellaDi(c, id); c.eventi.tabelle = c.eventi.tabelle.filter(x => x !== t);
+  c.coda = c.coda.filter(q => !(q.tipo === 'evento' && q.ev.tabella === id)); c.eventi.attesa = (c.eventi.attesa || []).filter(a => a.tabella !== id);
+  log(c, `Eventi: tabella «${t.nome}» eliminata`); return c;
+}
+function impostaAuto(camp, id, on) {
+  const c = clona(camp), t = tabellaDi(c, id); t.auto = !!on; t.conta = on ? contaNuovi(t, c.tempo.R) : {};
+  if (!on) c.eventi.attesa = (c.eventi.attesa || []).filter(a => a.tabella !== id || a.manuale);
+  log(c, `Eventi: tiri automatici ${on ? 'accesi' : 'spenti'} su «${t.nome}»`); return c;
+}
+function impostaTerritorio(camp, id, terr) { const c = clona(camp), t = tabellaDi(c, id); if (terr && !t.territori.includes(terr)) throw new Error('territorio non valido'); t.territorio = terr || ''; return c; }
+function azzeraUscite(camp, id) { const c = clona(camp), t = tabellaDi(c, id); const n = t.uscite.length; t.uscite = []; log(c, `Eventi: «${t.nome}», uscite azzerate (${n})`); return c; }
+function salvaSchedaEvento(camp, s) {
+  const titolo = String(s.titolo || '').trim(); if (!titolo) throw new Error('la scheda evento non ha un titolo');
+  const c = clona(camp); c.eventi = c.eventi || { tabelle: [], schede: [] };
+  const x = { ...schedaEventoVuota(), ...clona(s), id: s.id || prossimoId(c, 'ev'), titolo };
+  x.profili = (x.profili || []).map(p => ({ ...profiloVuoto(), ...p })).filter(p => CAMPI_PROFILO.some(([k]) => String(p[k] || '').trim()));
+  x.altro = (x.altro || []).filter(a => String(a.titolo || '').trim() || String(a.testo || '').trim());
+  x.ricompense = x.ricompense || ricompenseVuote(); const er = controllaRicompense(x.ricompense); if (er) throw new Error(er);
+  const i = c.eventi.schede.findIndex(y => y.id === x.id); if (i >= 0) c.eventi.schede[i] = x; else c.eventi.schede.push(x);
+  return c;
+}
+function eliminaSchedaEvento(camp, id) {
+  const c = clona(camp), s = c.eventi.schede.find(x => x.id === id); if (!s) throw new Error('scheda evento non trovata');
+  c.eventi.schede = c.eventi.schede.filter(x => x !== s);
+  for (const t of c.eventi.tabelle) for (const v of t.voci) if (v.porta.tipo === 'evento' && v.porta.id === id) { v.porta = { tipo: 'testo' }; if (!v.titolo) v.titolo = s.titolo; }
+  return c;
+}
+function segnaEventoGiocato(camp, id, giocato) {
+  const c = clona(camp), s = c.eventi.schede.find(x => x.id === id); if (!s) throw new Error('scheda evento non trovata');
+  s.stato = giocato ? 'giocato' : 'da giocare'; s.giocato_R = giocato ? c.tempo.R : null;
+  if (giocato) { const xp = xpExtra(s); log(c, `Evento «${titoloEvento(s)}» giocato${xp ? ` (XP ${migliaia(xp)})` : ''}`); }
+  return c;
+}
+const titoloEvento = s => (s.numero ? s.numero + ' — ' : '') + s.titolo;
+// «+ Tabella → Dalla Guida»: le 6 aree della Guida del DM come tabelle d% vuote (Z8-5)
+function tabellaDallaGuida(camp, i) {
+  const a = pront().incontri.aree[i]; if (!a) throw new Error('area non trovata');
+  return salvaTabella(camp, { nome: a.nome, dado: 100, quando: [{ tipo: 'marcia', ogni: pront().incontri.ogni_ore, unita: 'ore', perc: a.perc }], voci: [], origine: 'guida',
+    note: `Guida del DM: ${a.perc}% ogni ${pront().incontri.ogni_ore} ore di marcia${a.speciale ? `; ${a.speciale.nome} ${a.speciale.perc}%` : ''}. Tiro a mano la notte al riparo: −${pront().incontri.riparo}% (Sopravvivenza CD 15).` });
+}
+
+// ---- tiri sulla tabella (Z8-10)
+function vocePerTiro(t, n) { return t.voci.find(v => n >= v.da && n <= v.a) || null; }
+function motivoScarto(t, v, terr) {
+  if (!v) return null;
+  if (t.no_ripetere && !v.ripetibile && t.uscite.includes(v.id)) return 'già uscita';
+  if (terr && v.territori.length && !v.territori.includes(terr)) return 'fuori dal territorio';
+  return null;
+}
+function tiraVoce(t, rng, opz = {}) {
+  const terr = opz.territorio !== undefined ? opz.territorio : t.territorio, escludi = opz.escludi || null;
+  const valida = n => { const v = vocePerTiro(t, n); return v && !motivoScarto(t, v, terr) && v.id !== escludi; };
+  const valide = []; for (let n = 1; n <= t.dado; n++) if (valida(n)) valide.push(n);
+  const ritirati = [];
+  if (!valide.length) return { tiro: null, voce: null, ritirati, testo: 'nessuna voce disponibile: scegli tu' };
+  let n = d(t.dado, rng), giri = 0;
+  while (!valida(n)) { const v = vocePerTiro(t, n); ritirati.push(`${fmtNum(n, t.dado)} (${v ? (v.id === escludi ? 'appena uscita' : motivoScarto(t, v, terr)) : 'nessuna voce'}, si ritira)`);
+    n = ++giri < 30 ? d(t.dado, rng) : valide[Math.floor(rng() * valide.length)]; }
+  const v = vocePerTiro(t, n);
+  return { tiro: n, voce: v.id, ritirati, testo: `${ritirati.length ? ritirati.join(' → ') + ' → ' : ''}${fmtNum(n, t.dado)} su ${nomeDado(t.dado)}` };
+}
+function composizioneVoce(v, rng) { return v.porta.tipo === 'creature' ? v.porta.creature.map(p => ({ nome: p.nome, n: Math.max(1, tira(p.dadi, rng).totale), dadi: p.dadi, rif: p.rif })) : []; }
+function nomeVoce(c, v) {
+  if (v.titolo) return v.titolo;
+  if (v.porta.tipo === 'evento') { const s = ((c.eventi && c.eventi.schede) || []).find(x => x.id === v.porta.id); if (s) return titoloEvento(s); }
+  if (v.porta.tipo === 'incontro') { const i = (c.incontri || []).find(x => x.id === v.porta.id); if (i) return i.titolo; }
+  if (v.porta.tipo === 'creature') return v.porta.creature.map(p => `${p.dadi !== '1' ? p.dadi + ' ' : ''}${p.nome}`).join(', ');
+  return v.testo.slice(0, 60);
+}
+// crea l'avviso dell'evento nella coda (la voce conta come uscita dal momento del tiro, Z8-9)
+function avvisoEvento(c, t, rng, R, origine, terr) {
+  const tv = tiraVoce(t, rng, { territorio: terr }), v = tv.voce ? t.voci.find(x => x.id === tv.voce) : null;
+  const comp = v ? composizioneVoce(v, rng) : [];
+  if (v && !t.uscite.includes(v.id)) t.uscite.push(v.id);
+  const ora = formatoData(c, R).split(', ').pop(), nome = v ? nomeVoce(c, v) : '';
+  const q = { id: prossimoId(c, 'q'), R, tipo: 'evento', ev: { tabella: t.id, voce: v ? v.id : null, tiro: tv.tiro, comp, origine, terr: terr !== undefined ? terr : t.territorio },
+    testo: v ? `${nome} (${fmtNum(tv.tiro, t.dado)} su ${nomeDado(t.dado)}) alle ${ora}${comp.length ? ' — ' + comp.map(p => `${p.n} ${p.nome}`).join(', ') : ''}` : `${t.nome}: ${tv.testo} (alle ${ora})` };
+  q.ev.senza_terr = !!(t.territori.length && !q.ev.terr);
+  c.coda.push(q);
+  log(c, `Eventi (${t.nome}, ${origine}): ${tv.testo}${v ? ` → ${nome}` : ''}, alle ${ora}${comp.length ? ` (${comp.map(p => `${p.n} ${p.nome}`).join(', ')})` : ''}`);
+  return q;
+}
+// «Tira» a mano (Z8-6): prob = prima la probabilità (prima riga del «Quando» con una probabilità); entro = ore (ora a caso) oppure adesso
+function tiraEvento(camp, rng, o = {}) {
+  const c = clona(camp), t = tabellaDi(c, o.tabella);
+  if (o.territorio !== undefined && o.territorio && !t.territori.includes(o.territorio)) throw new Error('territorio non valido');
+  if (o.prob) { const q = t.quando[0]; if (!q) throw new Error('la tabella non ha una probabilità nel «Quando»');
+    const e = esitoProbabilita(q, rng); if (!e.esce) { log(c, `Eventi (${t.nome}, a mano): nessun evento (${e.testo})`); return { camp: c, esce: false, testo: e.testo }; }
+    log(c, `Eventi (${t.nome}, a mano): ${e.testo} → evento`); }
+  if (o.entro > 0) {
+    const R = c.tempo.R + 1 + Math.floor(rng() * o.entro * ROUND_ORA);
+    c.eventi.attesa = c.eventi.attesa || []; c.eventi.attesa.push({ tabella: t.id, R, origine: 'a mano', terr: o.territorio, manuale: true }); c.eventi.attesa.sort((a, b) => a.R - b.R);
+    log(c, `Eventi (${t.nome}, a mano): evento alle ${formatoData(c, R)}`); return { camp: c, esce: true, R };
+  }
+  const q = avvisoEvento(c, t, rng, c.tempo.R, 'a mano', o.territorio);
+  return { camp: c, esce: true, q };
+}
+// Apri · Avvia · Ritira · Ignora (Z8-9)
+function rispondiEvento(camp, qid, azione, rng) {
+  const c = clona(camp), i = c.coda.findIndex(q => q.id === qid); if (i < 0) throw new Error('avviso non trovato');
+  const q = c.coda[i], t = ((c.eventi && c.eventi.tabelle) || []).find(x => x.id === q.ev.tabella);
+  if (azione === 'ritira') {
+    if (!t) throw new Error('tabella non trovata');
+    const vecchia = q.ev.voce; if (vecchia) t.uscite = t.uscite.filter(x => x !== vecchia);
+    const tv = tiraVoce(t, rng, { territorio: q.ev.terr, escludi: vecchia }), v = tv.voce ? t.voci.find(x => x.id === tv.voce) : null;
+    q.ev.voce = v ? v.id : null; q.ev.tiro = tv.tiro; q.ev.comp = v ? composizioneVoce(v, rng) : [];
+    if (v && !t.uscite.includes(v.id)) t.uscite.push(v.id);
+    const ora = formatoData(c, q.R).split(', ').pop();
+    q.testo = v ? `${nomeVoce(c, v)} (${fmtNum(tv.tiro, t.dado)} su ${nomeDado(t.dado)}) alle ${ora}${q.ev.comp.length ? ' — ' + q.ev.comp.map(p => `${p.n} ${p.nome}`).join(', ') : ''}` : `${t.nome}: ${tv.testo} (alle ${ora})`;
+    log(c, `Eventi (${t.nome}): ritirato → ${tv.testo}${v ? ' → ' + nomeVoce(c, v) : ''}`);
+    return c;
+  }
+  c.coda.splice(i, 1);
+  if (azione === 'ignora') { if (t && q.ev.voce) t.uscite = t.uscite.filter(x => x !== q.ev.voce); log(c, `Evento ignorato: ${q.testo}`); }
+  else log(c, `Evento ${azione === 'avvia' ? 'avviato' : 'aperto'}: ${q.testo}`);
+  const a = c.viaggio && c.viaggio.attivo;
+  if (a && a.evento && a.evento.tipo === 'evento' && a.evento.q === qid) {
+    if (azione === 'ignora') { a.evento = null; return { camp: c, riprendi: true }; }
+    a.evento = null; a.sospesa = true; log(c, 'La marcia si ferma per l\'evento');
+  }
+  return { camp: c, voce: t && q.ev.voce ? t.voci.find(x => x.id === q.ev.voce) : null, comp: q.ev.comp, tabella: t || null };
+}
+// Tempo (Z8-8): a ogni inizio d'intervallo si tira; l'evento arriva a un minuto a caso dell'intervallo
+function eventiTempo(c, da, a, rng, inMarcia) {
+  if (!c.eventi) return;
+  const dR = a - da;
+  for (const t of c.eventi.tabelle) {
+    if (!t.auto) continue;
+    const conMarcia = t.quando.some(q => q.tipo === 'marcia');
+    t.quando.forEach((q, i) => {
+      if (q.tipo !== 'tempo') return;
+      const st = t.conta[i] = t.conta[i] || { inizio: da };
+      if (inMarcia && conMarcia) { st.inizio += dR; return; } // le ore di marcia non contano per il Tempo
+      const L = oreQuando(q) * ROUND_ORA;
+      while (st.inizio < a) {
+        const e = esitoProbabilita(q, rng);
+        if (e.esce) { const R = st.inizio + Math.floor(rng() * L); c.eventi.attesa = c.eventi.attesa || []; c.eventi.attesa.push({ tabella: t.id, R, origine: 'tempo' });
+          log(c, `Eventi (${t.nome}, tempo): ${e.testo} → evento alle ${formatoData(c, R)}`); }
+        else log(c, `Eventi (${t.nome}, tempo): nessun evento (${e.testo})`);
+        st.inizio += L;
+      }
+    });
+  }
+  const att = (c.eventi.attesa || []).filter(x => x.R <= a).sort((x, y) => x.R - y.R);
+  for (const x of att) { const t = c.eventi.tabelle.find(y => y.id === x.tabella); if (t) avvisoEvento(c, t, rng, Math.max(x.R, da), x.origine, x.terr); }
+  if (att.length) c.eventi.attesa = c.eventi.attesa.filter(x => !att.includes(x));
+}
+// Marcia (Z8-8): per ogni tabella e riga «marcia», blocchi di N ore di marcia; il tiro all'inizio del blocco, l'evento a un'ora a caso del blocco
+function righeMarcia(c) {
+  const out = [];
+  for (const t of (c.eventi && c.eventi.tabelle) || []) if (t.auto) t.quando.forEach((q, i) => { if (q.tipo === 'marcia') { t.conta[i] = t.conta[i] || { acc: 0, tirato: false, in: null, fatto: false }; out.push({ t, q, st: t.conta[i], N: oreQuando(q) }); } });
+  return out;
+}
+function marciaEventi(c, rng) { // restituisce l'avviso se l'evento scatta adesso
+  for (const r of righeMarcia(c)) {
+    const { t, q, st, N } = r;
+    if (st.acc === 0 && !st.tirato) { st.tirato = true; const e = esitoProbabilita(q, rng);
+      if (e.esce) { st.in = 1 + Math.floor(rng() * Math.ceil(N)); log(c, `Eventi (${t.nome}, marcia): ${e.testo} → evento alla ${st.in}ª ora del blocco di ${N} ore`); }
+      else { st.in = null; log(c, `Eventi (${t.nome}, marcia): nessun evento (${e.testo})`); } }
+    if (st.in !== null && st.in === Math.floor(st.acc + 1e-9) + 1 && !st.fatto) { st.fatto = true; return avvisoEvento(c, t, rng, c.tempo.R, 'marcia'); }
+  }
+  return null;
+}
+function passoMarciaEventi(c) { let p = 60; for (const r of righeMarcia(c)) if (r.st.in !== null && !r.st.fatto) p = Math.min(p, 60 - Math.round((r.st.acc % 1) * 60) || 60); return p; }
+function dopoPassoMarcia(c, passo) {
+  for (const r of righeMarcia(c)) { r.st.acc += passo / 60; if (r.st.acc >= r.N - 1e-9) { r.st.acc = 0; r.st.tirato = false; r.st.in = null; r.st.fatto = false; } }
+}
+// Riposo (Z8-8): un tiro per ogni «Riposa»; l'evento a un'ora a caso, il riposo si ferma lì
+function riposoEventi(c, rng, ore) {
+  for (const t of (c.eventi && c.eventi.tabelle) || []) {
+    if (!t.auto) continue;
+    for (const q of t.quando) { if (q.tipo !== 'riposo') continue;
+      const e = esitoProbabilita(q, rng);
+      if (e.esce) { const h = 1 + Math.floor(rng() * ore); log(c, `Eventi (${t.nome}, riposo): ${e.testo} → evento alla ${h}ª ora del riposo`); return { t, h }; }
+      log(c, `Eventi (${t.nome}, riposo): nessun evento (${e.testo})`); }
+  }
+  return null;
+}
+function eventiInfo(c) { return ((c.eventi && c.eventi.tabelle) || []).filter(t => t.auto).map(t => t.nome); }
+
+// Build 5c: le aree degli incontri casuali (AC6) diventano tabelle d% (Z8-5)
+function notaGuida(a) { const I = pront().incontri; return `Guida del DM: ${a.perc}% ogni ${I.ogni_ore} ore di marcia${a.speciale ? `; ${a.speciale.nome} ${a.speciale.perc}%` : ''}. Tiro a mano la notte al riparo: −${I.riparo}% (Sopravvivenza CD 15).`; }
+function migraEventi(x) {
+  if (x.eventi) { x.eventi.tabelle = x.eventi.tabelle || []; x.eventi.schede = x.eventi.schede || []; x.eventi.attesa = x.eventi.attesa || [];
+    for (const t of x.eventi.tabelle) { t.conta = t.conta || {}; t.uscite = t.uscite || []; t.territori = t.territori || []; }
+    if (x.riposo_sospeso === undefined) x.riposo_sospeso = null; return; }
+  x.eventi = { tabelle: [], schede: [], attesa: [] }; x.riposo_sospeso = null;
+  const aree = x.aree || [], v = x.viaggio || {}, accesi = !!(x.impostazioni && x.impostazioni.incontri_casuali);
+  for (const a of aree) {
+    const g = AREE_GUIDA.find(y => y[0] === a.nome);
+    const intatta = /^ar[1-6]$/.test(a.id) && g && g[1] === a.perc && JSON.stringify(g[2]) === JSON.stringify(a.speciale ? [a.speciale.nome, a.speciale.perc] : null) && !(a.righe || []).length;
+    if (intatta && v.area !== a.id) continue; // aree della Guida mai toccate: si ricreano con «Dalla Guida»
+    const voci = (a.righe || []).map(r => ({ id: prossimoId(x, 'vo'), da: r.da, a: r.a, titolo: '', tipo: (r.partecipanti || []).length ? 'combattimento' : 'libero', difficolta: '', dove: '', territori: [], ripetibile: false,
+      note: '', testo: r.testo || '', porta: (r.partecipanti || []).length ? { tipo: 'creature', creature: r.partecipanti.map(p => ({ nome: p.nome, dadi: p.dadi || '1', rif: p.rif || null })) } : { tipo: 'testo' } }));
+    const note = g ? notaGuida(a) : 'Dall\'area degli incontri casuali.';
+    const mk = (nome, perc, sel) => {
+      const t = { ...tabellaVuota(), id: prossimoId(x, 'tb'), nome, dado: 100, note, quando: [{ tipo: 'marcia', ogni: 6, unita: 'ore', perc, dado: null, valori: null }], voci: clona(voci), origine: 'area', auto: accesi && sel };
+      if (t.auto) t.conta = { 0: { acc: v.accumulo || 0, tirato: !!v.tirato, in: v.incontro_in === undefined ? null : v.incontro_in, fatto: !!(v.attivo && v.attivo.incontro_fatto) } };
+      x.eventi.tabelle.push(t);
+    };
+    mk(a.nome, a.perc, v.area === a.id && !(v.speciale && a.speciale));
+    if (a.speciale) mk(`${a.nome} — ${a.speciale.nome}`, a.speciale.perc, v.area === a.id && !!v.speciale);
+  }
+  delete x.aree; if (x.impostazioni) delete x.impostazioni.incontri_casuali;
+}
+
+// ---- AG4-D importazione da docx (Z8-13…Z8-16): lo zip si apre nella pagina, l'XML si legge qui
+function voceZip(u, nome) { // u: Uint8Array del .docx → { metodo (0 = nessuna compressione, 8 = deflate), dati }
+  const le16 = i => u[i] | (u[i + 1] << 8), le32 = i => (u[i] | (u[i + 1] << 8) | (u[i + 2] << 16) | (u[i + 3] << 24)) >>> 0;
+  let e = -1; for (let i = u.length - 22; i >= Math.max(0, u.length - 65557); i--) if (le32(i) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('il file non è un docx valido');
+  const n = le16(e + 10); let p = le32(e + 16);
+  for (let k = 0; k < n && le32(p) === 0x02014b50; k++) {
+    const metodo = le16(p + 10), dim = le32(p + 20), ln = le16(p + 28), lx = le16(p + 30), lc = le16(p + 32), off = le32(p + 42);
+    const nm = new TextDecoder().decode(u.subarray(p + 46, p + 46 + ln));
+    if (nm === nome) { const ini = off + 30 + le16(off + 26) + le16(off + 28); return { metodo, dati: u.subarray(ini, ini + dim) }; }
+    p += 46 + ln + lx + lc;
+  }
+  throw new Error(`nel docx manca ${nome}`);
+}
+const entitaXml = t => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, '\'')
+  .replace(/&#(\d+);/g, (m, n) => String.fromCodePoint(+n)).replace(/&#x([0-9a-f]+);/gi, (m, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&amp;/g, '&');
+// document.xml → blocchi: { t: 'p', testo, stile } | { t: 'tab', righe: [[celle: righe di testo]] } (tabelle annidate come righe «A | B»)
+function leggiDocxXml(xml) {
+  const re = /<(\/?)w:(p|tbl|tr|tc|t|tab|br|cr|pStyle|delText|instrText)\b([^>]*?)(\/?)>/g;
+  const root = { figli: [] }, pila = [root]; let p = null, tIni = -1, m;
+  const top = () => pila[pila.length - 1];
+  while ((m = re.exec(xml))) {
+    const [tutto, chiude, tag, attr, auto] = m;
+    if (tag === 't') { if (chiude) { if (tIni >= 0 && p) p.testo += entitaXml(xml.slice(tIni, m.index)); tIni = -1; } else if (!auto) tIni = m.index + tutto.length; continue; }
+    if (tag === 'delText' || tag === 'instrText') { if (!chiude && !auto) { const f = xml.indexOf(`</w:${tag}>`, m.index); if (f > 0) re.lastIndex = f; } continue; }
+    if ((tag === 'tab' || tag === 'br' || tag === 'cr') && p && !chiude) { if (tag === 'tab' && /w:val=/.test(attr)) continue; p.testo += tag === 'tab' ? '\t' : '\n'; continue; }
+    if (tag === 'pStyle' && p) { const v = attr.match(/w:val="([^"]*)"/); if (v) p.stile = v[1]; continue; }
+    if (tag === 'p') { if (auto) continue; if (chiude) { p = null; continue; } p = { t: 'p', testo: '', stile: '' }; const x = top(); if (x.figli) x.figli.push(p); continue; }
+    if (tag === 'tbl') { if (chiude) { pila.pop(); continue; } const t = { t: 'tab', righe: [] }; const x = top(); if (x.figli) x.figli.push(t); pila.push(t); continue; }
+    if (tag === 'tr') { if (chiude) { pila.pop(); continue; } const r = { celle: [] }; top().righe.push(r); pila.push(r); continue; }
+    if (tag === 'tc') { if (chiude) { pila.pop(); continue; } const c = { figli: [] }; top().celle.push(c); pila.push(c); continue; }
+  }
+  const righeCella = cella => { const out = []; for (const f of cella.figli) { if (f.t === 'p') out.push(...f.testo.split('\n')); else for (const r of f.righe) out.push(r.celle.map(c => righeCella(c).join(' ').replace(/\s+/g, ' ').trim()).join(' | ')); } return out.map(r => r.replace(/ /g, ' ')); };
+  return root.figli.map(b => b.t === 'p' ? { t: 'p', testo: b.testo.replace(/ /g, ' '), stile: b.stile } : { t: 'tab', righe: b.righe.map(r => r.celle.map(righeCella)) });
+}
+// riquadro: tabella a una colonna → righe non vuote
+function boxDi(b) { if (b.t !== 'tab' || !b.righe.length || b.righe.some(r => r.length !== 1)) return null; return b.righe.flatMap(r => r[0]).map(x => x.trim()).filter(Boolean); }
+const BOX_SCARTATI = /FILE SORGENTE|RAZZE DEI PNG|^INDICE|CHECKLIST|PROPOSTE DI QUESTO DOCUMENTO/i; // dati di produzione del documento (Z8-13)
+const eTitolo = b => b.t === 'p' && /^(Heading|Titolo|Intestazione)/i.test(b.stile || '');
+const eTitolo1 = b => b.t === 'p' && /^(Heading|Titolo|Intestazione)\s*1$/i.test(b.stile || '');
+const RE_EVENTO = /^((?:EI|E)\s*(\d+)|(\d+))\s*[—–]\s*(.+)$/;
+function titoloEventoDi(b) { if (b.t !== 'p') return null; const m = b.testo.trim().match(RE_EVENTO); if (!m) return null; if (m[3] && !eTitolo(b)) return null;
+  return { numero: m[1].replace(/\s+/g, ' '), n: +(m[2] || m[3]), titolo: m[4].trim() }; }
+const RE_DADO_COL = /^d\s*(4|6|8|10|12|20|%|100)$/i;
+const eTabellaDado = b => b.t === 'tab' && b.righe.length > 1 && b.righe[0].length >= 2 && RE_DADO_COL.test(b.righe[0][0].join(' ').trim());
+const cellaT = c => c.join(' ').replace(/\s+/g, ' ').trim();
+const pulisciTitolo = t => String(t).replace(/^[^\p{L}\p{N}«"]+/u, '').trim();
+function tabellaDaDocx(blocchi, i) {
+  const b = blocchi[i], intest = b.righe[0].map(cellaT), m = intest[0].match(RE_DADO_COL), dado = m[1] === '%' || m[1] === '100' ? 100 : +m[1];
+  let nome = ''; for (let k = i - 1; k >= 0 && !nome; k--) if (blocchi[k].t === 'p' && blocchi[k].testo.trim()) nome = blocchi[k].testo.trim(); else if (blocchi[k].t === 'tab') break;
+  nome = pulisciTitolo(nome).replace(/\s*[—–-]\s*d\s*(\d+|%)\s*$/i, '').trim() || 'Eventi importati';
+  const col = k => intest.findIndex(h => k.test(h));
+  const cTipo = col(/^tipo/i), cEv = col(/^(evento|voce|risultato|incontro)/i), cDiff = col(/^difficolt/i), cDove = col(/^(dove|luogo|terreno|territorio)/i), cChi = col(/^chi lo risolve/i);
+  const voci = [], avvisi = [];
+  for (const r of b.righe.slice(1)) {
+    const c = r.map(cellaT), mr = c[0].replace(/\s/g, '').match(/^(\d+)(?:[–—-](\d+))?$/);
+    if (!mr) { if (c.some(Boolean)) avvisi.push(`riga della tabella non letta: ${c.join(' | ')}`); continue; }
+    const num = x => { const n = +x; return dado === 100 && (x === '00' || n === 0) ? 100 : n; };
+    const ev = c[cEv >= 0 ? cEv : 1] || '', sep = ev.match(/^(.+?)\s+[—–]\s+(.+)$/);
+    const note = []; c.forEach((x, k) => { if (k > 0 && ![cTipo, cEv, cDiff, cDove].includes(k) && x && !(cEv < 0 && k === 1)) note.push(k === cChi ? `Chi lo risolve: ${x}` : `${intest[k]}: ${x}`); });
+    voci.push({ da: num(mr[1]), a: num(mr[2] || mr[1]), titolo: sep ? sep[1].trim() : ev, testo: sep ? sep[2].trim() : '', tipo: tipoDaTesto(cTipo >= 0 ? c[cTipo] : ''), difficolta: cDiff >= 0 ? c[cDiff] : '',
+      dove: cDove >= 0 ? c[cDove] : '', territori: [], ripetibile: false, note: note.join('\n'), porta: { tipo: 'testo' } });
+  }
+  return { nome, dado, voci, avvisi };
+}
+// Z8-15 «Come si tira»: frequenza e ripetizioni riconosciute, il resto segnalato
+function leggiComeSiTira(righe, tab) {
+  const quando = [], non = [], controlla = []; let dadoPrec = null;
+  for (const r of righe) {
+    const t = r.trim(); let mm;
+    if ((mm = t.match(/^Ripetizion\w*\s*:\s*(.*)$/i))) {
+      if (/già uscit|non si ripet|si ritira/i.test(mm[1])) { tab.no_ripetere = true;
+        const sv = mm[1].match(/salvo\s+([\d\s,e–-]+)/i); if (sv) for (const n of (sv[1].match(/\d+/g) || []).map(Number)) for (const v of tab.voci) if (n >= v.da && n <= v.a) v.ripetibile = true; }
+      else non.push(t);
+      continue;
+    }
+    if (!(mm = t.match(/^Quando\s*:\s*(.*)$/i))) continue;
+    const pezzi = mm[1].split(/\s+·\s+/).flatMap(x => x.split(/\.\s+(?=[A-ZÀ-Ú])/)).map(x => x.trim()).filter(Boolean);
+    for (const pz of pezzi) {
+      if (/tacca|orologio/i.test(pz)) { non.push(pz); continue; }
+      const dm = pz.match(/\b(\d*)d(\d+)\b/i); if (dm) dadoPrec = (dm[1] || '1') + 'd' + dm[2];
+      const tipo = /nott|ripos|campo|accamp|dorm/i.test(pz) ? 'riposo' : /tapp|viagg|marci|cammin/i.test(pz) ? 'marcia' : /ogni\s+\d+\s*(or[ae]|giorn)/i.test(pz) ? 'tempo' : null;
+      const rng = [...pz.matchAll(/(\d+)\s*[–—-]\s*(\d+)/g)].filter(x => !/^[\s,;:)]*(non succede|nulla|niente|tranquill)/i.test(pz.slice(x.index + x[0].length)));
+      const perc = pz.match(/(\d+)\s*%/);
+      if (!tipo || (!perc && (!rng.length || !dadoPrec))) { non.push(pz); continue; }
+      const q = { tipo, ogni: null, unita: null, perc: perc ? +perc[1] : null, dado: perc ? null : dadoPrec, valori: perc ? null : `${rng[0][1]}-${rng[0][2]}` };
+      if (tipo !== 'riposo') {
+        let o;
+        if (/mezza\s+giornata/i.test(pz)) { q.ogni = tipo === 'marcia' ? pront().viaggi.ore_giorno / 2 : 12; q.unita = 'ore'; }
+        else if ((o = pz.match(/ogni\s+(\d+)\s*(or[ae]|giorn\w*)/i))) { q.ogni = +o[1]; q.unita = /^or/i.test(o[2]) ? 'ore' : 'giorni'; }
+        else if (/(al|per|ogni)\s+giorn(o|ata)/i.test(pz)) { q.ogni = 1; q.unita = 'giorni'; }
+        else { q.ogni = 1; q.unita = 'giorni'; controlla.push(`«${pz}»: ogni quanto non è scritto, proposto 1 giorno di ${tipo === 'marcia' ? 'marcia' : 'tempo'}`); }
+      }
+      quando.push(q);
+    }
+  }
+  tab.quando = quando; tab.non_riconosciuti = non; tab.da_controllare = controlla;
+}
+// Profilo PNG (§20): etichette nei campi, il resto in «Altro del profilo»
+const ETICH_PROFILO = [[/^ruolo$/, 'ruolo'], [/^allineamento$/, 'allineamento'], [/^razza$/, 'razza'], [/^gancio( visivo)?$/, 'gancio'], [/^aspetto$/, 'aspetto'],
+  [/^(voce( e modo di muoversi)?|comunica|modo di muoversi)$/, 'voce'], [/^bisogno( profondo)?$/, 'bisogno'], [/^paura( principale)?$/, 'paura'], [/^(stato d.animo( attuale)?|umore)$/, 'umore'],
+  [/^((tre )?aggettivi( chiave)?|carattere)$/, 'aggettivi'], [/^tic( verbale)?$/, 'tic'], [/^frase( d.apertura)?( tipica)?$/, 'frase'], [/^((come reagisce )?sotto pressione)$/, 'pressione'],
+  [/^obiettivo$/, 'obiettivo'], [/^metodo$/, 'metodo'], [/^leva$/, 'leva'], [/^limite$/, 'limite'], [/^informazioni( che possiede)?$/, 'informazioni'], [/^(profilo emotivo|descrizione fisica|profilo caratteriale|ruolo nell.evento)$/, '']];
+const campoProfilo = et => { const n = String(et).toLowerCase().replace(/[’']/g, '\'').trim(); for (const [re, k] of ETICH_PROFILO) if (re.test(n)) return k; return null; };
+const RE_SOTTO = /(?:^|[.;]\s+)(Bisogno(?: profondo)?|Paura(?: principale)?|Stato d['’]animo|Tic verbale|Sotto pressione|Gancio visivo|Frase d['’]apertura|Tre aggettivi|Obiettivo|Leva|Limite|Metodo|Informazioni)\s*:?\s+/gi;
+function metti(p, k, v) { v = String(v || '').trim(); if (!v) return; if (!k) { p.altro = p.altro ? p.altro + '\n' + v : v; return; } p[k] = p[k] ? p[k] + ' ' + v : v; }
+function mettiEtichetta(p, et, val) {
+  const k = campoProfilo(et), tagli = []; let m; RE_SOTTO.lastIndex = 0;
+  while ((m = RE_SOTTO.exec(val))) { const punto = /^[.;]/.test(m[0]) ? 1 : 0; tagli.push({ ini: m.index + punto, dopo: m.index + m[0].length, k: campoProfilo(m[1]) }); }
+  if (!tagli.length) { if (k === null) metti(p, '', `${et}: ${val}`); else metti(p, k, val); return; }
+  let prima = val.slice(0, tagli[0].ini);
+  const parti = tagli.map((x, i) => ({ k: x.k, v: val.slice(x.dopo, i + 1 < tagli.length ? tagli[i + 1].ini : val.length) }));
+  if (!prima.trim() && k && parti.length === 1) { const sp = parti[0].v.match(/^(.+?[.!?»])\s+(.+)$/); if (sp) { parti[0].v = sp[1]; prima = sp[2]; } }
+  metti(p, k || '', k === null && prima.trim() ? `${et}: ${prima}` : prima); for (const x of parti) metti(p, x.k, x.v);
+}
+function leggiProfilo(righe) {
+  const p = profiloVuoto(); let h = righe[0].replace(/^PROFILO\s*[—–-]\s*/i, '').trim();
+  const tit = h.match(/«([^»]+)»/); if (tit) { p.titolo = tit[1].trim(); }
+  const nm = h.split(/\s*(?:,|«|\s[—–]\s)\s*/)[0].trim(); p.nome = nomeProprio(nm);
+  let resto = h.slice(nm.length).replace(/^\s*,?\s*/, '').replace(/«[^»]+»/, '').replace(/^\s*[—–]\s*/, '').trim();
+  if (!tit && resto) { p.titolo = resto; resto = ''; }
+  if (resto) metti(p, '', resto);
+  for (const r of righe.slice(1)) {
+    const t = r.trim(); if (!t || /^[═=]{2,}/.test(t)) continue;
+    if (t.includes(' | ')) { const [et, ...v] = t.split(' | '); mettiEtichetta(p, et, v.join(' · ')); continue; }
+    const pezzi = t.split(/\s+·\s+/); let cur = null, buf = [];
+    const chiudi = () => { if (cur !== null) mettiEtichetta(p, cur, buf.join(' · ')); else if (buf.length) metti(p, '', buf.join(' · ')); };
+    for (const pz of pezzi) { const m = pz.match(/^([^:]{2,40}):\s*(.*)$/); if (m && campoProfilo(m[1]) !== null) { chiudi(); cur = m[1]; buf = [m[2]]; } else buf.push(pz); }
+    chiudi();
+  }
+  return p;
+}
+function testoProfilo(p) {
+  const L = [`${p.nome}${p.titolo ? ', «' + p.titolo + '»' : ''}`];
+  for (const [k, et] of CAMPI_PROFILO) if (!['nome', 'titolo'].includes(k) && String(p[k] || '').trim()) L.push(k === 'altro' ? p[k] : `${et}: ${p[k]}`);
+  return L.join('\n');
+}
+// tabelle delle prove → righe «| … |» (con l'intestazione dalle 3 colonne in su)
+function righeTabellaPipe(b, titolo) {
+  const L = titolo ? [`**${titolo}**`] : [], righe = b.righe.map(r => r.map(c => cellaT(c).replace(/\|/g, '/')));
+  righe.forEach((r, k) => { L.push(`| ${r.join(' | ')} |`); if (k === 0 && r.length >= 3) L.push(`|${r.map(() => '---').join('|')}|`); });
+  return L;
+}
+// Ricompense di una scheda evento: XP (anche senza «+»), tesoro, testo
+function leggiRighePremio(righe, base) {
+  const r = ricompenseVuote(), testo = [];
+  for (const riga of righe) {
+    const t = riga.trim(); if (!t) continue;
+    if (/^💰\s*TESORO/i.test(t)) { r.tesoro = leggiTesoroRiga(t); continue; }
+    const mx = t.match(/^XP\b\s*:?\s*(.*)$/i);
+    if (!mx) { testo.push(t); continue; }
+    const tenuti = [];
+    mx[1].split(/\s+·\s+/).forEach((pz, k) => {
+      const m = pz.match(/^(\+)?\s*(\d[\d.]*)\s*(?:XP\b)?\s*(.*)$/i);
+      if (m && (m[1] || (base && k === 0))) { let mot = m[3], dopo = ''; const sp = mot.match(/^(.*?[.)])\s+(.+)$/); if (sp && !m[1]) { mot = sp[1]; dopo = sp[2]; }
+        r.xp_extra.push({ xp: +m[2].replace(/\./g, ''), motivo: mot.replace(/^\((.*)\)\.?$/, '$1').replace(/\.$/, '').trim() }); if (dopo) tenuti.push(dopo); }
+      else tenuti.push(pz);
+    });
+    if (tenuti.length) testo.push(tenuti.join(' · '));
+  }
+  r.testo = testo.join('\n'); return r;
+}
+function leggiTesoroRiga(t) {
+  const tz = { livello: '', quantita: '', dove: '', note: '' };
+  for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Livello(?: di riferimento)?|Quantità|Dove(?:\/chi lo porta)?|Note(?: di contesto)?)\s*:\s*(.*)$/i);
+    if (mm) tz[/^liv/i.test(mm[1]) ? 'livello' : /^quant/i.test(mm[1]) ? 'quantita' : /^dove/i.test(mm[1]) ? 'dove' : 'note'] = mm[2].trim(); }
+  return tz;
+}
+// un evento del documento → sezioni
+function sezioniEvento(bl) {
+  const ev = { ...titoloEventoDi(bl[0]), riga: '', tipo: '', difficolta: '', terreno: '', descrizione: [], nota: [], profili: [], premio: [], tesoro: null, stat: [], altro: [], indizi: [] };
+  let partePend = null, titoloPend = null, ultimoProf = null;
+  const prossimo = i => { for (let k = i + 1; k < bl.length; k++) if (bl[k].t === 'tab' || bl[k].testo.trim()) return bl[k]; return null; };
+  for (let i = 1; i < bl.length; i++) {
+    const b = bl[i];
+    if (b.t === 'p') {
+      const t = b.testo.trim(); if (!t) continue;
+      if (!ev.riga && !ev.descrizione.length && (/Difficolt|Terreno/i.test(t) || (tipoDaTesto(t.split('·')[0]) && t.includes('·')))) {
+        ev.riga = t; for (const pz of t.split(/\s+·\s+/)) { let m;
+          if ((m = pz.match(/^Difficolt\S*\s*:\s*(.*)$/i))) ev.difficolta = m[1].trim(); else if ((m = pz.match(/^Terreno\s*:\s*(.*)$/i))) ev.terreno = m[1].trim(); else if (!ev.tipo) ev.tipo = tipoDaTesto(pz); }
+        continue; }
+      const nx = prossimo(i), nxBox = nx && boxDi(nx);
+      if (nxBox && eTestata(nxBox[0])) { let m; partePend = RE_PARTE.test(t) ? t : (m = t.match(/^(.+?)\s*\((\d*d\d+(?:[+-]\d+)?)\)\s*,?\s*(.*?)\s*:?\s*$/i)) ? `${m[1]} (×1, ${m[2]}) ${m[3]}:` : null; if (partePend) continue; }
+      if (nx && nx.t === 'tab' && !nxBox) { titoloPend = t; continue; }
+      ev.nota.push(t); continue;
+    }
+    const box = boxDi(b);
+    if (!box) { // tabella a più colonne: righe del profilo appena letto o tabella delle prove
+      const et = b.righe.map(r => cellaT(r[0]));
+      if (ultimoProf && b.righe[0].length === 2 && et.every(x => campoProfilo(x) !== null || /^carattere$/i.test(x))) { for (const r of b.righe) mettiEtichetta(ultimoProf, cellaT(r[0]), cellaT(r[1])); continue; }
+      ev.nota.push(...righeTabellaPipe(b, titoloPend)); titoloPend = null; ultimoProf = null; continue;
+    }
+    if (titoloPend) { ev.nota.push(titoloPend); titoloPend = null; }
+    const h = box[0]; ultimoProf = null;
+    if (BOX_SCARTATI.test(h)) continue;
+    if (eTestata(h)) { ev.stat.push({ righe: box, parte: partePend }); partePend = null; continue; }
+    if (/^(📖\s*)?(DESCRIZIONE|TESTO DA LEGGERE)\b/i.test(h)) { ev.descrizione.push(...box.slice(1)); continue; }
+    if (/^(⚠️?\s*)?NOTA (PER IL |DEL )?GM\b/i.test(h)) { ev.nota.push(...box.slice(1)); continue; }
+    if (/^PROFILO\b/i.test(h)) { ev.profili.push(ultimoProf = leggiProfilo(box)); continue; }
+    if (/^[🏅💰]?\s*RICOMPENS/u.test(h)) { ev.premio.push(...box.slice(1)); continue; }
+    if (/^💰\s*TESORO/u.test(h)) { ev.tesoro = [h.replace(/\s*\/\s*$/, ''), ...box.slice(1)].join(' · '); continue; }
+    if (/^(🔍\s*)?(INDIZI|INFORMAZIONI)\b/iu.test(h)) { ev.indizi.push(...box.slice(1)); continue; }
+    const lettere = (h.match(/\p{L}/gu) || []); const maiusc = lettere.length >= 3 && lettere.every(l => l === l.toUpperCase());
+    if (maiusc && box.slice(1).every(r => r.includes(' | ')) && box.length >= 1) { ev.profili.push(ultimoProf = leggiProfilo(box)); continue; }
+    ev.altro.push({ titolo: pulisciTitolo(h), testo: box.slice(1).join('\n') });
+  }
+  if (titoloPend) ev.nota.push(titoloPend);
+  return ev;
+}
+// scheda del bestiario per un partecipante importato (come l'Incolla della 5b)
+function statoScheda(nome, s, primaRiga, trova) {
+  const trovata = trova ? trova(nome) : null;
+  const diverso = !!(trovata && s) && testoStatBlock({ ...trovata.scheda, descrizione_estesa: '' }, { xp: true }) !== testoStatBlock({ ...s, descrizione_estesa: '' }, { xp: true });
+  const dest = s && (s.ambiente || s.tipo_scheda === 'mostro_pf1' || /·\s*Mostro\b|—\s*Mostro\b/i.test(primaRiga || '')) ? 'mostro' : 'png';
+  return { stato: trovata ? 'trovata' : s ? 'nuova' : 'manca', rif: trovata ? trovata.rif : null, diverso, dest, scelta: diverso ? 'usa' : '' };
+}
+function aggiungiSchedaImp(ant, v, primaRiga, evTitolo, trova) {
+  const k = normNome(v.nome); let x = ant.schede.find(y => y.chiave === k);
+  if (!x) { x = { chiave: k, nome: v.nome, scheda: v.scheda || null, eventi: [], ...(v.stato ? { stato: v.stato, rif: v.rif, diverso: v.diverso, dest: v.dest, scelta: v.scelta } : statoScheda(v.nome, v.scheda, primaRiga, trova)) }; ant.schede.push(x); }
+  else if (!x.scheda && v.scheda) Object.assign(x, { scheda: v.scheda, ...statoScheda(v.nome, v.scheda, primaRiga, trova) });
+  if (!x.eventi.includes(evTitolo)) x.eventi.push(evTitolo);
+  return k;
+}
+function leggiEventiDocx(blocchi, trova) {
+  const avvisi = [], iTab = blocchi.findIndex(eTabellaDado);
+  const iniziEv = blocchi.map((b, i) => titoloEventoDi(b) ? i : -1).filter(i => i >= 0);
+  if (iTab < 0 && !iniziEv.length) throw new Error('nel documento non ci sono né una tabella col dado nella prima colonna né eventi «EI N — Titolo»');
+  const tab = iTab >= 0 ? tabellaDaDocx(blocchi, iTab) : { nome: 'Eventi importati', dado: 20, voci: [], avvisi: [] };
+  avvisi.push(...tab.avvisi); delete tab.avvisi;
+  const primo = iniziEv.length ? iniziEv[0] : blocchi.length, h1 = blocchi.findIndex(eTitolo);
+  const note = [], cst = []; let indice = false;
+  for (let i = 0; i < primo; i++) {
+    const b = blocchi[i]; if (i === iTab) continue;
+    if (b.t === 'p') { const t = b.testo.trim(); if (!t) continue;
+      if (eTitolo(b)) { indice = /^(indice|sommario)$/i.test(t); continue; }
+      if (indice || /\t\s*\d*\s*$/.test(b.testo) || (iTab >= 0 && i === iTab - 1)) continue;
+      if ((h1 < 0 || i < h1) && !/^[⚠📌]/u.test(t)) continue;
+      note.push(t); continue; }
+    const box = boxDi(b);
+    if (box) { if (BOX_SCARTATI.test(box[0])) continue;
+      if (/COME SI TIRA/i.test(box[0])) cst.push(...box.slice(1));
+      note.push([`**${pulisciTitolo(box[0])}**`, ...box.slice(1)].join('\n')); continue; }
+    for (const r of b.righe) { const c = r.map(cellaT); if (/^frequenza/i.test(c[0])) cst.push('Quando: ' + c.slice(1).join(' ')); note.push(c.length > 1 ? `${c[0]}: ${c.slice(1).join(' · ')}` : c[0]); }
+  }
+  tab.note = note.join('\n\n'); tab.no_ripetere = false; tab.territori = [];
+  leggiComeSiTira(cst, tab);
+  const ant = { tabella: tab, eventi: [], schede: [], avvisi };
+  iniziEv.forEach((ini, j) => {
+    let fine = j + 1 < iniziEv.length ? iniziEv[j + 1] : blocchi.length;
+    for (let k = ini + 1; k < fine; k++) if (eTitolo1(blocchi[k]) && !titoloEventoDi(blocchi[k])) { fine = k; break; }
+    ant.eventi.push(eventoDaSezioni(sezioniEvento(blocchi.slice(ini, fine)), tab.nome, ant, trova));
+  });
+  collegaVoci(ant);
+  return ant;
+}
+function rigaTesta(ev) { return ev.riga || [ev.tipo ? iconaTipo(ev.tipo) + ' ' + (TIPI_EVENTO.find(t => t.id === ev.tipo) || {}).nome : '', ev.difficolta ? 'Difficoltà: ' + ev.difficolta : '', ev.terreno ? 'Terreno: ' + ev.terreno : ''].filter(Boolean).join(' · '); }
+function eventoDaSezioni(ev, nomeTab, ant, trova) {
+  const titEv = `${ev.numero} — ${ev.titolo}`;
+  if (!ev.stat.length) {
+    const premio = leggiRighePremio(ev.premio, true); if (ev.tesoro) premio.tesoro = leggiTesoroRiga(ev.tesoro);
+    return { numero: ev.numero, n: ev.n, titolo: ev.titolo, dest: 'evento', scheda: { ...schedaEventoVuota(), numero: ev.numero, titolo: ev.titolo, tipo: ev.tipo, difficolta: ev.difficolta, terreno: ev.terreno,
+      descrizione: ev.descrizione.join('\n'), nota_gm: ev.nota.join('\n'), indizi: ev.indizi.join('\n'), profili: ev.profili, ricompense: premio, altro: ev.altro } };
+  }
+  // con stat block: un incontro (Z8-14), letto come l'Incolla della 5b
+  const L = [titEv]; if (ev.riga) L.push(ev.riga);
+  if (ev.descrizione.length) L.push('📖 DESCRIZIONE', ...ev.descrizione);
+  const note = [...ev.nota, ...ev.altro.flatMap(a => [`**${a.titolo}**`, ...a.testo.split('\n')]), ...(ev.indizi.length ? ['**Indizi e informazioni**', ...ev.indizi] : [])];
+  if (note.length) L.push('NOTA PER IL GM', ...note);
+  for (const s of ev.stat) { if (s.parte) L.push(s.parte); L.push(...s.righe); }
+  if (ev.premio.length || ev.tesoro) L.push('💰 RICOMPENSE', ...ev.premio.map(r => /^💰\s*TESORO/u.test(r) ? r : r), ...(ev.tesoro ? [ev.tesoro] : []));
+  const r = leggiIncontro(L.join('\n'), trova), inc = r.incontro;
+  inc.titolo = titEv; inc.atto = nomeTab;
+  const prime = new Map(ev.stat.map(s => [normNome(leggiStatBlock(s.righe.join('\n'))[0] ? leggiStatBlock(s.righe.join('\n'))[0].scheda.nome : ''), s.righe[0]]));
+  for (const p of ev.profili) {
+    const k = normNome(p.nome), v = r.voci.find(x => { const n = normNome(x.nome); return n && k && (n === k || n.startsWith(k + ' ') || k.startsWith(n + ' ')); });
+    if (v && v.scheda && v.stato === 'nuova') v.scheda.descrizione_estesa = testoProfilo(p);
+    else inc.note = (inc.note ? inc.note + '\n' : '') + `**Profilo — ${p.nome}**\n` + testoProfilo(p).split('\n').slice(1).join('\n');
+  }
+  const partecipanti = r.voci.map(v => ({ chiave: aggiungiSchedaImp(ant, v, prime.get(normNome(v.nome)), titEv, trova), nome: v.nome, n: v.n, nota: v.nota }));
+  return { numero: ev.numero, n: ev.n, titolo: ev.titolo, dest: 'incontro', tipo: ev.tipo, incontro: { ...inc, partecipanti } };
+}
+function collegaVoci(ant) {
+  const voci = ant.tabella.voci, usati = new Set();
+  for (const v of voci) { const k = normNome(v.titolo); const j = ant.eventi.findIndex((e, i) => !usati.has(i) && normNome(e.titolo) === k); if (j >= 0) { v.evento = j; usati.add(j); } }
+  for (const v of voci) if (v.evento === undefined) { const j = ant.eventi.findIndex((e, i) => !usati.has(i) && Number.isInteger(e.n) && v.da === v.a && e.n === v.da); if (j >= 0) { v.evento = j; usati.add(j); } }
+  for (const v of voci) { if (v.evento === undefined) v.evento = null; else { const e = ant.eventi[v.evento]; if (!v.tipo) v.tipo = e.tipo || (e.scheda && e.scheda.tipo) || ''; if (e.scheda && !e.scheda.tipo) e.scheda.tipo = v.tipo; if (e.scheda && !e.scheda.difficolta && v.difficolta) e.scheda.difficolta = v.difficolta; } }
+  ant.eventi.forEach((e, i) => { if (!usati.has(i) && voci.length) ant.avvisi.push(`${e.numero} — ${e.titolo}: nessuna voce della tabella, diventa una scheda sciolta`); });
+  for (const v of voci) if (v.evento === null && ant.eventi.length) ant.avvisi.push(`voce ${intervalloVoce(v, ant.tabella.dado)} «${v.titolo}»: nessun evento collegato (resta un testo)`);
+}
+
+// ---- JSON «schermo-eventi» v1 (Z8-17): importazione con la stessa anteprima, esportazione di una tabella con i suoi eventi
+const FORMATO_EVENTI = 'schermo-eventi';
+function leggiEventiJson(testo, trova) {
+  let j; try { j = typeof testo === 'string' ? JSON.parse(testo) : testo; } catch (e) { throw new Error('il file non è un JSON valido'); }
+  if (!j || j.formato !== FORMATO_EVENTI) throw new Error(`formato non riconosciuto (atteso ${FORMATO_EVENTI})`);
+  const tj = (j.tabelle || [])[0]; if (!tj && !(j.eventi || []).length) throw new Error('il file non contiene tabelle né eventi');
+  const avvisi = []; if ((j.tabelle || []).length > 1) avvisi.push(`il file ha ${j.tabelle.length} tabelle: si importa la prima`);
+  const dado = tj ? (tj.dado === 'd%' || tj.dado === 100 || tj.dado === '100' ? 100 : +String(tj.dado || 20).replace(/^d/i, '')) : 20;
+  if (!DADI_EVENTI.includes(dado)) throw new Error('dado della tabella non valido');
+  const tab = { nome: String((tj && tj.nome) || 'Eventi importati').trim(), dado, note: String((tj && tj.note) || ''), no_ripetere: !!(tj && tj.ripetizioni === false || tj && tj.no_ripetere),
+    territori: (tj && tj.territori) || [], quando: ((tj && tj.quando) || []).map(q => ({ tipo: q.tipo, ogni: q.tipo === 'riposo' ? null : +q.ogni, unita: q.tipo === 'riposo' ? null : (q.unita || 'ore'),
+      perc: q.perc !== undefined && q.perc !== null ? +q.perc : null, dado: q.perc !== undefined && q.perc !== null ? null : q.dado, valori: q.perc !== undefined && q.perc !== null ? null : String(q.valori || '') })),
+    non_riconosciuti: [], da_controllare: [], voci: [] };
+  for (const q of tab.quando) { const e = controllaQuando(q); if (e) avvisi.push(`«Quando»: ${e}`); }
+  // stat block in testo (come nei documenti)
+  const blocchi = [];
+  for (const x of j.schede || []) { const t = typeof x === 'string' ? x : x.testo; const b = leggiStatBlock(t || '')[0]; if (!b) { avvisi.push('uno stat block del file non si legge'); continue; }
+    if (typeof x === 'object' && x.descrizione_estesa) b.scheda.descrizione_estesa = x.descrizione_estesa; else b.scheda.descrizione_estesa = b.scheda.descrizione_estesa || '';
+    blocchi.push({ scheda: b.scheda, prima: String(t).split('\n')[0] }); }
+  const bloccoDi = nome => blocchi.find(b => normNome(b.scheda.nome) === normNome(nome));
+  const ant = { tabella: tab, eventi: [], schede: [], avvisi };
+  const chiaveEv = {};
+  (j.eventi || []).forEach((e, i) => {
+    const numero = String(e.numero || '').trim(), titolo = String(e.titolo || '').trim() || `Evento ${i + 1}`, tit = numero ? `${numero} — ${titolo}` : titolo;
+    chiaveEv[numero || '#' + (i + 1)] = i;
+    const r = e.ricompense || {}, ric = { ...ricompenseVuote(), xp_extra: (r.xp_extra || []).map(x => ({ xp: +x.xp, motivo: String(x.motivo || '') })), testo: String(r.testo || ''), tesoro: r.tesoro || null };
+    const tipo = TIPI_EVENTO.some(t => t.id === e.tipo) ? e.tipo : tipoDaTesto(e.tipo);
+    if ((e.partecipanti || []).length) {
+      const testa = rigaTesta({ tipo, difficolta: e.difficolta, terreno: e.terreno });
+      const inc = { ...incontroVuoto(), titolo: tit, atto: tab.nome, descrizione: String(e.descrizione || ''), note: [testa, String(e.nota_gm || ''), ...(e.profili || []).map(p => `**Profilo — ${p.nome}**\n` + testoProfilo({ ...profiloVuoto(), ...p }).split('\n').slice(1).join('\n'))].filter(Boolean).join('\n'),
+        ricompense: ric, promemoria: (e.promemoria || []).map(p => ({ round: +p.round, testo: String(p.testo) })) };
+      const partecipanti = e.partecipanti.map(p => { const b = bloccoDi(p.nome), s = b ? clona(b.scheda) : null;
+        const pr = (e.profili || []).find(x => s && normNome(x.nome) === normNome(s.nome)); if (pr && s && !s.descrizione_estesa) s.descrizione_estesa = testoProfilo({ ...profiloVuoto(), ...pr });
+        return { chiave: aggiungiSchedaImp(ant, { nome: s ? s.nome : p.nome, scheda: s }, b ? b.prima : '', tit, trova), nome: s ? s.nome : p.nome, n: Math.max(1, +p.n || 1), nota: String(p.nota || '') }; });
+      ant.eventi.push({ numero, n: parseInt(numero.replace(/\D+/g, ''), 10), titolo, dest: 'incontro', tipo, incontro: { ...inc, partecipanti } });
+    } else ant.eventi.push({ numero, n: parseInt(numero.replace(/\D+/g, ''), 10), titolo, dest: 'evento', scheda: { ...schedaEventoVuota(), numero, titolo, tipo, difficolta: String(e.difficolta || ''), terreno: String(e.terreno || ''),
+      descrizione: String(e.descrizione || ''), nota_gm: String(e.nota_gm || ''), indizi: String(e.indizi || ''), profili: (e.profili || []).map(p => ({ ...profiloVuoto(), ...p })), ricompense: ric, altro: (e.altro || []).map(a => ({ titolo: String(a.titolo || ''), testo: String(a.testo || '') })) } });
+  });
+  for (const v of (tj && tj.voci) || []) {
+    const x = { da: +v.da, a: +(v.a !== undefined ? v.a : v.da), titolo: String(v.titolo || ''), testo: String(v.testo || ''), tipo: TIPI_EVENTO.some(t => t.id === v.tipo) ? v.tipo : tipoDaTesto(v.tipo), difficolta: String(v.difficolta || ''),
+      dove: String(v.dove || ''), territori: v.territori || [], ripetibile: !!v.ripetibile, note: String(v.note || ''), porta: { tipo: 'testo' }, evento: null };
+    if (v.evento !== undefined && v.evento !== null) { const k = chiaveEv[String(v.evento)]; if (k === undefined) avvisi.push(`voce ${x.da}-${x.a}: l'evento «${v.evento}» non c'è nel file`); else x.evento = k; }
+    else if ((v.creature || []).length) x.porta = { tipo: 'creature', creature: v.creature.map(p => { const t = trova ? trova(p.nome) : null; return { nome: String(p.nome), dadi: String(p.dadi || '1'), rif: t ? t.rif : null }; }) };
+    tab.voci.push(x);
+  }
+  // le creature delle voci senza scheda si creano dagli stat block del file
+  for (const v of tab.voci) if (v.porta.tipo === 'creature') for (const p of v.porta.creature) if (!p.rif) { const b = bloccoDi(p.nome); if (b) p.chiave = aggiungiSchedaImp(ant, { nome: b.scheda.nome, scheda: clona(b.scheda) }, b.prima, `voce ${v.da}-${v.a}`, trova); }
+  ant.eventi.forEach((e, i) => { if (tab.voci.length && !tab.voci.some(v => v.evento === i)) avvisi.push(`${e.numero ? e.numero + ' — ' : ''}${e.titolo}: nessuna voce della tabella, diventa una scheda sciolta`); });
+  return ant;
+}
+function esportaEventi(camp, tabId, schedaDi) {
+  const t = tabellaDi(camp, tabId), eventi = [], schede = new Map(), chiavi = {};
+  const aggScheda = rif => { const s = rif && schedaDi ? schedaDi(rif) : null; if (s && !schede.has(s.nome)) schede.set(s.nome, { testo: testoStatBlock({ ...s, descrizione_estesa: '' }, { xp: true }), descrizione_estesa: s.descrizione_estesa || '' }); };
+  const evDaScheda = s => ({ numero: s.numero, titolo: s.titolo, tipo: s.tipo, difficolta: s.difficolta, terreno: s.terreno, descrizione: s.descrizione, nota_gm: s.nota_gm, indizi: s.indizi,
+    profili: s.profili, ricompense: s.ricompense, altro: s.altro });
+  const chiave = (k, fn) => { if (chiavi[k] === undefined) { const e = fn(); if (!e.numero) e.numero = '#' + (eventi.length + 1); chiavi[k] = e.numero; eventi.push(e); } return chiavi[k]; };
+  const voci = t.voci.map(v => {
+    const x = { da: v.da, a: v.a, titolo: v.titolo, tipo: v.tipo, difficolta: v.difficolta, dove: v.dove, territori: v.territori, ripetibile: v.ripetibile, note: v.note, testo: v.testo };
+    if (v.porta.tipo === 'evento') { const s = camp.eventi.schede.find(y => y.id === v.porta.id); if (s) x.evento = chiave('e' + s.id, () => evDaScheda(s)); }
+    if (v.porta.tipo === 'incontro') { const inc = camp.incontri.find(y => y.id === v.porta.id);
+      if (inc) x.evento = chiave('i' + inc.id, () => { const m = inc.titolo.match(RE_EVENTO); inc.partecipanti.forEach(p => aggScheda(p.rif));
+        return { numero: m ? m[1] : '', titolo: m ? m[4] : inc.titolo, tipo: v.tipo, descrizione: inc.descrizione, nota_gm: inc.note, ricompense: inc.ricompense, promemoria: inc.promemoria,
+          partecipanti: inc.partecipanti.map(p => ({ nome: p.nome, n: p.n, nota: p.nota || '' })) }; }); }
+    if (v.porta.tipo === 'creature') { x.creature = v.porta.creature.map(p => ({ nome: p.nome, dadi: p.dadi })); v.porta.creature.forEach(p => aggScheda(p.rif)); }
+    return x;
+  });
+  for (const s of camp.eventi.schede.filter(y => y.tabella === t.id)) chiave('e' + s.id, () => evDaScheda(s));
+  return JSON.stringify({ formato: FORMATO_EVENTI, versione: 1, tabelle: [{ nome: t.nome, dado: nomeDado(t.dado), note: t.note, no_ripetere: t.no_ripetere, territori: t.territori,
+    quando: t.quando.map(q => q.tipo === 'riposo' ? { tipo: q.tipo, ...(q.perc !== null ? { perc: q.perc } : { dado: q.dado, valori: q.valori }) } : { tipo: q.tipo, ogni: q.ogni, unita: q.unita, ...(q.perc !== null ? { perc: q.perc } : { dado: q.dado, valori: q.valori }) }), voci }],
+    eventi, schede: [...schede.values()] }, null, 1);
+}
+// «Crea tutto» (Z8-16): le schede del bestiario sono già state create dalla pagina (ant.schede[].rif); opz: { sostituisci: id della tabella | null, nome }
+function applicaImportazione(camp, ant, opz = {}) {
+  let c = clona(camp); c.eventi = c.eventi || { tabelle: [], schede: [], attesa: [] };
+  const vecchia = opz.sostituisci ? tabellaDi(c, opz.sostituisci) : null, T = ant.tabella;
+  const nome = vecchia ? vecchia.nome : String(opz.nome || T.nome).trim() || 'Eventi importati';
+  const tabId = vecchia ? vecchia.id : prossimoId(c, 'tb');
+  if (vecchia) { c.eventi.schede = c.eventi.schede.filter(s => s.tabella !== vecchia.id); c.incontri = c.incontri.filter(i => !(i.da_tabella === vecchia.id && i.stato !== 'giocato')); }
+  const rifDi = k => { const s = ant.schede.find(x => x.chiave === k); return s && s.rif ? s.rif : null; };
+  const nomeDi = (k, n) => { const s = ant.schede.find(x => x.chiave === k); return s && s.nome_finale ? s.nome_finale : n; };
+  const porte = ant.eventi.map(e => {
+    if (e.dest === 'evento') { const id = prossimoId(c, 'ev'); c.eventi.schede.push({ ...schedaEventoVuota(), ...clona(e.scheda), id, tabella: tabId }); return { tipo: 'evento', id }; }
+    const inc = { ...clona(e.incontro), atto: nome, da_tabella: tabId, id: '', partecipanti: e.incontro.partecipanti.map(p => ({ rif: rifDi(p.chiave), nome: nomeDi(p.chiave, p.nome), n: p.n, nota: p.nota || '', modo: 'tipo', nascosto: false, nomeTv: '', imp: false })) };
+    c = salvaIncontro(c, inc); return { tipo: 'incontro', id: c.incontri[c.incontri.length - 1].id };
+  });
+  const voci = T.voci.map(v => { const x = { ...clona(v), id: prossimoId(c, 'vo') }; delete x.evento;
+    if (v.evento !== null && v.evento !== undefined && porte[v.evento]) x.porta = porte[v.evento];
+    if (x.porta.tipo === 'creature') x.porta.creature = x.porta.creature.map(p => ({ nome: p.chiave ? nomeDi(p.chiave, p.nome) : p.nome, dadi: p.dadi, rif: p.rif || (p.chiave ? rifDi(p.chiave) : null) }));
+    if (vecchia) { const w = vecchia.voci.find(y => y.da === v.da && y.a === v.a); if (w) x.territori = w.territori; }
+    return x; });
+  const t = { id: tabId, nome, dado: T.dado, note: T.note, no_ripetere: T.no_ripetere, territori: vecchia ? vecchia.territori : (T.territori || []), territorio: vecchia ? vecchia.territorio : '',
+    quando: T.quando, voci, origine: 'importata', auto: false,
+    uscite: vecchia ? voci.filter(x => vecchia.voci.some(w => w.da === x.da && w.a === x.a && vecchia.uscite.includes(w.id))).map(x => x.id) : [] };
+  c = salvaTabella(c, t);
+  log(c, `Eventi: importata la tabella «${nome}» (${voci.length} voci, ${porte.filter(p => p.tipo === 'evento').length} schede evento, ${porte.filter(p => p.tipo === 'incontro').length} incontri)${vecchia ? ' al posto della precedente' : ''}`);
+  return { camp: c, tabella: tabId };
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -4091,14 +4755,18 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   aggiungiLuce, accendiLuce, spegniLuce, ricaricaLuce, riparoLuce, togliLuce, controllaLuci, motivoSpegne, nomeChiLuce, infoLuce, infoDi, FIAMME_PERS,
   aggiungiPromemoria, togliPromemoria, togliPromemoriaRound, salvaPromemoriaInIncontro, tipoLog, iniziaSessione, righeLog, testoLog,
   usaProntuario, AREE_GUIDA, areeGuida, impostaContatore, usaMedicinali, puoProntoSoccorso, prontoSoccorso, fermaSanguinamento, trattaVeleno, trattaMalattia,
-  risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
-  avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
+  risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi,
+  avviaMarcia, rispondiMarcia, controllaRighe, dadiCaduta, caduta, applicaCaduta,
   trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
   nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG,
   DV_CLASSI, DADI_DV, dvClasse, testoClassi, riserveMax, sincronizzaClassi, riservaRif, testoRiserva, sceltaRifiatare,
   UNITA_CONT, NOMI_UNITA, RICARICHE, salvaContatore, eliminaContatore, cambiaContatore, ricaricaContatore, pausaContatore, descriviTempoCont,
   TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette,
-  ricompenseVuote, migraIncontro, xpExtra, impostaOrdineIncontri, spostaIncontro, testoIncontro, testoTesoro, leggiIncontro, normNome };
+  ricompenseVuote, migraIncontro, xpExtra, impostaOrdineIncontri, spostaIncontro, testoIncontro, testoTesoro, leggiIncontro, normNome,
+  TIPI_EVENTO, DADI_EVENTI, CAMPI_PROFILO, GRUPPI_PROFILO, iconaTipo, nomeDado, fmtNum, tipoDaTesto, profiloVuoto, schedaEventoVuota, tabellaVuota, oreQuando, controllaQuando, valoriDado, testoQuando,
+  esitoProbabilita, controllaVoci, intervalloVoce, salvaTabella, eliminaTabella, impostaAuto, impostaTerritorio, azzeraUscite, salvaSchedaEvento, eliminaSchedaEvento, segnaEventoGiocato, titoloEvento,
+  tabellaDallaGuida, tiraVoce, nomeVoce, tiraEvento, rispondiEvento, eventiInfo, riprendiRiposo, interrompiRiposo, migraEventi,
+  voceZip, leggiDocxXml, leggiEventiDocx, leggiProfilo, testoProfilo, leggiRighePremio, leggiTesoroRiga, leggiEventiJson, esportaEventi, applicaImportazione, FORMATO_EVENTI };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
 
@@ -4408,8 +5076,8 @@ function disegnaAvvio() {
 function disegnaTerza() {
   let sch = S.ui.scheda; if (sch === 'vista' && !S.ui.vista) sch = S.ui.scheda = 'bestiario';
   const tab = (k, t) => `<button role="tab" class="${sch === k ? 'on' : ''}" data-az="scheda" data-s="${k}">${t}</button>`;
-  return `<div class="schede" role="tablist">${tab('viaggio', 'Viaggio')}${tab('bestiario', 'Bestiario')}${tab('incontri', 'Incontri')}${tab('prontuario', 'Prontuario')}${tab('log', 'Log')}${S.ui.vista ? tab('vista', 'Scheda') : ''}</div>
-    ${sch === 'log' ? disegnaLog() : sch === 'prontuario' ? disegnaProntuario() : sch === 'bestiario' ? disegnaBestiario() : sch === 'incontri' ? disegnaIncontri() : sch === 'vista' ? disegnaVista() : disegnaViaggio()}`;
+  return `<div class="schede" role="tablist">${tab('viaggio', 'Viaggio')}${tab('bestiario', 'Bestiario')}${tab('incontri', 'Incontri')}${tab('eventi', 'Eventi')}${tab('prontuario', 'Prontuario')}${tab('log', 'Log')}${S.ui.vista ? tab('vista', 'Scheda') : ''}</div>
+    ${sch === 'log' ? disegnaLog() : sch === 'prontuario' ? disegnaProntuario() : sch === 'bestiario' ? disegnaBestiario() : sch === 'incontri' ? disegnaIncontri() : sch === 'eventi' ? disegnaEventi() : sch === 'vista' ? disegnaVista() : disegnaViaggio()}`;
 }
 function selectZona(id, attr, scelta) {
   return `<select ${id ? `id="${id}"` : ''} ${attr}>${MET.gruppi.map(g => `<optgroup label="${g}">${MET.zone.filter(z => z.gruppo === g).map(z => `<option value="${z.id}" ${z.id === scelta ? 'selected' : ''}>${z.n}. ${esc(z.nome)}</option>`).join('')}</optgroup>`).join('')}</select>`;
@@ -4762,6 +5430,8 @@ function chipMalus(chi, m, nonConta) {
 }
 function bottoniCoda(q, i) {
   if (q.tipo === 'razionamento') return `<button class="btn min prim" data-az="razionamento" data-id="${q.razionamento}">Scegli chi</button>`;
+  if (q.tipo === 'evento') return bottoniEvento(q);
+  if (q.tipo === 'riposo') return `<button class="btn min prim" data-az="riprendiRiposo">Riprendi il riposo</button><button class="btn min" data-az="interrompiRiposo">Interrompi</button>`;
   if (q.tipo === 'erbe') return `<button class="btn min prim" data-az="raccolta" data-q="${q.id}">Raccoglie</button><button class="btn min" data-az="raccolta" data-q="${q.id}" data-imp="1">Impossibilitato</button>`;
   if (q.tipo === 'promemoria' && q.incontro) return `<button class="btn min prim" data-az="avviaComp" data-q="${q.id}">Avvia</button><button class="btn min" data-az="codaFattoId" data-q="${q.id}">Ignora</button>`;
   if (q.tipo === 'ts' && q.trattata) return `<label class="spunta piccolo"><input type="checkbox" id="cer-${q.id}"> il cerusico riesce</label><button class="btn min ok" data-az="esito" data-q="${q.id}" data-e="1">Superato</button><button class="btn min peric" data-az="esito" data-q="${q.id}" data-e="">Fallito</button>`;
@@ -4769,7 +5439,7 @@ function bottoniCoda(q, i) {
   if (q.tipo === 'morte') return `<button class="btn min prim" data-az="morte" data-q="${q.id}" data-s="morente">Tira il 20% del Morente</button><button class="btn min peric" data-az="morte" data-q="${q.id}" data-s="morto">Morto</button><button class="btn min" data-az="morte" data-q="${q.id}" data-s="ignora">Ignora</button>`;
   return q.id ? `<button class="btn min" data-az="codaFattoId" data-q="${q.id}">Fatto</button>` : `<button class="btn min" data-az="codaFatto" data-i="${i}">Fatto</button>`;
 }
-const DA_RISPONDERE = ['razionamento', 'ts', 'veleno', 'morte', 'erbe'];
+const DA_RISPONDERE = ['razionamento', 'ts', 'veleno', 'morte', 'erbe', 'evento', 'riposo'];
 function primoInCoda(c) { const pri = ['morte', 'ts', 'veleno', 'razionamento', 'erbe']; for (const t of pri) { const i = c.coda.findIndex(q => q.tipo === t); if (i >= 0) return i; } return 0; }
 
 // ---------- G: finestra «Malus/Bonus»
@@ -5074,7 +5744,7 @@ function finestraImpostazioni() {
   apri({ titolo: 'Impostazioni della campagna', corpo: `<fieldset><legend>Campagna</legend>
       <label class="campo"><span>Nome</span><input type="text" name="nome" value="${esc(S.camp.nome)}"></label>
       <label class="campo"><span>Etichetta dell'anno</span><input type="text" name="etichetta" value="${esc(S.camp.anno.etichetta)}"></label>
-      ${voce('scorte', 'Usa le scorte', '(consumo di cibo, acqua e foraggio, Fame e Sete automatiche, Foraggiare)')}${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}${voce('incontri_casuali', 'Incontri casuali', '(ogni 6 ore di marcia; aree e tabelle col pulsante qui sotto)')}</fieldset>
+      ${voce('scorte', 'Usa le scorte', '(consumo di cibo, acqua e foraggio, Fame e Sete automatiche, Foraggiare)')}${voce('xp', 'Usa gli XP', '(nelle schede, negli incontri e a fine combattimento)')}${voce('pf_nemici', 'Scala i PF dei nemici', '(dal prossimo combattimento: Fatica e Ferita per creatura)')}</fieldset>
     <fieldset><legend>Timer reale</legend>${voce('timer', 'Timer reale del turno e del combattimento')}
       <label class="campo"><span>Soglia di avviso del turno (secondi, 0 = nessuna)</span><input type="number" name="soglia_timer" min="0" value="${i.soglia_timer}"></label></fieldset>
     <fieldset><legend>Finestra TV</legend>${ANDROID ? '<p class="tenue piccolo">Solo nell\'app Windows (e nella versione web): qui le impostazioni restano nella campagna.</p>' : ''}${voce('tv_xn', '«×N» nei gruppi')}${voce('tv_solo_combattimento', 'Solo durante il combattimento', '(si apre all\'avvio e si chiude alla fine)')}${voce('tv_ora', 'Data e ora')}${voce('tv_meteo', 'Meteo')}
@@ -5084,11 +5754,11 @@ function finestraImpostazioni() {
     <p class="tenue piccolo" id="versione-app">${TVDESK && window.schermoDesktop.versione ? 'Versione win-' + esc(window.schermoDesktop.versione) : WEB ? 'Versione di prova (pagina web)' : ''}</p>`,
     dopo: el => el.addEventListener('change', ev => { if (ev.target.name !== 'timer') return; const tv = val(el, 'timer_tv'); tv.disabled = !ev.target.checked;
       el.querySelector('#nota-timer-tv').textContent = ev.target.checked ? '(solo nei turni dei PG e degli alleati)' : '(serve il Timer reale)'; }),
-    azioni: [{ testo: 'Annulla' }, { testo: 'Aree degli incontri casuali…', fn: () => { finestraAree(); return false; } }, { testo: 'Salva', classe: 'prim', fn: f => {
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => {
       const c = M.clona(S.camp), x = c.impostazioni;
       if (!testo(f, 'nome')) throw new Error('Nome della campagna mancante');
       c.nome = testo(f, 'nome'); c.anno.etichetta = testo(f, 'etichetta');
-      for (const k of ['scorte', 'xp', 'pf_nemici', 'incontri_casuali', 'timer', 'tv_xn', 'tv_solo_combattimento', 'tv_ora', 'tv_meteo', 'timer_tv', 'f10']) x[k] = spunta(f, k);
+      for (const k of ['scorte', 'xp', 'pf_nemici', 'timer', 'tv_xn', 'tv_solo_combattimento', 'tv_ora', 'tv_meteo', 'timer_tv', 'f10']) x[k] = spunta(f, k);
       x.soglia_timer = Math.max(0, intero(f, 'soglia_timer', 0)); x.tv_fuori = val(f, 'tv_fuori').value; x.tema = val(f, 'tema').value;
       let c2 = c; if (x.timer && c.combattimento && !c.combattimento.timer) c2 = M.attivaTimer(c, Date.now());
       if (!x.timer && c2.combattimento) c2.combattimento.timer = null;
@@ -5164,7 +5834,7 @@ function procedura() {
         <p class="tenue piccolo">Mangiano e bevono come i PG. Animali e schede si aggiungono dopo, dal pannello Compagnia.</p>`;
       case 6: { const np = W.persone.split('\n').filter(x => x.trim()).length; return passi + `<div class="griglia"><label class="campo"><span>Cibo (razioni)</span><input type="number" id="w-cibo" min="0" value="${W.cibo}"></label><label class="campo"><span>Acqua (razioni da 4 litri)</span><input type="number" id="w-acqua" min="0" value="${W.acqua}"></label><label class="campo"><span>Foraggio (animali)</span><input type="number" id="w-forag" min="0" value="${W.foraggio}"></label></div>
         <p class="tenue piccolo">1 razione = 1 persona per 1 giorno (l'acqua ×2 con Arsura o Afa, ×3 con Canicola). Consumo: ${W.pg.length} PG + ${W.accompagnatori + np} accompagnatori = ${W.pg.length + W.accompagnatori + np} al giorno.</p>`; }
-      case 7: return passi + `${[['scorte', 'Usa le scorte (consumo, Fame e Sete, Foraggiare)'], ['timer', 'Timer reale'], ['xp', 'Usa gli XP'], ['pf_nemici', 'Scala i PF dei nemici'], ['incontri_casuali', 'Incontri casuali']].map(([k, t]) => `<label class="spunta"><input type="checkbox" id="w-i-${k}" ${W.imp[k] ? 'checked' : ''}> ${t}</label>`).join('')}
+      case 7: return passi + `${[['scorte', 'Usa le scorte (consumo, Fame e Sete, Foraggiare)'], ['timer', 'Timer reale'], ['xp', 'Usa gli XP'], ['pf_nemici', 'Scala i PF dei nemici']].map(([k, t]) => `<label class="spunta"><input type="checkbox" id="w-i-${k}" ${W.imp[k] ? 'checked' : ''}> ${t}</label>`).join('')}
         <label class="campo"><span>Tema</span><select id="w-tema"><option value="scuro" ${W.imp.tema === 'scuro' ? 'selected' : ''}>scuro</option><option value="chiaro" ${W.imp.tema === 'chiaro' ? 'selected' : ''}>chiaro</option></select></label>
         <p class="tenue piccolo">Le altre impostazioni (finestra TV, F10) sono in ⚙ dentro la campagna.</p>`;
     }
@@ -5183,7 +5853,7 @@ function procedura() {
       case 3: W.zona = $('#w-zona').value; break;
       case 5: W.persone = $('#w-pers').value; W.accompagnatori = leggiNum('#w-acc', 'Accompagnatori'); if (W.accompagnatori < 0) throw new Error('Accompagnatori: almeno 0'); break;
       case 6: W.cibo = leggiNum('#w-cibo', 'Cibo'); W.acqua = leggiNum('#w-acqua', 'Acqua'); W.foraggio = leggiNum('#w-forag', 'Foraggio'); if (W.cibo < 0 || W.acqua < 0 || W.foraggio < 0) throw new Error('Le scorte non possono essere negative'); break;
-      case 7: for (const k of ['scorte', 'timer', 'xp', 'pf_nemici', 'incontri_casuali']) W.imp[k] = $('#w-i-' + k).checked; W.imp.tema = $('#w-tema').value; break;
+      case 7: for (const k of ['scorte', 'timer', 'xp', 'pf_nemici']) W.imp[k] = $('#w-i-' + k).checked; W.imp.tema = $('#w-tema').value; break;
     }
   }
   function ridisegna() { el.querySelector('.corpo').innerHTML = corpo(); const pr = el.querySelector('[data-fazione="2"]'); pr.textContent = W.passo === PASSI.length - 1 ? 'Crea' : 'Avanti'; el.querySelector('[data-fazione="1"]').disabled = W.passo === 0; const x = el.querySelector('.corpo input,.corpo select'); if (x) x.focus(); }
@@ -5256,12 +5926,21 @@ const condDi = m => { const x = RE_UNA.find(([n, re]) => re.test(m)); return x ?
 const coloraTutte = html => html.replace(RE_COND, m => { const n = condDi(m), i = n && infoCond(n);
   return `<span class="cond-t"${n ? ` data-az="vediCond" data-n="${esc(n)}" title="${esc(n + (i && i.sintesi ? ': ' + i.sintesi : ''))}"` : ''}>${m}</span>`; });
 // note degli incontri: **grassetto** ed elenchi con «- »
+function tabellaMd(righe) { // righe «| a | b |»; con la riga «|---|» la prima è l'intestazione. Sul telefono ogni riga diventa un blocco (Z8-3)
+  const cel = r => r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(x => x.trim());
+  const sep = righe.length > 1 && /^\|?\s*:?-{2,}/.test(righe[1].trim()), intest = sep ? cel(righe[0]) : null, corpo = (sep ? righe.slice(2) : righe).map(cel);
+  const tab = `<div class="tabmeteo md-tab"><table>${intest ? `<tr>${intest.map(x => `<th>${x}</th>`).join('')}</tr>` : ''}${corpo.map(r => `<tr>${r.map((x, i) => !intest && i === 0 ? `<td><b>${x}</b></td>` : `<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
+  const bl = `<div class="md-blocchi">${corpo.map(r => `<div class="md-blocco">${intest ? `<b>${r[0]}</b>${r.slice(1).map((x, i) => ` · <span class="tenue">${intest[i + 1] || ''}:</span> ${x}`).join('')}` : `<b>${r[0]}:</b> ${r.slice(1).join(' · ')}`}</div>`).join('')}</div>`;
+  return tab + bl;
+}
 function mdLite(t) {
-  const righe = esc(t || '').split('\n'); let out = '', lista = false;
-  for (const r of righe) { const li = r.match(/^\s*[-•]\s+(.*)$/);
+  const righe = esc(t || '').split('\n'); let out = '', lista = false, tab = [];
+  const chiudiTab = () => { if (tab.length) { out += tabellaMd(tab); tab = []; } };
+  for (const r of righe) { if (/^\s*\|.*\|\s*$/.test(r)) { if (lista) { out += '</ul>'; lista = false; } tab.push(r); continue; } chiudiTab();
+    const li = r.match(/^\s*[-•]\s+(.*)$/);
     if (li) { if (!lista) { out += '<ul class="md">'; lista = true; } out += `<li>${li[1]}</li>`; continue; }
     if (lista) { out += '</ul>'; lista = false; } if (r.trim()) out += `<p>${r}</p>`; }
-  if (lista) out += '</ul>';
+  if (lista) out += '</ul>'; chiudiTab();
   return out.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
 }
 const ETICHETTE_SB = /^(Razza|Iniziativa|Aura|CA|PF|TS|RD|Immunità|Velocità|Mischia|Distanza|Incantesimi|Talenti|Abilità|Lingue|Sintonia|Prima del combattimento|Round 1|Round 2–3|Finita la Fatica|Fuga o resa|Tratto razziale)\b/;
@@ -6047,27 +6726,30 @@ function disegnaMeteoP(P, q) {
 }
 // ---------- AC5 Viaggi: pannello della marcia (evento in corso) e finestra «Marcia»
 function disegnaMarcia() {
-  const c = S.camp, v = c.viaggio, a = v.attivo, ci = c.impostazioni.incontri_casuali;
-  const area = ci && v.area ? c.aree.find(x => x.id === v.area) : null;
-  const testa = `<div class="fila"><h3>Marcia</h3><span class="tenue piccolo">${v.oggi && v.oggi.giorno === M.scomponi(c).N ? `oggi ${M.formatoDurata(v.oggi.min * M.ROUND_MIN)} di marcia${v.oggi.forzata ? ' · marcia forzata' : ''}` : 'oggi nessuna marcia'}${area ? ` · incontri: ${esc(area.nome)} (${M.formatoDurata(Math.round(v.accumulo * 60) * M.ROUND_MIN)} su 6 h)` : ''}</span><span class="spazio"></span>
-    ${a ? '' : '<button class="btn min prim" data-az="marcia">Marcia…</button>'}${ci ? '<button class="btn min" data-az="tiraIncontro">Tira incontro…</button>' : ''}<button class="btn min" data-az="locandaF">Locanda…</button></div>`;
+  const c = S.camp, v = c.viaggio, a = v.attivo, auto = M.eventiInfo(c);
+  const testa = `<div class="fila"><h3>Marcia</h3><span class="tenue piccolo">${v.oggi && v.oggi.giorno === M.scomponi(c).N ? `oggi ${M.formatoDurata(v.oggi.min * M.ROUND_MIN)} di marcia${v.oggi.forzata ? ' · marcia forzata' : ''}` : 'oggi nessuna marcia'}</span><span class="spazio"></span>
+    ${a ? '' : '<button class="btn min prim" data-az="marcia">Marcia…</button>'}<button class="btn min" data-az="locandaF">Locanda…</button></div>
+    <button class="btn min link-ev" data-az="scheda" data-s="eventi" id="avviso-ev">Eventi casuali: ${auto.length ? 'tiri automatici su ' + esc(auto.join(', ')) : 'nessun tiro automatico'}</button>`;
   if (!a) return `<div class="pannello" id="p-marcia">${testa}${v.ultima ? `<p class="tenue piccolo">Ultima marcia: ${String(v.ultima.km).replace('.', ',')} km in ${M.formatoDurata(v.ultima.min * M.ROUND_MIN)}.</p>` : ''}</div>`;
   const resta = a.resta_min !== null ? `restano ${M.formatoDurata(a.resta_min * M.ROUND_MIN)}` : `restano ${String(Math.round(a.resta_km * 10) / 10).replace('.', ',')} km`;
   const stato = `<p class="piccolo"><b>${String(Math.round(a.km * 10) / 10).replace('.', ',')} km</b> in ${M.formatoDurata(a.min * M.ROUND_MIN)} · ${resta}${a.ultimi && a.ultimi.length ? ` · ${esc(a.ultimi.join(', '))}` : ''}</p>`;
   const e = a.evento;
   let corpo = '';
-  if (a.sospesa) corpo = `<p class="piccolo">La marcia è ferma per l'incontro.</p><div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="riprendi">Riprendi la marcia (${resta.replace('restano ', '')})</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
+  if (a.sospesa) corpo = `<p class="piccolo">La marcia è ferma per l'evento.</p><div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="riprendi">Riprendi la marcia (${resta.replace('restano ', '')})</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
   else if (e && e.tipo === 'orientarsi') corpo = `<div class="effetto"><b>Orientarsi</b> Sopravvivenza CD ${e.cd}${e.motivi.length ? ` (${esc(e.motivi.join(', '))})` : ''}: una prova al giorno fuori dalle strade; la Bussola dà +3. Fallita: metà della strada; fallita di 5 o più: tutto il giorno nella direzione sbagliata.</div>
     <div class="fila"><label class="campo"><span>Risultato della prova</span><input type="number" id="m-or" inputmode="numeric"></label><button class="btn prim" data-az="marciaRisposta" data-r="orientarsi">Registra</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
   else if (e && e.tipo === 'forzata') corpo = `<div class="effetto"><b>Marcia forzata, ${e.ora}ª ora</b> prova di Costituzione CD ${e.cd} per ciascuno (fallita: ${PRONT.viaggi.forzata.danno_pg} danno a Costituzione e ci si ferma; cavalcature ${PRONT.viaggi.forzata.danno_cavalcatura} danni).</div>
     <div class="fila">${e.pg.map(p => `<label class="spunta"><input type="checkbox" data-fz="${p.id}"> ${esc(p.nome)} fallisce</label>`).join('')}${e.cavalcature.map(x => `<label class="spunta"><input type="checkbox" data-fzc="${x.id}"> ${esc(x.nome)} fallisce</label>`).join('')}</div>
     <div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="forzata">Registra e continua se tutti superano</button><button class="btn" data-az="marciaRisposta" data-r="forzataContinua">Continua lasciando indietro chi fallisce</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
+  else if (e && e.tipo === 'evento') { const q = c.coda.find(x => x.id === e.q);
+    corpo = q ? `<div class="effetto"><b>Evento casuale</b> ${esc(q.testo)}${q.ev.senza_terr ? ' <span class="chip sv">territorio non scelto</span>' : ''}</div><div class="fila">${bottoniEvento(q)}<button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`
+      : `<div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="riprendi">Riprendi la marcia</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`; }
   else if (e && e.tipo === 'incontro') corpo = `<div class="effetto"><b>Incontro casuale (${esc(e.area)})</b> ${esc(M.formatoData(c, e.R))} · ${esc(e.meteo.join(' + '))}<br>${testoP(e.testo)}</div>
     <div class="fila"><button class="btn prim" data-az="marciaRisposta" data-r="avvia">Avvia</button><button class="btn" data-az="marciaRisposta" data-r="ignora">Ignora</button><button class="btn" data-az="marciaRisposta" data-r="termina">Termina qui</button></div>`;
   return `<div class="pannello evidenza" id="p-marcia">${testa}${stato}${corpo}</div>`;
 }
 function finestraMarcia() {
-  const c = S.camp, V = PRONT.viaggi, pi = M.kmhPiedi(c), ci = c.impostazioni.incontri_casuali, sp = M.suoloProposto(c, MET), ult = S.ui.marcia || {};
+  const c = S.camp, V = PRONT.viaggi, pi = M.kmhPiedi(c), sp = M.suoloProposto(c, MET), ult = S.ui.marcia || {};
   const el = apri({ titolo: 'Marcia', larga: true, corpo: `<div class="griglia">
       <label class="campo"><span>Mezzo</span><select name="mz">${V.mezzi.map(m => `<option value="${m.id}" ${m.id === (ult.mezzo || 'piedi') ? 'selected' : ''}>${esc(m.nome)} (${m.id === 'piedi' ? pi.kmh : m.kmh} km/h)</option>`).join('')}<option value="libera" ${ult.mezzo === 'libera' ? 'selected' : ''}>Velocità libera…</option></select></label>
       <label class="campo"><span>km/h</span><input type="number" name="kmh" step="0.1" min="0.1" value="${ult.kmh || pi.kmh}"></label>
@@ -6077,61 +6759,15 @@ function finestraMarcia() {
       <label class="spunta"><input type="checkbox" name="ra"> Racchette da neve</label>
       <label class="campo"><span>Ore di marcia</span><input type="number" name="ore" step="0.5" min="0" value="8"></label>
       <label class="campo"><span>oppure km da percorrere</span><input type="number" name="km" step="0.1" min="0" placeholder="—"></label>
-      ${ci ? `<label class="campo"><span>Area degli incontri casuali</span><select name="ar"><option value="">nessuna</option>${c.aree.map(a => `<option value="${a.id}" ${a.id === c.viaggio.area ? 'selected' : ''}>${esc(a.nome)} (${a.perc}%)</option>`).join('')}</select></label>
-        <label class="spunta"><input type="checkbox" name="spc" ${c.viaggio.speciale ? 'checked' : ''}> Speciale (grotte, oasi e rovine…)</label>` : ''}</div>
+</div>
       <p class="tenue piccolo" id="mz-nota">A piedi: la velocità del più lento${pi.chi ? ` (${esc(pi.chi)}, ${pi.metri} m)` : ''}; 9 m = 4,8 km/h, in proporzione (1 miglio = 1,6 km). Ogni ora conta il meteo di quell'ora (tempeste ×¼). Dopo 8 ore di marcia nello stesso giorno: marcia forzata.</p>`,
     azioni: [{ testo: 'Annulla' }, { testo: 'Parti', classe: 'prim', fn: f => {
       const mz = val(f, 'mz').value, km = testo(f, 'km'), d = { mezzo: mz, kmh: Number(val(f, 'kmh').value), terreno: val(f, 'tr').value, suolo: val(f, 'su').value, fuori_strada: spunta(f, 'fs'), racchette: spunta(f, 'ra') };
       if (km) d.km = Number(km.replace(',', '.')); else d.ore = Number(testo(f, 'ore').replace(',', '.'));
-      if (val(f, 'ar')) { d.area = val(f, 'ar').value || null; d.speciale = spunta(f, 'spc'); }
       S.ui.marcia = { mezzo: mz, kmh: mz === 'libera' ? d.kmh : null, terreno: d.terreno, fuori_strada: d.fuori_strada };
       applica(M.avviaMarcia(S.camp, MET, rng, d)); S.ui.scheda = 'viaggio'; disegna(); const p = $('#p-marcia'); if (p) p.scrollIntoView({ block: 'start' }); } }] });
   const agg = () => { const m = val(el, 'mz').value; if (m !== 'libera') val(el, 'kmh').value = m === 'piedi' ? pi.kmh : V.mezzi.find(x => x.id === m).kmh; };
   el.addEventListener('change', ev => { if (ev.target.name === 'mz') agg(); });
-}
-// ---------- AC6 «Tira incontro» a mano e aree degli incontri casuali
-function finestraTiraIncontro() {
-  const c = S.camp;
-  apri({ titolo: 'Tira incontro', corpo: `<label class="campo"><span>Area</span><select name="ar">${c.aree.map(a => `<option value="${a.id}" ${a.id === c.viaggio.area ? 'selected' : ''}>${esc(a.nome)} (${a.perc}%${a.speciale ? `, ${esc(a.speciale.nome)} ${a.speciale.perc}%` : ''})</option>`).join('')}</select></label>
-      <label class="spunta"><input type="checkbox" name="sp"> Speciale</label><label class="spunta"><input type="checkbox" name="ri"> Notte al riparo (−${PRONT.incontri.riparo}%, Sopravvivenza CD 15)</label>
-      <p class="tenue piccolo">Se esce un incontro l'ora è il 2d12 della Guida: diventa un promemoria con la composizione e «Avvia» quando scatta.</p>`,
-    azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => { const r = M.tiraIncontro(S.camp, rng, { area: val(f, 'ar').value, speciale: spunta(f, 'sp'), riparo: spunta(f, 'ri') }); applica(r.camp);
-      avviso(r.esce ? `d% ${r.tiro} su ${r.perc}%: incontro alle ${String(r.ora % 24).padStart(2, '0')}:00 — ${r.testo}` : `d% ${r.tiro} su ${r.perc}%: nessun incontro`); } }] });
-}
-function finestraAree() {
-  const c = S.camp;
-  const el = apri({ titolo: 'Incontri casuali: aree e tabelle', larga: true, corpo: `<p class="tenue piccolo">Probabilità ogni 6 ore di marcia (Guida del DM), modificabili; tabella d% della campagna: mostri o PNG del bestiario con la quantità in dadi, oppure un evento scritto.</p>
-      <div id="aree-el">${c.aree.map(a => `<div class="membro"><div class="fila"><b>${esc(a.nome)}</b><span class="tenue piccolo">${a.perc}%${a.speciale ? ` · ${esc(a.speciale.nome)} ${a.speciale.perc}%` : ''} · ${a.righe.length} righe${M.controllaRighe(a.righe).length ? ` · <span class="cond-t">${esc(M.controllaRighe(a.righe).join('; '))}</span>` : ''}</span><span class="spazio"></span>
-        <button type="button" class="btn min" data-ar="mod" data-id="${a.id}">Modifica</button><button type="button" class="btn min peric" data-ar="del" data-id="${a.id}" aria-label="Elimina">✕</button></div></div>`).join('')}</div>`,
-    azioni: [{ testo: 'Chiudi' }, { testo: '+ Area', classe: 'prim', fn: () => { finestraArea(null); } }] });
-  el.addEventListener('click', ev => { const b = ev.target.closest('[data-ar]'); if (!b) return; chiudi(Fin.pila.at(-1).id);
-    if (b.dataset.ar === 'mod') finestraArea(b.dataset.id); else conferma('Elimina area', 'Eliminare l\'area e la sua tabella?', () => { applica(M.eliminaArea(S.camp, b.dataset.id)); finestraAree(); }, 'Elimina', 'peric'); });
-}
-function rigaAreaHtml(r, i) {
-  const p = r.partecipanti || [];
-  return `<div class="riga-ar" data-i="${i}"><div class="fila"><input type="number" class="corto" data-k="da" value="${r.da ?? ''}" min="1" max="100" aria-label="da"> – <input type="number" class="corto" data-k="a" value="${r.a ?? ''}" min="1" max="100" aria-label="a">
-    <input type="text" data-k="dadi" value="${esc(p[0] ? p[0].dadi : '1')}" class="corto" aria-label="quantità (dadi)"><select data-k="sch">${opzSchede(p[0] && p[0].rif ? rifStr(p[0].rif) : '')}</select>
-    <input type="text" data-k="nome" value="${esc(p[0] ? p[0].nome : '')}" placeholder="nome (o dalla scheda)"><input type="text" data-k="testo" value="${esc(r.testo || '')}" placeholder="evento o nota"><button type="button" class="btn min peric" data-togli="${i}" aria-label="Togli la riga">✕</button></div></div>`;
-}
-function finestraArea(id) {
-  const c = S.camp, a0 = id ? c.aree.find(x => x.id === id) : { nome: '', perc: 10, speciale: null, righe: [] };
-  let righe = M.clona(a0.righe);
-  const el = apri({ titolo: id ? `Area: ${esc(a0.nome)}` : 'Nuova area', larga: true, corpo: `<div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" value="${esc(a0.nome)}"></label>
-      <label class="campo"><span>Probabilità (%)</span><input type="number" name="p" min="0" max="100" value="${a0.perc}"></label>
-      <label class="campo"><span>Speciale (facoltativo)</span><input type="text" name="sn" value="${esc(a0.speciale ? a0.speciale.nome : '')}" placeholder="es. nelle grotte"></label>
-      <label class="campo"><span>Probabilità speciale (%)</span><input type="number" name="sp" min="0" max="100" value="${a0.speciale ? a0.speciale.perc : ''}"></label></div>
-      <h4 class="sotto">Tabella d% (da – a · quantità · scheda · nome · evento)</h4><div id="ar-righe">${righe.map(rigaAreaHtml).join('')}</div><p class="piccolo" id="ar-msg"></p>
-      <div class="fila"><button type="button" class="btn min" data-agg-riga="1">+ Riga</button>${c.aree.filter(x => x.id !== id && x.righe.length).length ? `<select name="cp"><option value="">Copia la tabella da…</option>${c.aree.filter(x => x.id !== id && x.righe.length).map(x => `<option value="${x.id}">${esc(x.nome)}</option>`).join('')}</select>` : ''}</div>`,
-    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => { const sn = testo(f, 'sn');
-      applica(M.salvaArea(S.camp, { id: id || undefined, nome: testo(f, 'n'), perc: intero(f, 'p'), speciale: sn ? { nome: sn, perc: intero(f, 'sp') } : null, righe: leggiRighe() })); finestraAree(); } }] });
-  const leggiRighe = () => [...el.querySelectorAll('.riga-ar')].map(x => { const g = k => x.querySelector(`[data-k="${k}"]`), s = g('sch').value, r = s ? rifDa(s) : null, sc = r ? schedaDi(r) : null;
-    const nome = g('nome').value.trim() || (sc ? sc.nome : '');
-    return { da: Number(g('da').value), a: Number(g('a').value), testo: g('testo').value, partecipanti: nome ? [{ nome, dadi: g('dadi').value || '1', rif: r }] : [] }; });
-  const msg = () => { el.querySelector('#ar-msg').innerHTML = esc(M.controllaRighe(leggiRighe().filter(r => r.da && r.a)).join('; ')); };
-  el.addEventListener('click', ev => { if (ev.target.closest('[data-agg-riga]')) { righe = leggiRighe(); const u = righe.at(-1); righe.push({ da: u ? Math.min(100, u.a + 1) : 1, a: 100, partecipanti: [], testo: '' }); el.querySelector('#ar-righe').innerHTML = righe.map(rigaAreaHtml).join(''); msg(); }
-    const t = ev.target.closest('[data-togli]'); if (t) { righe = leggiRighe(); righe.splice(+t.dataset.togli, 1); el.querySelector('#ar-righe').innerHTML = righe.map(rigaAreaHtml).join(''); msg(); } });
-  el.addEventListener('change', ev => { if (ev.target.name === 'cp' && ev.target.value) { righe = M.clona(S.camp.aree.find(x => x.id === ev.target.value).righe); el.querySelector('#ar-righe').innerHTML = righe.map(rigaAreaHtml).join(''); } msg(); });
-  msg();
 }
 // avvio del combattimento con la composizione dell'incontro casuale (come N2)
 function avviaComposizione(comp, titolo) {
@@ -6234,7 +6870,7 @@ function finestraRiposo(stanze, preScelti) {
       const ids = c.pg.filter(p => spunta(f, 'r_' + p.id)).map(p => p.id), opz = { totale: f.querySelector('[name="dur"]:checked').value === '24' };
       if (spunta(f, 'asOn')) { const esiti = {}; for (const i of f.querySelectorAll('[data-paz]')) if (i.value.trim() !== '') esiti[i.dataset.paz] = Number(i.value); opz.assistenza = { chi: val(f, 'asChi').value, esiti }; }
       if (stanze && Object.keys(stanze).length) opz.stanze = Object.fromEntries(Object.entries(stanze).filter(([k]) => ids.includes(k)));
-      applica(M.riposo(S.camp, MET, rng, ids, opz)); } }] });
+      const rc = M.riposo(S.camp, MET, rng, ids, opz); applica(rc); if (rc.riposo_sospeso) avviso('Il riposo si è fermato per un evento: rispondi all\'avviso, poi riprendi o interrompi il riposo'); } }] });
   const paz = () => { const chi = val(el, 'asChi').value, n = c.pg.filter(p => p.id !== chi).length;
     el.querySelector('#as-paz').innerHTML = `<div class="griglia stretta">${c.pg.filter(p => p.id !== chi).map(p => `<label class="campo"><span>${esc(p.scheda.nome)}: risultato</span><input type="number" data-paz="${p.id}" placeholder="non assistito"></label>`).join('')}</div>`; };
   el.addEventListener('change', ev => { if (ev.target.name === 'asChi') paz(); }); paz();
@@ -6288,8 +6924,6 @@ Object.assign(AZ, {
     const ev = a && a.evento; applica(M.rispondiMarcia(c, MET, rng, r));
     if (k === 'avvia' && ev) avviaComposizione(ev, `Incontro casuale (${ev.area})`);
   },
-  tiraIncontro() { finestraTiraIncontro(); },
-  aree() { finestraAree(); },
   cadere() { finestraCadere(); }, apnea() { finestraApnea(); }, fumo() { finestraPericolo('fumo'); }, quota() { finestraPericolo('quota'); },
   riparare() { finestraRiparare(); }, locandaF() { finestraLocanda(); }, mistura() { finestraMistura(); },
   vediCompagnia() { S.ui.scheda = 'viaggio'; disegna(); const z = $('#p-compagnia'); if (z) z.scrollIntoView({ block: 'start' }); },
@@ -6303,6 +6937,318 @@ Object.assign(CAMBI, {
   prontZona(el) { S.ui.pront.zona = el.value; disegna(); },
   bestCamp(el) { S.ui.bestCamp = el.value; S.ui.vista = null; disegna(); },
 });
+
+// ================================================================ AG4 scheda «Eventi» (Build 5c)
+const TIPI_EV = M.TIPI_EVENTO, iconaEv = t => M.iconaTipo(t) || '·';
+function tabEvSel() { const T = S.camp.eventi.tabelle; return T.find(t => t.id === S.ui.tabEv) || T[0] || null; }
+function schedaEvDi(id) { return S.camp.eventi.schede.find(s => s.id === id) || null; }
+function destVoce(c, v) {
+  if (v.porta.tipo === 'evento') { const s = schedaEvDi(v.porta.id); return s ? `📄 ${M.titoloEvento(s)}` : '📄 scheda non trovata'; }
+  if (v.porta.tipo === 'incontro') { const i = c.incontri.find(x => x.id === v.porta.id); return i ? `⚔ incontro: ${i.titolo}` : '⚔ incontro non trovato'; }
+  if (v.porta.tipo === 'creature') return v.porta.creature.map(p => `${p.dadi !== '1' ? p.dadi + ' ' : ''}${p.nome}`).join(', ');
+  return '';
+}
+function disegnaEventi() {
+  const c = S.camp, E = c.eventi, t = tabEvSel();
+  const testa = `<div class="pannello" id="p-eventi"><div class="fila"><h3>Eventi</h3><span class="tenue piccolo">${E.tabelle.length} ${E.tabelle.length === 1 ? 'tabella' : 'tabelle'}</span><span class="spazio"></span>
+      <button class="btn min oro" data-az="importaEv">Importa eventi</button><button class="btn min prim" data-az="nuovaTabEv">+ Tabella</button></div>
+    ${E.tabelle.length > 1 ? `<label class="campo"><span>Tabella</span><select data-az-cambio="tabEv">${E.tabelle.map(x => `<option value="${x.id}" ${t && x.id === t.id ? 'selected' : ''}>${esc(x.nome)}${x.auto ? ' ⟳' : ''}</option>`).join('')}</select></label>` : ''}
+    ${t ? disegnaTabEv(t) : '<div class="vuoto">Nessuna tabella degli eventi. «+ Tabella» per scriverne una (anche dalle aree della Guida), «Importa eventi» per leggerla da un documento d\'avventura (.docx) o da un file .json.</div>'}</div>`;
+  const nostre = t ? E.schede.filter(s => s.tabella === t.id || t.voci.some(v => v.porta.tipo === 'evento' && v.porta.id === s.id)) : [];
+  const usate = new Set(E.tabelle.flatMap(x => x.voci.filter(v => v.porta.tipo === 'evento').map(v => v.porta.id)));
+  const sciolte = E.schede.filter(s => !usate.has(s.id) && !nostre.includes(s));
+  const riga = s => `<li class="voce"><button class="voce-corpo" data-az="apriEvento" data-id="${s.id}"><span class="voce-nome">${iconaEv(s.tipo)} ${esc(M.titoloEvento(s))}</span>
+      <span class="tenue piccolo">${esc([s.difficolta ? 'Difficoltà: ' + s.difficolta : '', s.terreno, s.profili.length ? s.profili.map(p => p.nome).join(', ') : ''].filter(Boolean).join(' · '))}</span></button>
+      <span class="chips">${s.stato === 'giocato' ? '<span class="chip ok">giocato</span>' : ''}</span></li>`;
+  const schede = `<div class="pannello"><div class="fila"><h3>Schede evento</h3><span class="spazio"></span><button class="btn min" data-az="nuovoEvento">+ Scheda evento</button></div>
+    ${nostre.length ? `<ul class="voci">${nostre.map(riga).join('')}</ul>` : t ? '<p class="tenue piccolo">Nessuna scheda evento in questa tabella.</p>' : ''}
+    ${sciolte.length ? `<h4 class="sotto">Sciolte (non usate da nessuna voce)</h4><ul class="voci">${sciolte.map(riga).join('')}</ul>` : ''}
+    ${!nostre.length && !sciolte.length && !t ? '<p class="tenue piccolo">Una scheda evento raccoglie descrizione, Nota GM con le prove, profili dei PNG e ricompense (Schema §17).</p>' : ''}</div>`;
+  return testa + schede;
+}
+function disegnaTabEv(t) {
+  const c = S.camp, err = M.controllaVoci(t.voci, t.dado);
+  const voce = v => { const u = t.uscite.includes(v.id), dest = destVoce(c, v);
+    return `<li class="voce${u ? ' uscita' : ''}"><button class="voce-corpo" data-az="apriVoce" data-v="${v.id}"><span class="voce-nome"><b class="num">${esc(M.intervalloVoce(v, t.dado))}</b> ${iconaEv(v.tipo)} ${esc(M.nomeVoce(c, v))}${u ? ' ✓' : ''}</span>
+      <span class="tenue piccolo">${esc([v.difficolta, v.dove, v.territori.length ? v.territori.join(', ') : '', v.ripetibile && t.no_ripetere ? 'si può ripetere' : '', dest && !dest.includes(M.nomeVoce(c, v)) ? dest : '', v.testo && v.titolo ? v.testo : ''].filter(Boolean).join(' · '))}</span></button></li>`; };
+  return `<div class="tab-ev"><div class="fila"><b>${esc(t.nome)}</b><span class="chip">${M.nomeDado(t.dado)}</span><span class="spazio"></span>
+      <button class="btn min" data-az="modTabEv" data-id="${t.id}">Modifica</button><button class="btn min" data-az="esportaEv" data-id="${t.id}">Esporta</button><button class="btn min peric" data-az="eliminaTabEv" data-id="${t.id}" aria-label="Elimina la tabella">✕</button></div>
+    <div class="piccolo">${t.quando.length ? t.quando.map(q => `<span class="chip promem">${esc(M.testoQuando(q))}</span>`).join(' ') : '<span class="tenue">Solo a mano.</span>'}${t.no_ripetere ? ' <span class="chip">una voce uscita non si ripete</span>' : ''}</div>
+    <div class="fila">${t.quando.length ? `<label class="spunta"><input type="checkbox" data-az-cambio="autoEv" data-id="${t.id}" ${t.auto ? 'checked' : ''}> Tiri automatici</label>` : ''}
+      ${t.territori.length ? `<label class="campo" style="width:auto"><span>I PG sono in</span><select data-az-cambio="terrEv" data-id="${t.id}"><option value="">— non scelto —</option>${t.territori.map(x => `<option ${x === t.territorio ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>` : ''}
+      <span class="spazio"></span><button class="btn prim" data-az="tiraEv" data-id="${t.id}">Tira</button><button class="btn min" data-az="azzeraEv" data-id="${t.id}" ${t.uscite.length ? '' : 'disabled'}>Azzera le uscite${t.uscite.length ? ` (${t.uscite.length})` : ''}</button></div>
+    ${err.length ? `<p class="piccolo cond-t">${esc(err.join('; '))}</p>` : ''}
+    ${t.note ? `<details class="cartella"><summary>Note della tabella</summary><div class="note-inc piccolo">${mdLite(t.note)}</div></details>` : ''}
+    ${t.voci.length ? `<ul class="voci">${t.voci.map(voce).join('')}</ul>` : '<p class="tenue piccolo">Nessuna voce: «Modifica» per scriverle (senza voci il tiro dice «scegli tu»).</p>'}</div>`;
+}
+// ---- scheda evento (Schema §17)
+function htmlProfilo(p) {
+  const gr = M.GRUPPI_PROFILO.map(([tit, ks]) => { const r = ks.filter(k => String(p[k] || '').trim()); if (!r.length) return '';
+    return `${tit ? `<div class="sotto-prof">${esc(tit)}</div>` : ''}${r.map(k => k === 'altro' ? `<div class="note-inc piccolo">${mdLite(p[k])}</div>` : `<div class="piccolo"><b>${esc(M.CAMPI_PROFILO.find(x => x[0] === k)[1])}:</b> ${esc(p[k])}</div>`).join('')}`; }).join('');
+  return `<div class="profilo"><div><b>${esc(p.nome)}</b>${p.titolo ? ` — <i>${esc(p.titolo)}</i>` : ''}</div>${gr}</div>`;
+}
+function htmlRicompenseEv(s) {
+  const r = s.ricompense || M.ricompenseVuote(), righe = [];
+  if (r.xp_extra.length) righe.push(`<p class="piccolo"><b>XP:</b> ${r.xp_extra.map(x => `<span class="num">${migl(x.xp)}</span>${x.motivo ? ' ' + esc(x.motivo) : ''}`).join(' · ')}${r.xp_extra.length > 1 ? ` = <b class="num">${migl(M.xpExtra(s))}</b>` : ''}</p>`);
+  if (r.tesoro) righe.push(`<div class="piccolo">💰 <b>Tesoro</b> — ${esc(M.testoTesoro(r.tesoro) || 'da generare')}</div><p class="tenue piccolo">Il tesoro si genera con l'app dei Tesori.</p>`);
+  if (r.testo) righe.push(`<div class="note-inc piccolo">${mdLite(r.testo)}</div>`);
+  return righe.length ? `<h4 class="sotto">💰 Ricompense</h4>${righe.join('')}` : '';
+}
+function htmlEvento(s) {
+  const tipo = TIPI_EV.find(x => x.id === s.tipo);
+  return `<div class="piccolo">${esc([tipo ? `${tipo.icona} ${tipo.nome}` : '', s.difficolta ? 'Difficoltà: ' + s.difficolta : '', s.terreno ? 'Terreno: ' + s.terreno : ''].filter(Boolean).join(' · '))}${s.stato === 'giocato' ? ' <span class="chip ok">giocato</span>' : ''}</div>
+    ${s.descrizione ? `<details class="descr descr-inc"${leggiPref('descrIncAperta') !== '0' ? ' open' : ''}><summary>📖 Descrizione</summary><div class="note-inc">${mdLite(s.descrizione)}</div></details>` : ''}
+    ${s.nota_gm ? `<h4 class="sotto">Nota GM</h4><div class="note-inc">${mdLite(s.nota_gm)}</div>` : ''}
+    ${s.indizi ? `<h4 class="sotto">🔍 Indizi e informazioni</h4><div class="note-inc">${mdLite(s.indizi)}</div>` : ''}
+    ${s.profili.length ? `<h4 class="sotto">Profilo PNG</h4>${s.profili.map(htmlProfilo).join('')}` : ''}
+    ${htmlRicompenseEv(s)}
+    ${s.altro.map(a => `<h4 class="sotto">${esc(a.titolo || 'Altro')}</h4><div class="note-inc">${mdLite(a.testo)}</div>`).join('')}`;
+}
+function finestraEvento(id) {
+  const s = schedaEvDi(id); if (!s) return avviso('Scheda evento non trovata', true);
+  apri({ titolo: esc(M.titoloEvento(s)), larga: true, corpo: htmlEvento(s), azioni: [{ testo: 'Chiudi' },
+    { testo: 'Elimina', classe: 'peric', fn: () => { conferma('Elimina la scheda evento', `Eliminare <b>${esc(M.titoloEvento(s))}</b>? Le voci che la usano restano col titolo come testo.`, () => { applica(M.eliminaSchedaEvento(S.camp, id)); avviso('Scheda evento eliminata'); }, 'Elimina', 'peric'); } },
+    { testo: s.stato === 'giocato' ? 'Da giocare' : 'Giocato', fn: () => { applica(M.segnaEventoGiocato(S.camp, id, s.stato !== 'giocato')); } },
+    { testo: 'Modifica', classe: 'prim', fn: () => { finestraModEvento(id); } }] });
+}
+const areaT = (n, v, r = 4, ph = '') => `<textarea name="${n}" rows="${r}" placeholder="${esc(ph)}">${esc(v || '')}</textarea>`;
+function campiProfilo(p, i) {
+  return `<details class="cartella prof-ed" data-prof="${i}" ${p.nome ? '' : 'open'}><summary>${esc(p.nome || 'Nuovo profilo')}</summary><div class="griglia">${M.CAMPI_PROFILO.map(([k, et]) =>
+    `<label class="campo${['aspetto', 'voce', 'informazioni', 'altro'].includes(k) ? ' largo' : ''}"><span>${esc(et)}</span>${['aspetto', 'voce', 'informazioni', 'altro', 'razza'].includes(k) ? `<textarea data-pk="${k}" rows="2">${esc(p[k] || '')}</textarea>` : `<input type="text" data-pk="${k}" value="${esc(p[k] || '')}">`}</label>`).join('')}</div>
+    <button type="button" class="btn min peric" data-togli-prof="${i}">Togli il profilo</button></details>`;
+}
+function finestraModEvento(id, dopo) {
+  const s0 = id ? M.clona(schedaEvDi(id)) : M.schedaEventoVuota(); let prof = s0.profili.map(p => ({ ...M.profiloVuoto(), ...p })), altro = M.clona(s0.altro), xpx = M.clona(s0.ricompense.xp_extra);
+  const tz = s0.ricompense.tesoro;
+  const rigaXp = (x, i) => `<div class="fila" data-xp="${i}"><input type="number" class="corto" data-k="xp" value="${x.xp ?? ''}" min="0" aria-label="XP"><input type="text" data-k="mot" value="${esc(x.motivo || '')}" placeholder="motivo"><button type="button" class="btn min peric" data-togli-xp="${i}" aria-label="Togli">✕</button></div>`;
+  const rigaAltro = (a, i) => `<div class="membro" data-alt="${i}"><input type="text" data-k="tit" value="${esc(a.titolo)}" placeholder="titolo"><textarea data-k="tes" rows="3">${esc(a.testo)}</textarea><button type="button" class="btn min peric" data-togli-alt="${i}">Togli</button></div>`;
+  const el = apri({ titolo: id ? 'Modifica la scheda evento' : 'Nuova scheda evento', larga: true, corpo: `<div class="griglia">
+      <label class="campo"><span>Numero</span><input type="text" name="num" value="${esc(s0.numero)}" placeholder="es. EI 3"></label><label class="campo"><span>Titolo</span><input type="text" name="tit" value="${esc(s0.titolo)}"></label>
+      <label class="campo"><span>Tipo</span><select name="tipo"><option value="">—</option>${TIPI_EV.map(x => `<option value="${x.id}" ${x.id === s0.tipo ? 'selected' : ''}>${x.icona} ${x.nome}</option>`).join('')}</select></label>
+      <label class="campo"><span>Difficoltà</span><input type="text" name="diff" value="${esc(s0.difficolta)}"></label><label class="campo largo"><span>Terreno o Dove</span><input type="text" name="terr" value="${esc(s0.terreno)}"></label></div>
+      <label class="campo"><span>📖 Descrizione (da leggere)</span>${areaT('descr', s0.descrizione, 5)}</label>
+      <label class="campo"><span>Nota GM (tabelle delle prove come righe «| Prova | CD | Esito |»; grassetto con **…**, elenchi con «- »)</span>${areaT('gm', s0.nota_gm, 8)}</label>
+      <label class="campo"><span>🔍 Indizi e informazioni</span>${areaT('ind', s0.indizi, 3)}</label>
+      <h4 class="sotto">Profilo PNG</h4><div id="ev-prof">${prof.map(campiProfilo).join('')}</div><button type="button" class="btn min" data-agg-prof="1">+ Profilo</button>
+      <h4 class="sotto">💰 Ricompense</h4><div id="ev-xp">${xpx.map(rigaXp).join('')}</div><button type="button" class="btn min" data-agg-xp="1">+ XP</button>
+      <fieldset><legend><label class="spunta"><input type="checkbox" name="tzOn" ${tz ? 'checked' : ''}> 💰 Tesoro da generare</label></legend><div class="griglia">
+        <label class="campo"><span>Livello di riferimento</span><input type="text" name="tzL" value="${esc(tz ? tz.livello : '')}"></label><label class="campo"><span>Quantità</span><input type="text" name="tzQ" value="${esc(tz ? tz.quantita : '')}"></label>
+        <label class="campo"><span>Dove / chi lo porta</span><input type="text" name="tzD" value="${esc(tz ? tz.dove : '')}"></label><label class="campo"><span>Note</span><input type="text" name="tzN" value="${esc(tz ? tz.note : '')}"></label></div></fieldset>
+      <label class="campo"><span>Oggetti di trama 🗝️, informazioni, altro</span>${areaT('rt', s0.ricompense.testo, 3)}</label>
+      <h4 class="sotto">Altro</h4><div id="ev-alt">${altro.map(rigaAltro).join('')}</div><button type="button" class="btn min" data-agg-alt="1">+ Sezione</button>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => {
+      leggi(); const tesoro = spunta(f, 'tzOn') ? { livello: testo(f, 'tzL'), quantita: testo(f, 'tzQ'), dove: testo(f, 'tzD'), note: testo(f, 'tzN') } : null;
+      const s = { ...s0, numero: testo(f, 'num'), titolo: testo(f, 'tit'), tipo: val(f, 'tipo').value, difficolta: testo(f, 'diff'), terreno: testo(f, 'terr'), descrizione: val(f, 'descr').value.trim(), nota_gm: val(f, 'gm').value.trim(), indizi: val(f, 'ind').value.trim(),
+        profili: prof, altro, ricompense: { xp_extra: xpx.filter(x => x.xp !== '' && x.xp !== null && !Number.isNaN(x.xp)), tesoro, testo: val(f, 'rt').value.trim() } };
+      const c = M.salvaSchedaEvento(S.camp, s); const nid = id || c.eventi.schede.at(-1).id; applica(c); avviso(id ? 'Scheda evento salvata' : 'Scheda evento creata'); if (dopo) dopo(nid); } }] });
+  const $e = q => el.querySelector(q);
+  const leggi = () => {
+    prof = [...el.querySelectorAll('[data-prof]')].map(d => { const p = M.profiloVuoto(); for (const i of d.querySelectorAll('[data-pk]')) p[i.dataset.pk] = i.value.trim(); return p; });
+    xpx = [...el.querySelectorAll('[data-xp]')].map(d => ({ xp: d.querySelector('[data-k="xp"]').value === '' ? null : Number(d.querySelector('[data-k="xp"]').value), motivo: d.querySelector('[data-k="mot"]').value.trim() }));
+    altro = [...el.querySelectorAll('[data-alt]')].map(d => ({ titolo: d.querySelector('[data-k="tit"]').value.trim(), testo: d.querySelector('[data-k="tes"]').value.trim() }));
+  };
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-agg-prof],[data-togli-prof],[data-agg-xp],[data-togli-xp],[data-agg-alt],[data-togli-alt]'); if (!b) return; leggi();
+    if (b.dataset.aggProf) prof.push(M.profiloVuoto()); if (b.dataset.togliProf !== undefined) prof.splice(+b.dataset.togliProf, 1);
+    if (b.dataset.aggXp) xpx.push({ xp: null, motivo: '' }); if (b.dataset.togliXp !== undefined) xpx.splice(+b.dataset.togliXp, 1);
+    if (b.dataset.aggAlt) altro.push({ titolo: '', testo: '' }); if (b.dataset.togliAlt !== undefined) altro.splice(+b.dataset.togliAlt, 1);
+    $e('#ev-prof').innerHTML = prof.map(campiProfilo).join(''); $e('#ev-xp').innerHTML = xpx.map(rigaXp).join(''); $e('#ev-alt').innerHTML = altro.map(rigaAltro).join(''); });
+}
+// ---- editor della tabella (Z8-1, Z8-2, Z8-7)
+function rigaQuando(q, i) {
+  const perc = q.perc !== null && q.perc !== undefined;
+  return `<div class="riga-q fila" data-q="${i}"><select data-k="tipo">${[['marcia', 'Marcia'], ['tempo', 'Tempo (anche da fermi)'], ['riposo', 'A ogni riposo']].map(([v, t]) => `<option value="${v}" ${v === q.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select>
+    <span class="q-ogni"${q.tipo === 'riposo' ? ' hidden' : ''}>ogni <input type="number" class="corto" data-k="ogni" min="1" step="1" value="${q.ogni ?? 6}" aria-label="ogni"><select data-k="unita"><option value="ore" ${q.unita !== 'giorni' ? 'selected' : ''}>ore</option><option value="giorni" ${q.unita === 'giorni' ? 'selected' : ''}>giorni</option></select></span>
+    <select data-k="modo"><option value="perc" ${perc ? 'selected' : ''}>%</option><option value="dado" ${perc ? '' : 'selected'}>dado</option></select>
+    <input type="number" class="corto" data-k="perc" min="0" max="100" value="${perc ? q.perc : 10}" aria-label="percentuale"${perc ? '' : ' hidden'}>
+    <input type="text" class="corto" data-k="dado" value="${esc(perc ? '1d6' : q.dado || '1d6')}" aria-label="dado"${perc ? ' hidden' : ''}><input type="text" class="corto" data-k="valori" value="${esc(perc ? '6' : String(q.valori || '').replace(/-/g, '–'))}" placeholder="4–6" aria-label="valori che fanno uscire l'evento"${perc ? ' hidden' : ''}>
+    <button type="button" class="btn min peric" data-togli-q="${i}" aria-label="Togli">✕</button></div>`;
+}
+function leggiQuando(el) { return [...el.querySelectorAll('.riga-q')].map(d => { const g = k => d.querySelector(`[data-k="${k}"]`), tipo = g('tipo').value, perc = g('modo').value === 'perc';
+  return { tipo, ogni: tipo === 'riposo' ? null : Number(g('ogni').value), unita: tipo === 'riposo' ? null : g('unita').value, perc: perc ? Number(g('perc').value) : null, dado: perc ? null : g('dado').value.trim(), valori: perc ? null : g('valori').value.trim().replace(/[–—]/g, '-') }; }); }
+function cambiQuando(el) { el.addEventListener('change', ev => { const d = ev.target.closest('.riga-q'); if (!d) return; const g = k => d.querySelector(`[data-k="${k}"]`);
+  d.querySelector('.q-ogni').hidden = g('tipo').value === 'riposo'; const perc = g('modo').value === 'perc'; g('perc').hidden = !perc; g('dado').hidden = perc; g('valori').hidden = perc; }); }
+function testoCreature(v) { return v.porta.tipo === 'creature' ? v.porta.creature.map(p => `${p.dadi} ${p.nome}`).join(', ') : ''; }
+function rigaVoceEd(v, i, ctx) {
+  const p = v.porta.tipo;
+  return `<div class="membro riga-v" data-v="${i}"><div class="fila"><input type="number" class="corto" data-k="da" value="${v.da ?? ''}" min="1" aria-label="da"> – <input type="number" class="corto" data-k="a" value="${v.a ?? ''}" min="1" aria-label="a">
+      <select data-k="tipo" aria-label="tipo"><option value="">—</option>${TIPI_EV.map(x => `<option value="${x.id}" ${x.id === v.tipo ? 'selected' : ''}>${x.icona} ${x.nome}</option>`).join('')}</select>
+      <input type="text" data-k="titolo" value="${esc(v.titolo)}" placeholder="titolo (o da ciò a cui porta)" style="flex:1"><button type="button" class="btn min peric" data-togli-v="${i}" aria-label="Togli la voce">✕</button></div>
+    <div class="fila"><select data-k="porta">${[['testo', 'Solo testo'], ['evento', 'Scheda evento'], ['incontro', 'Incontro'], ['creature', 'Creature']].map(([k, t]) => `<option value="${k}" ${k === p ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <select data-k="ev"${p === 'evento' ? '' : ' hidden'}><option value="">— scegli —</option>${ctx.schede.map(s => `<option value="${s.id}" ${p === 'evento' && v.porta.id === s.id ? 'selected' : ''}>${esc(M.titoloEvento(s))}</option>`).join('')}</select>
+      <select data-k="inc"${p === 'incontro' ? '' : ' hidden'}><option value="">— scegli —</option>${ctx.incontri.map(x => `<option value="${x.id}" ${p === 'incontro' && v.porta.id === x.id ? 'selected' : ''}>${esc(x.titolo)}</option>`).join('')}</select>
+      <input type="text" data-k="cre" value="${esc(testoCreature(v))}" placeholder="2d4 Lupo, 1 Capobranco"${p === 'creature' ? '' : ' hidden'} style="flex:1"></div>
+    <div class="griglia"><label class="campo"><span>Difficoltà</span><input type="text" data-k="diff" value="${esc(v.difficolta)}"></label><label class="campo"><span>Dove</span><input type="text" data-k="dove" value="${esc(v.dove)}"></label>
+      <label class="campo"><span>Territori (vuoto = Ovunque)</span><input type="text" data-k="terr" value="${esc(v.territori.join(', '))}" placeholder="dall'elenco della tabella"></label>
+      <label class="campo"><span>Note (Chi lo risolve…)</span><input type="text" data-k="note" value="${esc(v.note)}"></label></div>
+    <div class="fila"><input type="text" data-k="testo" value="${esc(v.testo)}" placeholder="testo della voce" style="flex:1"><label class="spunta piccolo"><input type="checkbox" data-k="rip" ${v.ripetibile ? 'checked' : ''}> si può ripetere</label></div></div>`;
+}
+function leggiCreature(t) { return String(t || '').split(/\s*[,;]\s*/).filter(Boolean).map(pz => { const m = pz.match(/^(\d*d\d+(?:[+-]\d+)?|\d+)\s+(.+)$/i); const dadi = m ? m[1] : '1', nome = (m ? m[2] : pz).trim(), tr = trovaPerNome(nome);
+  return { nome: tr ? tr.scheda.nome : nome, dadi, rif: tr ? tr.rif : null }; }); }
+function finestraTabella(id) {
+  const c = S.camp, t0 = id ? M.clona(c.eventi.tabelle.find(x => x.id === id)) : { ...M.tabellaVuota(), dado: 20 }; let voci = t0.voci, quando = t0.quando;
+  const ctx = { schede: c.eventi.schede, incontri: c.incontri };
+  const el = apri({ titolo: id ? `Tabella: ${esc(t0.nome)}` : 'Nuova tabella degli eventi', larga: true, corpo: `<div class="griglia"><label class="campo"><span>Nome</span><input type="text" name="n" value="${esc(t0.nome)}"></label>
+      <label class="campo"><span>Dado</span><select name="d">${M.DADI_EVENTI.map(f => `<option value="${f}" ${f === t0.dado ? 'selected' : ''}>${M.nomeDado(f)}</option>`).join('')}</select></label>
+      <label class="campo largo"><span>Territori (facoltativi, separati da virgole)</span><input type="text" name="terr" value="${esc(t0.territori.join(', '))}" placeholder="es. Boschi, Palude, Alture"></label></div>
+      <label class="spunta"><input type="checkbox" name="nr" ${t0.no_ripetere ? 'checked' : ''}> Una voce uscita non si ripete (eccezione: «si può ripetere» sulla voce)</label>
+      <h4 class="sotto">Quando</h4><div id="tb-q">${quando.map(rigaQuando).join('')}</div><button type="button" class="btn min" data-agg-q="1">+ Quando</button><span class="tenue piccolo"> Senza righe: solo a mano.</span>
+      <h4 class="sotto">Voci</h4><div id="tb-v">${voci.map((v, i) => rigaVoceEd(v, i, ctx)).join('')}</div><p class="piccolo cond-t" id="tb-msg"></p><button type="button" class="btn min" data-agg-v="1">+ Voce</button>
+      <label class="campo"><span>Note della tabella (come si tira, stagione, avvertenze)</span>${areaT('note', t0.note, 4)}</label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => { leggi();
+      const terr = testo(f, 'terr').split(/\s*,\s*/).filter(Boolean);
+      for (const v of voci) { const bad = v.territori.filter(x => !terr.includes(x)); if (bad.length) throw new Error(`voce ${v.da}-${v.a}: territorio non in elenco (${bad.join(', ')})`); }
+      const c2 = M.salvaTabella(S.camp, { ...t0, id: id || undefined, nome: testo(f, 'n'), dado: Number(val(f, 'd').value), territori: terr, no_ripetere: spunta(f, 'nr'), quando, voci, note: val(f, 'note').value });
+      S.ui.tabEv = id || c2.eventi.tabelle.at(-1).id; applica(c2); avviso('Tabella salvata'); } }] });
+  const leggi = () => {
+    quando = leggiQuando(el);
+    voci = [...el.querySelectorAll('.riga-v')].map((d, i) => { const g = k => d.querySelector(`[data-k="${k}"]`), pt = g('porta').value;
+      const porta = pt === 'evento' ? { tipo: 'evento', id: g('ev').value } : pt === 'incontro' ? { tipo: 'incontro', id: g('inc').value } : pt === 'creature' ? { tipo: 'creature', creature: leggiCreature(g('cre').value) } : { tipo: 'testo' };
+      return { id: (voci[i] && voci[i].id) || undefined, da: Number(g('da').value), a: Number(g('a').value), tipo: g('tipo').value, titolo: g('titolo').value.trim(), difficolta: g('diff').value.trim(), dove: g('dove').value.trim(),
+        territori: g('terr').value.split(/\s*,\s*/).filter(Boolean), note: g('note').value.trim(), testo: g('testo').value.trim(), ripetibile: g('rip').checked, porta }; });
+  };
+  const msg = () => { leggi(); el.querySelector('#tb-msg').textContent = M.controllaVoci(voci.filter(v => v.da && v.a), Number(val(el, 'd').value)).join('; '); };
+  const ridisegna = () => { el.querySelector('#tb-v').innerHTML = voci.map((v, i) => rigaVoceEd(v, i, ctx)).join(''); el.querySelector('#tb-q').innerHTML = quando.map(rigaQuando).join(''); msg(); };
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-agg-v],[data-togli-v],[data-agg-q],[data-togli-q]'); if (!b) return; leggi();
+    if (b.dataset.aggV) { const u = voci.at(-1), f = Number(val(el, 'd').value); voci.push({ da: u ? Math.min(f, u.a + 1) : 1, a: f, tipo: '', titolo: '', difficolta: '', dove: '', territori: [], note: '', testo: '', ripetibile: false, porta: { tipo: 'testo' } }); }
+    if (b.dataset.togliV !== undefined) voci.splice(+b.dataset.togliV, 1);
+    if (b.dataset.aggQ) quando.push({ tipo: 'marcia', ogni: 6, unita: 'ore', perc: 10 });
+    if (b.dataset.togliQ !== undefined) quando.splice(+b.dataset.togliQ, 1);
+    ridisegna(); });
+  el.addEventListener('change', ev => { const d = ev.target.closest('.riga-v'); if (d && ev.target.dataset.k === 'porta') { const p = ev.target.value; d.querySelector('[data-k="ev"]').hidden = p !== 'evento'; d.querySelector('[data-k="inc"]').hidden = p !== 'incontro'; d.querySelector('[data-k="cre"]').hidden = p !== 'creature'; } msg(); });
+  cambiQuando(el); msg();
+}
+function finestraNuovaTab() {
+  const el = apri({ titolo: '+ Tabella', corpo: `<button type="button" class="btn prim" data-nt="vuota">Tabella nuova</button>
+      <h4 class="sotto">Dalle aree della Guida del DM (d% vuota, ogni 6 ore di marcia)</h4><div class="fila">${PRONT.incontri.aree.map((a, i) => `<button type="button" class="btn min" data-nt="${i}">${esc(a.nome)} (${a.perc}%)</button>`).join('')}</div>`, azioni: [{ testo: 'Annulla' }] });
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-nt]'); if (!b) return; chiudi(Fin.pila.at(-1).id);
+    if (b.dataset.nt === 'vuota') finestraTabella(null); else { const c = M.tabellaDallaGuida(S.camp, +b.dataset.nt); S.ui.tabEv = c.eventi.tabelle.at(-1).id; applica(c); avviso('Tabella creata dalla Guida: «Modifica» per le voci'); } });
+}
+// ---- «Tira» a mano (Z8-6)
+function finestraTiraEv(id) {
+  const t = S.camp.eventi.tabelle.find(x => x.id === id), q = t.quando[0];
+  apri({ titolo: `Tira: ${esc(t.nome)}`, corpo: `${t.territori.length ? `<label class="campo"><span>Dove sono i PG</span><select name="te"><option value="">— tutte le voci —</option>${t.territori.map(x => `<option ${x === t.territorio ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>` : ''}
+      ${q ? `<label class="spunta"><input type="checkbox" name="pr"> Prima la probabilità (${esc(M.testoQuando(q).replace(/^.*: /, ''))})</label>` : ''}
+      <fieldset><legend>Ora</legend><label class="spunta"><input type="radio" name="ora" value="0" checked> adesso</label><label class="spunta"><input type="radio" name="ora" value="1"> a un'ora a caso entro <input type="number" class="corto" name="h" min="1" value="8"> ore</label></fieldset>
+`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => {
+      const o = { tabella: id, prob: !!(val(f, 'pr') && spunta(f, 'pr')), territorio: val(f, 'te') ? val(f, 'te').value : undefined };
+      if (f.querySelector('[name="ora"]:checked').value === '1') { o.entro = intero(f, 'h'); if (!(o.entro >= 1)) throw new Error('Ore non valide'); }
+      const r = M.tiraEvento(S.camp, rng, o); applica(r.camp);
+      avviso(!r.esce ? `Nessun evento (${r.testo})` : r.R ? `Evento alle ${M.formatoData(S.camp, r.R)}: arriverà nella coda` : r.q.testo);
+    } }] });
+}
+// ---- avvisi (Z8-9)
+function voceDiCoda(q) { const t = S.camp.eventi.tabelle.find(x => x.id === q.ev.tabella); return t && q.ev.voce ? t.voci.find(v => v.id === q.ev.voce) : null; }
+function bottoniEvento(q) {
+  const v = voceDiCoda(q), av = v && (v.porta.tipo === 'incontro' || v.porta.tipo === 'creature');
+  return `${v ? `<button class="btn min prim" data-az="rispEv" data-q="${q.id}" data-r="apri">Apri</button>` : ''}${av ? `<button class="btn min oro" data-az="rispEv" data-q="${q.id}" data-r="avvia">Avvia</button>` : ''}<button class="btn min" data-az="rispEv" data-q="${q.id}" data-r="ritira">Ritira</button><button class="btn min" data-az="rispEv" data-q="${q.id}" data-r="ignora">Ignora</button>`;
+}
+function apriVoce(v, comp, titolo) {
+  const c = S.camp;
+  if (v.porta.tipo === 'evento') return finestraEvento(v.porta.id);
+  if (v.porta.tipo === 'incontro') return finestraInfoIncontro(v.porta.id, true);
+  apri({ titolo: esc(titolo || M.nomeVoce(c, v)), corpo: `${v.testo ? `<div class="note-inc">${mdLite(v.testo)}</div>` : ''}${v.note ? `<p class="piccolo tenue">${esc(v.note)}</p>` : ''}
+      ${v.porta.tipo === 'creature' ? `<p class="piccolo"><b>Creature:</b> ${esc((comp && comp.length ? comp.map(p => `${p.n} ${p.nome}`) : v.porta.creature.map(p => `${p.dadi} ${p.nome}`)).join(', '))}</p>` : ''}`,
+    azioni: [{ testo: 'Chiudi' }, ...(v.porta.tipo === 'creature' ? [{ testo: 'Avvia', classe: 'prim', fn: () => avviaComposizione({ partecipanti: comp && comp.length ? comp : v.porta.creature.map(p => ({ nome: p.nome, n: Math.max(1, M.tira(p.dadi, rng).totale), rif: p.rif })) }, titolo || M.nomeVoce(c, v)) }] : [])] });
+}
+Object.assign(AZ, {
+  importaEv() { finestraImportaEventi(); },
+  nuovaTabEv() { finestraNuovaTab(); },
+  modTabEv(el) { finestraTabella(el.dataset.id); },
+  eliminaTabEv(el) { const t = S.camp.eventi.tabelle.find(x => x.id === el.dataset.id);
+    conferma('Elimina la tabella', `Eliminare <b>${esc(t.nome)}</b>? Le schede evento e gli incontri restano (le schede diventano sciolte).`, () => { S.ui.tabEv = null; applica(M.eliminaTabella(S.camp, t.id)); avviso('Tabella eliminata'); }, 'Elimina', 'peric'); },
+  esportaEv(el) { const t = S.camp.eventi.tabelle.find(x => x.id === el.dataset.id); finestraEsporta(`${t.nome}.json`, M.esportaEventi(S.camp, t.id, schedaDi)); },
+  tiraEv(el) { finestraTiraEv(el.dataset.id); },
+  azzeraEv(el) { applica(M.azzeraUscite(S.camp, el.dataset.id)); avviso('Uscite azzerate'); },
+  apriVoce(el) { const t = tabEvSel(), v = t && t.voci.find(x => x.id === el.dataset.v); if (v) apriVoce(v); },
+  apriEvento(el) { finestraEvento(el.dataset.id); },
+  nuovoEvento() { finestraModEvento(null, nid => { const t = tabEvSel(); void t; finestraEvento(nid); }); },
+  rispEv(el) {
+    const qid = el.dataset.q, k = el.dataset.r, q = S.camp.coda.find(x => x.id === qid); if (!q) return;
+    const v = voceDiCoda(q), titolo = v ? M.nomeVoce(S.camp, v) : '';
+    const r = M.rispondiEvento(S.camp, qid, k, rng);
+    if (k === 'ritira') { applica(r); const q2 = r.coda.find(x => x.id === qid); avviso(q2 ? q2.testo : 'Ritirato'); return; }
+    let c = r.camp; if (r.riprendi) c = M.rispondiMarcia(c, MET, rng, { riprendi: true });
+    applica(c);
+    if (k === 'apri' && r.voce) apriVoce(r.voce, r.comp, titolo);
+    if (k === 'avvia' && r.voce) { if (r.voce.porta.tipo === 'incontro') AZ.avviaIncontro({ dataset: { id: r.voce.porta.id } }); else avviaComposizione({ partecipanti: r.comp }, titolo); }
+  },
+  riprendiRiposo() { applica(M.riprendiRiposo(S.camp, MET, rng)); avviso('Riposo completato'); },
+  interrompiRiposo() { applica(M.interrompiRiposo(S.camp)); avviso('Riposo interrotto: nessun recupero'); },
+});
+Object.assign(CAMBI, {
+  tabEv(el) { S.ui.tabEv = el.value; disegna(); },
+  autoEv(el) { applica(M.impostaAuto(S.camp, el.dataset.id, el.checked)); },
+  terrEv(el) { applica(M.impostaTerritorio(S.camp, el.dataset.id, el.value)); },
+});
+// ---- importazione (Z8-13…Z8-16)
+async function inflateRaw(dati) {
+  if (typeof DecompressionStream === 'undefined') throw new Error('Questo browser non sa aprire i .docx: usa un file .json');
+  const ds = new DecompressionStream('deflate-raw'), w = ds.writable.getWriter(); w.write(dati); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+async function leggiFileEventi(file) {
+  if (/\.docx$/i.test(file.name)) {
+    const z = M.voceZip(new Uint8Array(await file.arrayBuffer()), 'word/document.xml');
+    const xml = new TextDecoder().decode(z.metodo === 8 ? await inflateRaw(z.dati) : z.dati);
+    return M.leggiEventiDocx(M.leggiDocxXml(xml), trovaPerNome);
+  }
+  return M.leggiEventiJson(await file.text(), trovaPerNome);
+}
+function finestraImportaEventi() {
+  apri({ titolo: 'Importa eventi', larga: true, corpo: `<p class="piccolo tenue">Un documento d'avventura (.docx) con la tabella degli eventi (il dado nella prima colonna) e gli eventi «EI N — Titolo», oppure un file .json di eventi (anche esportato da qui). Prima di creare vedi e correggi tutto.</p>
+      <input type="file" name="f" accept=".docx,.json,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+      <label class="campo"><span>Oppure incolla il JSON</span><textarea name="t" rows="6"></textarea></label>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Leggi', classe: 'prim', fn: f => {
+      const file = val(f, 'f').files[0];
+      if (file) { leggiFileEventi(file).then(finestraAnteprimaEv).catch(e => avviso(e.message, true)); return; }
+      const t = testo(f, 't'); if (!t) throw new Error('Scegli un file o incolla il JSON');
+      finestraAnteprimaEv(M.leggiEventiJson(t, trovaPerNome));
+    } }] });
+}
+function nomeLibero(nome) { const n = new Set(S.camp.eventi.tabelle.map(t => t.nome)); if (!n.has(nome)) return nome; for (let k = 2; ; k++) if (!n.has(`${nome} (${k})`)) return `${nome} (${k})`; }
+function finestraAnteprimaEv(ant) {
+  const T = ant.tabella, c = S.camp, esiste = () => c.eventi.tabelle.find(t => t.nome === (val(el, 'n') ? testo(el, 'n') : T.nome));
+  const statoS = s => s.stato === 'trovata' ? (s.diverso ? `<span class="chip sv">contenuto diverso</span> <select data-sc="${esc(s.chiave)}"><option value="usa" ${s.scelta !== 'copia' ? 'selected' : ''}>usa quella del bestiario</option><option value="copia" ${s.scelta === 'copia' ? 'selected' : ''}>crea copia (importato)</option></select>` : '<span class="chip ok">✔ trovata</span>')
+    : s.stato === 'nuova' ? `<span class="chip">＋ nuova</span> <select data-dest="${esc(s.chiave)}">${['png', 'generico', 'mostro'].map(k => `<option value="${k}" ${(s.dest === 'mostro' ? 'mostro' : 'png') === k ? 'selected' : ''}>${FONTI[k].nome}</option>`).join('')}</select>` : '<span class="chip sv">❓ senza stat block</span>';
+  const dest = v => v.evento !== null && v.evento !== undefined ? (ant.eventi[v.evento].dest === 'incontro' ? `⚔ ${ant.eventi[v.evento].numero}` : `📄 ${ant.eventi[v.evento].numero}`) : v.porta.tipo === 'creature' ? 'creature' : 'testo';
+  const nEv = ant.eventi.filter(e => e.dest === 'evento').length, nInc = ant.eventi.length - nEv;
+  const el = apri({ titolo: 'Importa eventi: anteprima', larga: true, corpo: `<div class="griglia"><label class="campo"><span>Nome della tabella</span><input type="text" name="n" value="${esc(T.nome)}"></label><div class="campo"><span>Dado</span><b>${M.nomeDado(T.dado)}</b> · ${T.voci.length} voci</div></div>
+      <div id="ae-ex"></div>
+      <label class="spunta"><input type="checkbox" name="nr" ${T.no_ripetere ? 'checked' : ''}> Una voce uscita non si ripete</label>
+      <h4 class="sotto">Quando</h4><div id="ae-q">${T.quando.map(rigaQuando).join('')}</div><button type="button" class="btn min" data-agg-q="1">+ Quando</button>
+      ${T.da_controllare.length ? `<p class="piccolo avvertenza">${T.da_controllare.map(esc).join('<br>')}</p>` : ''}${T.non_riconosciuti.length ? `<p class="piccolo avvertenza">Non riconosciuto (resta nelle note): ${T.non_riconosciuti.map(esc).join(' · ')}</p>` : ''}
+      ${T.note ? `<details class="cartella"><summary>Note della tabella</summary><div class="note-inc piccolo">${mdLite(T.note)}</div></details>` : ''}
+      <h4 class="sotto">Voci</h4><ul class="voci piccolo">${T.voci.map(v => `<li><b class="num">${esc(M.intervalloVoce(v, T.dado))}</b> ${iconaEv(v.tipo)} ${esc(v.titolo)} <span class="tenue">→ ${esc(dest(v))}${v.ripetibile ? ' · si può ripetere' : ''}</span></li>`).join('')}</ul>
+      <h4 class="sotto">Eventi: ${nEv} schede evento, ${nInc} incontri</h4><ul class="voci piccolo">${ant.eventi.map(e => `<li>${e.dest === 'incontro' ? '⚔' : '📄'} ${esc(e.numero ? e.numero + ' — ' : '')}${esc(e.titolo)}${e.dest === 'incontro' ? ` <span class="tenue">(${esc(e.incontro.partecipanti.map(p => `${p.nome}${p.n > 1 ? ' ×' + p.n : ''}`).join(', '))})</span>` : ''}</li>`).join('')}</ul>
+      ${ant.schede.length ? `<h4 class="sotto">Schede del bestiario</h4><ul class="voci piccolo">${ant.schede.map(s => `<li><b>${esc(s.nome)}</b> ${statoS(s)} <span class="tenue">${esc(s.eventi.join(', '))}</span></li>`).join('')}</ul>` : ''}
+      ${ant.avvisi.length ? `<h4 class="sotto">Avvisi</h4><ul class="voci piccolo">${ant.avvisi.map(a => `<li class="avvertenza">${esc(a)}</li>`).join('')}</ul>` : ''}`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Crea tutto', classe: 'prim', fn: f => {
+      T.quando = leggiQuando(el); for (const q of T.quando) { const e = M.controllaQuando(q); if (e) throw new Error(e); }
+      T.no_ripetere = spunta(f, 'nr');
+      for (const s of ant.schede) { const sc = el.querySelector(`[data-sc="${CSS.escape(s.chiave)}"]`), de = el.querySelector(`[data-dest="${CSS.escape(s.chiave)}"]`); if (sc) s.scelta = sc.value; if (de) s.dest = de.value; }
+      const ex = esiste(), modo = ex ? f.querySelector('[name="ex"]:checked').value : 'nuova';
+      const nome = modo === 'copia' ? nomeLibero(testo(f, 'n') || T.nome) : (testo(f, 'n') || T.nome);
+      // schede del bestiario: create qui (come «Crea» dell'Incolla incontro)
+      const ora = Date.now(); let cc = S.camp, cond = { mostro: Best.mostri, generico: Best.generici }, nuove = 0;
+      for (const s of ant.schede) {
+        if (s.stato === 'manca') { s.rif = null; continue; }
+        if (s.stato === 'trovata' && s.scelta !== 'copia') continue;
+        const dove = s.stato === 'trovata' ? (s.rif.fonte) : s.dest, sch = M.nuovaScheda({ ...M.clona(s.scheda), nome: s.stato === 'trovata' ? s.scheda.nome + ' (importato)' : s.scheda.nome }, rng, ora + nuove, FONTI[dove].pref);
+        if (condivisa(dove)) cond[dove] = M.salvaScheda(cond[dove], sch, ora); else cc = M.salvaPNG(cc, sch, ora);
+        s.rif = { fonte: dove, id: sch.id }; s.nome_finale = sch.nome; nuove++;
+      }
+      if (cond.mostro !== Best.mostri || cond.generico !== Best.generici) { Best.mostri = cond.mostro; Best.generici = cond.generico; salvaBestiario(); }
+      const r = M.applicaImportazione(cc, ant, { sostituisci: modo === 'sostituisci' ? ex.id : null, nome });
+      S.ui.tabEv = r.tabella; S.ui.scheda = 'eventi'; applica(r.camp);
+      avviso(`Importati: tabella «${nome}», ${nEv} schede evento, ${nInc} incontri${nuove ? `, ${nuove} schede nel bestiario` : ''}`);
+    } }] });
+  const ex = () => { const e = esiste(); el.querySelector('#ae-ex').innerHTML = e ? `<fieldset><legend>C'è già una tabella «${esc(e.nome)}»</legend><label class="spunta"><input type="radio" name="ex" value="sostituisci" checked> Sostituisci (restano tiri automatici, territori e uscite; gli incontri già giocati non si toccano)</label><label class="spunta"><input type="radio" name="ex" value="copia"> Crea copia</label></fieldset>` : ''; };
+  el.addEventListener('input', ev => { if (ev.target.name === 'n') ex(); });
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-agg-q],[data-togli-q]'); if (!b) return; const q = leggiQuando(el);
+    if (b.dataset.aggQ) q.push({ tipo: 'marcia', ogni: 1, unita: 'giorni', perc: 10 }); else q.splice(+b.dataset.togliQ, 1); el.querySelector('#ae-q').innerHTML = q.map(rigaQuando).join(''); });
+  cambiQuando(el); ex();
+}
 
 // prezzi delle fonti di luce dal Vol. 3 (Z3b): la tabella degli strumenti resta quella della Build 3a
 function costoLuceV3(f) { const x = PRONT.luce.find(y => y.nome.toLowerCase().replace(/ x\d+$/, '') === f.nome.toLowerCase()); return x ? x.costo + (/ x(\d+)$/.test(x.nome) ? ` ogni ${x.nome.match(/ x(\d+)$/)[1]}` : '') : f.costo; }
@@ -6760,9 +7706,10 @@ function htmlRicompense(inc, conXP = true) {
   return righe.length ? `<h4 class="sotto">💰 Ricompense</h4>${righe.join('')}` : '';
 }
 // in combattimento: «📖 Titolo» apre descrizione, note e ricompense dell'incontro
-function finestraInfoIncontro(id) {
+function finestraInfoIncontro(id, conAzioni) {
   const inc = S.camp.incontri.find(x => x.id === id); if (!inc) return avviso('Incontro non trovato', true);
-  apri({ titolo: `📖 ${esc(inc.titolo)}`, larga: true, corpo: `${inc.descrizione ? `<h4 class="sotto">📖 Descrizione</h4><div class="note-inc">${mdLite(inc.descrizione)}</div>` : ''}
+  apri({ titolo: `📖 ${esc(inc.titolo)}`, larga: true, azioni: conAzioni ? [{ testo: 'Chiudi' }, { testo: 'Vai all\'incontro', fn: () => { S.ui.incontro = id; S.ui.scheda = 'incontri'; disegna(); } },
+      ...(S.camp.combattimento ? [] : [{ testo: 'Avvia', classe: 'prim', fn: () => AZ.avviaIncontro({ dataset: { id } }) }])] : undefined, corpo: `${inc.descrizione ? `<h4 class="sotto">📖 Descrizione</h4><div class="note-inc">${mdLite(inc.descrizione)}</div>` : ''}
       ${inc.note ? `<h4 class="sotto">Note</h4><div class="note-inc">${mdLite(inc.note)}</div>` : ''}${htmlRicompense(inc) || '<p class="tenue">Nessuna ricompensa scritta.</p>'}` });
 }
 // ---------- AG3-A: scelta dei partecipanti dal bestiario
