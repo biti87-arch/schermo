@@ -38,7 +38,8 @@ def prova(browser, larghezza):
     fin().locator('#w-zona').select_option('9'); premi('Avanti')   # Ghiacci artici: niente pioggia né caldo, l'acqua scende sempre
     fin().locator('[data-w="aggPG"]').click()
     f = fin(); f.locator('[name="nome"]').fill('Aria'); f.locator('[name="fatica_max"]').fill('20'); f.locator('[name="ferita_max"]').fill('18')
-    f.locator('[name="rif_dadi"]').fill('3'); f.locator('[name="iniziativa"]').fill('4'); premi('Aggiungi')
+    f.locator('[data-cl-k="classe"]').fill('Ladro'); t(f'{W} AG1 DV proposto dalla classe', f.locator('[data-cl-k="dv"]').input_value() == '8')
+    f.locator('[name="iniziativa"]').fill('4'); premi('Aggiungi')
     t(f'{W} PG nella procedura', fin().locator('text=Aria').count() == 1)
     premi('Avanti'); fin().locator('#w-acc').fill('1'); premi('Avanti')
     fin().locator('#w-cibo').fill('4'); fin().locator('#w-acqua').fill('2'); premi('Avanti')
@@ -57,7 +58,7 @@ def prova(browser, larghezza):
     t(f'{W} cura', '18/18' in pg.locator('.pg').first.inner_text() and '5/20' in pg.locator('.pg').first.inner_text(), pg.locator('.pg').first.inner_text())
     pg.locator('[data-az="temp"]').first.click(); fin().locator('[name="f"]').fill('Falsa vita'); fin().locator('[name="v"]').fill('7'); premi('Aggiungi')
     t(f'{W} PF temporanei', 'Temp7' in pg.locator('.pg').first.inner_text().replace(' ', '').replace('\n', ''))
-    pg.locator('[data-az="rifiata"]').first.click(); premi('Tira'); t(f'{W} Rifiatare', fin().locator('.risultato').count() == 1); premi('Chiudi')
+    pg.locator('[data-az="rifiata"]').first.click(); fin().locator('[data-rif="tutti"]').click(); premi('Tira'); t(f'{W} Rifiatare', fin().locator('.risultato').count() == 1); premi('Chiudi')
     # --- tempo e scorte
     pg.click('[data-az="salto"]'); fin().locator('[name="n"]').fill('2'); fin().locator('[name="u"]').select_option('giorni'); premi('Avanza')
     t(f'{W} coda dopo 2 giorni (acqua finita)', pg.locator('.coda').count() == 1 and 'Sete: Aria 1' in pg.inner_text('.coda'), pg.inner_text('.coda'))
@@ -1111,13 +1112,141 @@ def prova4b(browser, larghezza):
     t(f'{W} nessun errore in console', not errori, errori[:3])
     ctx.close()
 
+MANGIAMARCIO = """Il Mangiamarcio è un serpente bianco lungo come una chiatta.
+
+MANGIAMARCIO — Mostro · GS 9 · XP 6.400
+Razza: Non morto Enorme (criptoreo, acquatico) · NM
+Iniziativa +5 | Sensi: percezione cieca 18 m | Percezione +16
+── DESCRIZIONE ──
+Aspetto: un serpente bianco e cieco, lungo dodici metri.
+Carattere: affamato e paziente.
+── DIFESA ──
+CA 22 (contatto 9, colto alla sprovvista 21) [10 + 1 Des + 13 naturale − 2 taglia]
+PF 120 (16d8+48) — Punti Fatica 60 / Punti Ferita 60
+TS Tempra +8, Riflessi +6, Volontà +12
+── OFFESA ──
+Velocità 9 m, nuotare 18 m | BaB +12 | BMC +22 | DMC 33
+Morso +18 (2d8+12)
+── STATISTICHE ──
+For 30 Des 12 Cos — Int 4 Sag 14 Car 10
+── ECOLOGIA ──
+Ambiente: la Palude; i canali del lago
+── TATTICHE ──
+Round 1: morde il più vicino. Fuga o resa: mai."""
+
+def prova5a(browser, larghezza):
+    """Build 5a: PG con più classi, Rifiatare per dado, contatori, bestiario (AG1, AG2)."""
+    ctx = browser.new_context(viewport={'width': larghezza, 'height': 820 if larghezza > 500 else 780})
+    pg = ctx.new_page(); errori = []
+    pg.on('console', lambda m: m.type == 'error' and errori.append(m.text))
+    pg.on('pageerror', lambda e: errori.append(str(e)))
+    pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna')
+    W = f'[{larghezza} 5a]'
+    def fin(): return pg.locator('.velo').last
+    def premi(testo): fin().locator('footer button', has_text=re.compile('^' + testo + '$')).click()
+    def largo(nome):
+        sw = pg.evaluate('document.documentElement.scrollWidth'); t(f'{W} niente scorrimento orizzontale: {nome}', sw <= larghezza, sw)
+    def aria(): return pg.locator('.pg', has=pg.locator('.pg-nome', has_text='Aria'))
+    pg.click('text=Carica una campagna d\'esempio'); pg.wait_for_timeout(300)
+    pg.locator('.camp', has_text='esempio').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+    # ---------- AG1-A classi
+    aria().locator('[data-az="modificaPG"]').click(); f = fin()
+    t(f'{W} AG1 scheda vecchia: una riga di classe', f.locator('[data-rc]').count() == 1 and f.locator('[data-cl-k="classe"]').input_value() == 'Ladro' and f.locator('[data-cl-k="livello"]').input_value() == '7')
+    f.locator('[data-cl="aggiungi"]').click(); r2 = f.locator('[data-rc]').nth(1)
+    r2.locator('[data-cl-k="classe"]').fill('Guerriero'); r2.locator('[data-cl-k="livello"]').fill('2')
+    t(f'{W} AG1 DV proposto: Guerriero d10', r2.locator('[data-cl-k="dv"]').input_value() == '10')
+    t(f'{W} AG1 totale nella finestra', 'Livello del PG: 9' in f.inner_text() and '7d8 + 2d10' in f.inner_text(), f.locator('[data-cl-tot]').inner_text())
+    largo('scheda del PG con le classi')
+    premi('Salva')
+    txt = aria().inner_text()
+    t(f'{W} AG1 riquadro: classi e riserva per dado', 'Ladro 7 / Guerriero 2' in txt and '7/7 d8 · 2/2 d10' in txt, txt[:300])
+    # ---------- AG1-B Rifiatare
+    aria().locator('[data-az="rifiata"]').click(); f = fin()
+    t(f'{W} AG1 Rifiatare: un campo per dado', f.locator('[name="d8"]').count() == 1 and f.locator('[name="d10"]').count() == 1)
+    f.locator('[name="d10"]').fill('1'); premi('Tira')
+    t(f'{W} AG1 Rifiatare tirato', fin().locator('.risultato').count() == 1 and '1/2 d10' in fin().inner_text()); premi('Chiudi')
+    t(f'{W} AG1 riserva aggiornata nel riquadro', '7/7 d8 · 1/2 d10' in aria().inner_text())
+    # ---------- AG1-C/D contatori
+    aria().locator('[data-az="contNuovo"]').click(); f = fin()
+    f.locator('[name="nome"]').fill('Ki'); f.locator('[name="valore"]').fill('3'); f.locator('[name="max"]').fill('3'); f.locator('[name="ricarica"]').select_option('riposo'); premi('Aggiungi')
+    k = aria().locator('.cont', has_text='Ki')
+    t(f'{W} AG1 contatore del PG', k.count() == 1 and '3/3' in k.inner_text())
+    k.locator('[data-d="-1"]').click(); t(f'{W} AG1 contatore −', '2/3' in aria().locator('.cont', has_text='Ki').inner_text())
+    aria().locator('.cont', has_text='Ki').locator('.cont-v').click(); fin().locator('[name="v"]').fill('9'); premi('Salva')
+    t(f'{W} AG1 valore scritto, non oltre il massimo', '3/3' in aria().locator('.cont', has_text='Ki').inner_text())
+    pg.locator('.col-testa [data-az="contNuovo"]').click(); f = fin()
+    f.locator('[name="nome"]').fill('Torcia'); f.locator('[name="valore"]').fill('2'); f.locator('[name="max"]').fill('2')
+    f.locator('[name="tempo"]').check(); f.locator('[name="n"]').fill('1'); f.locator('[name="ogni"]').fill('1'); f.locator('[name="unita"]').select_option('ore'); premi('Aggiungi')
+    t(f'{W} AG1 contatore della compagnia a tempo', pg.locator('.cont-comp .cont', has_text='Torcia').count() == 1 and '⏱' in pg.locator('.cont-comp').inner_text())
+    pg.click('[data-az="tempo"][data-r="600"]'); pg.click('[data-az="tempo"][data-r="600"]')
+    t(f'{W} AG1 scende con il tempo e avvisa', '0/2' in pg.locator('.cont-comp').inner_text() and 'Torcia: finito' in pg.inner_text('header.testa'), pg.locator('.cont-comp').inner_text())
+    pg.locator('.cont-comp [data-az="contModifica"]').click(); premi('Pausa')
+    t(f'{W} AG1 pausa', '⏸' in pg.locator('.cont-comp').inner_text())
+    largo('contatori')
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'5a_tavolo_{larghezza}.png'), full_page=False)
+    # ---------- AG2 bestiario
+    pg.click('#col-terza [data-az="scheda"][data-s="bestiario"]')
+    pg.locator('[data-az="bestFonte"][data-f="mostro"]').click()
+    t(f'{W} AG2 menu Tipo con i 13 tipi', pg.locator('select[data-best="tipo"] option').count() == 14 and pg.locator('select[data-best="tipo"] option[value="Animale"]:not([disabled])').count() == 1)
+    t(f'{W} AG2 menu Ordina', pg.locator('select[data-best="ordine"] option').count() == 4)
+    pg.click('[data-az="incolla"]'); fin().locator('textarea[name="t"]').fill(MANGIAMARCIO); premi('Leggi')
+    t(f'{W} AG2 Incolla: Descrizione estesa nell\'anteprima', 'serpente bianco lungo come una chiatta' in fin().locator('textarea[name="e0"]').input_value())
+    premi('Importa'); pg.wait_for_timeout(200)
+    v = pg.locator('#col-terza')
+    t(f'{W} AG2 descrizione in cima, aperta', v.locator('details.descr[open]').count() == 1 and 'Aspetto:' in v.locator('details.descr').inner_text() and 'chiatta' in v.locator('details.descr').inner_text())
+    if SHOT: v.screenshot(path=os.path.join(SHOT, f'5a_scheda_{larghezza}.png'))
+    t(f'{W} AG2 Ecologia nello stat block, descrizione non ripetuta', 'ECOLOGIA' in v.locator('.sb').inner_text() and 'DESCRIZIONE' not in v.locator('.sb').inner_text())
+    v.locator('details.descr summary').click(); pg.wait_for_timeout(100)
+    t(f'{W} AG2 descrizione chiusa e ricordata', pg.evaluate('localStorage.getItem("schermo-descrAperta")') == '0')
+    pg.click('#col-terza [data-az="scheda"][data-s="bestiario"]')
+    t(f'{W} AG2 etichette automatiche nell\'elenco', pg.locator('#best-lista .chip.auto', has_text='criptoreo').count() == 1)
+    pg.locator('select[data-best="etichetta"]').select_option('criptoreo')
+    t(f'{W} AG2 filtro Etichetta dal menu', pg.locator('#best-lista .voce').count() == 1)
+    pg.locator('select[data-best="etichetta"]').select_option(''); pg.locator('select[data-best="tipo"]').select_option('Non morto')
+    t(f'{W} AG2 filtro Tipo dal menu', pg.locator('#best-lista .voce').count() == 1 and 'Mangiamarcio' in pg.inner_text('#best-lista'))
+    pg.locator('select[data-best="tipo"]').select_option(''); pg.locator('select[data-best="ordine"]').select_option('gs_desc')
+    t(f'{W} AG2 ordine GS decrescente', 'Mangiamarcio' in pg.locator('#best-lista .voce').first.inner_text() and pg.evaluate('localStorage.getItem("schermo-ordineBest")') == 'gs_desc')
+    pg.locator('#best-lista .voce', has_text='Mangiamarcio').locator('[data-az="vediScheda"]').click()
+    t(f'{W} AG2 un\'altra scheda resta chiusa', pg.locator('#col-terza details.descr').count() == 1 and pg.locator('#col-terza details.descr[open]').count() == 0)
+    pg.click('#col-terza [data-az="modificaScheda"]'); f = fin()
+    t(f'{W} AG2 editor: Ambiente, Descrizione, etichette automatiche', f.locator('[data-k="ambiente"]').input_value() == 'la Palude; i canali del lago' and f.locator('[data-k="aspetto"]').count() == 1 and 'criptoreo' in f.locator('#sk-auto').inner_text())
+    f.locator('[data-k="ambiente"]').fill('la Palude; Bosco del Terrore'); f.locator('[data-k="ambiente"]').dispatch_event('input')
+    t(f'{W} AG2 etichette automatiche che si rifanno', 'Bosco del Terrore' in f.locator('#sk-auto').inner_text())
+    largo('editor della scheda'); premi('Annulla')
+    # ---------- AG2-A pagina Bestiario
+    pg.click('[data-az="campagne"]'); pg.wait_for_selector('text=Crea Schermo campagna')
+    pg.evaluate("""() => { const o = Date.now(); for (let i = 0; i < 40; i++) Best.mostri = M.salvaScheda(Best.mostri, M.nuovaScheda({ ...M.schedaVuota('mostro_pf1'), nome: 'Prova ' + String(i).padStart(2, '0'), gs: String(i % 10), razza_riga: 'Animale Medio' }, rng, o + i, 'm'), o); disegna(); }""")
+    pg.click('[data-az="bestiarioHome"]'); pg.wait_for_selector('.best-home')
+    pg.locator('[data-az="bestFonte"][data-f="mostro"]').click()
+    if larghezza >= 900:
+        t(f'{W} AG2-A la pagina non scorre, scorrono elenco e stat block', pg.evaluate('document.documentElement.classList.contains("a-best") && document.scrollingElement.scrollHeight <= innerHeight + 1') and pg.evaluate('getComputedStyle(document.querySelector("#best-lista")).overflowY') == 'auto')
+        pg.evaluate('document.querySelector("#best-lista").scrollTop = 400'); bt = pg.locator('#best-lista .voce').nth(15).locator('[data-az="vediScheda"]')
+        bt.scroll_into_view_if_needed(); s0 = pg.evaluate('document.querySelector("#best-lista").scrollTop'); bt.click(); pg.wait_for_timeout(100)
+        t(f'{W} AG2-A aperta una scheda l\'elenco resta dov\'era', s0 > 100 and abs(pg.evaluate('document.querySelector("#best-lista").scrollTop') - s0) <= 2, [s0, pg.evaluate('document.querySelector("#best-lista").scrollTop')])
+        t(f'{W} AG2-A lo stat block è in vista', pg.evaluate('document.querySelector("#best-vista").getBoundingClientRect().top') < 400)
+        pg.evaluate('document.querySelector("#best-vista").scrollTop = 50')
+        pg.locator('#best-lista .voce').nth(16).locator('[data-az="vediScheda"]').click(); pg.wait_for_timeout(100)
+        t(f'{W} AG2-A scheda nuova: lo stat block riparte dall\'alto', pg.evaluate('document.querySelector("#best-vista").scrollTop') == 0)
+    else:
+        pg.evaluate('window.scrollTo(0, 900)'); bt = pg.locator('#best-lista .voce').nth(15).locator('[data-az="vediScheda"]')
+        bt.scroll_into_view_if_needed(); y0 = pg.evaluate('scrollY'); bt.click(); pg.wait_for_timeout(150)
+        t(f'{W} AG2-A telefono: si scende allo stat block', pg.evaluate('(() => { const r = document.querySelector("#best-vista").getBoundingClientRect(); return r.top >= -1 && (r.top < 60 || r.bottom <= innerHeight + 2); })()'), pg.evaluate('document.querySelector("#best-vista").getBoundingClientRect().top'))
+        pg.click('#best-vista [data-az="tornaElenco"]'); pg.wait_for_timeout(150)
+        t(f'{W} AG2-A «▴ Elenco» riporta al punto dell\'elenco', abs(pg.evaluate('scrollY') - y0) <= 5, [y0, pg.evaluate('scrollY')])
+    largo('pagina Bestiario')
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'5a_bestiario_{larghezza}.png'), full_page=False)
+    t(f'{W} nessun errore in console', not errori, errori[:3])
+    ctx.close()
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (1366, 390):
-        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4, prova4b):
+        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4, prova4b, prova5a):
+            if os.environ.get('SOLO') and f.__name__ not in os.environ['SOLO'].split(','): continue
             try: f(b, w)
             except Exception as e: ko += 1; print('ERRORE', w, f.__name__, 'interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
-    try: prova4web(b); prova4adatta(b)
+    try:
+        if not os.environ.get('SOLO'): prova4web(b); prova4adatta(b)
     except Exception as e: ko += 1; print('ERRORE prova4web interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])
     b.close()
 srv.shutdown()

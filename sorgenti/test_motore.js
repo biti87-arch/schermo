@@ -1538,5 +1538,145 @@ for (const f of ['campagna_build1.json', 'campagna_build2a.json', 'campagna_buil
   t('AF importaPNG: stesso id ma diverso → copia «(importato)»', x.copie === 1 && x.camp.png.some(p => p.nome === 'Mira (importato)' && p.id !== 'p1'));
   const g = M.unisciMostri(best.generici, campi[0].png, rng, 7, false, 'g');
   t('AF PNG di una campagna nei PNG generici', g.lista.length === 4 && g.aggiunti === 2); }
+
+// ================================================================ Build 5a: PG con più classi, contatori, bestiario (sezione AG)
+{ // AG1-A/B classi e Rifiatare
+  const multi = { ...M.SCHEDA_VUOTA, nome: 'Dario', fatica_max: 40, ferita_max: 40, classi: [{ classe: 'Ladro', archetipo: '', livello: 5, dv: 8 }, { classe: 'Guerriero', archetipo: 'Duellante', livello: 2, dv: 10 }] };
+  let c = M.aggiungiPG(camp, multi, rng); const p = c.pg[c.pg.length - 1];
+  t('AG1 livello = somma delle classi', p.scheda.livello === 7 && p.scheda.classe === 'Ladro 5 / Guerriero (Duellante) 2', p.scheda);
+  t('AG1 riserva per dado piena', p.stato.rif[8] === 5 && p.stato.rif[10] === 2 && p.stato.rif_riserva === 7);
+  t('AG1 testo della riserva', M.testoRiserva(p) === '5/5 d8 · 2/2 d10', M.testoRiserva(p));
+  t('AG1 DV delle classi', M.dvClasse('guardia nera') === 10 && M.dvClasse('Stregone') === 6 && M.dvClasse('Barbaro') === 12 && M.dvClasse('Bardo') === 8 && M.dvClasse('Mago') === null && Object.keys(M.DV_CLASSI).length === 34);
+  c.pg[c.pg.length - 1].stato.fatica = 0;
+  let r = M.rifiatare(c, p.id, { 10: 1, 8: 2 }, facce([[7, 10], [3, 8], [1, 8]]));
+  const q = r.camp.pg[r.camp.pg.length - 1];
+  t('AG1 Rifiatare per tipo di dado', r.tirati === 11 && q.stato.rif[10] === 1 && q.stato.rif[8] === 3 && q.stato.rif_riserva === 4 && q.stato.fatica === 11, [r.tirati, q.stato]);
+  t('AG1 log del Rifiatare con più dadi', r.camp.log.some(e => /Rifiatare 1d10 \+ 2d8 = 11/.test(e.testo)));
+  r = M.rifiatare(r.camp, p.id, 2, facce([[5, 10], [4, 8]]));
+  const q2 = r.camp.pg[r.camp.pg.length - 1];
+  t('AG1 Rifiatare con un numero: prima i dadi più grandi', q2.stato.rif[10] === 0 && q2.stato.rif[8] === 2, q2.stato.rif);
+  lancia('AG1 dadi oltre la riserva', () => M.rifiatare(r.camp, p.id, { 10: 1 }, rng), 'insufficienti');
+  lancia('AG1 nessun dado', () => M.rifiatare(r.camp, p.id, { 8: 0 }, rng), 'non valido');
+  // il livello sale: i dadi nuovi arrivano pieni
+  let c2 = M.modificaPG(r.camp, p.id, { classi: [{ classe: 'Ladro', archetipo: '', livello: 6, dv: 8 }, { classe: 'Guerriero', archetipo: 'Duellante', livello: 2, dv: 10 }] });
+  let q3 = c2.pg[c2.pg.length - 1];
+  t('AG1 livello che sale: +1 dado pieno', q3.stato.rif[8] === 3 && q3.stato.rif[10] === 0 && q3.scheda.livello === 8, q3.stato.rif);
+  c2 = M.modificaPG(c2, p.id, { classi: [{ classe: 'Ladro', archetipo: '', livello: 1, dv: 8 }] });
+  q3 = c2.pg[c2.pg.length - 1];
+  t('AG1 livello che scende e classe tolta: riserva tagliata', q3.stato.rif[8] === 1 && q3.stato.rif[10] === undefined && q3.stato.rif_riserva === 1, q3.stato.rif);
+  lancia('AG1 livello di classe non valido', () => M.aggiungiPG(camp, { ...multi, classi: [{ classe: 'Ladro', livello: 0, dv: 8 }] }, rng), 'livello della classe');
+  lancia('AG1 DV non valido', () => M.aggiungiPG(camp, { ...multi, classi: [{ classe: 'Ladro', livello: 2, dv: 7 }] }, rng), 'DV');
+  // riposo: riserva piena per ogni tipo, +1 Ferita per livello del PG
+  let c3 = M.modificaPG(r.camp, p.id, { ferita_max: 40 }); c3.pg[c3.pg.length - 1].stato.ferita = 20;
+  c3 = M.riposo(c3, meteo, rng, [p.id]); const q4 = c3.pg[c3.pg.length - 1];
+  t('AG1 riposo: riserva piena e +7 Ferita', q4.stato.rif[8] === 5 && q4.stato.rif[10] === 2 && q4.stato.ferita === 27, [q4.stato.rif, q4.stato.ferita]);
+  // campagne salvate: classe di prima → una riga con il livello e il dado di prima, riserva invariata
+  const vecchia = M.clona(c1); for (const x of vecchia.pg) { delete x.scheda.classi; delete x.stato.rif; delete x.contatori; } vecchia.pg[0].stato.rif_riserva = 4;
+  const mig = M.migra(vecchia);
+  t('AG1 migrazione: una riga di classe', mig.pg[0].scheda.classi.length === 1 && mig.pg[0].scheda.classi[0].classe === 'Ladro' && mig.pg[0].scheda.classi[0].livello === 7 && mig.pg[0].scheda.classi[0].dv === 8, mig.pg[0].scheda.classi);
+  t('AG1 migrazione: riserva invariata', mig.pg[0].stato.rif[8] === 4 && mig.pg[0].stato.rif_riserva === 4 && Array.isArray(mig.pg[0].contatori) && Array.isArray(mig.contatori));
+  t('AG1 migrazione della Build 3b', (() => { const c3b = M.importa(fs.readFileSync(path.join(__dirname, 'prove', 'campagna_build3b.json'), 'utf8')).campagne[0]; return c3b.pg.every(x => x.scheda.classi.length === 1 && typeof x.stato.rif === "object" && x.stato.rif_riserva === Object.values(x.stato.rif).reduce((a, b) => a + b, 0)); })());
+  // chiamata col formato vecchio (classe e livello senza classi)
+  const c4 = M.modificaPG(c1, c1.pg[0].id, { classe: 'Ladro 8', livello: 8 });
+  t('AG1 modifica col formato vecchio', c4.pg[0].scheda.livello === 8 && c4.pg[0].scheda.classi[0].livello === 8 && c4.pg[0].stato.rif[8] === c1.pg[0].stato.rif_riserva + 1, c4.pg[0].stato);
+}
+{ // AG1-C/D contatori
+  let c = M.clona(c1); const a = c.pg[0].id;
+  c = M.salvaContatore(c, a, { nome: 'Ki', valore: 5, max: 5, ricarica: 'riposo' });
+  c = M.salvaContatore(c, null, { nome: 'Torce', valore: 6, ricarica: 'mano' });
+  c = M.salvaContatore(c, null, { nome: 'Torcia accesa', valore: 6, max: 6, ricarica: 'mano', tempo: { dir: -1, n: 1, ogni: 1, unita: 'ore' } });
+  const ki = c.pg[0].contatori[0].id, torce = c.contatori[0].id, torcia = c.contatori[1].id;
+  t('AG1 contatori creati', c.pg[0].contatori.length === 1 && c.contatori.length === 2 && c.log.some(e => /Contatore nuovo: Aria: Ki 5\/5/.test(e.testo)));
+  c = M.cambiaContatore(c, a, ki, { delta: -3 }); c = M.cambiaContatore(c, null, torce, { delta: -10 });
+  t('AG1 − e + con i limiti', c.pg[0].contatori[0].valore === 2 && c.contatori[0].valore === 0);
+  c = M.cambiaContatore(c, a, ki, { valore: 99 }); t('AG1 valore scritto, non oltre il massimo', c.pg[0].contatori[0].valore === 5);
+  c = M.cambiaContatore(c, a, ki, { valore: 1 });
+  c = M.avanza(c, 2 * M.ROUND_ORA + 300, meteo, rng);
+  t('AG1 a tempo: −1 ogni ora', c.contatori[1].valore === 4, c.contatori[1]);
+  c = M.pausaContatore(c, null, torcia, true); c = M.avanza(c, 3 * M.ROUND_ORA, meteo, rng);
+  t('AG1 in pausa non scorre', c.contatori[1].valore === 4);
+  c = M.pausaContatore(c, null, torcia, false); const nCoda = c.coda.length;
+  c = M.avanza(c, 10 * M.ROUND_ORA, meteo, rng);
+  t('AG1 si ferma a 0 con un avviso', c.contatori[1].valore === 0 && c.coda.length === nCoda + 1 && c.coda.some(q => q.tipo === 'contatore' && /Torcia accesa: finito/.test(q.testo)), c.coda.slice(-2));
+  c = M.avanza(c, 2 * M.ROUND_ORA, meteo, rng); t('AG1 avviso una volta sola', c.coda.filter(q => q.tipo === 'contatore').length === 1);
+  c = M.ricaricaContatore(c, null, torcia); t('AG1 ricarica a mano al massimo', c.contatori[1].valore === 6 && c.log.some(e => /Torcia accesa: ricaricato a 6 \(a mano\)/.test(e.testo)));
+  c = M.riposo(c, meteo, rng, [a]); t('AG1 ricarica al riposo', c.pg[0].contatori[0].valore === 5 && c.log.some(e => /Aria: Ki: ricaricato a 5 \(riposo 8 ore\)/.test(e.testo)));
+  // round in combattimento; senza massimo torna al valore iniziale; all'alba
+  c = M.salvaContatore(c, a, { nome: 'Ira', valore: 4, ricarica: 'combattimento', tempo: { dir: -1, n: 1, ogni: 1, unita: 'round' } });
+  c = M.salvaContatore(c, a, { nome: 'Incantesimi', valore: 3, max: 3, ricarica: 'alba' });
+  const inc = c.pg[0].contatori[2].id; c = M.cambiaContatore(c, a, inc, { valore: 0 });
+  c = M.avanza(c, 3, meteo, rng); t('AG1 a round', c.pg[0].contatori[1].valore === 1);
+  const R = c.tempo.R, dom6 = (Math.floor(R / M.ROUND_GIORNO) + 1) * M.ROUND_GIORNO + 6 * M.ROUND_ORA;
+  c = M.vaiA(c, dom6 - 1, meteo, rng); t('AG1 alba: non ancora', c.pg[0].contatori[2].valore === 0);
+  c = M.vaiA(c, dom6, meteo, rng); t('AG1 alba: ricaricato', c.pg[0].contatori[2].valore === 3);
+  c = M.salvaContatore(c, null, { id: torcia, nome: 'Torcia accesa', valore: 6, max: 6, ricarica: 'mano', tempo: { dir: -1, n: 2, ogni: 30, unita: 'minuti' } });
+  c = M.avanza(c, 60 * M.ROUND_MIN, meteo, rng); t('AG1 modifica dell\'intervallo: −2 ogni 30 minuti', c.contatori[1].valore === 2, c.contatori[1]);
+  t('AG1 descrizione del tempo', M.descriviTempoCont(c.contatori[1].tempo) === '−2 ogni 30 minuti' && M.descriviTempoCont({ dir: 1, n: 1, ogni: 1, unita: 'giorni' }) === '+1 ogni giorno');
+  lancia('AG1 contatore senza nome', () => M.salvaContatore(c, null, { nome: ' ' }), 'nome');
+  lancia('AG1 intervallo non valido', () => M.salvaContatore(c, null, { nome: 'X', tempo: { dir: -1, n: 1, ogni: 0, unita: 'ore' } }), 'intervallo');
+  c = M.eliminaContatore(c, null, torce); t('AG1 elimina', c.contatori.length === 1);
+}
+{ // AG2 bestiario: descrizione, Ambiente, etichette automatiche, tipi, ordine
+  const testo = `Il Mangiamarcio è un serpente bianco lungo come una chiatta, cieco, che vive nei canali.
+Lo chiamano così i pescatori del lago.
+
+MANGIAMARCIO — Mostro · GS 9 · XP 6.400
+Razza: Non morto Enorme (criptoreo, acquatico) · NM
+Iniziativa +5 | Sensi: percezione cieca 18 m | Percezione +16
+── DESCRIZIONE ──
+Aspetto: un serpente bianco e cieco, lungo dodici metri, che odora di acqua ferma.
+Carattere: affamato e paziente; il fumo lo disturba.
+── DIFESA ──
+CA 22 (contatto 9, colto alla sprovvista 21) [10 + 1 Des + 13 naturale − 2 taglia]
+PF 120 (16d8+48) — Punti Fatica 60 / Punti Ferita 60
+TS Tempra +8, Riflessi +6, Volontà +12
+── OFFESA ──
+Velocità 9 m, nuotare 18 m | BaB +12 | BMC +22 | DMC 33
+Morso +18 (2d8+12)
+── STATISTICHE ──
+For 30 Des 12 Cos — Int 4 Sag 14 Car 10
+── ECOLOGIA ──
+Ambiente: la Palude; i canali del lago; Bosco del Terrore
+── TATTICHE ──
+Round 1: morde il più vicino. Fuga o resa: mai.
+
+LUPO CRUDELE DEFORMATO · GS 4 · XP 1.200 — Lupo crudele (PF1e Bestiario, segnalato)
+Animale Grande | Neutrale
+Iniziativa +4 | Sensi: visione crepuscolare, fiuto | Percezione +12
+── DIFESA ──
+CA 18 (contatto 11, colto alla sprovvista 16) [10 + 2 Des + 7 naturale − 1 taglia]
+PF 47 (5d8+25) — Punti Fatica 23 / Punti Ferita 24
+── TATTICHE ──
+Due per bersaglio.
+💰 RICOMPENSE
+XP: 7.200
+Descrizione: lupi grandi come cavalli, con le costole fuori dalla pelle.`;
+  const b = M.leggiStatBlock(testo); const m = b[0].scheda, l = b[1].scheda;
+  t('AG2 Incolla: Aspetto e Carattere', m.aspetto === 'un serpente bianco e cieco, lungo dodici metri, che odora di acqua ferma.' && m.carattere === 'affamato e paziente; il fumo lo disturba.', m);
+  t('AG2 Incolla: Ambiente', m.ambiente === 'la Palude; i canali del lago; Bosco del Terrore' && !m.extra.some(e => /ECOLOGIA|DESCRIZIONE/.test(e.titolo)), m.extra);
+  t('AG2 Descrizione estesa: testo prima del blocco', m.descrizione_estesa === 'Il Mangiamarcio è un serpente bianco lungo come una chiatta, cieco, che vive nei canali.\nLo chiamano così i pescatori del lago.', m.descrizione_estesa);
+  t('AG2 Descrizione estesa: titolo dopo l\'ultimo blocco', l.descrizione_estesa === 'lupi grandi come cavalli, con le costole fuori dalla pelle.', l.descrizione_estesa);
+  t('AG2 il resto si legge come prima', m.ca === 22 && m.fatica === 60 && m.tattiche.r1 === 'morde il più vicino.' && l.ca === 18 && l.pf === 47);
+  t('AG2 tipo e sottotipi', M.tipoDi(m) === 'Non morto' && M.sottotipiDi(m).join('|') === 'criptoreo|acquatico' && M.tipoDi(l) === 'Animale' && M.sottotipiDi(l).length === 0);
+  t('AG2 etichette automatiche', M.etichetteAuto(m).join('|') === 'Non morto|criptoreo|acquatico|la Palude|i canali del lago|Bosco del Terrore', M.etichetteAuto(m));
+  const tx = M.testoStatBlock(m);
+  t('AG2 Copia come testo: DESCRIZIONE dopo l\'Iniziativa, ECOLOGIA prima delle TATTICHE', /Percezione \+16\n── DESCRIZIONE ──\nAspetto: un serpente[^\n]*\nCarattere: affamato[^\n]*\n── DIFESA ──/.test(tx) && /── ECOLOGIA ──\nAmbiente: la Palude; i canali del lago; Bosco del Terrore\n── TATTICHE ──/.test(tx), tx);
+  t('AG2 Copia come testo: la Descrizione estesa resta fuori dal riquadro', !tx.includes('Mangiamarcio è un serpente') && M.testoStatBlock(m, { estesa: true }).startsWith('Descrizione: Il Mangiamarcio'));
+  t('AG2 senza descrizione nella pagina', !M.testoStatBlock(m, { descrizione: false }).includes('DESCRIZIONE'));
+  const giro = M.leggiStatBlock(M.testoStatBlock(m, { estesa: true }))[0].scheda;
+  t('AG2 andata e ritorno', giro.aspetto === m.aspetto && giro.carattere === m.carattere && giro.ambiente === m.ambiente && giro.descrizione_estesa === m.descrizione_estesa, giro);
+  const png = { ...M.schedaVuota('png'), id: 'x', nome: 'Grok', razza_riga: 'Razza: orco · Umanoide Medio (orco) · CN', etichette: ['umanoide', 'Capo'], gs: '' };
+  t('AG2 PNG: tipo e sottotipo, manuali non doppie', M.tutteEtichette(png).join('|') === 'Umanoide|orco|Capo', M.tutteEtichette(png));
+  const lista = [m, l, png, { ...M.schedaVuota('png'), id: 'y', nome: 'Ape', gs: '1/2', razza_riga: 'Parassita Piccolo', preferito: false }];
+  t('AG2 ordine GS crescente, senza GS in fondo', M.ordinaSchede(lista, 'gs').map(x => x.nome).join('|') === 'Ape|Lupo Crudele Deformato|Mangiamarcio|Grok', M.ordinaSchede(lista, 'gs').map(x => x.nome));
+  t('AG2 ordine GS decrescente', M.ordinaSchede(lista, 'gs_desc').map(x => x.nome).join('|') === 'Mangiamarcio|Lupo Crudele Deformato|Ape|Grok');
+  t('AG2 ordine Z→A', M.ordinaSchede(lista, 'nome_desc')[0].nome === 'Mangiamarcio' && M.ordinaSchede(lista, 'nome')[0].nome === 'Ape');
+  lista[2] = { ...png, preferito: true }; t('AG2 preferiti in cima', M.ordinaSchede(lista, 'gs')[0].nome === 'Grok');
+  const ct = M.contaTipi(lista); t('AG2 conteggi dei tipi (13, anche a 0)', Object.keys(ct).length === 13 && ct['Non morto'] === 1 && ct.Animale === 1 && ct.Umanoide === 1 && ct.Parassita === 1 && ct.Drago === 0);
+  const ce = M.contaEtichette(lista); t('AG2 conteggi delle etichette', ce.find(e => e.nome === 'Bosco del Terrore').n === 1 && ce[0].nome.localeCompare(ce[1].nome, 'it') < 0);
+  t('AG2 filtro Tipo dal menu', M.cercaSchede(lista, { tipo: 'Umanoide' }).length === 1 && M.cercaSchede(lista, { tipo: 'Umanoide mostruoso' }).length === 0 && M.cercaSchede(lista, { tipo: 'Non morto' })[0].nome === 'Mangiamarcio');
+  t('AG2 filtro Etichetta dal menu (automatica)', M.cercaSchede(lista, { etichetta: 'criptoreo' }).length === 1 && M.cercaSchede(lista, { etichetta: 'Capo' })[0].nome === 'Grok');
+  t('AG2 cercaSchede con l\'ordine', M.cercaSchede(lista, { ordine: 'gs_desc' })[0].nome === 'Grok' && M.cercaSchede(lista, { ordine: 'gs_desc' })[1].nome === 'Mangiamarcio');
+}
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);

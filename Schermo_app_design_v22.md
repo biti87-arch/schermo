@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v20
+# Schermo del Narratore — design dell'app v22
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -40,6 +40,10 @@
 
 
 *v20 (03/11/2026): richieste di Massy dopo l'uso della `v1.0.2`, confermate in chat: **colonne che scorrono da sole** sul PC (sezione AE) e **bestiario dalla pagina iniziale** con «Esporta bestiario» a caselle e l'importazione dei PNG delle campagne (sezione AF). Build 4b, pagina di prova confermata il 03/11 (Z5), rilascio `v1.0.3` / `win-1.0.3`.*
+
+*v21 (08/11/2026): richieste di Massy dopo l'uso della `v1.0.3`, confermate in chat in 4 passi (sezione AG): **PG con più classi** e Rifiatare per dado, **contatori** personalizzati anche a tempo (AG1); **bestiario** con scorrimento separato, ordine, menu Tipo ed Etichetta, descrizione riducibile, Ambiente ed etichette automatiche (AG2); **incontri** con i partecipanti scelti dal bestiario, descrizione, note e ricompense, copia e incolla, ordine (AG3); **eventi casuali** in una scheda propria con frequenza e ripetizioni, schede evento e importazione da docx o json (AG4, sostituisce AC6). Build 5a, 5b, 5c.*
+
+*v22 (08/11/2026): **Build 5a fatta** (AG1, AG2): motore con 890 test (56 nuovi), pagina 796 controlli a 1366 e 390 px (68 nuovi), pagina di prova sullo stesso artifact (versione 18); scelte di applicazione nella sezione Z6, da confermare sulla pagina di prova. Commit locale sul ramo `sviluppo`, niente push.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -82,6 +86,13 @@
 | Passo 12.2 — Bestiario dalla pagina iniziale, esportazione e importazione (AF) | ✅ 03/11 |
 | Build 4b — Colonne e bestiario (AE, AF) | ✅ pagina di prova confermata il 03/11 (artifact v17, Z5-1…Z5-7); rilascio `v1.0.3` / `win-1.0.3` |
 | Build 4 — Finestra TV in Electron, icona, primo rilascio APK e Windows | ✅ pagina di prova confermata il 02/11 (Z4-1…Z4-14, AD8, AD9); rilasci `v1.0.1` / `win-1.0.1` (commit `714317b`) e `v1.0.2` / `win-1.0.2` (commit `0af5b65`, testo della TV che si adatta), provati da Massy il 02/11 |
+| Passo 13.1 — PG con più classi, Rifiatare per dado, contatori anche a tempo (AG1) | ✅ 08/11 |
+| Passo 13.2 — Bestiario: scorrimento, ordine, menu, descrizione, Ambiente, etichette automatiche (AG2) | ✅ 08/11 |
+| Passo 13.3 — Incontri: bestiario, campi nuovi, copia e incolla, ordine (AG3) | ✅ 08/11 |
+| Passo 13.4 — Eventi casuali e importazione (AG4) | ✅ 08/11 |
+| Build 5a — PG e bestiario (AG1, AG2) | 🔶 fatta l'08/11, pagina di prova (artifact v18) da confermare (Z6) |
+| Build 5b — Incontri (AG3) | ⬜ |
+| Build 5c — Eventi casuali e importazione (AG4) | ⬜ |
 
 Una chat per fase. Ogni build finisce con la pagina di prova (artifact) confermata da Massy; le versioni native solo dopo la conferma della Build 4.
 
@@ -567,6 +578,10 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 | Build 3a | Condizioni (P), Imprevisti con i tiri (Q), strumenti (T), ritocchi ai malus (sezione AB) | pagina di prova confermata |
 | Build 3b | Prontuario (R), incontri casuali (S) | ✅ pagina di prova confermata (02/11) |
 | Build 4 | Finestra TV in Electron (L, AD1–AD5), tasti globali, icona (`icone.py`, AD6), `controlla_app.py`, primo push su `main` dopo il via di Massy, prova di APK e Windows (AD7) | release `v1.0.1` / `win-1.0.1` (poi un numero nuovo a ogni correzione) |
+| Build 4b | Colonne che scorrono da sole (AE), bestiario dalla pagina iniziale (AF) | ✅ release `v1.0.3` / `win-1.0.3` |
+| Build 5a | PG con più classi e contatori (AG1), bestiario (AG2) | pagina di prova confermata, poi release |
+| Build 5b | Incontri (AG3) | pagina di prova confermata, poi release |
+| Build 5c | Eventi casuali e importazione (AG4) | pagina di prova confermata, poi release |
 
 ## Y. Punti aperti
 
@@ -580,6 +595,7 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - Build 3b: chiusa il 02/11 (AC1–AC10, Z3b confermate). Prossima: Build 4 (finestra TV in Electron, icona, primo rilascio).
 - Build 4: chiusa il 02/11 (AD1–AD9, Z4-1…Z4-14); release `v1.0.2` / `win-1.0.2` provate da Massy («va tutto bene»). L'app è completa: nuove richieste in una chat nuova, partendo dal ramo `sviluppo` (commit `0af5b65`, uguale a `main`).
 - Build 4b (AE, AF): confermata il 03/11 (Z5-1…Z5-7, «funziona bene»); rilascio `v1.0.3` / `win-1.0.3`.
+- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a, 5b, 5c da fare.
 - Repo: il ramo predefinito è ancora `sviluppo`; da impostare a `main` nelle impostazioni del repo (a cura di Massy).
 - Guida del DM, divergenze con il Vol. 3 e refusi (AC1-3, AC1-4, AC7-1): da correggere nella Guida se si aggiorna.
 - Tabelle del Tempo Atmosferico v1.0, effetto «Tormenta»: il testo dice «Fiamme: come con il Vento molto forte», ma vale la tabella delle Fiamme (spegne anche la lanterna impermeabile; Massy, 01/11): da correggere nella prossima versione delle Tabelle.
@@ -983,6 +999,173 @@ Prima: «Esporta tutto» esportava già campagne e bestiario condiviso (i PNG de
 | **Importa** (pagina iniziale) | lo stesso pulsante; per i PNG di una campagna un menu sceglie dove vanno: la campagna da cui vengono (se c'è), un'altra campagna, i PNG generici o da nessuna parte; doppioni come prima (mancanti aggiunti, stesso identificativo ma diversi → copia «(importato)») |
 | «Esporta tutto» | invariato |
 | File vecchi | i bestiari esportati prima si importano come prima; un file nuovo aperto da una versione vecchia perde solo i PNG delle campagne |
+
+## AG. Build 5 — PG con più classi, contatori, bestiario, incontri, eventi casuali (richieste di Massy, confermate in chat l'08/11/2026, passi 1–4)
+
+Divisione: **Build 5a** (AG1 PG e contatori, AG2 bestiario) · **Build 5b** (AG3 incontri) · **Build 5c** (AG4 eventi casuali e importazione). Fonti: `Schema_Incontri_Eventi.md` v1.0 (08/11) della campagna, §11–§25; formato dello stat block della Guida schede PNG v1.3 §8.1 (riportato nello Schema §11: «── DESCRIZIONE ──» con `Aspetto:` e `Carattere:`, «── ECOLOGIA ──» con `Ambiente:`); DV delle classi dai 34 manuali singoli correnti.
+
+### AG1. PG con più classi, Rifiatare, contatori (passo 1)
+
+Prima (E, F6, F7): classe e livello in testo libero, livello numerico per il riposo, Rifiatare con un solo numero di dadi e un solo tipo di dado.
+
+**AG1-A Classi**
+| Punto | Scelta |
+|---|---|
+| Righe | Classe · Archetipo (facoltativo) · Livello · DV, con «+ Classe» |
+| Classe | menu delle 34 classi del Vol. 2 o testo libero |
+| DV | proposto dalla classe, modificabile: **d6** Arcanista, Fattucchiere, Necrarca, Stregone · **d10** Cavaliere, Guardia nera, Guerriero, Intrepido, Marzialista, Morfico, Paladino, Pistolero, Ranger · **d12** Ammazzamostri, Barbaro, Berserker · **d8** le altre 18 (Alchimista, Bardo, Convocatore, Custode grigio, Dominatore, Druido, Erudito, Inquisitore, Inventore, Ladro, Magus, Malefactor, Nobile, Oracolo, Purificatore, Ritualista, Sacerdote, Sigillatore) |
+| Livello del PG | somma dei livelli, calcolata |
+| Riquadro | «ARIA — Ladro 5 / Guerriero 2» |
+
+**AG1-B Rifiatare e riposo**
+| Punto | Scelta |
+|---|---|
+| Riserva | un dado per livello di ogni classe (Ladro 5 + Guerriero 2 → 5d8 + 2d10); classi con lo stesso dado si sommano |
+| Riquadro | «Rifiatare 4/5 d8 · 2/2 d10» |
+| Rifiatare | un campo per tipo di dado, con «Tutti»; spunta «ripete 1 e 2» invariata |
+| Riposo | riserva piena per ogni tipo; +1 Ferita per livello del PG (somma) |
+| Livello che cambia | sale: i dadi nuovi arrivano pieni; scende: la riserva si taglia |
+| Campagne salvate | la classe di prima diventa una riga con il livello e il dado di prima; riserva invariata |
+
+**AG1-C Contatori personalizzati**
+| Punto | Scelta |
+|---|---|
+| Dove | sul riquadro di ogni PG (es. «Ki 3/5», «Frecce 18») e in cima al Tavolo per la compagnia (es. «Torce 6») |
+| Campi | nome, valore, massimo (facoltativo), ricarica |
+| Ricarica | a mano · riposo 8 ore · ogni giorno all'alba · fine del combattimento; torna al massimo (senza massimo, al valore iniziale) |
+| Uso | «−» e «+», o un tocco sul valore per scriverlo |
+| Log e TV | una riga nel log per ogni ricarica; sulla TV non compaiono |
+
+**AG1-D Contatori a tempo** (aggiunta di Massy)
+| Punto | Scelta |
+|---|---|
+| Opzione | «Scorre col tempo»: scende o sale di N ogni intervallo |
+| Intervallo | round, minuti, ore o giorni, con il numero (es. 1 ogni 10 minuti, 2 ogni 3 giorni) |
+| Round | in combattimento al cambio di round; fuori dal combattimento 10 round = 1 minuto dell'orologio |
+| Tempo | segue l'orologio dell'app (avanzamenti, riposo, marcia), anche più intervalli in un colpo |
+| Limite | si ferma a 0 (o al massimo se sale), con un avviso nella coda delle cose da fare |
+| Pausa | ⏸ lo ferma senza cancellarlo |
+| Con la ricarica | si possono usare insieme |
+
+### AG2. Bestiario (passo 2)
+
+**AG2-A Scorrimento**
+| Punto | Scelta |
+|---|---|
+| PC (900 px e oltre) | pagina Bestiario: testata e filtri fermi, elenco e stat block scorrono ognuno per conto suo (come AE) |
+| Scheda nuova | lo stat block riparte dall'alto, l'elenco resta dov'era |
+| Telefono | toccando una scheda si scende allo stat block; «▴ Elenco» riporta al punto dell'elenco |
+| Dentro una campagna | elenco e scheda della terza colonna ricordano la loro posizione passando dall'uno all'altra |
+
+**AG2-B Ordine**: menu «Ordina» (Nome A→Z · Nome Z→A · GS crescente · GS decrescente); preferiti in cima; a parità di GS alfabetico; senza GS in fondo; l'ultimo ordine resta.
+
+**AG2-C Filtri a menu**
+| Filtro | Scelta |
+|---|---|
+| Tipo | sempre i 13 tipi (Aberrazione, Animale, Bestia magica, Costrutto, Drago, Esterno, Folletto, Melma, Non morto, Parassita, Umanoide, Umanoide mostruoso, Vegetale) con il numero di schede, grigi quelli a 0; tipo letto dalla riga «Razza:» |
+| Etichetta | tutte le etichette della raccolta che si sta guardando, in ordine alfabetico, con il numero; «Tutte» |
+
+**AG2-D Descrizione riducibile**
+| Punto | Scelta |
+|---|---|
+| Contenuto | `Aspetto:` e `Carattere:` di «── DESCRIZIONE ──» + campo libero «Descrizione estesa» |
+| Nella scheda | in cima allo stat block, riquadro «Descrizione ▾» che si chiude con un tocco; aperto o chiuso vale per tutte le schede e resta |
+| Incolla / Copia come testo | Incolla legge la sezione, Copia la riscrive nel formato fisso; la Descrizione estesa resta fuori dal riquadro |
+| Descrizione estesa dall'Incolla (aggiunta di Massy) | titolo o riga «Descrizione», «Aspetto e storia» e simili fuori dal riquadro → il testo sotto, fino al blocco successivo; uno stat block solo → il testo libero prima della riga «NOME — … · GS»; più stat block → il testo subito prima di ogni blocco va a quel blocco; l'anteprima dell'Incolla la mostra, modificabile |
+
+**AG2-E Ambiente** (solo mostri): campo «Ambiente» nelle schede dei Mostri condivisi, luoghi separati da «;»; Incolla e Copia leggono e scrivono «── ECOLOGIA ── Ambiente: …»; un PNG incollato con la riga Ambiente la mostra comunque.
+
+**AG2-F Etichette automatiche**
+| Punto | Scelta |
+|---|---|
+| Da dove | tipo, ogni sottotipo fra parentesi, ogni luogo dell'Ambiente |
+| Esempio | «Razza: Non morto Medio (criptoreo, incorporeo)» + «Ambiente: Palude; Bosco del Terrore» → Non morto · criptoreo · incorporeo · Palude · Bosco del Terrore |
+| Aggiornamento | si rifanno quando cambiano tipo o Ambiente; quelle scritte a mano restano e hanno un altro colore |
+| PNG | anche loro, solo da tipo e sottotipi |
+| Schede salvate | le ricevono alla prima apertura |
+
+### AG3. Incontri (passo 3)
+
+**AG3-A Partecipanti dal bestiario**: «+ Partecipante» apre il bestiario intero (tre raccolte, ricerca, Tipo, Etichetta, GS, Ordina, preferiti), con anteprima dello stat block, quantità e «Aggiungi» (la finestra resta aperta e mostra cosa è già stato aggiunto), «+ Scheda» e «Incolla» anche da lì.
+
+**AG3-B Campi nuovi** (ordine: 📖 Descrizione · Note · 💰 Ricompense)
+| Campo | Scelta |
+|---|---|
+| 📖 Descrizione | testo da leggere con grassetto ed elenchi, riducibile |
+| Note | come oggi |
+| 💰 Ricompense | XP calcolati (se la campagna li usa) + righe di XP in più col motivo; tesoro con livello, quantità, dove e note; testo libero per oggetti di trama 🗝️ e informazioni |
+| Incontri salvati | il vecchio «tesoro» passa nelle note del 💰 |
+| In combattimento | avviato da un incontro: «📖 Titolo» in cima all'Iniziativa apre descrizione, note e ricompense; a fine combattimento le Ricompense accanto agli XP |
+
+**AG3-C Copia e incolla di un incontro**
+| Punto | Scelta |
+|---|---|
+| «Copia come testo» | formato fisso: titolo, atto e capitolo, luogo, descrizione, note, partecipanti con quantità e GS, promemoria, ricompense; casella «con gli stat block» |
+| «Incolla incontro» | accanto a «+ Incontro», testo dell'app o di un documento d'avventura |
+| Riconoscimento | titolo; sezioni dai titoli (📖 Descrizione, Nota GM / Note, 💰 Ricompense, «Round N:»); partecipanti da «Nome (×6, o ×3):» (quantità 6, «o ×3» nelle note) e dagli stat block |
+| Schede | stesso nome nel bestiario (PNG della campagna > generici > mostri) → quella; altrimenti nuova scheda dallo stat block: nei Mostri se ha l'Ecologia o «Mostro» in prima riga, sennò nei PNG della campagna |
+| Anteprima | modulo dell'incontro già compilato e modificabile; partecipanti ✔ trovato · ＋ nuova scheda · ❓ senza stat block (scegli dal bestiario); niente si salva prima di «Crea» |
+| Stesso nome, contenuto diverso | «usa quella del bestiario» di default, oppure «crea copia (importato)» |
+| Sezioni senza campo | Svolgimento, Soluzioni alternative, Rinforzi, Boss nelle Note col loro titolo |
+
+**AG3-D Ordine**: menu «Ordine» Manuale · Alfabetico. Manuale: «Sposta» con ▲ ▼ (sul PC anche trascinando), i nuovi in fondo alla cartella. Alfabetico: automatico; tornando a Manuale si parte dall'ordine alfabetico. Atti e capitoli in ordine naturale come oggi.
+
+### AG4. Eventi casuali e importazione (passo 4; sostituisce AC6)
+
+**AG4-A Scheda «Eventi»**
+| Punto | Scelta |
+|---|---|
+| Dove | terza colonna, fra Incontri e Prontuario; esce da Impostazioni, nel Viaggio resta solo l'avviso |
+| Contenuto | tabelle degli eventi, schede evento, «Tira» a mano, uscite per tabella |
+| Tabella | nome, dado (d4–d20 o d%), voci con intervallo, tipo (🗣 sociale, 🧱 ostacolo, 🌿 pericolo, 🔍 scoperta, ⚔ combattimento, 🎲 discrezione), difficoltà, Dove |
+| Voce | porta a un incontro (Avvia), a una scheda evento, a mostri o PNG con quantità o a un testo |
+| Territori (facoltativi) | elenco della tabella, ogni voce dice dove vale (o Ovunque); al tiro si sceglie dove sono i PG e la voce fuori posto si ritira da sola |
+| Aree salvate | diventano tabelle d% con le stesse probabilità, ogni 6 ore di marcia |
+
+**AG4-B Frequenza e ripetizioni** (per tabella)
+| Punto | Scelta |
+|---|---|
+| Quando | anche più d'uno: ogni N ore o giorni di marcia · ogni N ore o giorni di tempo (anche da fermi) · una volta per riposo · solo a mano |
+| Probabilità | percentuale oppure dado con i valori che fanno uscire l'evento (es. 1d6: 4–6) |
+| Ora | a caso dentro l'intervallo |
+| Ripetizioni | casella della tabella «una voce uscita non si ripete» + per voce «si può ripetere» come eccezione |
+| Voce uscita | si ritira da sola; «Azzera le uscite» |
+| Avviso | «EI 16 — Il branco (16 su d20) alle 14:00» con Apri · Avvia · Ritira · Ignora; ogni tiro nel log |
+| Interruttore | «Tiri automatici» per tabella, spento di default (S1) |
+
+**AG4-C Scheda evento** (Schema §17): testata (numero, titolo, tipo, difficoltà, terreno o Dove) · 📖 Descrizione riducibile · Nota GM (le tabelle «Se i PG… · Prova · Cosa succede» restano tabelle) · Indizi e informazioni · Profilo PNG (campi del §20, uno per PNG che parla) · 💰 Ricompense come negli incontri · Altro (ciò che non ha un campo, col suo titolo).
+
+**AG4-D Importazione da docx o json**
+| Punto | Scelta |
+|---|---|
+| Pulsante | «Importa eventi» nella scheda Eventi (.docx o .json) |
+| Tabella | quella col dado nella prima colonna, nome dal titolo sopra |
+| Eventi | blocchi «EI N — Titolo» o «N — Titolo», collegati alle voci per numero o titolo; la riga sotto dà tipo, difficoltà, terreno |
+| Con stat block | schede mancanti create (nome già presente → quella) e un incontro nella cartella col nome della tabella: Descrizione = 📖, Note = Nota GM, Ricompense = 💰 |
+| Profilo di un PNG con stat block | nella Descrizione estesa della sua scheda |
+| Senza stat block | scheda evento con tutto il testo |
+| «Come si tira» | nelle note della tabella; ripetizioni («salvo 8, 16…») e frequenza («1d6 … 4–6») impostate se riconosciute, altrimenti nell'anteprima |
+| Anteprima | tutto ciò che verrà creato, modificabile; niente si salva prima di «Crea tutto» |
+| Reimportazione | tabella con lo stesso nome: «Sostituisci» o «Crea copia» |
+| JSON | formato descritto qui alla Build 5c, usabile dal progetto della campagna; lo stesso per esportare una tabella con i suoi eventi |
+
+## Z6. Build 5a — come è stata applicata (08/11/2026)
+
+### Fatto
+- **Motore**: classi del PG (`classi` nella scheda; livello, testo della classe e dadi del Rifiatare ricavati), riserva del Rifiatare per dado (`stato.rif`), `rifiatare` con un numero o con i dadi per tipo, riposo e modifica della scheda con i dadi nuovi pieni; contatori del PG e della compagnia (`salvaContatore`, `cambiaContatore`, `ricaricaContatore`, `pausaContatore`, `eliminaContatore`), ricariche al riposo, all'alba e a fine combattimento, contatori a tempo dentro `avanza`; Incolla con «── DESCRIZIONE ──», «── ECOLOGIA ──» e la Descrizione estesa, Copia come testo con le due sezioni, tipo e sottotipi dalla riga «Razza:», etichette automatiche, ordine, conteggi per i menu. Migrazione delle campagne salvate. 890 test (56 nuovi).
+- **Interfaccia**: righe delle classi nella scheda del PG, Rifiatare per dado, contatori sul riquadro e in cima al Tavolo; bestiario con i menu Tipo, Etichetta e Ordina, descrizione riducibile, Ambiente ed etichette automatiche nell'editor, Descrizione estesa nell'anteprima dell'Incolla, pagina Bestiario con elenco e stat block che scorrono per conto loro.
+- **Prove**: pagina 796 controlli a 1366 e 390 px (68 nuovi), artifact versione 18.
+
+### Scelte di applicazione (da confermare)
+- **Z6-1** Classe: campo con l'elenco delle 34 classi (scrivendo si filtra) o testo libero; il DV si propone quando il nome è quello di una classe. Le schede salvate ripartono da una riga con la classe di prima (senza il numero), il livello e il dado del Rifiatare.
+- **Z6-2** Rifiatare: un campo per dado che parte da 0, «Tutti» riempie la riserva; nel riquadro i dadi in ordine crescente («7/7 d8 · 1/2 d10»); dopo il tiro la finestra dice cosa resta.
+- **Z6-3** Contatori: «+ Contatore» nella fila dei pulsanti del PG e accanto a «+ PG» per la compagnia (che compare sotto il titolo del Tavolo); il tocco sul nome apre la modifica con Elimina, Ricarica ora e Pausa/Riprendi; ⏱ accanto al nome se scorre col tempo, ⏸ se in pausa.
+- **Z6-4** Ricarica: senza massimo torna al valore che aveva quando è stato creato; «all'alba» = alle 06:00, l'ora dell'alba dell'app.
+- **Z6-5** Contatore a tempo: conta dal momento in cui si crea o si cambia l'intervallo; riprendendo dalla pausa riparte da allora. L'avviso nella coda arriva una volta sola, finché il contatore non cambia di nuovo.
+- **Z6-6** Menu Tipo: i tipi senza schede sono grigi e non si scelgono; menu Etichetta: le etichette della raccolta che si sta guardando; le automatiche hanno il bordo tratteggiato.
+- **Z6-7** Descrizione: riquadro aperto la prima volta; la Descrizione estesa sotto Aspetto e Carattere, in grigio. Nell'avvio e negli incontri lo stat block mostra ancora la sezione DESCRIZIONE al suo posto.
+- **Z6-8** Incolla: le righe «Nome (×6, o ×3):» e «Stat block…» prima di un blocco non vanno nella Descrizione estesa. Copia come testo non riporta la Descrizione estesa (resta fuori dal riquadro).
+- **Z6-9** Correzione: nello stat block «Non morto» non si colora più come la condizione Morto.
 
 ## Z5. Build 4b — come è stata applicata (03/11/2026)
 

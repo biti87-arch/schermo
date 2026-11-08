@@ -438,19 +438,22 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   for (const k of ['modelli', 'luci', 'promemoria', 'tiri']) x[k] = x[k] || [];
   // Build 3b: medicinali, erbe miste, viaggio, aree degli incontri casuali (spenti finché il GM non li accende)
   const n3 = CAMPI_3B(); for (const k of Object.keys(n3)) if (x[k] === undefined) x[k] = n3[k];
+  // Build 5a: classi del PG, riserva del Rifiatare per dado, contatori
+  x.contatori = x.contatori || [];
+  for (const p of x.pg) { sincronizzaClassi(p.scheda); riservaRif(p); p.contatori = p.contatori || []; }
   for (const p of x.pg) for (const [k, v] of [['cerusico', 0], ['erborista', false], ['erborista_gradi', 0]]) if (p.scheda[k] === undefined) p.scheda[k] = v;
   return x;
 }
 function log(c, testo) { c.log.push({ R: c.tempo.R, testo }); if (c.log.length > 5000) c.log.splice(0, c.log.length - 5000); }
 
 // ------------------------------------------------------------------ PG
-const SCHEDA_VUOTA = { nome: '', giocatore: '', razza: '', classe: '', livello: 1, fatica_max: 0, ferita_max: 0,
+const SCHEDA_VUOTA = { nome: '', giocatore: '', razza: '', classe: '', livello: 1, classi: [], fatica_max: 0, ferita_max: 0,
   rif_dadi: 1, rif_tipo: 8, rif_ripete: false, ca: 10, ca_contatto: 10, ca_sprovvista: 10, dmc: 10, rd: '', resistenze: '', immunita: '',
   tempra: 0, riflessi: 0, volonta: 0, ts_note: '', percezione: 0, intuizione: 0, furtivita: 0,
   abilita_libere: [{ nome: '', valore: 0 }, { nome: '', valore: 0 }], iniziativa: 0, imp_pen: 6, velocita: '', sensi: '', note: '',
   cerusico: 0, erborista: false, erborista_gradi: 0 }; // Build 3b: gradi in Professione (cerusico) ed (erborista)
-function controllaScheda(s) {
-  const err = [];
+function controllaScheda(s0) {
+  const s = sincronizzaClassi(clona(s0)), err = erroriClassi(s.classi);
   if (!s.nome || !String(s.nome).trim()) err.push('nome mancante');
   for (const k of ['livello', 'fatica_max', 'ferita_max', 'rif_dadi']) if (!(Number.isInteger(s[k]) && s[k] >= (k === 'livello' ? 1 : 0))) err.push(`${k} non valido`);
   if (![4, 6, 8, 10, 12].includes(s.rif_tipo)) err.push('dado del Rifiatare non valido');
@@ -459,11 +462,12 @@ function controllaScheda(s) {
   return err;
 }
 function aggiungiPG(camp, scheda, rng) {
-  const s = { ...clona(SCHEDA_VUOTA), ...clona(scheda) };
+  const s = sincronizzaClassi({ ...clona(SCHEDA_VUOTA), ...clona(scheda) });
   const err = controllaScheda(s); if (err.length) throw new Error(err.join('; '));
   const c = clona(camp);
-  c.pg.push({ id: prossimoId(c, 'p'), scheda: s, stato: { fatica: s.fatica_max, ferita: s.ferita_max, temp: [], nonletali: 0, eroe: 1, rif_riserva: s.rif_dadi,
-    fame: { giorni_senza: 0, penalita: 0 }, sete: { giorni_senza: 0, penalita: 0 }, malus: [] } });
+  const p = { id: prossimoId(c, 'p'), scheda: s, stato: { fatica: s.fatica_max, ferita: s.ferita_max, temp: [], nonletali: 0, eroe: 1, rif_riserva: s.rif_dadi,
+    fame: { giorni_senza: 0, penalita: 0 }, sete: { giorni_senza: 0, penalita: 0 }, malus: [] }, contatori: [] };
+  riservaPiena(p); c.pg.push(p);
   log(c, `PG aggiunto: ${s.nome}`);
   return c;
 }
@@ -471,13 +475,16 @@ function aggiungiPG(camp, scheda, rng) {
 function modificaPG(camp, id, scheda) {
   const c = clona(camp), p = trova(c, id);
   const s = { ...p.scheda, ...clona(scheda) };
+  if (!('classi' in scheda) && ('classe' in scheda || 'livello' in scheda || 'rif_tipo' in scheda)) delete s.classi; // chiamate col formato vecchio
+  sincronizzaClassi(s);
   const err = controllaScheda(s); if (err.length) throw new Error(err.join('; '));
+  const mxPrima = riserveMax(p.scheda), corr = riservaRif(p), mxDopo = riserveMax(s); // AG1-B: i dadi nuovi arrivano pieni
   const st = p.stato;
   if (st.fatica === p.scheda.fatica_max) st.fatica = s.fatica_max;
   if (st.ferita === p.scheda.ferita_max) st.ferita = s.ferita_max;
   st.fatica = Math.min(st.fatica, s.fatica_max); st.ferita = Math.min(st.ferita, s.ferita_max);
-  st.rif_riserva = Math.min(st.rif_riserva, s.rif_dadi);
-  p.scheda = s; return c;
+  st.rif = Object.fromEntries(Object.keys(mxDopo).map(dv => [dv, Math.min(mxDopo[dv], (corr[dv] || 0) + Math.max(0, mxDopo[dv] - (mxPrima[dv] || 0)))]));
+  p.scheda = s; riservaRif(p); return c;
 }
 function rimuoviPG(camp, id) {
   const c = clona(camp); const p = trova(c, id); c.pg = c.pg.filter(x => x.id !== id); log(c, `PG rimosso: ${p.scheda.nome}`); return c;
@@ -539,15 +546,24 @@ function pfTemporanei(camp, id, fonte, valore, durata) {
 }
 // Rifiatare: n dadi della riserva, solo ai Fatica; con la spunta ripete 1 e 2 quante volte serve (Vol. 1).
 function rifiatare(camp, id, n, rng) {
-  const c = clona(camp), p = trova(c, id), st = p.stato, s = p.scheda;
-  if (!(Number.isInteger(n) && n > 0)) throw new Error('numero di dadi non valido');
-  if (n > st.rif_riserva) throw new Error('dadi insufficienti nella riserva');
+  const c = clona(camp), p = trova(c, id), st = p.stato, s = p.scheda, ris = riservaRif(p);
+  let scelta;
+  if (typeof n === 'number') {
+    if (!(Number.isInteger(n) && n > 0)) throw new Error('numero di dadi non valido');
+    if (n > st.rif_riserva) throw new Error('dadi insufficienti nella riserva');
+    scelta = sceltaRifiatare(p, n);
+  } else {
+    scelta = {};
+    for (const [dv, k] of Object.entries(n || {})) { if (!(Number.isInteger(k) && k >= 0)) throw new Error('numero di dadi non valido'); if (k > (ris[dv] || 0)) throw new Error('dadi insufficienti nella riserva'); if (k) scelta[dv] = k; }
+    if (!sommaRif(scelta)) throw new Error('numero di dadi non valido');
+  }
   if (statoNonLetali(p) === 'Privo di Sensi') throw new Error('per Rifiatare il personaggio deve essere cosciente');
-  const dadi = [];
-  for (let i = 0; i < n; i++) { let x = d(s.rif_tipo, rng); if (s.rif_ripete && s.rif_tipo > 2) while (x <= 2) x = d(s.rif_tipo, rng); dadi.push(x); }
+  const dadi = [], tipi = Object.keys(scelta).map(Number).sort((a, b) => b - a);
+  for (const dv of tipi) for (let i = 0; i < scelta[dv]; i++) { let x = d(dv, rng); if (s.rif_ripete && dv > 2) while (x <= 2) x = d(dv, rng); dadi.push(x); }
   const tirati = dadi.reduce((a, b) => a + b, 0), div = divisoreOrgano(p), tot = Math.floor(tirati / div);
-  const prima = st.fatica; st.fatica = Math.min(massimi(c, p).fatica, st.fatica + tot); st.rif_riserva -= n;
-  log(c, `${s.nome}: Rifiatare ${n}d${s.rif_tipo} = ${tirati} [${dadi.join(', ')}]` + (div > 1 ? ` ÷ ${div} (organo compromesso) = ${tot}` : '') + ` — Fatica ${prima} → ${st.fatica}`);
+  const prima = st.fatica; st.fatica = Math.min(massimi(c, p).fatica, st.fatica + tot);
+  for (const dv of tipi) ris[dv] -= scelta[dv]; st.rif_riserva = sommaRif(ris);
+  log(c, `${s.nome}: Rifiatare ${tipi.map(dv => `${scelta[dv]}d${dv}`).join(' + ')} = ${tirati} [${dadi.join(', ')}]` + (div > 1 ? ` ÷ ${div} (organo compromesso) = ${tot}` : '') + ` — Fatica ${prima} → ${st.fatica}`);
   return { camp: c, dadi, totale: tot, tirati, divisore: div };
 }
 function puntoEroe(camp, id, valore) {
@@ -574,6 +590,7 @@ function avanza(camp, dR, meteo, rng, motivo, opz) {
     tempoMalus(c, prec, t, rng, !!(opz && opz.daTurno));
     luciTempo(c, meteo, STRUMENTI, prec, t, rng);
     promemoriaTempo(c, prec, t);
+    contatoriTempo(c, prec, t); // AG1-D
     if (t % ROUND_GIORNO === 0 && t > prec) { c = cambioGiorno(c, meteo, rng); }
     prec = t;
   }
@@ -637,7 +654,7 @@ function riposo(camp, meteo, rng, ids, opz) {
     const s = p.scheda, st = p.stato, mx = massimi(c, p), div = divisoreOrgano(p);
     st.fatica = div > 1 ? Math.min(mx.fatica, st.fatica + Math.floor(Math.max(0, mx.fatica - st.fatica) / div)) : mx.fatica;
     const kk = k * (assistiti.has(p.id) ? 2 : 1); recCar[p.id] = kk;
-    st.ferita = Math.min(mx.ferita, st.ferita + s.livello * kk); st.rif_riserva = s.rif_dadi;
+    st.ferita = Math.min(mx.ferita, st.ferita + s.livello * kk); riservaPiena(p);
     if (div > 1) log(c, `${s.nome}: organo compromesso, Punti Fatica recuperati ÷ ${div}`);
     st.ultimo_riposo = { inizio, fine: inizio + DUR };
     for (const m of st.malus.filter(m => m.finoRiposo)) togliDaElenco(c, st.malus, m, `${s.nome}: ${m.nome} fa effetto al risveglio (${m.mods && m.mods.altro ? m.mods.altro : 'prima di coricarsi'})`);
@@ -648,6 +665,7 @@ function riposo(camp, meteo, rng, ids, opz) {
   // AC3-9 danni alle caratteristiche: l'app non tiene i punteggi, il log dice quanto si recupera
   const gruppi = {}; for (const p of scelti) (gruppi[recCar[p.id]] = gruppi[recCar[p.id]] || []).push(p.scheda.nome);
   log(c, 'Danni alle caratteristiche: ' + Object.entries(gruppi).map(([n, nomi]) => `${nomi.join(', ')} recupera${nomi.length > 1 ? 'no' : ''} ${n} a ciascuna caratteristica`).join('; '));
+  ricaricaContatori(c, 'riposo', scelti.map(p => p.id)); // AG1-C
   if (opz.stanze) stanzeLocanda(c, opz.stanze, rng);
   return c;
 }
@@ -1168,6 +1186,7 @@ function fineCombattimento(camp, oraReale, schedaDi) {
     log(c, `XP dei nemici sconfitti: ${migliaia(sconfitti)} (${migliaia(rie.xp.perPG)} a PG; ${migliaia(rie.xp.perPGconAcc)} contando gli accompagnatori)`);
   }
   c.combattimento = null; c.n_comb = (c.n_comb || 0) + 1;
+  ricaricaContatori(c, 'combattimento'); // AG1-C
   for (const p of c.pg) { const via = p.stato.malus.filter(m => m.durata.tipo === 'incontro');
     for (const m of via) togliDaElenco(c, p.stato.malus, m, `${p.scheda.nome}: finisce ${m.nome} (fine dell'incontro)`); }
   return { camp: c, riepilogo: rie };
@@ -1901,7 +1920,8 @@ const ABIL_CAR = { 'Acrobazia': 'Des', 'Artista della fuga': 'Des', 'Camuffare':
   'Utilizzare congegni magici': 'Car', 'Valutare': 'Int', 'Volare': 'Des' };
 const TATTICHE = [['prima', 'Prima del combattimento'], ['r1', 'Round 1'], ['r23', 'Round 2–3'], ['fatica', 'Finita la Fatica'], ['fuga', 'Fuga o resa'], ['tratto', 'Tratto razziale']];
 const CAMPI_TESTO = ['nome', 'epiteto', 'classi_testo', 'note_testata', 'fonte', 'razza_riga', 'allineamento', 'ini_nota', 'sensi', 'perc_nota', 'aura', 'ca_scomp', 'pf_dadi', 'pf_nota', 'ts_note', 'difese',
-  'velocita', 'bab', 'bmc', 'dmc', 'mischia', 'distanza', 'speciali', 'incantesimi', 'talenti', 'abilita', 'lingue', 'tratti', 'sintonia', 'equip', 'statistiche_altro', 'altro'];
+  'velocita', 'bab', 'bmc', 'dmc', 'mischia', 'distanza', 'speciali', 'incantesimi', 'talenti', 'abilita', 'lingue', 'tratti', 'sintonia', 'equip', 'statistiche_altro', 'altro',
+  'aspetto', 'carattere', 'descrizione_estesa', 'ambiente']; // Build 5a: «── DESCRIZIONE ──», Descrizione estesa, «── ECOLOGIA ── Ambiente:» (AG2-D/E)
 const CAMPI_NUM = ['livello', 'iniziativa', 'percezione', 'ca', 'ca_contatto', 'ca_sprovvista', 'pf', 'fatica', 'ferita', 'tempra', 'riflessi', 'volonta', 'xp'];
 const segnoN = n => (n >= 0 ? '+' : '−') + Math.abs(n);
 const migliaia = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -1944,13 +1964,16 @@ function eTestata(riga) {
 }
 const TIPI_CREATURA = /\b(aberrazione|animale|bestia|costrutto|drago|esterno|folletto|gigante|melma|non morto|parassita|umanoide|vegetale|mutaforma|razza:)/i;
 const ALLINEAMENTO = /^(legale|neutrale|caotic[oa]|[LNC][BNM]\b|N\b)/i;
+// AG2-D: titolo della descrizione lunga fuori dal riquadro («Descrizione», «Aspetto e storia»…)
+const TITOLO_DESC = /^(?:📖\s*)?(Descrizione(?: estesa| dettagliata| lunga)?|Aspetto e storia|Aspetto e carattere|Storia)\s*(?:[:—–-]\s*(.*))?$/iu;
 const FINE_BLOCCO = /^(\d+(\.\d+)+\s*[—–·-]|PROFILO\b|NOTE SULLA SCHEDA|[📖📌🎲⚔🧭💬🗺💰①②③]|\d+\s*·\s*[IVX]+\.)/u;
 const CHIAVI_RIGA = /^(Razza|Base|Iniziativa|Aur[ae]|CA|PF|TS|RD|RE|RI|Immunit|Resistenz|Vulnerabilit|Debolezz|Velocit|Spazio|BaB|BMC|CMB|DMC|CMD|Mischia|Distanza|Attacchi speciali|Incantesimi|Capacità magiche|CAPACITÀ MAGICHE|For\b|FOR\b|Talenti|Abilit|Lingue|Linguaggi|Tratti razziali|Sintonia|Equipaggiamento|Tesoro|Gesta|Grinta|Qualità speciali|Prima del combattimento|Round|Finita la Fatica|Fuga o resa|Tratto razziale)/;
 function sezioneDi(titolo) {
   const t = titolo.toUpperCase();
   if (/^DIFES/.test(t)) return 'difesa'; if (/^OFFES/.test(t)) return 'offesa'; if (/^STATISTICH/.test(t)) return 'statistiche';
   if (/^TATTIC/.test(t)) return 'tattiche'; if (/^(ATTACCHI SPECIALI|CAPACITÀ|SPECIAL)/.test(t)) return 'speciali';
-  if (/^SINTONIA/.test(t)) return 'sintonia'; if (/^(XP|GS)$/.test(t)) return 'ignora'; return 'extra';
+  if (/^SINTONIA/.test(t)) return 'sintonia'; if (/^(XP|GS)$/.test(t)) return 'ignora';
+  if (/^DESCRIZION/.test(t)) return 'descrizione'; if (/^ECOLOGI/.test(t)) return 'ecologia'; return 'extra';
 }
 // righe logiche: le righe che continuano la precedente (rientrate, in minuscolo, con «·», «(», «=» o dopo una virgola) si uniscono
 function righeLogiche(righe) {
@@ -2012,9 +2035,18 @@ function leggiBlocco(righe) {
   for (const r of logiche) {
     const h = r.match(/^[─━]{2,}\s*(.+?)\s*[─━]{2,}\s*$/);
     if (h) { sez = sezioneDi(h[1]); if (sez === 'extra') { titoloExtra = h[1]; extra.push({ titolo: h[1], testo: '', dopo: dopoSez }); } else if (sez !== 'ignora' && sez !== 'sintonia') dopoSez = sez;
-      if (sez === 'tattiche' && /\(/.test(h[1])) buf.tattiche.push(h[1].replace(/^TATTICHE\s*/i, '')); continue; }
+      if (sez === 'tattiche' && /\(/.test(h[1])) buf.tattiche.push(h[1].replace(/^TATTICHE\s*/i, '')); if (sez === 'descrizione' || sez === 'ecologia') sez = sez; continue; }
+    if (sez === 'descrizione' || sez === 'ecologia') { // Build 5a (AG2-D/E)
+      let m;
+      if (sez === 'descrizione' && (m = r.match(/^Aspetto\s*:\s*([^]*)$/i))) { s.aspetto = unisci(s.aspetto, m[1].trim()); continue; }
+      if (sez === 'descrizione' && (m = r.match(/^Carattere\s*:\s*([^]*)$/i))) { s.carattere = unisci(s.carattere, m[1].trim()); continue; }
+      if (sez === 'ecologia' && (m = r.match(/^Ambiente\s*:\s*([^]*)$/i))) { s.ambiente = [s.ambiente, m[1].trim()].filter(Boolean).join('; '); continue; }
+      if (!FINE_BLOCCO.test(r) && !/^💰/u.test(r) && !TITOLO_DESC.test(r)) { let e = extra[extra.length - 1];
+        const tit = sez === 'descrizione' ? 'DESCRIZIONE' : 'ECOLOGIA';
+        if (!e || e.titolo !== tit) extra.push(e = { titolo: tit, testo: '', dopo: sez === 'descrizione' ? 'testa' : 'statistiche' }); e.testo = unisci(e.testo, r); continue; }
+    }
     if (/^💰\s*TESORO/u.test(r)) { s.tesoro = leggiTesoro(r); continue; }
-    if (FINE_BLOCCO.test(r)) break;
+    if (FINE_BLOCCO.test(r) || TITOLO_DESC.test(r)) break;
     if (sez === 'testa') {
       if (/^Iniziativa\b/i.test(r)) {
         const m = r.match(/Iniziativa\s*([+−–-]\s*\d+)\s*([^|\n]*)/i); if (m) { s.iniziativa = numero(m[1]); if (m[2].trim()) s.ini_nota = m[2].trim(); }
@@ -2136,7 +2168,25 @@ function leggiBlocco(righe) {
 function leggiStatBlock(testo) {
   const righe = String(testo || '').replace(/\r\n?/g, '\n').replace(/ /g, ' ').split('\n');
   const inizi = righe.map((r, i) => eTestata(r) ? i : -1).filter(i => i >= 0);
-  return inizi.map((i, j) => { const b = leggiBlocco(righe.slice(i, j + 1 < inizi.length ? inizi[j + 1] : undefined)); b.riga = i + 1; return b; });
+  const blocchi = inizi.map((i, j) => { const b = leggiBlocco(righe.slice(i, j + 1 < inizi.length ? inizi[j + 1] : undefined)); b.riga = i + 1; return b; });
+  // AG2-D: Descrizione estesa dal testo fuori dal riquadro
+  const fineDi = (i, fine) => { for (let k = i + 1; k < fine; k++) { const t = righe[k].trim(); if (/^[─━]{2,}/.test(t)) continue; if (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t)) return k; } return fine; };
+  const pulisci = L => { const out = []; let titolato = false;
+    for (const r of L) { const t = r.trim(); if (!t) continue; const m = t.match(TITOLO_DESC);
+      if (m) { titolato = true; out.length = 0; if (m[2]) out.push(m[2].trim()); continue; }
+      if (/\(\s*[x×]\s*\d+[^)]*\)\s*:?\s*$/i.test(t) || /^Stat block\b/i.test(t)) continue; // «Lupi crudeli (×6, o ×3):»
+      out.push(t); }
+    return { testo: out.join('\n').trim(), titolato }; };
+  blocchi.forEach((b, j) => {
+    const da = j === 0 ? 0 : fineDi(inizi[j - 1], inizi[j]);
+    const pre = pulisci(righe.slice(da, inizi[j]));
+    if (pre.testo) b.scheda.descrizione_estesa = pre.testo;
+  });
+  if (blocchi.length) { // titolo dopo l'ultimo blocco senza descrizione: va a quel blocco
+    const j = blocchi.length - 1, k = fineDi(inizi[j], righe.length), coda = pulisci(righe.slice(k));
+    if (coda.titolato && coda.testo && !blocchi[j].scheda.descrizione_estesa) blocchi[j].scheda.descrizione_estesa = coda.testo;
+  }
+  return blocchi;
 }
 
 // ---------- scheda guidata: i calcoli della struttura (M4)
@@ -2331,6 +2381,7 @@ function testoStatBlock(s, opz = {}) {
   if (s.razza_riga) L.push((s.tipo_scheda === 'png' && !/^Razza/i.test(s.razza_riga) ? 'Razza: ' : '') + s.razza_riga);
   L.push([s.iniziativa !== null ? `Iniziativa ${segnoN(s.iniziativa)}${s.ini_nota ? ' ' + s.ini_nota : ''}` : '', s.sensi ? `Sensi: ${s.sensi}` : '', s.percezione !== null ? `Percezione ${segnoN(s.percezione)}${s.perc_nota ? ' ' + s.perc_nota : ''}` : ''].filter(Boolean).join(' | '));
   if (s.aura) L.push('Aura: ' + s.aura);
+  if (opz.descrizione !== false && (s.aspetto || s.carattere)) { L.push('── DESCRIZIONE ──'); if (s.aspetto) L.push('Aspetto: ' + s.aspetto.replace(/\n/g, ' ')); if (s.carattere) L.push('Carattere: ' + s.carattere.replace(/\n/g, ' ')); }
   const extra = dopo => (s.extra || []).filter(e => e.dopo === dopo).forEach(e => { L.push(`── ${e.titolo} ──`); if (e.testo) L.push(e.testo); });
   extra('testa');
   L.push('── DIFESA ──');
@@ -2358,6 +2409,7 @@ function testoStatBlock(s, opz = {}) {
   const se = [s.sintonia ? 'Sintonia: ' + s.sintonia : '', s.equip ? 'Equipaggiamento: ' + s.equip : ''].filter(Boolean).join(' | '); if (se) L.push(se);
   if (s.statistiche_altro) L.push(s.statistiche_altro);
   extra('statistiche');
+  if (s.ambiente) { L.push('── ECOLOGIA ──'); L.push('Ambiente: ' + luoghiAmbiente(s).join('; ')); }
   const T = s.tattiche || {};
   if (Object.values(T).some(Boolean)) {
     L.push('── TATTICHE ──');
@@ -2367,7 +2419,8 @@ function testoStatBlock(s, opz = {}) {
   extra('tattiche');
   if (s.tesoro) { const t = s.tesoro; L.push(['💰 TESORO — da generare', t.livello ? `Livello di riferimento: ${t.livello}` : '', t.quantita ? `Quantità: ${t.quantita}` : '', t.dove ? `Dove/chi lo porta: ${t.dove}` : '', t.note ? `Note: ${t.note}` : ''].filter(Boolean).join(' · ')); }
   if (s.altro) { L.push('── NOTE ──'); L.push(s.altro); }
-  return L.filter(x => x !== '').join('\n');
+  const blocco = L.filter(x => x !== '').join('\n');
+  return opz.estesa && s.descrizione_estesa ? `Descrizione: ${s.descrizione_estesa}\n\n${blocco}` : blocco;
 }
 
 // ---------- elenchi di schede (bestiario condiviso e PNG della campagna)
@@ -2379,14 +2432,14 @@ function salvaScheda(lista, s, ora) {
 }
 function cercaSchede(lista, f = {}) {
   const q = String(f.testo || '').trim().toLowerCase(), tipo = String(f.tipo || '').trim().toLowerCase(), et = String(f.etichetta || '').trim().toLowerCase();
-  const gsv = s => { const g = String(s.gs || ''); return /\//.test(g) ? 1 / +g.split('/')[1] : g === '' ? null : +g; };
-  return lista.filter(s => (!q || [s.nome, s.epiteto, s.classi_testo].join(' ').toLowerCase().includes(q))
-    && (!tipo || [s.razza_riga, s.epiteto, s.classi_testo].join(' ').toLowerCase().includes(tipo))
-    && (!et || (s.etichette || []).some(e => e.toLowerCase().includes(et)))
+  const tipoMenu = TIPI_MOSTRO.some(t => t.toLowerCase() === tipo), etEsatta = et && lista.some(s => tutteEtichette(s).some(e => e.toLowerCase() === et)); // dai menu: uguale; scritta a mano: contiene
+  const res = lista.filter(s => (!q || [s.nome, s.epiteto, s.classi_testo].join(' ').toLowerCase().includes(q))
+    && (!tipo || (tipoMenu ? tipoDi(s).toLowerCase() === tipo : [s.razza_riga, s.epiteto, s.classi_testo].join(' ').toLowerCase().includes(tipo)))
+    && (!et || tutteEtichette(s).some(e => etEsatta ? e.toLowerCase() === et : e.toLowerCase().includes(et)))
     && (!f.preferiti || s.preferito)
-    && (f.gs_min === undefined || f.gs_min === null || f.gs_min === '' || (gsv(s) !== null && gsv(s) >= +f.gs_min))
-    && (f.gs_max === undefined || f.gs_max === null || f.gs_max === '' || (gsv(s) !== null && gsv(s) <= +f.gs_max)))
-    .sort((a, b) => (b.preferito ? 1 : 0) - (a.preferito ? 1 : 0) || a.nome.localeCompare(b.nome, 'it'));
+    && (f.gs_min === undefined || f.gs_min === null || f.gs_min === '' || (gsNumero(s) !== null && gsNumero(s) >= +f.gs_min))
+    && (f.gs_max === undefined || f.gs_max === null || f.gs_max === '' || (gsNumero(s) !== null && gsNumero(s) <= +f.gs_max)));
+  return ordinaSchede(res, f.ordine);
 }
 function salvaPNG(camp, s, ora) { const c = clona(camp); c.png = salvaScheda(c.png || [], s, ora); return c; }
 function eliminaPNG(camp, id) { const c = clona(camp); c.png = (c.png || []).filter(s => s.id !== id); return c; }
@@ -3389,6 +3442,182 @@ function tvVisibile(st, camp, manuale) {
 // AD3: F10 attivo solo con l'impostazione accesa e un combattimento in corso
 function f10Attivo(camp) { return !!(camp && camp.combattimento && camp.impostazioni && camp.impostazioni.f10); }
 
+// ================================================================== Build 5a (sezione AG del design doc v21)
+// ------------------------------------------------------------------ AG1-A/B: PG con più classi, Rifiatare per dado
+// DV dai 34 manuali singoli correnti (letti l'08/11/2026)
+const DV_CLASSI = { Alchimista: 8, Ammazzamostri: 12, Arcanista: 6, Barbaro: 12, Bardo: 8, Berserker: 12, Cavaliere: 10, Convocatore: 8, 'Custode grigio': 8,
+  Dominatore: 8, Druido: 8, Erudito: 8, Fattucchiere: 6, 'Guardia nera': 10, Guerriero: 10, Inquisitore: 8, Intrepido: 10, Inventore: 8, Ladro: 8, Magus: 8,
+  Malefactor: 8, Marzialista: 10, Morfico: 10, Necrarca: 6, Nobile: 8, Oracolo: 8, Paladino: 10, Pistolero: 10, Purificatore: 8, Ranger: 10, Ritualista: 8,
+  Sacerdote: 8, Sigillatore: 8, Stregone: 6 };
+const DADI_DV = [4, 6, 8, 10, 12];
+function dvClasse(nome) { const k = Object.keys(DV_CLASSI).find(x => x.toLowerCase() === String(nome || '').trim().toLowerCase()); return k ? DV_CLASSI[k] : null; }
+// campagne salvate: «Ladro 7» → una riga con il livello e il dado del Rifiatare di prima (AG1-B)
+function classiDaTesto(s) {
+  const nome = String(s.classe || '').replace(/\s*\d+\s*°?\s*$/, '').trim();
+  return [{ classe: nome, archetipo: '', livello: Number.isInteger(s.livello) && s.livello >= 1 ? s.livello : 1, dv: DADI_DV.includes(s.rif_tipo) ? s.rif_tipo : 8 }];
+}
+function testoClassi(classi) { return (classi || []).map(k => `${k.classe || 'Classe'}${k.archetipo ? ` (${k.archetipo})` : ''} ${k.livello}`).join(' / '); }
+function riserveMax(s) { const o = {}; for (const k of s.classi || []) if (Number.isInteger(k.livello) && k.livello > 0) o[k.dv] = (o[k.dv] || 0) + k.livello; return o; }
+// classi → livello (somma), testo della classe, dadi del Rifiatare; i campi vecchi restano allineati per chi li legge ancora
+function sincronizzaClassi(s) {
+  if (!Array.isArray(s.classi) || !s.classi.length) s.classi = classiDaTesto(s);
+  s.classi = s.classi.map(k => ({ classe: String(k.classe || '').trim(), archetipo: String(k.archetipo || '').trim(), livello: k.livello, dv: k.dv }));
+  s.livello = s.classi.reduce((a, k) => a + (Number.isInteger(k.livello) ? k.livello : 0), 0);
+  s.classe = testoClassi(s.classi); s.rif_dadi = s.livello;
+  const pd = riserveMax(s), tipi = Object.keys(pd).map(Number).sort((a, b) => pd[b] - pd[a] || b - a);
+  s.rif_tipo = tipi[0] || 8;
+  return s;
+}
+function erroriClassi(classi) {
+  const err = [];
+  if (!Array.isArray(classi) || !classi.length) return ['serve almeno una classe'];
+  classi.forEach((k, i) => { const n = classi.length > 1 ? ` (riga ${i + 1})` : '';
+    if (!(Number.isInteger(k.livello) && k.livello >= 1 && k.livello <= 20)) err.push('livello della classe non valido' + n);
+    if (!DADI_DV.includes(k.dv)) err.push('DV della classe non valido' + n); });
+  return err;
+}
+const sommaRif = o => Object.values(o || {}).reduce((a, b) => a + b, 0);
+// riserva corrente per tipo di dado; quella vecchia (un numero) si divide dai dadi più grandi
+function riservaRif(p) {
+  const st = p.stato, mx = riserveMax(p.scheda);
+  if (!st.rif || typeof st.rif !== 'object') {
+    let resto = Number.isInteger(st.rif_riserva) ? st.rif_riserva : sommaRif(mx); st.rif = {};
+    for (const dv of Object.keys(mx).map(Number).sort((a, b) => b - a)) { const k = Math.min(mx[dv], Math.max(0, resto)); st.rif[dv] = k; resto -= k; }
+  }
+  for (const dv of Object.keys(st.rif)) if (!mx[dv]) delete st.rif[dv];
+  for (const dv of Object.keys(mx)) st.rif[dv] = Math.max(0, Math.min(mx[dv], st.rif[dv] || 0));
+  st.rif_riserva = sommaRif(st.rif);
+  return st.rif;
+}
+function riservaPiena(p) { p.stato.rif = { ...riserveMax(p.scheda) }; p.stato.rif_riserva = sommaRif(p.stato.rif); }
+// «Rifiatare 4/5 d8 · 2/2 d10»
+function testoRiserva(p) {
+  const mx = riserveMax(p.scheda), st = riservaRif(clona(p));
+  return Object.keys(mx).map(Number).sort((a, b) => a - b).map(dv => `${st[dv] || 0}/${mx[dv]} d${dv}`).join(' · ');
+}
+// scelta automatica: i dadi più grandi prima
+function sceltaRifiatare(p, n) {
+  const st = riservaRif(clona(p)), o = {}; let resto = n;
+  for (const dv of Object.keys(st).map(Number).sort((a, b) => b - a)) { const k = Math.min(st[dv], resto); if (k) o[dv] = k; resto -= k; }
+  return o;
+}
+
+// ------------------------------------------------------------------ AG1-C/D: contatori personalizzati (PG e compagnia), anche a tempo
+const UNITA_CONT = { round: 1, minuti: ROUND_MIN, ore: ROUND_ORA, giorni: ROUND_GIORNO };
+const NOMI_UNITA = { round: ['round', 'round'], minuti: ['minuto', 'minuti'], ore: ['ora', 'ore'], giorni: ['giorno', 'giorni'] };
+const RICARICHE = { mano: 'a mano', riposo: 'riposo 8 ore', alba: 'ogni giorno all\'alba', combattimento: 'fine del combattimento' };
+function contatoriDi(c, chi) { if (!chi) return c.contatori || (c.contatori = []); const p = trova(c, chi); return p.contatori || (p.contatori = []); }
+function nomeContatore(c, chi, x) { return (chi ? trova(c, chi).scheda.nome + ': ' : '') + x.nome; }
+function descriviTempoCont(t) {
+  if (!t) return '';
+  const u = NOMI_UNITA[t.unita] || [t.unita, t.unita];
+  return `${t.dir < 0 ? '−' : '+'}${t.n} ogni ${t.ogni === 1 ? u[0] : t.ogni + ' ' + u[1]}${t.pausa ? ' (in pausa)' : ''}`;
+}
+function salvaContatore(camp, chi, def) {
+  const c = clona(camp), L = contatoriDi(c, chi), vecchio = def.id ? L.find(x => x.id === def.id) : null;
+  if (def.id && !vecchio) throw new Error('contatore non trovato');
+  const nome = String(def.nome || '').trim(); if (!nome) throw new Error('nome del contatore mancante');
+  const valore = def.valore === undefined ? (vecchio ? vecchio.valore : 0) : def.valore;
+  const max = def.max === '' || def.max === undefined || def.max === null ? null : def.max;
+  if (!(Number.isInteger(valore) && valore >= 0)) throw new Error('valore del contatore non valido');
+  if (max !== null && !(Number.isInteger(max) && max >= 0)) throw new Error('massimo del contatore non valido');
+  const ricarica = def.ricarica || 'mano'; if (!RICARICHE[ricarica]) throw new Error('ricarica non valida');
+  let tempo = null;
+  if (def.tempo) {
+    const t = def.tempo;
+    if (![1, -1].includes(t.dir)) throw new Error('direzione del contatore non valida');
+    if (!(Number.isInteger(t.n) && t.n >= 1)) throw new Error('quantità per intervallo non valida');
+    if (!(Number.isInteger(t.ogni) && t.ogni >= 1)) throw new Error('intervallo non valido');
+    if (!UNITA_CONT[t.unita]) throw new Error('unità dell\'intervallo non valida');
+    const vt = vecchio && vecchio.tempo, uguale = vt && vt.ogni === t.ogni && vt.unita === t.unita;
+    tempo = { dir: t.dir, n: t.n, ogni: t.ogni, unita: t.unita, pausa: !!t.pausa, rif: uguale && !vt.pausa ? vt.rif : c.tempo.R };
+  }
+  const x = { id: vecchio ? vecchio.id : prossimoId(c, 'k'), nome, valore: max !== null ? Math.min(valore, max) : valore, max,
+    iniziale: vecchio && def.iniziale === undefined ? vecchio.iniziale : (Number.isInteger(def.iniziale) ? def.iniziale : valore), ricarica, tempo, finito: false };
+  if (vecchio) L[L.indexOf(vecchio)] = x; else { L.push(x); log(c, `Contatore nuovo: ${nomeContatore(c, chi, x)} ${x.valore}${max !== null ? '/' + max : ''}`); }
+  return c;
+}
+function eliminaContatore(camp, chi, id) { const c = clona(camp), L = contatoriDi(c, chi), i = L.findIndex(x => x.id === id); if (i < 0) throw new Error('contatore non trovato'); L.splice(i, 1); return c; }
+function limitaCont(x, v) { return Math.max(0, x.max !== null ? Math.min(x.max, v) : v); }
+function cambiaContatore(camp, chi, id, a) {
+  const c = clona(camp), x = contatoriDi(c, chi).find(y => y.id === id); if (!x) throw new Error('contatore non trovato');
+  const v = a.valore !== undefined ? a.valore : x.valore + (a.delta || 0);
+  if (!Number.isInteger(v)) throw new Error('valore non valido');
+  x.valore = limitaCont(x, v); x.finito = false; return c;
+}
+function ricaricaUno(c, chi, x, motivo) {
+  const v = x.max !== null ? x.max : x.iniziale; x.valore = v; x.finito = false;
+  log(c, `${nomeContatore(c, chi, x)}: ricaricato a ${v}${motivo ? ` (${motivo})` : ''}`);
+}
+function ricaricaContatore(camp, chi, id) { const c = clona(camp), x = contatoriDi(c, chi).find(y => y.id === id); if (!x) throw new Error('contatore non trovato'); ricaricaUno(c, chi, x, 'a mano'); return c; }
+function pausaContatore(camp, chi, id, pausa) {
+  const c = clona(camp), x = contatoriDi(c, chi).find(y => y.id === id); if (!x || !x.tempo) throw new Error('contatore a tempo non trovato');
+  x.tempo.pausa = !!pausa; if (!pausa) x.tempo.rif = c.tempo.R; return c;
+}
+// ricarica automatica: quando = 'riposo' | 'alba' | 'combattimento'; ids = PG che riposano (la compagnia si ricarica a ogni riposo)
+function ricaricaContatori(c, quando, ids) {
+  for (const x of c.contatori || []) if (x.ricarica === quando) ricaricaUno(c, null, x, RICARICHE[quando]);
+  for (const p of c.pg) { if (ids && !ids.includes(p.id)) continue; for (const x of p.contatori || []) if (x.ricarica === quando) ricaricaUno(c, p.id, x, RICARICHE[quando]); }
+}
+// contatori a tempo e ricarica all'alba fra due istanti (chiamata da avanza)
+function contatoriTempo(c, da, a) {
+  if (a <= da) return;
+  const albe = Math.floor((a - ALBA * ROUND_ORA) / ROUND_GIORNO) - Math.floor((da - ALBA * ROUND_ORA) / ROUND_GIORNO);
+  if (albe > 0) ricaricaContatori(c, 'alba');
+  const tutti = [...(c.contatori || []).map(x => [null, x]), ...c.pg.flatMap(p => (p.contatori || []).map(x => [p.id, x]))];
+  for (const [chi, x] of tutti) {
+    const t = x.tempo; if (!t || t.pausa) continue;
+    const I = t.ogni * UNITA_CONT[t.unita], k = Math.floor((a - t.rif) / I) - Math.floor((da - t.rif) / I);
+    if (k <= 0) continue;
+    const prima = x.valore; x.valore = limitaCont(x, x.valore + t.dir * t.n * k);
+    const fine = t.dir < 0 ? x.valore === 0 : (x.max !== null && x.valore === x.max);
+    if (fine && !x.finito && (prima !== x.valore || k > 0)) {
+      x.finito = true;
+      c.coda.push({ id: prossimoId(c, 'q'), R: a, tipo: 'contatore', testo: `${nomeContatore(c, chi, x)}: ${t.dir < 0 ? 'finito (0)' : `al massimo (${x.max})`}.` });
+      log(c, `${nomeContatore(c, chi, x)}: ${t.dir < 0 ? 'finito' : 'al massimo'}`);
+    }
+  }
+}
+
+// ------------------------------------------------------------------ AG2: bestiario (tipi, sottotipi, Ambiente, etichette automatiche, ordine)
+const TIPI_MOSTRO = ['Aberrazione', 'Animale', 'Bestia magica', 'Costrutto', 'Drago', 'Esterno', 'Folletto', 'Melma', 'Non morto', 'Parassita', 'Umanoide', 'Umanoide mostruoso', 'Vegetale'];
+const TAGLIE_RE = '(?:Piccolissim|Minuscol|Minut|Piccol|Medi|Grand|Enorm|Mastodontic|Colossal)[oaie]?(?:\\s+speciale)?';
+function tipoDi(s) {
+  const r = String(s.razza_riga || '').toLowerCase();
+  const ord = [...TIPI_MOSTRO].sort((a, b) => b.length - a.length);
+  let best = null;
+  for (const t of ord) { const i = r.search(new RegExp('(^|[^\\p{L}])' + t.toLowerCase() + '(?![\\p{L}])', 'u')); if (i >= 0 && (best === null || i < best.i)) best = { t, i }; }
+  return best ? best.t : '';
+}
+function sottotipiDi(s) {
+  const t = tipoDi(s); if (!t) return [];
+  const m = String(s.razza_riga || '').match(new RegExp(t + `(?:\\s+${TAGLIE_RE})?\\s*\\(([^)]*)\\)`, 'iu'));
+  return m ? m[1].split(/\s*[,;]\s*/).map(x => x.trim()).filter(x => x && !/^\d/.test(x)) : [];
+}
+function luoghiAmbiente(s) { return String(s.ambiente || '').split(/\s*;\s*/).map(x => x.trim().replace(/\.$/, '')).filter(Boolean); }
+function etichetteAuto(s) {
+  const out = [], visto = new Set(), metti = x => { const k = x.toLowerCase(); if (x && !visto.has(k)) { visto.add(k); out.push(x); } };
+  const t = tipoDi(s); if (t) metti(t);
+  sottotipiDi(s).forEach(metti); luoghiAmbiente(s).forEach(metti);
+  return out;
+}
+// manuali che ripetono un'automatica non si contano due volte
+function tutteEtichette(s) { const a = etichetteAuto(s), k = new Set(a.map(x => x.toLowerCase())); return [...a, ...(s.etichette || []).filter(x => !k.has(String(x).toLowerCase()))]; }
+const gsNumero = s => { const g = String(s.gs || '').trim(); return /\//.test(g) ? 1 / +g.split('/')[1] : g === '' || isNaN(+g) ? null : +g; };
+function ordinaSchede(lista, ordine) {
+  const nome = (a, b) => String(a.nome).localeCompare(String(b.nome), 'it');
+  const gs = (a, b, dir) => { const x = gsNumero(a), y = gsNumero(b); if (x === null && y === null) return nome(a, b); if (x === null) return 1; if (y === null) return -1; return (x - y) * dir || nome(a, b); };
+  const f = ordine === 'nome_desc' ? (a, b) => -nome(a, b) : ordine === 'gs' ? (a, b) => gs(a, b, 1) : ordine === 'gs_desc' ? (a, b) => gs(a, b, -1) : nome;
+  return [...lista].sort((a, b) => (b.preferito ? 1 : 0) - (a.preferito ? 1 : 0) || f(a, b));
+}
+// conteggi per i menu dei filtri (AG2-C)
+function contaTipi(lista) { const o = Object.fromEntries(TIPI_MOSTRO.map(t => [t, 0])); for (const s of lista) { const t = tipoDi(s); if (t) o[t]++; } return o; }
+function contaEtichette(lista) {
+  const o = new Map();
+  for (const s of lista) for (const e of tutteEtichette(s)) { const k = e.toLowerCase(), v = o.get(k) || { nome: e, n: 0 }; v.n++; o.set(k, v); }
+  return [...o.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'it'));
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -3413,6 +3642,9 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   risolviRaccolta, misturaDi, nomeMistura, bloccoMistura, preparaMistura, metriVelocita, kmhPiedi, suoloProposto, moltMarcia, cdOrientarsi, probIncontro,
   avviaMarcia, rispondiMarcia, controllaRighe, salvaArea, eliminaArea, copiaTabella, composizione, tiraIncontro, dadiCaduta, caduta, applicaCaduta,
   trattieniFiato, menoUnRound, pericoloPronto, cdRiparare, riparaOggetto, artigiano, moneta, locanda, bevanda, stallaggio,
-  nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG };
+  nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG,
+  DV_CLASSI, DADI_DV, dvClasse, testoClassi, riserveMax, sincronizzaClassi, riservaRif, testoRiserva, sceltaRifiatare,
+  UNITA_CONT, NOMI_UNITA, RICARICHE, salvaContatore, eliminaContatore, cambiaContatore, ricaricaContatore, pausaContatore, descriviTempoCont,
+  TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

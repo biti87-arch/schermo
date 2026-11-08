@@ -76,6 +76,32 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .best-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start;margin-top:12px}
 @media (max-width:899px){.best-home{grid-template-columns:minmax(0,1fr)}}
 .vuoto{border:1px dashed var(--riga);border-radius:8px;padding:16px;color:var(--tenue)}
+/* AG2-A: pagina Bestiario, elenco e stat block che scorrono ognuno per conto suo */
+@media (min-width:900px){
+  html.a-best,html.a-best body{height:100%;overflow:hidden}
+  html.a-best .wrap{padding-bottom:0}
+  html.a-best .best-home{height:calc(100dvh - var(--best-top,200px) - 12px);align-items:stretch}
+  html.a-best .best-home>.pannello{min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  html.a-best #best-lista,html.a-best #best-vista{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--riga) transparent;min-height:0}
+  html.a-best #best-lista{flex:1;padding-right:4px}
+  html.a-best #best-vista{display:block}
+  .torna-elenco{display:none}
+}
+/* AG1-C: contatori */
+.contatori{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.cont{display:inline-flex;align-items:stretch;border:1px solid var(--riga);border-radius:999px;background:var(--pannello2);font-size:.82rem;overflow:hidden}
+.cont button{background:none;border:0;color:inherit;font:inherit;padding:2px 8px;cursor:pointer;line-height:1.5}
+.cont .cont-nome{color:var(--oro)}
+.cont .cont-v{font-weight:600;min-width:2.2em;border-left:1px solid var(--riga);border-right:1px solid var(--riga)}
+.cont.finito{border-color:var(--rosso)}.cont.finito .cont-v{color:var(--rosso-chiaro)}
+.cont.pausa .cont-nome{opacity:.7}
+.riga-classe{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:6px;align-items:end;margin-bottom:6px}
+@media (max-width:600px){.riga-classe{grid-template-columns:1fr 1fr}.riga-classe .btn{justify-self:start}}
+/* AG2-D/F: descrizione riducibile, etichette automatiche */
+.descr{border:1px solid var(--riga);border-radius:8px;padding:6px 10px;margin:6px 0;background:var(--pannello2)}
+.descr summary{cursor:pointer;color:var(--arancio);font-weight:600}
+.descr p{margin:4px 0}.descr-estesa{border-top:1px solid var(--riga);margin-top:6px;padding-top:4px;color:var(--tenue)}
+.chip.auto{border-style:dashed;color:var(--tenue)}
 
 /* riquadro del PG */
 .pg{background:var(--pannello);border:1px solid var(--riga);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -294,7 +320,7 @@ const M = Motore, MET = DATI.meteo;
 M.usaStrumenti(DATI.strumenti);
 const rng = Math.random;
 const S = { schermata: 'campagne', elenco: [], camp: null, ui: { scheda: 'viaggio', sel: null, avvio: null, vista: null, incontro: null, fuga: {},
-  best: { fonte: 'png', testo: '', tipo: '', etichetta: '', gs_min: '', gs_max: '', preferiti: false } } };
+  best: { fonte: 'png', testo: '', tipo: '', etichetta: '', gs_min: '', gs_max: '', preferiti: false, ordine: leggiPref('ordineBest') || 'nome' } } };
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const segno = n => (n >= 0 ? '+' : '−') + Math.abs(n);
@@ -371,7 +397,8 @@ function disegna() {
   const app = $('#app');
   const campagnaAperta = S.schermata !== 'campagne' && S.schermata !== 'bestiario' && !!S.camp;
   document.documentElement.classList.toggle('a-colonne', campagnaAperta);
-  if (S.schermata === 'bestiario') { app.innerHTML = disegnaBestiarioHome(); disegnaFine(); return; }
+  document.documentElement.classList.toggle('a-best', S.schermata === 'bestiario');
+  if (S.schermata === 'bestiario') { memScrollBest(); app.innerHTML = disegnaBestiarioHome(); altezzaBest(); rimettiScrollBest(); disegnaFine(); return; }
   if (S.schermata === 'campagne' || !S.camp) { app.innerHTML = disegnaElenco(); disegnaFine(); return; }
   const prima = memScroll();
   app.innerHTML = disegnaTesta() + `<div class="colonne">
@@ -435,7 +462,8 @@ function disegnaTavolo() {
   const agente = c.combattimento && M.attuale(c.combattimento);
   const pg = c.pg.map(p => disegnaPG(p, agente && agente.pgId === p.id)).join('');
   return `<div class="col-testa"><h2>Tavolo</h2><span class="tenue piccolo">${c.pg.length} PG · ${M.numeroAccompagnatori(c)} accompagnatori</span><span class="spazio"></span>
-      <button class="btn min" data-az="nuovoPG">+ PG</button></div>
+      <button class="btn min" data-az="contNuovo" data-chi="" title="Contatore della compagnia (torce, giorni…)">+ Contatore</button><button class="btn min" data-az="nuovoPG">+ PG</button></div>
+    ${(c.contatori || []).length ? `<div class="cont-comp"><span class="tenue piccolo">Compagnia</span>${htmlContatori(null, c.contatori)}</div>` : ''}
     ${pg || '<div class="vuoto">Nessun PG. Aggiungi i personaggi con «+ PG».</div>'}`;
 }
 function disegnaPG(p, attivo) {
@@ -453,16 +481,17 @@ function disegnaPG(p, attivo) {
     <div class="barre num">
       <span>Fatica</span><div class="barra fa"><i style="width:${pct(st.fatica, fmx.valore)}%"></i></div><span>${st.fatica}/${n(fmx, true)}</span>
       <span>Ferita</span><div class="barra fe${st.ferita < 0 ? ' neg' : ''}"><i style="width:${pct(st.ferita, femx.valore)}%"></i></div><span><span class="${st.ferita < 0 ? 'mod' : ''}">${st.ferita}</span>/${n(femx, true)}</span></div>
-    <div class="stat num"><span title="${esc(temp)}"><b>Temp</b>${v.temp}</span><span><b>Non letali</b>${st.nonletali}</span><span><b>Rifiatare</b>${st.rif_riserva}/${s.rif_dadi} d${s.rif_tipo}${s.rif_ripete ? '↻' : ''}</span></div>
+    <div class="stat num"><span title="${esc(temp)}"><b>Temp</b>${v.temp}</span><span><b>Non letali</b>${st.nonletali}</span><span><b>Rifiatare</b>${esc(M.testoRiserva(p))}${s.rif_ripete ? '↻' : ''}</span></div>
     <div class="stat num"><span><b>CA</b>${n(v.ca, true)}</span><span><b>Ctt</b>${n(v.ca_contatto, true)}</span><span><b>Spr</b>${n(v.ca_sprovvista, true)}</span><span><b>DMC</b>${n(v.dmc, true)}</span>${s.rd ? `<span><b>RD</b>${esc(s.rd)}</span>` : ''}${v.offuscato ? `<span class="cond-t">Offuscato ${v.offuscato}%</span>` : ''}</div>
     <div class="stat num"><span><b>Tem</b>${n(v.tempra)}</span><span><b>Rif</b>${n(v.riflessi)}</span><span><b>Vol</b>${n(v.volonta)}</span>${s.ts_note ? `<span class="tenue">${esc(s.ts_note)}</span>` : ''}</div>
     <div class="stat num"><span><b>Perc</b>${n(v.percezione)}</span><span><b>Intu</b>${n(v.intuizione)}</span><span><b>Furt</b>${n(v.furtivita)}</span>${v.libere.map(a => `<span><b>${esc(a.nome)}</b>${n(a)}</span>`).join('')}</div>
     ${st.morte && S.camp.coda.some(q => q.tipo === 'morte' && q.chi && q.chi.pg === p.id) ? `<div class="banda">Morte in sospeso: ${esc(st.morte.causa)}</div>` : ''}
+    ${htmlContatori(p.id, p.contatori)}
     ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}${note.length ? `<div class="note-pg">${note.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
     <div class="fila"><button class="btn min" data-az="danno" data-id="${p.id}">Danno</button><button class="btn min" data-az="cura" data-id="${p.id}">Cura</button>
       <button class="btn min" data-az="temp" data-id="${p.id}">PF temp</button><button class="btn min" data-az="rifiata" data-id="${p.id}">Rifiata</button>
       <button class="btn min oro" data-az="malus" data-chi="pg:${p.id}">Malus/Bonus</button><button class="btn min" data-az="feritaGrave" data-id="${p.id}">Ferita grave</button><button class="btn min" data-az="fallimento" data-chi="pg:${p.id}">Fallimento critico</button>
-      <span class="spazio"></span><button class="btn min" data-az="modificaPG" data-id="${p.id}" title="Scheda">Scheda</button></div></article>`;
+      <button class="btn min" data-az="contNuovo" data-chi="${p.id}" title="Contatore personalizzato (ki, frecce, usi…)">+ Contatore</button><span class="spazio"></span><button class="btn min" data-az="modificaPG" data-id="${p.id}" title="Scheda">Scheda</button></div></article>`;
 }
 
 // ---------- seconda colonna: iniziativa
@@ -793,17 +822,7 @@ const AZ = {
         <p class="tenue piccolo">Stessa fonte: resta il valore più alto. Fonti diverse si sommano.</p>`,
       azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { const d = testo(f, 'd'); applica(M.pfTemporanei(S.camp, id, testo(f, 'f'), intero(f, 'v'), d ? M.durataInRound(intero(f, 'd'), val(f, 'u').value) : null)); } }] });
   },
-  rifiata(el) {
-    const id = el.dataset.id, p = S.camp.pg.find(x => x.id === id), s = p.scheda;
-    if (!p.stato.rif_riserva) return avviso(`${s.nome} non ha più dadi nella riserva del Rifiatare`, true);
-    apri({ titolo: `Rifiatare: ${esc(s.nome)}`, corpo: `<label class="campo"><span>Dadi da usare (riserva ${p.stato.rif_riserva}/${s.rif_dadi} d${s.rif_tipo})</span><input type="number" name="n" min="1" max="${p.stato.rif_riserva}" value="${p.stato.rif_riserva}"></label>
-        ${S.camp.combattimento ? '' : '<label class="spunta"><input type="checkbox" name="mz" checked> Avanza l\'orologio di 30 minuti (Rifiatare richiede mezz\'ora d\'inattività)</label>'}
-        <p class="tenue piccolo">Il totale va solo ai Punti Fatica${s.rif_ripete ? '; si ripetono i risultati di 1 e 2' : ''}.</p>`,
-      azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => {
-        let c = S.camp; if (val(f, 'mz') && spunta(f, 'mz')) c = M.avanza(c, 300, MET, rng, 'Rifiatare');
-        const r = M.rifiatare(c, id, intero(f, 'n'), rng); applica(r.camp);
-        apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}]${r.divisore > 1 ? ` = ${r.tirati} ÷ ${r.divisore} (organo compromesso)` : ''} → Punti Fatica ${r.camp.pg.find(x => x.id === id).stato.fatica}/${M.massimi(r.camp, r.camp.pg.find(x => x.id === id)).fatica}</p>` });
-      } }] });
+  rifiata(el) { finestraRifiatare(el.dataset.id);
   },
   // iniziativa
   aggNemico() { S.ui.avvio.nemici.push({ nome: '', bonus: 0, n: 1, modo: 'tipo', imp: false, nascosto: false, nomeTv: '' }); disegna(); },
@@ -875,7 +894,8 @@ const CAMBI = {
     if (av.nemici.length === 1 && !String(av.nemici[0].nome).trim()) av.nemici[0] = x; else av.nemici.push(x); disegna(); },
 };
 document.addEventListener('input', ev => { const el = ev.target; if (!el.dataset || !el.dataset.best || el.closest('.velo')) return;
-  S.ui.best[el.dataset.best] = el.type === 'checkbox' ? el.checked : el.value; const l = $('#best-lista'); if (l) l.innerHTML = listaSchede(); });
+  S.ui.best[el.dataset.best] = el.type === 'checkbox' ? el.checked : el.value; if (el.dataset.best === 'ordine') scriviPref('ordineBest', el.value);
+  const l = $('#best-lista'); if (l) l.innerHTML = listaSchede(); });
 document.addEventListener('click', async ev => {
   const el = ev.target.closest('[data-az]'); if (!el || el.closest('.velo')) return;
   const f = AZ[el.dataset.az]; if (!f) return;
@@ -1252,8 +1272,9 @@ function finestraImpostazioni() {
     } }] });
 }
 const CAMPI_PG = [
-  ['Identità', [['nome', 'Nome', 't'], ['giocatore', 'Giocatore', 't'], ['razza', 'Razza', 't'], ['classe', 'Classe e livello', 't'], ['livello', 'Livello (riposo)', 'n']]],
-  ['Punti vita e Rifiatare', [['fatica_max', 'Punti Fatica max', 'n'], ['ferita_max', 'Punti Ferita max', 'n'], ['rif_dadi', 'Dadi del Rifiatare (DV)', 'n'], ['rif_tipo', 'Dado', 'dado'], ['rif_ripete', 'Ripete 1 e 2 (Recupero rapido, Zangue troll, Linfa curativa, Linfa rigenerante)', 'c']]],
+  ['Identità', [['nome', 'Nome', 't'], ['giocatore', 'Giocatore', 't'], ['razza', 'Razza', 't']]],
+  ['Classi e livello', [['classi', 'Classi', 'classi']]],
+  ['Punti vita e Rifiatare', [['fatica_max', 'Punti Fatica max', 'n'], ['ferita_max', 'Punti Ferita max', 'n'], ['rif_ripete', 'Ripete 1 e 2 (Recupero rapido, Zangue troll, Linfa curativa, Linfa rigenerante)', 'c']]],
   ['Difese', [['ca', 'CA', 'n'], ['ca_contatto', 'CA contatto', 'n'], ['ca_sprovvista', 'CA colto alla sprovvista', 'n'], ['dmc', 'DMC', 'n'], ['rd', 'RD', 't'], ['resistenze', 'Resistenze', 't'], ['immunita', 'Immunità', 't']]],
   ['Tiri Salvezza', [['tempra', 'Tempra', 'n'], ['riflessi', 'Riflessi', 'n'], ['volonta', 'Volontà', 'n'], ['ts_note', 'Note (es. +2 vs [PAURA])', 't']]],
   ['Abilità e iniziativa', [['percezione', 'Percezione', 'n'], ['intuizione', 'Intuizione', 'n'], ['furtivita', 'Furtività', 'n'], ['lib0', 'Abilità libera 1', 'lib'], ['lib1', 'Abilità libera 2', 'lib'], ['iniziativa', 'Bonus di iniziativa', 'n'], ['imp_pen', 'Impreparato', 'imp']]],
@@ -1263,6 +1284,7 @@ const CAMPI_PG = [
 function campiPGhtml(s) {
   return CAMPI_PG.map(([leg, campi]) => `<fieldset><legend>${leg}</legend><div class="griglia">${campi.map(([k, et, tipo]) => {
     if (tipo === 'c') return `<label class="spunta" style="grid-column:1/-1"><input type="checkbox" name="${k}" ${s[k] ? 'checked' : ''}> ${et}</label>`;
+    if (tipo === 'classi') return editorClassi(s);
     if (tipo === 'dado') return `<label class="campo"><span>${et}</span><select name="${k}">${[4, 6, 8, 10, 12].map(x => `<option value="${x}" ${s[k] === x ? 'selected' : ''}>d${x}</option>`).join('')}</select></label>`;
     if (tipo === 'imp') return `<label class="campo"><span>${et}</span><select name="${k}"><option value="6" ${s[k] === 6 ? 'selected' : ''}>−6 (normale)</option><option value="3" ${s[k] === 3 ? 'selected' : ''}>−3 (Vigili, Paranoico…)</option><option value="0" ${s[k] === 0 ? 'selected' : ''}>0 (Sempre pronto)</option></select></label>`;
     if (tipo === 'lib') { const a = s.abilita_libere[+k.slice(3)] || { nome: '', valore: 0 }; return `<label class="campo"><span>${et}</span><span class="fila" style="flex-wrap:nowrap"><input type="text" name="${k}n" value="${esc(a.nome)}" placeholder="nome"><input type="number" name="${k}v" value="${a.valore}" style="width:5em"></span></label>`; }
@@ -1274,14 +1296,14 @@ function leggiCampiPG(f) {
   const s = {};
   for (const [, campi] of CAMPI_PG) for (const [k, , tipo] of campi) {
     if (tipo === 'c') s[k] = spunta(f, k); else if (tipo === 'dado' || tipo === 'imp') s[k] = +val(f, k).value;
-    else if (tipo === 'lib') continue; else if (tipo === 'n') s[k] = intero(f, k, 0); else s[k] = testo(f, k);
+    else if (tipo === 'lib') continue; else if (tipo === 'classi') s.classi = leggiClassi(f); else if (tipo === 'n') s[k] = intero(f, k, 0); else s[k] = testo(f, k);
   }
   s.abilita_libere = [0, 1].map(i => ({ nome: testo(f, `lib${i}n`), valore: intero(f, `lib${i}v`, 0) }));
   return s;
 }
 function finestraPG(id, dopo) {
   const p = id ? S.camp.pg.find(x => x.id === id) : null, s = p ? p.scheda : M.SCHEDA_VUOTA;
-  apri({ titolo: p ? `Scheda di ${esc(s.nome)}` : 'Nuovo PG', larga: true, corpo: campiPGhtml(s) + '<p class="tenue piccolo">I valori correnti (PF, Punto eroe, riserva del Rifiatare) si salvano da soli.</p>',
+  apri({ titolo: p ? `Scheda di ${esc(s.nome)}` : 'Nuovo PG', larga: true, dopo: attivaClassi, corpo: campiPGhtml(s) + '<p class="tenue piccolo">I valori correnti (PF, Punto eroe, riserva del Rifiatare, contatori) si salvano da soli.</p>',
     azioni: [...(p ? [{ testo: 'Togli dal gruppo', classe: 'peric', fn: () => { conferma('Togli PG', `Togliere ${esc(s.nome)} dalla campagna?`, () => applica(M.rimuoviPG(S.camp, id)), 'Togli', 'peric'); } }] : []),
       { testo: 'Annulla' }, { testo: p ? 'Salva' : 'Aggiungi', classe: 'prim', fn: f => { const sc = leggiCampiPG(f); if (dopo) return dopo(sc); applica(p ? M.modificaPG(S.camp, id, sc) : M.aggiungiPG(S.camp, sc, rng)); } }] });
 }
@@ -1311,7 +1333,7 @@ function procedura() {
           <label class="campo"><span>Ora</span><input type="text" id="w-ora" value="${esc(W.ora)}" placeholder="hh:mm"></label>
           ${c.settimana && c.settimana.length ? `<label class="campo"><span>Giorno della settimana</span><select id="w-s">${c.settimana.map((g, i) => `<option value="${i}" ${i === W.sett ? 'selected' : ''}>${esc(g)}</option>`).join('')}</select></label>` : ''}</div>`;
       case 3: return passi + `<label class="campo"><span>Zona climatica di partenza</span>${selectZona('w-zona', 'aria-label="Zona climatica"', W.zona)}</label><p class="tenue piccolo">Le 17 zone delle Tabelle del Tempo Atmosferico. Si cambia mentre si viaggia; il meteo si tira a ogni cambio di giorno, in base a zona e stagione.</p>`;
-      case 4: return passi + `<p class="tenue piccolo">Si possono aggiungere anche dopo.</p>${W.pg.map((s, i) => `<div class="fila"><span class="spazio">${esc(s.nome)} <span class="tenue piccolo">${esc(s.classe)}</span></span><button class="btn min" data-w="togliPG" data-i="${i}">Togli</button></div>`).join('') || '<span class="tenue">Nessun PG.</span>'}
+      case 4: return passi + `<p class="tenue piccolo">Si possono aggiungere anche dopo.</p>${W.pg.map((s, i) => `<div class="fila"><span class="spazio">${esc(s.nome)} <span class="tenue piccolo">${esc(M.testoClassi(s.classi) || s.classe || "")}</span></span><button class="btn min" data-w="togliPG" data-i="${i}">Togli</button></div>`).join('') || '<span class="tenue">Nessun PG.</span>'}
         <div><button class="btn" data-w="aggPG">+ PG</button></div>`;
       case 5: return passi + `<label class="campo"><span>Accompagnatori con nome, uno per riga (facoltativo)</span><textarea id="w-pers" rows="3" placeholder="es. Hassim, guida">${esc(W.persone)}</textarea></label>
         <label class="campo"><span>Accompagnatori senza nome (solo un numero)</span><input type="number" id="w-acc" min="0" value="${W.accompagnatori}"></label>
@@ -1366,7 +1388,7 @@ function procedura() {
   });
 }
 function finestraPGprocedura(fatto) {
-  apri({ titolo: 'Nuovo PG', larga: true, corpo: campiPGhtml(M.SCHEDA_VUOTA), azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { fatto(leggiCampiPG(f)); } }] });
+  apri({ titolo: 'Nuovo PG', larga: true, dopo: attivaClassi, corpo: campiPGhtml(M.SCHEDA_VUOTA), azioni: [{ testo: 'Annulla' }, { testo: 'Aggiungi', classe: 'prim', fn: f => { fatto(leggiCampiPG(f)); } }] });
 }
 
 // ================================================================= Build 2b: bestiario e PNG (M), incontri (N), tattiche (O)
@@ -1403,7 +1425,7 @@ const migl = n => M.migliaia(n);
 // tutte le condizioni in rosso, con plurali e femminili (Morente no: è narrativa)
 const FORME_COND = CONDIZIONI.map(n => [n, n.toLowerCase()]).map(([n, x]) => [n, x === 'morto' ? 'mort[oa]' : x.split(' ').map((w, i, a) => i === 0 || i === a.length - 1 && a.length === 2 && a[0] === 'sempre'
     ? (/o$/.test(w) ? w.slice(0, -1) + '[oaie]' : /e$/.test(w) && !/^(in)$/.test(w) ? w.slice(0, -1) + '[ei]' : w) : w).join('\\s+')]);
-const RE_COND = new RegExp(`(?<![\\p{L}])(${FORME_COND.map(x => x[1]).sort((a, b) => b.length - a.length).join('|')})(?![\\p{L}])`, 'giu');
+const RE_COND = new RegExp(`(?<![\\p{L}])(?<![Nn]on )(?<![Nn]on-)(${FORME_COND.map(x => x[1]).sort((a, b) => b.length - a.length).join('|')})(?![\\p{L}])`, 'giu');
 const RE_UNA = FORME_COND.map(([n, f]) => [n, new RegExp('^(?:' + f + ')$', 'iu')]);
 const condDi = m => { const x = RE_UNA.find(([n, re]) => re.test(m)); return x ? x[0] : null; };
 const coloraTutte = html => html.replace(RE_COND, m => { const n = condDi(m), i = n && infoCond(n);
@@ -1418,8 +1440,8 @@ function mdLite(t) {
   return out.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
 }
 const ETICHETTE_SB = /^(Razza|Iniziativa|Aura|CA|PF|TS|RD|Immunità|Velocità|Mischia|Distanza|Incantesimi|Talenti|Abilità|Lingue|Sintonia|Prima del combattimento|Round 1|Round 2–3|Finita la Fatica|Fuga o resa|Tratto razziale)\b/;
-function htmlStatBlock(s) {
-  const L = M.testoStatBlock(s, { xp: usaXP() }).split('\n');
+function htmlStatBlock(s, o = {}) {
+  const L = M.testoStatBlock(s, { xp: usaXP(), ...o }).split('\n');
   return L.map((r, i) => {
     if (i === 0) return `<p class="sb-testa">${esc(r)}</p>`;
     const h = r.match(/^── (.+) ──$/); if (h) return `<h4>${esc(h[1])}</h4>`;
@@ -1448,8 +1470,7 @@ function disegnaBestiario() {
       <p class="tenue piccolo">Sola lettura: per modificare un PNG usa «Apri la campagna»; per aggiungerne uno, «+ PNG» sulla campagna.</p>` : ''}
     <div class="griglia">
       <label class="campo" style="grid-column:span 2"><span>Cerca per nome</span><input type="text" data-best="testo" value="${esc(f.testo)}" placeholder="es. imbalsamato"></label>
-      <label class="campo"><span>Tipo</span><input type="text" data-best="tipo" value="${esc(f.tipo)}" placeholder="es. non morto"></label>
-      <label class="campo"><span>Etichetta</span><input type="text" data-best="etichetta" value="${esc(f.etichetta)}"></label>
+      ${filtriBestiario(f)}
       <label class="campo"><span>GS da</span><input type="number" data-best="gs_min" value="${esc(f.gs_min)}"></label>
       <label class="campo"><span>GS a</span><input type="number" data-best="gs_max" value="${esc(f.gs_max)}"></label></div>
     <div class="fila"><label class="spunta piccolo"><input type="checkbox" data-best="preferiti" ${f.preferiti ? 'checked' : ''}> solo preferiti ★</label><span class="spazio"></span>
@@ -1465,7 +1486,7 @@ function listaSchede() {
     return `<li class="voce${S.ui.vista && S.ui.vista.rif.id === s.id ? ' sel' : ''}">${soloLettura(f.fonte) ? `<span class="stella${s.preferito ? ' on' : ''}">${s.preferito ? '★' : '☆'}</span>` : `<button class="stella${s.preferito ? ' on' : ''}" data-az="preferito" data-rif="${f.fonte}:${s.id}" title="Preferito" aria-label="Preferito">${s.preferito ? '★' : '☆'}</button>`}
       <button class="voce-corpo" data-az="vediScheda" data-rif="${f.fonte}:${s.id}"><span class="voce-nome">${esc(s.nome)}</span>
         <span class="tenue piccolo">${esc([s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs + xp : ''].filter(Boolean).join(' · '))}</span>
-        ${(s.etichette || []).length ? `<span class="piccolo">${s.etichette.map(e => `<span class="chip">${esc(e)}</span>`).join(' ')}</span>` : ''}</button>
+        ${M.tutteEtichette(s).length ? `<span class="piccolo">${chipsEtichette(s)}</span>` : ''}</button>
       <span class="chips">${badgeSegn(s)}</span></li>`; }).join('')}</ul>`;
 }
 // ---------- terza colonna: la scheda (stat block di lato, O1)
@@ -1479,7 +1500,8 @@ function disegnaVista() {
       <span class="tenue piccolo">${ro && camp ? `PNG di «${esc(camp.nome)}»` : fonte}${r ? ` · riga «${esc(M.etichetta(r))}»` : ''}</span></div>
     <div class="fila">${badgeSegn(s)}<span class="spazio"></span><button class="btn min" data-az="segnScheda" data-rif="${rifStr(v.rif)}">Segnalazioni</button>
       ${ro ? `<button class="btn min prim" data-az="apriDaBest" data-id="${camp ? camp.id : ''}">Apri la campagna</button>` : `<button class="btn min prim" data-az="modificaScheda" data-rif="${rifStr(v.rif)}">Modifica</button>`}<button class="btn min oro" data-az="copiaTesto" data-rif="${rifStr(v.rif)}">Copia come testo</button></div>
-    <div class="sb">${htmlStatBlock(s)}</div>
+    ${S.schermata === 'bestiario' ? '<div class="fila torna-elenco"><button class="btn min" data-az="tornaElenco">▴ Elenco</button></div>' : ''}
+    ${htmlDescrizione(s)}<div class="sb">${htmlStatBlock(s, { descrizione: false })}</div>
     <div class="fila">${ro ? '' : `<button class="btn min" data-az="duplicaScheda" data-rif="${rifStr(v.rif)}">Duplica</button>`}
       <button class="btn min" data-az="copiaAltrove" data-rif="${rifStr(v.rif)}">Copia in…</button>
       ${v.rif.fonte === 'png' && c ? `<button class="btn min" data-az="copiaCampagna" data-rif="${rifStr(v.rif)}">Copia in un'altra campagna</button>` : ''}
@@ -1562,14 +1584,19 @@ function finestraScheda(fonte, id, iniziale) {
   const calcolati = () => W.guida && W.guida.attiva ? Object.keys(M.calcolaGuida(W, RAZZE).campi) : [];
   const C = (k, et, t, o = {}) => { const calc = calcolati().includes(k); return campoS(calc ? M.applicaGuida(W, RAZZE) : W, k, et, t, { ...o, calcolato: calc }); };
   const razza = () => RAZZE.razze.find(r => r.nome === W.guida.razza);
+  const autoTesto = () => { const a = M.etichetteAuto(M.applicaGuida(W, RAZZE)); return a.length ? `Etichette automatiche (da tipo, sottotipi e Ambiente): ${a.map(e => `<span class="chip auto">${esc(e)}</span>`).join(' ')}` : '<span class="tenue">Etichette automatiche: si ricavano dal tipo, dai sottotipi della riga «Razza:» e dall\'Ambiente.</span>'; };
   function corpoValori() {
     return `<fieldset><legend>Testata</legend><div class="griglia">${C('epiteto', 'Epiteto')}
         ${C('classi_testo', 'Classi e livelli', 't', { span: 2, ph: 'es. Guerriero 8 / Ladro 2' })}${C('livello', 'Livello totale', 'n')}${C('gs', 'GS')}${C('xp', 'XP', 'n')}
         ${C('note_testata', 'Note della testata', 't', { span: 2, ph: 'es. Risvegliato di Mortimer ★' })}${C('fonte', 'Fonte', 't', { span: 2, ph: 'es. PF1e Bestiario, segnalato' })}
-        ${C('n_suggerito', 'Quantità di solito', 'i')}${C('etichette', 'Etichette (separate da virgole)', 'e', { span: 2 })}
+        ${C('n_suggerito', 'Quantità di solito', 'i')}${C('etichette', 'Etichette scritte a mano (separate da virgole)', 'e', { span: 2 })}
+        <div id="sk-auto" class="piccolo" style="grid-column:1/-1">${autoTesto()}</div>
         ${C('alleato', 'Alleato (GS sì, XP no)', 'c')}${C('capacita_trama', 'Capacità dall\'app o oggetto di trama (GS = livello)', 'c', { span: 2 })}</div></fieldset>
       <fieldset><legend>Razza e sensi</legend><div class="griglia">${C('razza_riga', 'Riga «Razza:»', 't', { span: 3, ph: 'Umanoide Medio (nano) · tratto bonus: … · Neutrale' })}${C('allineamento', 'Allineamento')}
         ${C('iniziativa', 'Iniziativa', 'n')}${C('ini_nota', 'Nota')}${C('sensi', 'Sensi', 't', { span: 2 })}${C('percezione', 'Percezione', 'n')}${C('perc_nota', 'Nota')}${C('aura', 'Aura', 'a', { righe: 2 })}</div></fieldset>
+      <fieldset><legend>Descrizione</legend><div class="griglia">${C('aspetto', 'Aspetto (1–2 frasi su una riga)', 'a', { righe: 2 })}${C('carattere', 'Carattere (se intelligente)', 'a', { righe: 2 })}
+        ${C('descrizione_estesa', 'Descrizione estesa (fuori dal riquadro dello stat block)', 'a', { righe: 4 })}</div></fieldset>
+      ${fonte === 'mostro' || W.ambiente ? `<fieldset><legend>Ecologia</legend>${C('ambiente', 'Ambiente: luoghi principali separati da «;»', 't', { ph: 'la Palude; i canali del lago; Bosco del Terrore' })}</fieldset>` : ''}
       <fieldset><legend>Difesa</legend><div class="griglia stretta">${C('ca', 'CA', 'n')}${C('ca_contatto', 'Contatto', 'n')}${C('ca_sprovvista', 'Sprovvista', 'n')}
         ${C('pf', 'PF', 'n')}${C('fatica', 'Fatica', 'n')}${C('ferita', 'Ferita', 'n')}${C('tempra', 'Tempra', 'n')}${C('riflessi', 'Riflessi', 'n')}${C('volonta', 'Volontà', 'n')}</div>
         <div class="griglia">${C('ca_scomp', 'Scomposizione della CA', 't', { span: 3, ph: '[10 + armatura … + Des …]' })}${C('pf_dadi', 'Dadi dei PF')}${C('pf_nota', 'Nota dei PF', 't', { span: 2 })}
@@ -1644,7 +1671,7 @@ function finestraScheda(fonte, id, iniziale) {
     S.ui.best.fonte = fonte; S.ui.vista = { rif: { fonte, id: s.id } }; S.ui.scheda = 'vista'; salvaIn(fonte, s, ora); avviso(orig ? 'Scheda salvata' : 'Scheda creata');
   } }] });
   const ridisegna = () => { const y = el.querySelector('.corpo').scrollTop; el.querySelector('.corpo').innerHTML = corpo(); el.querySelector('.corpo').scrollTop = y; };
-  const aggiorna = () => { const x = M.applicaGuida(W, RAZZE); el.querySelector('#sk-calcolo').innerHTML = risultato(); el.querySelector('#sk-segn').innerHTML = elencoSegn(x);
+  const aggiorna = () => { const x = M.applicaGuida(W, RAZZE); el.querySelector('#sk-calcolo').innerHTML = risultato(); el.querySelector('#sk-segn').innerHTML = elencoSegn(x); const au = el.querySelector('#sk-auto'); if (au) au.innerHTML = autoTesto();
     for (const i of el.querySelectorAll('.calc [data-k]')) { const v = getP(x, i.dataset.k); if (document.activeElement !== i) i.value = v ?? ''; } };
   const leggi = ev => { const x = ev.target; if (!x.dataset || !x.dataset.k) return false; setP(W, x.dataset.k, leggiCampo(x)); return x.dataset.k; };
   el.addEventListener('input', ev => { const k = leggi(ev); if (k && !/^(guida\.razza|guida\.attiva|tipo_scheda)$/.test(k)) aggiorna(); });
@@ -1677,6 +1704,7 @@ function finestraIncolla(tab) {
       return `<div class="voce-inc"><label class="spunta"><input type="checkbox" name="k${i}" checked> <b>${esc(s.nome)}</b></label>
         <span class="tenue piccolo">${esc([s.tipo_scheda === 'png' ? 'PNG' : 'mostro', s.classi_testo || s.epiteto, s.gs !== '' ? 'GS ' + s.gs : '', s.n_suggerito > 1 ? '×' + s.n_suggerito : '', s.ca !== null ? 'CA ' + s.ca : '', s.pf !== null ? `PF ${s.pf} (${s.fatica}/${s.ferita})` : '', s.iniziativa !== null ? 'Iniz. ' + segno(s.iniziativa) : ''].filter(Boolean).join(' · '))}</span>
         <select name="d${i}" aria-label="Dove">${(S.camp ? ['png', 'generico', 'mostro'] : ['generico', 'mostro']).map(k => `<option value="${k}" ${doveDi(s) === k ? 'selected' : ''}>${FONTI[k].nome}</option>`).join('')}</select>
+        <label class="campo"><span>Descrizione estesa</span><textarea name="e${i}" rows="2" placeholder="nessuna">${esc(s.descrizione_estesa || '')}</textarea></label>
         ${b.avvisi.length ? `<div class="piccolo tenue">${esc(b.avvisi.join(' · '))}</div>` : ''}${sg.length ? `<div class="piccolo">${badgeSegn(s)} ${esc(sg.slice(0, 3).map(x => x.testo).join(' · '))}${sg.length > 3 ? ' …' : ''}</div>` : ''}</div>`; }).join('')}`
       : '<p class="tenue piccolo">Nessuno stat block: la riga del titolo deve essere come «NOME — Classe N · GS N · XP N» (o «NOME · GS N · XP N»).</p>';
   };
@@ -1686,7 +1714,7 @@ function finestraIncolla(tab) {
       { testo: 'Importa', classe: 'prim', fn: f => {
         if (!st.blocchi.length) { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); if (!st.blocchi.length) throw new Error('Nessuno stat block da importare'); return false; }
         const ora = Date.now(), cond = { mostro: Best.mostri, generico: Best.generici }, conta = {}; let c = S.camp, n = 0, ultimo = null;
-        st.blocchi.forEach((b, i) => { if (!spunta(f, 'k' + i)) return; const dove = val(f, 'd' + i).value, s = M.nuovaScheda(b.scheda, rng, ora, FONTI[dove].pref);
+        st.blocchi.forEach((b, i) => { if (!spunta(f, 'k' + i)) return; if (val(f, 'e' + i)) b.scheda.descrizione_estesa = val(f, 'e' + i).value.trim(); const dove = val(f, 'd' + i).value, s = M.nuovaScheda(b.scheda, rng, ora, FONTI[dove].pref);
           if (condivisa(dove)) cond[dove] = M.salvaScheda(cond[dove], s, ora); else c = M.salvaPNG(c, s, ora); n++; conta[dove] = (conta[dove] || 0) + 1; ultimo = { fonte: dove, id: s.id }; });
         if (!n) throw new Error('Nessuno stat block scelto');
         if (conta.mostro || conta.generico) { Best.mostri = cond.mostro; Best.generici = cond.generico; salvaBestiario(); }
@@ -1763,7 +1791,8 @@ Object.assign(AZ, {
   esportaBest() { return finestraEsportaBest(); },
   bestiarioHome() { S.schermata = 'bestiario'; S.camp = null; S.ui.vista = null; if (!campBest()) S.ui.bestCamp = (S.elenco.find(e => e.c) || {}).id || null; disegna(); window.scrollTo(0, 0); },
   async apriDaBest(el) { const rif = S.ui.vista && S.ui.vista.rif; if (!el.dataset.id) return; await AZ.apri(el); if (rif) { S.ui.vista = { rif }; S.ui.scheda = 'vista'; S.ui.best.fonte = 'png'; disegna(); } },
-  vediScheda(el) { S.ui.vista = { rif: rifDa(el.dataset.rif) }; if (S.camp) S.ui.scheda = 'vista'; disegna(); const v = S.camp ? $('#col-terza') : $('#best-vista'); if (v && window.innerWidth < 900) v.scrollIntoView({ block: 'start' }); },
+  vediScheda(el) { const nuovo = rifDa(el.dataset.rif); if (!S.ui.vista || rifStr(S.ui.vista.rif) !== rifStr(nuovo)) SC.terza.vista = 0; if (!S.camp || S.schermata === 'bestiario') SCB.yElenco = window.scrollY;
+    S.ui.vista = { rif: nuovo }; if (S.camp && S.schermata !== 'bestiario') S.ui.scheda = 'vista'; disegna(); const v = S.camp ? $('#col-terza') : $('#best-vista'); if (v && window.innerWidth < 900) v.scrollIntoView({ block: 'start' }); },
   vediRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; if (!r || !r.rif) return; S.ui.vista = { rif: r.rif, riga: r.id }; S.ui.scheda = 'vista'; disegna(); },
   statBlockRiga(el) { const r = S.camp.combattimento.righe[el.dataset.id]; finestraStatBlock(r.rif); },
   modificaScheda(el) { const r = rifDa(el.dataset.rif); finestraScheda(r.fonte, r.id); },
@@ -2697,6 +2726,149 @@ async function importaPNGCampagne(gruppi) {
   }
   return ` · PNG delle campagne: ${n} nuovi` + (cp ? `, ${cp} come copia` : '');
 }
+
+// ================================================================= Build 5a: classi del PG, contatori, bestiario (sezione AG)
+// ---------- AG1-A: classi nella scheda del PG
+function rigaClasse(k) {
+  return `<div class="riga-classe" data-rc>
+    <label class="campo"><span>Classe</span><input type="text" data-cl-k="classe" list="dl-classi" value="${esc(k.classe || '')}" placeholder="es. Ladro"></label>
+    <label class="campo"><span>Archetipo</span><input type="text" data-cl-k="archetipo" value="${esc(k.archetipo || '')}" placeholder="facoltativo"></label>
+    <label class="campo"><span>Livello</span><input type="number" data-cl-k="livello" min="1" max="20" value="${k.livello}"></label>
+    <label class="campo"><span>DV</span><select data-cl-k="dv">${M.DADI_DV.map(x => `<option value="${x}" ${k.dv === x ? 'selected' : ''}>d${x}</option>`).join('')}</select></label>
+    <button type="button" class="btn min peric" data-cl="togli" title="Togli la classe" aria-label="Togli la classe">✕</button></div>`;
+}
+function editorClassi(s) {
+  const classi = s.classi && s.classi.length ? s.classi : (s.classe || s.nome ? [{ classe: String(s.classe || '').replace(/\s*\d+\s*$/, ''), archetipo: '', livello: s.livello || 1, dv: s.rif_tipo || 8 }] : [{ classe: '', archetipo: '', livello: 1, dv: 8 }]);
+  return `<div class="classi-ed" style="grid-column:1/-1"><datalist id="dl-classi">${M.CLASSI.map(x => `<option value="${x}">`).join('')}</datalist>
+    <div class="righe-classi">${classi.map(rigaClasse).join('')}</div>
+    <div class="fila"><button type="button" class="btn min" data-cl="aggiungi">+ Classe</button><span class="tenue piccolo" data-cl-tot></span></div>
+    <p class="tenue piccolo">Il DV si propone da solo scegliendo una delle 34 classi. Riserva del Rifiatare: un dado per livello di ogni classe.</p></div>`;
+}
+function leggiClassi(f) {
+  return [...f.querySelectorAll('[data-rc]')].map((r, i) => {
+    const v = k => r.querySelector(`[data-cl-k="${k}"]`).value.trim(), liv = Number(v('livello'));
+    if (!Number.isInteger(liv) || liv < 1) throw new Error(`Livello della classe non valido${i ? ` (riga ${i + 1})` : ''}`);
+    return { classe: v('classe'), archetipo: v('archetipo'), livello: liv, dv: Number(v('dv')) };
+  });
+}
+function attivaClassi(el) {
+  const ed = el.querySelector('.classi-ed'); if (!ed) return;
+  const totale = () => { const t = ed.querySelector('[data-cl-tot]'); const L = [...ed.querySelectorAll('[data-cl-k="livello"]')].reduce((a, x) => a + (Number(x.value) || 0), 0);
+    const dadi = {}; for (const r of ed.querySelectorAll('[data-rc]')) { const dv = r.querySelector('[data-cl-k="dv"]').value, n = Number(r.querySelector('[data-cl-k="livello"]').value) || 0; dadi[dv] = (dadi[dv] || 0) + n; }
+    t.textContent = `Livello del PG: ${L} · Rifiatare ${Object.keys(dadi).map(Number).sort((a, b) => a - b).map(dv => `${dadi[dv]}d${dv}`).join(' + ')}`; };
+  ed.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-cl]'); if (!b) return;
+    if (b.dataset.cl === 'aggiungi') { ed.querySelector('.righe-classi').insertAdjacentHTML('beforeend', rigaClasse({ classe: '', archetipo: '', livello: 1, dv: 8 })); ed.querySelector('[data-rc]:last-child input').focus(); }
+    if (b.dataset.cl === 'togli') { if (ed.querySelectorAll('[data-rc]').length > 1) b.closest('[data-rc]').remove(); else avviso('Serve almeno una classe', true); }
+    totale();
+  });
+  ed.addEventListener('input', ev => {
+    const x = ev.target; if (x.dataset.clK === 'classe') { const dv = M.dvClasse(x.value); if (dv) x.closest('[data-rc]').querySelector('[data-cl-k="dv"]').value = String(dv); }
+    totale();
+  });
+  totale();
+}
+
+// ---------- AG1-C/D: contatori
+const chiCont = el => el.dataset.chi || null;
+function htmlContatori(chi, lista) {
+  if (!lista || !lista.length) return '';
+  return `<div class="contatori">${lista.map(x => `<span class="cont${x.finito ? ' finito' : ''}${x.tempo && x.tempo.pausa ? ' pausa' : ''}" title="${esc([x.max !== null ? `Massimo ${x.max}` : '', x.ricarica !== 'mano' ? 'Ricarica: ' + M.RICARICHE[x.ricarica] : '', x.tempo ? M.descriviTempoCont(x.tempo) : ''].filter(Boolean).join(' · '))}">
+      <button type="button" class="cont-nome" data-az="contModifica" data-chi="${chi || ''}" data-id="${x.id}">${esc(x.nome)}${x.tempo ? (x.tempo.pausa ? ' ⏸' : ' ⏱') : ''}</button>
+      <button type="button" class="cont-pm" data-az="contDelta" data-chi="${chi || ''}" data-id="${x.id}" data-d="-1" aria-label="Meno">−</button>
+      <button type="button" class="cont-v num" data-az="contValore" data-chi="${chi || ''}" data-id="${x.id}" title="Scrivi il valore">${x.valore}${x.max !== null ? '/' + x.max : ''}</button>
+      <button type="button" class="cont-pm" data-az="contDelta" data-chi="${chi || ''}" data-id="${x.id}" data-d="1" aria-label="Più">+</button></span>`).join('')}</div>`;
+}
+function listaCont(chi) { return chi ? (S.camp.pg.find(p => p.id === chi).contatori || []) : (S.camp.contatori || []); }
+function finestraContatore(chi, id) {
+  const x = id ? listaCont(chi).find(y => y.id === id) : null, t = x && x.tempo;
+  const di = chi ? S.camp.pg.find(p => p.id === chi).scheda.nome : 'la compagnia';
+  const el = apri({ titolo: x ? `Contatore: ${esc(x.nome)}` : `Nuovo contatore per ${esc(di)}`, corpo: `
+      <div class="griglia"><label class="campo" style="grid-column:span 2"><span>Nome</span><input type="text" name="nome" value="${esc(x ? x.nome : '')}" placeholder="${chi ? 'es. Ki, Frecce, Ira' : 'es. Torce, Giorni di viaggio'}"></label>
+        <label class="campo"><span>Valore</span><input type="number" name="valore" min="0" value="${x ? x.valore : 0}" data-etichetta="Valore"></label>
+        <label class="campo"><span>Massimo (facoltativo)</span><input type="number" name="max" min="0" value="${x && x.max !== null ? x.max : ''}" data-etichetta="Massimo"></label>
+        <label class="campo" style="grid-column:span 2"><span>Ricarica</span><select name="ricarica">${Object.entries(M.RICARICHE).map(([k, v]) => `<option value="${k}" ${(x ? x.ricarica : 'mano') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label></div>
+      <fieldset><legend>Col tempo</legend><label class="spunta"><input type="checkbox" name="tempo" ${t ? 'checked' : ''}> Scorre col tempo</label>
+        <div class="griglia"><label class="campo"><span>Verso</span><select name="dir"><option value="-1" ${!t || t.dir < 0 ? 'selected' : ''}>scende</option><option value="1" ${t && t.dir > 0 ? 'selected' : ''}>sale</option></select></label>
+          <label class="campo"><span>Di</span><input type="number" name="n" min="1" value="${t ? t.n : 1}" data-etichetta="Di quanto"></label>
+          <label class="campo"><span>Ogni</span><input type="number" name="ogni" min="1" value="${t ? t.ogni : 1}" data-etichetta="Ogni"></label>
+          <label class="campo"><span>Unità</span><select name="unita">${Object.keys(M.UNITA_CONT).map(k => `<option value="${k}" ${(t ? t.unita : 'ore') === k ? 'selected' : ''}>${k}</option>`).join('')}</select></label></div>
+        <p class="tenue piccolo">I round contano in combattimento; fuori dal combattimento 10 round = 1 minuto dell'orologio. Si ferma a 0 (o al massimo, se sale) con un avviso.</p></fieldset>
+      <p class="tenue piccolo">La ricarica riporta il contatore al massimo (senza massimo, al valore iniziale). Sulla TV i contatori non compaiono.</p>`,
+    azioni: [...(x ? [{ testo: 'Elimina', classe: 'peric', fn: () => applica(M.eliminaContatore(S.camp, chi, id)) },
+      { testo: 'Ricarica ora', fn: () => applica(M.ricaricaContatore(S.camp, chi, id)) },
+      ...(t ? [{ testo: t.pausa ? 'Riprendi' : 'Pausa', fn: () => applica(M.pausaContatore(S.camp, chi, id, !t.pausa)) }] : [])] : []),
+      { testo: 'Annulla' }, { testo: x ? 'Salva' : 'Aggiungi', classe: 'prim', fn: f => {
+        const def = { id: x ? x.id : undefined, nome: testo(f, 'nome'), valore: intero(f, 'valore', 0), max: val(f, 'max').value.trim() === '' ? null : intero(f, 'max'), ricarica: val(f, 'ricarica').value,
+          tempo: spunta(f, 'tempo') ? { dir: +val(f, 'dir').value, n: intero(f, 'n'), ogni: intero(f, 'ogni'), unita: val(f, 'unita').value, pausa: !!(t && t.pausa) } : null };
+        applica(M.salvaContatore(S.camp, chi, def));
+      } }] });
+  return el;
+}
+Object.assign(AZ, {
+  contNuovo(el) { finestraContatore(chiCont(el)); },
+  contModifica(el) { finestraContatore(chiCont(el), el.dataset.id); },
+  contDelta(el) { applica(M.cambiaContatore(S.camp, chiCont(el), el.dataset.id, { delta: +el.dataset.d })); },
+  contValore(el) {
+    const chi = chiCont(el), x = listaCont(chi).find(y => y.id === el.dataset.id);
+    apri({ titolo: esc(x.nome), corpo: `<label class="campo"><span>Valore${x.max !== null ? ` (massimo ${x.max})` : ''}</span><input type="number" name="v" min="0" value="${x.valore}" data-etichetta="Valore"></label>`,
+      azioni: [{ testo: 'Annulla' }, { testo: 'Salva', classe: 'prim', fn: f => applica(M.cambiaContatore(S.camp, chi, x.id, { valore: intero(f, 'v') })) }] });
+  },
+});
+
+// ---------- AG1-B: Rifiatare per tipo di dado
+function finestraRifiatare(id) {
+  const p = S.camp.pg.find(x => x.id === id), s = p.scheda, ris = M.riservaRif(M.clona(p)), mx = M.riserveMax(s);
+  if (!p.stato.rif_riserva) return avviso(`${s.nome} non ha più dadi nella riserva del Rifiatare`, true);
+  const tipi = Object.keys(mx).map(Number).sort((a, b) => b - a);
+  const el = apri({ titolo: `Rifiatare: ${esc(s.nome)}`, corpo: `<p class="piccolo">Riserva: ${esc(M.testoRiserva(p))}</p>
+      <div class="griglia">${tipi.map(dv => `<label class="campo"><span>d${dv} (${ris[dv] || 0} su ${mx[dv]})</span><input type="number" name="d${dv}" min="0" max="${ris[dv] || 0}" value="0" data-etichetta="d${dv}" ${ris[dv] ? '' : 'disabled'}></label>`).join('')}</div>
+      <div><button type="button" class="btn min" data-rif="tutti">Tutti</button></div>
+      ${S.camp.combattimento ? '' : '<label class="spunta"><input type="checkbox" name="mz" checked> Avanza l\'orologio di 30 minuti (Rifiatare richiede mezz\'ora d\'inattività)</label>'}
+      <p class="tenue piccolo">Il totale va solo ai Punti Fatica${s.rif_ripete ? '; si ripetono i risultati di 1 e 2' : ''}.</p>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Tira', classe: 'prim', fn: f => {
+      const scelta = {}; for (const dv of tipi) { const i = val(f, 'd' + dv); if (!i.disabled) scelta[dv] = intero(f, 'd' + dv, 0); }
+      if (!Object.values(scelta).some(Boolean)) throw new Error('Scegli quanti dadi usare');
+      let c = S.camp; if (val(f, 'mz') && spunta(f, 'mz')) c = M.avanza(c, 300, MET, rng, 'Rifiatare');
+      const r = M.rifiatare(c, id, scelta, rng); applica(r.camp);
+      const q = r.camp.pg.find(x => x.id === id);
+      apri({ titolo: 'Rifiatare', corpo: `<div class="risultato">${r.totale}</div><p class="num">[${r.dadi.join(', ')}]${r.divisore > 1 ? ` = ${r.tirati} ÷ ${r.divisore} (organo compromesso)` : ''} → Punti Fatica ${q.stato.fatica}/${M.massimi(r.camp, q).fatica}</p><p class="tenue piccolo">Resta: ${esc(M.testoRiserva(q))}</p>` });
+    } }] });
+  el.addEventListener('click', ev => { if (!ev.target.closest('[data-rif="tutti"]')) return; for (const dv of tipi) { const i = val(el, 'd' + dv); if (!i.disabled) i.value = ris[dv] || 0; } });
+}
+
+// ---------- AG2: bestiario
+function htmlDescrizione(s) {
+  if (!s.aspetto && !s.carattere && !s.descrizione_estesa) return '';
+  const aperta = leggiPref('descrAperta') !== '0';
+  return `<details class="descr"${aperta ? ' open' : ''}><summary>Descrizione</summary>${s.aspetto ? `<p><b>Aspetto:</b> ${esc(s.aspetto)}</p>` : ''}${s.carattere ? `<p><b>Carattere:</b> ${esc(s.carattere)}</p>` : ''}${s.descrizione_estesa ? `<div class="descr-estesa">${s.descrizione_estesa.split(/\n+/).map(x => `<p>${esc(x)}</p>`).join('')}</div>` : ''}</details>`;
+}
+document.addEventListener('toggle', ev => { if (ev.target.classList && ev.target.classList.contains('descr')) scriviPref('descrAperta', ev.target.open ? '1' : '0'); }, true);
+function chipsEtichette(s) {
+  const auto = M.etichetteAuto(s), k = new Set(auto.map(x => x.toLowerCase())), man = (s.etichette || []).filter(x => !k.has(String(x).toLowerCase()));
+  return [...auto.map(e => `<span class="chip auto" title="Automatica (tipo, sottotipo o Ambiente)">${esc(e)}</span>`), ...man.map(e => `<span class="chip">${esc(e)}</span>`)].join(' ');
+}
+function filtriBestiario(f) {
+  const lista = listaDi(f.fonte), tipi = M.contaTipi(lista), et = M.contaEtichette(lista);
+  if (f.etichetta && !et.some(e => e.nome.toLowerCase() === String(f.etichetta).toLowerCase())) et.unshift({ nome: f.etichetta, n: 0 });
+  const ORD = [['nome', 'Nome A→Z'], ['nome_desc', 'Nome Z→A'], ['gs', 'GS crescente'], ['gs_desc', 'GS decrescente']];
+  return `<label class="campo"><span>Tipo</span><select data-best="tipo"><option value="">Tutti</option>${M.TIPI_MOSTRO.map(t => `<option value="${t}" ${f.tipo === t ? 'selected' : ''} ${tipi[t] || f.tipo === t ? '' : 'disabled'}>${t} (${tipi[t]})</option>`).join('')}</select></label>
+      <label class="campo"><span>Etichetta</span><select data-best="etichetta"><option value="">Tutte</option>${et.map(e => `<option value="${esc(e.nome)}" ${String(f.etichetta).toLowerCase() === e.nome.toLowerCase() ? 'selected' : ''}>${esc(e.nome)} (${e.n})</option>`).join('')}</select></label>
+      <label class="campo"><span>Ordina</span><select data-best="ordine">${ORD.map(([k, v]) => `<option value="${k}" ${(f.ordine || 'nome') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`;
+}
+// AG2-A: posizione di elenco e stat block nella pagina Bestiario
+const SCB = { lista: 0, vista: 0, rif: '', yElenco: 0 };
+function memScrollBest() { const l = $('#best-lista'), v = $('#best-vista'); if (l) SCB.lista = l.scrollTop; if (v) SCB.vista = v.scrollTop; }
+function rimettiScrollBest() {
+  const l = $('#best-lista'), v = $('#best-vista'), rif = S.ui.vista ? rifStr(S.ui.vista.rif) : '';
+  if (rif !== SCB.rif) { SCB.vista = 0; SCB.rif = rif; }
+  if (l) l.scrollTop = SCB.lista; if (v) v.scrollTop = SCB.vista;
+}
+function altezzaBest() { const b = document.querySelector('.best-home'); if (b) document.documentElement.style.setProperty('--best-top', Math.ceil(b.getBoundingClientRect().top + window.scrollY) + 'px'); }
+window.addEventListener('resize', () => { if (S.schermata === 'bestiario') altezzaBest(); });
+Object.assign(AZ, {
+  tornaElenco() { window.scrollTo({ top: SCB.yElenco || 0 }); },
+});
 
 // ================================================================= avvio
 async function ricaricaElenco() {
