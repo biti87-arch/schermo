@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v22
+# Schermo del Narratore — design dell'app v23
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -44,6 +44,8 @@
 *v21 (08/11/2026): richieste di Massy dopo l'uso della `v1.0.3`, confermate in chat in 4 passi (sezione AG): **PG con più classi** e Rifiatare per dado, **contatori** personalizzati anche a tempo (AG1); **bestiario** con scorrimento separato, ordine, menu Tipo ed Etichetta, descrizione riducibile, Ambiente ed etichette automatiche (AG2); **incontri** con i partecipanti scelti dal bestiario, descrizione, note e ricompense, copia e incolla, ordine (AG3); **eventi casuali** in una scheda propria con frequenza e ripetizioni, schede evento e importazione da docx o json (AG4, sostituisce AC6). Build 5a, 5b, 5c.*
 
 *v22 (08/11/2026): **Build 5a fatta** (AG1, AG2): motore con 890 test (56 nuovi), pagina 796 controlli a 1366 e 390 px (68 nuovi), pagina di prova sullo stesso artifact (versione 18); scelte di applicazione nella sezione Z6, da confermare sulla pagina di prova. Commit locale sul ramo `sviluppo`, niente push.*
+
+*v23 (08/11/2026): **Build 5a confermata** da Massy (Z6-1…Z6-9, «confermo tutto, comprese le scelte da te fatte»): push su `sviluppo` e `main`, nuova release.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -90,7 +92,7 @@
 | Passo 13.2 — Bestiario: scorrimento, ordine, menu, descrizione, Ambiente, etichette automatiche (AG2) | ✅ 08/11 |
 | Passo 13.3 — Incontri: bestiario, campi nuovi, copia e incolla, ordine (AG3) | ✅ 08/11 |
 | Passo 13.4 — Eventi casuali e importazione (AG4) | ✅ 08/11 |
-| Build 5a — PG e bestiario (AG1, AG2) | 🔶 fatta l'08/11, pagina di prova (artifact v18) da confermare (Z6) |
+| Build 5a — PG e bestiario (AG1, AG2) | ✅ confermata l'08/11 (Z6), rilasciata |
 | Build 5b — Incontri (AG3) | ⬜ |
 | Build 5c — Eventi casuali e importazione (AG4) | ⬜ |
 
@@ -595,7 +597,7 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - Build 3b: chiusa il 02/11 (AC1–AC10, Z3b confermate). Prossima: Build 4 (finestra TV in Electron, icona, primo rilascio).
 - Build 4: chiusa il 02/11 (AD1–AD9, Z4-1…Z4-14); release `v1.0.2` / `win-1.0.2` provate da Massy («va tutto bene»). L'app è completa: nuove richieste in una chat nuova, partendo dal ramo `sviluppo` (commit `0af5b65`, uguale a `main`).
 - Build 4b (AE, AF): confermata il 03/11 (Z5-1…Z5-7, «funziona bene»); rilascio `v1.0.3` / `win-1.0.3`.
-- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a, 5b, 5c da fare.
+- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a confermata (Z6); 5b e 5c da fare.
 - Repo: il ramo predefinito è ancora `sviluppo`; da impostare a `main` nelle impostazioni del repo (a cura di Massy).
 - Guida del DM, divergenze con il Vol. 3 e refusi (AC1-3, AC1-4, AC7-1): da correggere nella Guida se si aggiorna.
 - Tabelle del Tempo Atmosferico v1.0, effetto «Tormenta»: il testo dice «Fiamme: come con il Vento molto forte», ma vale la tabella delle Fiamme (spegne anche la lanterna impermeabile; Massy, 01/11): da correggere nella prossima versione delle Tabelle.
@@ -1156,7 +1158,7 @@ Prima (E, F6, F7): classe e livello in testo libero, livello numerico per il rip
 - **Interfaccia**: righe delle classi nella scheda del PG, Rifiatare per dado, contatori sul riquadro e in cima al Tavolo; bestiario con i menu Tipo, Etichetta e Ordina, descrizione riducibile, Ambiente ed etichette automatiche nell'editor, Descrizione estesa nell'anteprima dell'Incolla, pagina Bestiario con elenco e stat block che scorrono per conto loro.
 - **Prove**: pagina 796 controlli a 1366 e 390 px (68 nuovi), artifact versione 18.
 
-### Scelte di applicazione (da confermare)
+### Scelte di applicazione (confermate da Massy l'08/11)
 - **Z6-1** Classe: campo con l'elenco delle 34 classi (scrivendo si filtra) o testo libero; il DV si propone quando il nome è quello di una classe. Le schede salvate ripartono da una riga con la classe di prima (senza il numero), il livello e il dado del Rifiatare.
 - **Z6-2** Rifiatare: un campo per dado che parte da 0, «Tutti» riempie la riserva; nel riquadro i dadi in ordine crescente («7/7 d8 · 1/2 d10»); dopo il tiro la finestra dice cosa resta.
 - **Z6-3** Contatori: «+ Contatore» nella fila dei pulsanti del PG e accanto a «+ PG» per la compagnia (che compare sotto il titolo del Tavolo); il tocco sul nome apre la modifica con Elimina, Ricarica ora e Pausa/Riprendi; ⏱ accanto al nome se scorre col tempo, ⏸ se in pausa.
