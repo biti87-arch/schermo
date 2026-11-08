@@ -51,7 +51,7 @@
 
 *v25 (08/11/2026): **Build 5b confermata** da Massy (Z7-1…Z7-10, «confermo tutto anche le scelte da te fatte»): push su `sviluppo` e `main`, release. Prossima: Build 5c (AG4) in una chat nuova.*
 
-*v26 (08/11/2026): **Build 5c fatta** (AG4): scelte di applicazione confermate in chat in 3 passi (Z8-1…Z8-17, con il formato JSON `schermo-eventi`), motore 970 test (59 nuovi), pagina 909 controlli a 1366 e 390 px, artifact versione 20; altre scelte Z8-18…Z8-24 da confermare sulla pagina di prova. Commit locale sul ramo `sviluppo`, niente push.*
+*v26 (08/11/2026): **Build 5c fatta** (AG4): scelte di applicazione confermate in chat in 3 passi (Z8-1…Z8-17, con il formato JSON `schermo-eventi`), motore 970 test (59 nuovi), pagina 909 controlli a 1366 e 390 px, artifact versione 20; altre scelte Z8-18…Z8-24 da confermare sulla pagina di prova; dopo la prima prova di Massy il riscontro dei tiri automatici (Z8-25…Z8-28, confermato). Commit locale sul ramo `sviluppo`, niente push.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -1212,6 +1212,14 @@ Prima (E, F6, F7): classe e livello in testo libero, livello numerico per il rip
 - **Z8-22** Le righe «Eventi…» del log stanno nel filtro del tempo.
 - **Z8-23** Eliminando una tabella le sue schede evento diventano sciolte e gli incontri restano; eliminando una scheda evento le voci che la usavano restano col titolo come testo.
 - **Z8-24** Correzione della 5b: nell'«Incolla incontro» la riga «Ambiente: …» dell'Ecologia chiudeva lo stat block e il resto (Tattiche) finiva nella Descrizione; ora resta nello stat block.
+
+### Riscontro dei tiri automatici (richiesta di Massy dopo la prova, confermata l'08/11)
+Il motore tirava già, ma i «nessun evento» comparivano solo nel log e l'orologio non fa tirare le righe Marcia e Riposo (solo il calcolatore «Marcia…» e «Riposo…»; l'orologio tira le righe Tempo).
+- **Z8-25** Ogni tiro automatico senza evento compare anche come avviso breve: «Isola, marcia: 1d6 = 2 su 4–6, nessun evento» (fino a 3, poi «e altri N, nel log»).
+- **Z8-26** Nella testata della tabella, accanto a ogni riga del «Quando», lo stato del conteggio: «3 h su 8 h di marcia di questo blocco · tiro fatto: nessun evento / evento in arrivo / evento già uscito / il tiro all'inizio della prossima marcia», «prossimo tiro: data e ora» (Tempo), «al prossimo riposo»; l'ora dell'evento in arrivo resta nascosta. Sotto: «Ultimo tiro (marcia, data e ora): 1d6 = 5 su 4–6, evento».
+- **Z8-27** Senza righe Tempo, accanto a «Tiri automatici»: «Tira solo durante la Marcia (pannello Viaggio) e a ogni Riposo: «+1 ora» e il Salto non contano. Per i tiri con l'orologio aggiungi una riga «Tempo».»
+- **Z8-28** Nel pannello Marcia, sotto «Eventi casuali: …», le ore di marcia di ogni tabella: «Isola: 3 h su 8 h di marcia».
+- Motore 976 test, pagina 919 controlli, artifact versione 21.
 
 ## Z7. Build 5b — come è stata applicata (08/11/2026)
 

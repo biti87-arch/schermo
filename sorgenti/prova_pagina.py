@@ -1424,6 +1424,18 @@ def prova5c(browser, larghezza):
     pg.locator('.coda [data-az="riprendiRiposo"]').click()
     lg = log()
     t(f'{W} Z8-8 riposo ripreso e completato', 'Il riposo riprende' in lg and 'Fatica al massimo' in lg)
+    # ---------- Z8-25…28: riscontro dei tiri automatici
+    terza('eventi')
+    a = importa(json='{"formato":"schermo-eventi","versione":1,"tabelle":[{"nome":"Strada vuota","dado":"d6","quando":[{"tipo":"marcia","ogni":2,"unita":"ore","perc":0},{"tipo":"riposo","perc":0}],"voci":[{"da":1,"a":6,"titolo":"Niente"}]}]}')
+    premi('Crea tutto', a); pg.locator('[data-az-cambio="autoEv"]').check()
+    t(f'{W} Z8-27 spiegazione: tira solo con la Marcia e il Riposo', 'Tira solo durante la Marcia' in pg.inner_text('#spiega-ev') and 'a ogni Riposo' in pg.inner_text('#spiega-ev'))
+    t(f'{W} Z8-26 stato del conteggio sotto il «Quando»', 'il tiro all\'inizio della prossima marcia' in pg.inner_text('#p-eventi') and 'al prossimo riposo' in pg.inner_text('#p-eventi'))
+    terza('viaggio'); pg.click('#p-marcia [data-az="marcia"]'); f = fin(); f.locator('[name="ore"]').fill('1'); premi('Parti', f)
+    t(f'{W} Z8-25 avviso «nessun evento» dopo la marcia', 'Strada vuota, marcia' in pg.inner_text('#avviso') and 'nessun evento' in pg.inner_text('#avviso'), pg.inner_text('#avviso'))
+    t(f'{W} Z8-28 ore di marcia nel pannello Marcia', 'Strada vuota: 1 h su 2 h di marcia' in pg.inner_text('#ore-ev'), pg.inner_text('#ore-ev') if pg.locator('#ore-ev').count() else '')
+    terza('eventi')
+    t(f'{W} Z8-26 dopo la marcia: tiro fatto, nessun evento; ultimo tiro', 'tiro fatto: nessun evento' in pg.inner_text('#p-eventi') and 'Ultimo tiro (marcia' in pg.inner_text('#ultimo-ev'))
+    largo('scheda Eventi con lo stato dei tiri')
     # ---------- scheda evento a mano
     terza('eventi'); pg.click('[data-az="nuovoEvento"]'); f = fin()
     f.locator('[name="tit"]').fill('Il ponte'); f.locator('[name="tipo"]').select_option('pericolo')

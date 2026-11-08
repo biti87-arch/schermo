@@ -292,7 +292,7 @@ details.cartella>summary{cursor:pointer;font-family:var(--f-titolo);color:var(--
 @media (max-width:600px){.md-tab{display:none}.md-blocchi{display:block}}
 .profilo{border:1px solid var(--riga);border-radius:6px;padding:6px 8px;margin:6px 0}.sotto-prof{font-weight:600;color:var(--oro);font-size:.8rem;margin-top:4px;text-transform:uppercase;letter-spacing:.03em}
 .riga-q{flex-wrap:wrap;gap:4px;margin:3px 0}.riga-v .fila{flex-wrap:wrap}.avvertenza{color:var(--oro)}.link-ev{margin-top:4px}
-.tab-ev .chip.promem{white-space:normal}
+.tab-ev .chip.promem{white-space:normal}.quando-ev>div{margin:2px 0}
 </style>
 </head>
 <body>
@@ -957,7 +957,7 @@ function riposo(camp, meteo, rng, ids, opz) {
     c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'riposo', testo: `Riposo fermato dall'evento alla ${ev.h}ª ora (${scelti.map(p => p.scheda.nome).join(', ')}): riprendilo per il recupero, oppure interrompilo.` });
     return c;
   }
-  let c = avanza(camp, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
+  let c = avanza(c0, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
   return concludiRiposo(c, scelti.map(p => p.id), opz, inizio, DUR, k, as, rng);
 }
 function concludiRiposo(c, ids, opz, inizio, DUR, k, as, rng) {
@@ -4181,6 +4181,25 @@ function tabellaDallaGuida(camp, i) {
     note: `Guida del DM: ${a.perc}% ogni ${pront().incontri.ogni_ore} ore di marcia${a.speciale ? `; ${a.speciale.nome} ${a.speciale.perc}%` : ''}. Tiro a mano la notte al riparo: −${pront().incontri.riparo}% (Sopravvivenza CD 15).` });
 }
 
+// Z8-25/26: ultimo tiro di ogni tabella e tiri recenti (la pagina mostra i «nessun evento» come avviso)
+function registraTiro(c, t, origine, testo, esce, R) {
+  c.eventi.seq = (c.eventi.seq || 0) + 1;
+  t.ultimo = { R: R === undefined ? c.tempo.R : R, origine, testo, esce };
+  c.eventi.recenti = [...(c.eventi.recenti || []), { n: c.eventi.seq, tabella: t.nome, origine, testo, esce }].slice(-10);
+}
+function tiriNuovi(prima, dopo) { const a = (prima && prima.eventi && prima.eventi.seq) || 0; return ((dopo && dopo.eventi && dopo.eventi.recenti) || []).filter(x => x.n > a); }
+// stato del conteggio di una riga del «Quando» (Z8-26): l'ora dell'evento in arrivo resta nascosta
+function statoQuando(c, t, i) {
+  const q = t.quando[i]; if (!t.auto || !q) return '';
+  if (q.tipo === 'riposo') return 'al prossimo riposo';
+  const st = t.conta[i] || {};
+  if (q.tipo === 'tempo') { const att = (c.eventi.attesa || []).some(a => a.tabella === t.id && !a.manuale);
+    return `prossimo tiro: ${formatoData(c, Math.max(st.inizio === undefined ? c.tempo.R : st.inizio, c.tempo.R))}${att ? ' · evento in arrivo' : ''}`; }
+  const N = oreQuando(q), acc = st.acc || 0;
+  return `${acc > 0 ? formatoDurata(Math.round(acc * 60) * ROUND_MIN) : '0 min'} su ${N} h di marcia di questo blocco · ` +
+    (!st.tirato ? 'il tiro all\'inizio della prossima marcia' : st.in === null || st.in === undefined ? 'tiro fatto: nessun evento' : st.fatto ? 'evento già uscito' : 'tiro fatto: evento in arrivo');
+}
+function oreMarciaEventi(c) { return righeMarcia(clona(c)).map(r => ({ tabella: r.t.nome, acc: r.st.acc, N: r.N })); }
 // ---- tiri sulla tabella (Z8-10)
 function vocePerTiro(t, n) { return t.voci.find(v => n >= v.da && n <= v.a) || null; }
 function motivoScarto(t, v, terr) {
@@ -4227,7 +4246,7 @@ function tiraEvento(camp, rng, o = {}) {
   const c = clona(camp), t = tabellaDi(c, o.tabella);
   if (o.territorio !== undefined && o.territorio && !t.territori.includes(o.territorio)) throw new Error('territorio non valido');
   if (o.prob) { const q = t.quando[0]; if (!q) throw new Error('la tabella non ha una probabilità nel «Quando»');
-    const e = esitoProbabilita(q, rng); if (!e.esce) { log(c, `Eventi (${t.nome}, a mano): nessun evento (${e.testo})`); return { camp: c, esce: false, testo: e.testo }; }
+    const e = esitoProbabilita(q, rng); registraTiro(c, t, 'a mano', e.testo, e.esce); if (!e.esce) { log(c, `Eventi (${t.nome}, a mano): nessun evento (${e.testo})`); return { camp: c, esce: false, testo: e.testo }; }
     log(c, `Eventi (${t.nome}, a mano): ${e.testo} → evento`); }
   if (o.entro > 0) {
     const R = c.tempo.R + 1 + Math.floor(rng() * o.entro * ROUND_ORA);
@@ -4279,6 +4298,7 @@ function eventiTempo(c, da, a, rng, inMarcia) {
         if (e.esce) { const R = st.inizio + Math.floor(rng() * L); c.eventi.attesa = c.eventi.attesa || []; c.eventi.attesa.push({ tabella: t.id, R, origine: 'tempo' });
           log(c, `Eventi (${t.nome}, tempo): ${e.testo} → evento alle ${formatoData(c, R)}`); }
         else log(c, `Eventi (${t.nome}, tempo): nessun evento (${e.testo})`);
+        registraTiro(c, t, 'tempo', e.testo, e.esce, st.inizio);
         st.inizio += L;
       }
     });
@@ -4298,7 +4318,8 @@ function marciaEventi(c, rng) { // restituisce l'avviso se l'evento scatta adess
     const { t, q, st, N } = r;
     if (st.acc === 0 && !st.tirato) { st.tirato = true; const e = esitoProbabilita(q, rng);
       if (e.esce) { st.in = 1 + Math.floor(rng() * Math.ceil(N)); log(c, `Eventi (${t.nome}, marcia): ${e.testo} → evento alla ${st.in}ª ora del blocco di ${N} ore`); }
-      else { st.in = null; log(c, `Eventi (${t.nome}, marcia): nessun evento (${e.testo})`); } }
+      else { st.in = null; log(c, `Eventi (${t.nome}, marcia): nessun evento (${e.testo})`); }
+      registraTiro(c, t, 'marcia', e.testo, e.esce); }
     if (st.in !== null && st.in === Math.floor(st.acc + 1e-9) + 1 && !st.fatto) { st.fatto = true; return avvisoEvento(c, t, rng, c.tempo.R, 'marcia'); }
   }
   return null;
@@ -4313,6 +4334,7 @@ function riposoEventi(c, rng, ore) {
     if (!t.auto) continue;
     for (const q of t.quando) { if (q.tipo !== 'riposo') continue;
       const e = esitoProbabilita(q, rng);
+      registraTiro(c, t, 'riposo', e.testo, e.esce);
       if (e.esce) { const h = 1 + Math.floor(rng() * ore); log(c, `Eventi (${t.nome}, riposo): ${e.testo} → evento alla ${h}ª ora del riposo`); return { t, h }; }
       log(c, `Eventi (${t.nome}, riposo): nessun evento (${e.testo})`); }
   }
@@ -4766,7 +4788,7 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   TIPI_EVENTO, DADI_EVENTI, CAMPI_PROFILO, GRUPPI_PROFILO, iconaTipo, nomeDado, fmtNum, tipoDaTesto, profiloVuoto, schedaEventoVuota, tabellaVuota, oreQuando, controllaQuando, valoriDado, testoQuando,
   esitoProbabilita, controllaVoci, intervalloVoce, salvaTabella, eliminaTabella, impostaAuto, impostaTerritorio, azzeraUscite, salvaSchedaEvento, eliminaSchedaEvento, segnaEventoGiocato, titoloEvento,
   tabellaDallaGuida, tiraVoce, nomeVoce, tiraEvento, rispondiEvento, eventiInfo, riprendiRiposo, interrompiRiposo, migraEventi,
-  voceZip, leggiDocxXml, leggiEventiDocx, leggiProfilo, testoProfilo, leggiRighePremio, leggiTesoroRiga, leggiEventiJson, esportaEventi, applicaImportazione, FORMATO_EVENTI };
+  tiriNuovi, statoQuando, oreMarciaEventi, voceZip, leggiDocxXml, leggiEventiDocx, leggiProfilo, testoProfilo, leggiRighePremio, leggiTesoroRiga, leggiEventiJson, esportaEventi, applicaImportazione, FORMATO_EVENTI };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
 
@@ -4824,13 +4846,16 @@ function salvaPresto() {
 function salvaOra() { if (salvaTimer && S.camp) { clearTimeout(salvaTimer); salvaTimer = null; if (Archivio.subito) Archivio.subito(S.camp); else Archivio.scrivi(S.camp); } }
 window.addEventListener('beforeunload', salvaOra);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') salvaOra(); });
-function applica(c) { if (c.luci && c.luci.some(l => l.accesa)) c = M.controllaLuci(c, MET, DATI.strumenti); c.modificata = Date.now(); S.camp = c; salvaPresto(); disegna(); }
+function applica(c) { if (c.luci && c.luci.some(l => l.accesa)) c = M.controllaLuci(c, MET, DATI.strumenti); c.modificata = Date.now();
+  const nessuno = M.tiriNuovi(S.camp, c).filter(x => !x.esce && x.origine !== 'a mano'); // Z8-25: i tiri automatici senza evento si vedono subito
+  S.camp = c; salvaPresto(); disegna();
+  if (nessuno.length) avviso(nessuno.slice(-3).map(x => `${x.tabella}, ${x.origine}: ${x.testo.replace(/-/g, '–')}, nessun evento`).join(' · ') + (nessuno.length > 3 ? ` (e altri ${nessuno.length - 3}, nel log)` : ''), false, 4500); }
 function prova(f) { try { return f(); } catch (e) { avviso(e.message, true); return undefined; } }
 let avvisoT = null;
-function avviso(testo, errore) {
+function avviso(testo, errore, durata) {
   let el = $('#avviso'); if (!el) { el = document.createElement('div'); el.id = 'avviso'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
   el.className = 'avviso' + (errore ? ' err' : ''); el.textContent = testo; el.hidden = false;
-  clearTimeout(avvisoT); avvisoT = setTimeout(() => { el.hidden = true; }, errore ? 5000 : 2600);
+  clearTimeout(avvisoT); avvisoT = setTimeout(() => { el.hidden = true; }, durata || (errore ? 5000 : 2600));
 }
 function tema() { const t = S.camp ? S.camp.impostazioni.tema : (leggiPref('tema') || 'scuro'); document.documentElement.dataset.theme = t === 'chiaro' ? 'light' : 'dark'; }
 function leggiPref(k) { try { return localStorage.getItem('schermo-' + k); } catch (e) { return null; } }
@@ -6729,7 +6754,8 @@ function disegnaMarcia() {
   const c = S.camp, v = c.viaggio, a = v.attivo, auto = M.eventiInfo(c);
   const testa = `<div class="fila"><h3>Marcia</h3><span class="tenue piccolo">${v.oggi && v.oggi.giorno === M.scomponi(c).N ? `oggi ${M.formatoDurata(v.oggi.min * M.ROUND_MIN)} di marcia${v.oggi.forzata ? ' · marcia forzata' : ''}` : 'oggi nessuna marcia'}</span><span class="spazio"></span>
     ${a ? '' : '<button class="btn min prim" data-az="marcia">Marcia…</button>'}<button class="btn min" data-az="locandaF">Locanda…</button></div>
-    <button class="btn min link-ev" data-az="scheda" data-s="eventi" id="avviso-ev">Eventi casuali: ${auto.length ? 'tiri automatici su ' + esc(auto.join(', ')) : 'nessun tiro automatico'}</button>`;
+    <button class="btn min link-ev" data-az="scheda" data-s="eventi" id="avviso-ev">Eventi casuali: ${auto.length ? 'tiri automatici su ' + esc(auto.join(', ')) : 'nessun tiro automatico'}</button>
+    ${M.oreMarciaEventi(c).length ? `<div class="piccolo tenue" id="ore-ev">${M.oreMarciaEventi(c).map(x => `${esc(x.tabella)}: ${esc(x.acc > 0 ? M.formatoDurata(Math.round(x.acc * 60) * M.ROUND_MIN) : '0 min')} su ${x.N} h di marcia`).join(' · ')}</div>` : ''}`;
   if (!a) return `<div class="pannello" id="p-marcia">${testa}${v.ultima ? `<p class="tenue piccolo">Ultima marcia: ${String(v.ultima.km).replace('.', ',')} km in ${M.formatoDurata(v.ultima.min * M.ROUND_MIN)}.</p>` : ''}</div>`;
   const resta = a.resta_min !== null ? `restano ${M.formatoDurata(a.resta_min * M.ROUND_MIN)}` : `restano ${String(Math.round(a.resta_km * 10) / 10).replace('.', ',')} km`;
   const stato = `<p class="piccolo"><b>${String(Math.round(a.km * 10) / 10).replace('.', ',')} km</b> in ${M.formatoDurata(a.min * M.ROUND_MIN)} · ${resta}${a.ultimi && a.ultimi.length ? ` · ${esc(a.ultimi.join(', '))}` : ''}</p>`;
@@ -6973,10 +6999,12 @@ function disegnaTabEv(t) {
       <span class="tenue piccolo">${esc([v.difficolta, v.dove, v.territori.length ? v.territori.join(', ') : '', v.ripetibile && t.no_ripetere ? 'si può ripetere' : '', dest && !dest.includes(M.nomeVoce(c, v)) ? dest : '', v.testo && v.titolo ? v.testo : ''].filter(Boolean).join(' · '))}</span></button></li>`; };
   return `<div class="tab-ev"><div class="fila"><b>${esc(t.nome)}</b><span class="chip">${M.nomeDado(t.dado)}</span><span class="spazio"></span>
       <button class="btn min" data-az="modTabEv" data-id="${t.id}">Modifica</button><button class="btn min" data-az="esportaEv" data-id="${t.id}">Esporta</button><button class="btn min peric" data-az="eliminaTabEv" data-id="${t.id}" aria-label="Elimina la tabella">✕</button></div>
-    <div class="piccolo">${t.quando.length ? t.quando.map(q => `<span class="chip promem">${esc(M.testoQuando(q))}</span>`).join(' ') : '<span class="tenue">Solo a mano.</span>'}${t.no_ripetere ? ' <span class="chip">una voce uscita non si ripete</span>' : ''}</div>
+    <div class="piccolo quando-ev">${t.quando.length ? t.quando.map((q, i) => `<div><span class="chip promem">${esc(M.testoQuando(q))}</span>${t.auto ? ` <span class="tenue stato-q">${esc(M.statoQuando(c, t, i))}</span>` : ''}</div>`).join('') : '<span class="tenue">Solo a mano.</span>'}${t.no_ripetere ? '<span class="chip">una voce uscita non si ripete</span>' : ''}</div>
+    ${t.ultimo ? `<p class="piccolo tenue" id="ultimo-ev">Ultimo tiro (${esc(t.ultimo.origine)}, ${esc(M.formatoData(c, t.ultimo.R))}): ${esc(t.ultimo.testo.replace(/-/g, '–'))}, ${t.ultimo.esce ? 'evento' : 'nessun evento'}</p>` : ''}
     <div class="fila">${t.quando.length ? `<label class="spunta"><input type="checkbox" data-az-cambio="autoEv" data-id="${t.id}" ${t.auto ? 'checked' : ''}> Tiri automatici</label>` : ''}
       ${t.territori.length ? `<label class="campo" style="width:auto"><span>I PG sono in</span><select data-az-cambio="terrEv" data-id="${t.id}"><option value="">— non scelto —</option>${t.territori.map(x => `<option ${x === t.territorio ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>` : ''}
       <span class="spazio"></span><button class="btn prim" data-az="tiraEv" data-id="${t.id}">Tira</button><button class="btn min" data-az="azzeraEv" data-id="${t.id}" ${t.uscite.length ? '' : 'disabled'}>Azzera le uscite${t.uscite.length ? ` (${t.uscite.length})` : ''}</button></div>
+    ${t.quando.length && !t.quando.some(q => q.tipo === 'tempo') ? `<p class="piccolo tenue" id="spiega-ev">Tira solo durante la Marcia (pannello Viaggio)${t.quando.some(q => q.tipo === 'riposo') ? ' e a ogni Riposo' : ''}: «+1 ora» e il Salto non contano. Per i tiri con l'orologio aggiungi una riga «Tempo».</p>` : ''}
     ${err.length ? `<p class="piccolo cond-t">${esc(err.join('; '))}</p>` : ''}
     ${t.note ? `<details class="cartella"><summary>Note della tabella</summary><div class="note-inc piccolo">${mdLite(t.note)}</div></details>` : ''}
     ${t.voci.length ? `<ul class="voci">${t.voci.map(voce).join('')}</ul>` : '<p class="tenue piccolo">Nessuna voce: «Modifica» per scriverle (senza voci il tiro dice «scegli tu»).</p>'}</div>`;

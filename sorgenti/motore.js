@@ -654,7 +654,7 @@ function riposo(camp, meteo, rng, ids, opz) {
     c.coda.push({ id: prossimoId(c, 'q'), R: c.tempo.R, tipo: 'riposo', testo: `Riposo fermato dall'evento alla ${ev.h}ª ora (${scelti.map(p => p.scheda.nome).join(', ')}): riprendilo per il recupero, oppure interrompilo.` });
     return c;
   }
-  let c = avanza(camp, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
+  let c = avanza(c0, DUR, meteo, rng, totale ? 'Riposo totale (24 ore)' : 'Riposo 8 ore');
   return concludiRiposo(c, scelti.map(p => p.id), opz, inizio, DUR, k, as, rng);
 }
 function concludiRiposo(c, ids, opz, inizio, DUR, k, as, rng) {
@@ -3878,6 +3878,25 @@ function tabellaDallaGuida(camp, i) {
     note: `Guida del DM: ${a.perc}% ogni ${pront().incontri.ogni_ore} ore di marcia${a.speciale ? `; ${a.speciale.nome} ${a.speciale.perc}%` : ''}. Tiro a mano la notte al riparo: −${pront().incontri.riparo}% (Sopravvivenza CD 15).` });
 }
 
+// Z8-25/26: ultimo tiro di ogni tabella e tiri recenti (la pagina mostra i «nessun evento» come avviso)
+function registraTiro(c, t, origine, testo, esce, R) {
+  c.eventi.seq = (c.eventi.seq || 0) + 1;
+  t.ultimo = { R: R === undefined ? c.tempo.R : R, origine, testo, esce };
+  c.eventi.recenti = [...(c.eventi.recenti || []), { n: c.eventi.seq, tabella: t.nome, origine, testo, esce }].slice(-10);
+}
+function tiriNuovi(prima, dopo) { const a = (prima && prima.eventi && prima.eventi.seq) || 0; return ((dopo && dopo.eventi && dopo.eventi.recenti) || []).filter(x => x.n > a); }
+// stato del conteggio di una riga del «Quando» (Z8-26): l'ora dell'evento in arrivo resta nascosta
+function statoQuando(c, t, i) {
+  const q = t.quando[i]; if (!t.auto || !q) return '';
+  if (q.tipo === 'riposo') return 'al prossimo riposo';
+  const st = t.conta[i] || {};
+  if (q.tipo === 'tempo') { const att = (c.eventi.attesa || []).some(a => a.tabella === t.id && !a.manuale);
+    return `prossimo tiro: ${formatoData(c, Math.max(st.inizio === undefined ? c.tempo.R : st.inizio, c.tempo.R))}${att ? ' · evento in arrivo' : ''}`; }
+  const N = oreQuando(q), acc = st.acc || 0;
+  return `${acc > 0 ? formatoDurata(Math.round(acc * 60) * ROUND_MIN) : '0 min'} su ${N} h di marcia di questo blocco · ` +
+    (!st.tirato ? 'il tiro all\'inizio della prossima marcia' : st.in === null || st.in === undefined ? 'tiro fatto: nessun evento' : st.fatto ? 'evento già uscito' : 'tiro fatto: evento in arrivo');
+}
+function oreMarciaEventi(c) { return righeMarcia(clona(c)).map(r => ({ tabella: r.t.nome, acc: r.st.acc, N: r.N })); }
 // ---- tiri sulla tabella (Z8-10)
 function vocePerTiro(t, n) { return t.voci.find(v => n >= v.da && n <= v.a) || null; }
 function motivoScarto(t, v, terr) {
@@ -3924,7 +3943,7 @@ function tiraEvento(camp, rng, o = {}) {
   const c = clona(camp), t = tabellaDi(c, o.tabella);
   if (o.territorio !== undefined && o.territorio && !t.territori.includes(o.territorio)) throw new Error('territorio non valido');
   if (o.prob) { const q = t.quando[0]; if (!q) throw new Error('la tabella non ha una probabilità nel «Quando»');
-    const e = esitoProbabilita(q, rng); if (!e.esce) { log(c, `Eventi (${t.nome}, a mano): nessun evento (${e.testo})`); return { camp: c, esce: false, testo: e.testo }; }
+    const e = esitoProbabilita(q, rng); registraTiro(c, t, 'a mano', e.testo, e.esce); if (!e.esce) { log(c, `Eventi (${t.nome}, a mano): nessun evento (${e.testo})`); return { camp: c, esce: false, testo: e.testo }; }
     log(c, `Eventi (${t.nome}, a mano): ${e.testo} → evento`); }
   if (o.entro > 0) {
     const R = c.tempo.R + 1 + Math.floor(rng() * o.entro * ROUND_ORA);
@@ -3976,6 +3995,7 @@ function eventiTempo(c, da, a, rng, inMarcia) {
         if (e.esce) { const R = st.inizio + Math.floor(rng() * L); c.eventi.attesa = c.eventi.attesa || []; c.eventi.attesa.push({ tabella: t.id, R, origine: 'tempo' });
           log(c, `Eventi (${t.nome}, tempo): ${e.testo} → evento alle ${formatoData(c, R)}`); }
         else log(c, `Eventi (${t.nome}, tempo): nessun evento (${e.testo})`);
+        registraTiro(c, t, 'tempo', e.testo, e.esce, st.inizio);
         st.inizio += L;
       }
     });
@@ -3995,7 +4015,8 @@ function marciaEventi(c, rng) { // restituisce l'avviso se l'evento scatta adess
     const { t, q, st, N } = r;
     if (st.acc === 0 && !st.tirato) { st.tirato = true; const e = esitoProbabilita(q, rng);
       if (e.esce) { st.in = 1 + Math.floor(rng() * Math.ceil(N)); log(c, `Eventi (${t.nome}, marcia): ${e.testo} → evento alla ${st.in}ª ora del blocco di ${N} ore`); }
-      else { st.in = null; log(c, `Eventi (${t.nome}, marcia): nessun evento (${e.testo})`); } }
+      else { st.in = null; log(c, `Eventi (${t.nome}, marcia): nessun evento (${e.testo})`); }
+      registraTiro(c, t, 'marcia', e.testo, e.esce); }
     if (st.in !== null && st.in === Math.floor(st.acc + 1e-9) + 1 && !st.fatto) { st.fatto = true; return avvisoEvento(c, t, rng, c.tempo.R, 'marcia'); }
   }
   return null;
@@ -4010,6 +4031,7 @@ function riposoEventi(c, rng, ore) {
     if (!t.auto) continue;
     for (const q of t.quando) { if (q.tipo !== 'riposo') continue;
       const e = esitoProbabilita(q, rng);
+      registraTiro(c, t, 'riposo', e.testo, e.esce);
       if (e.esce) { const h = 1 + Math.floor(rng() * ore); log(c, `Eventi (${t.nome}, riposo): ${e.testo} → evento alla ${h}ª ora del riposo`); return { t, h }; }
       log(c, `Eventi (${t.nome}, riposo): nessun evento (${e.testo})`); }
   }
@@ -4463,6 +4485,6 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   TIPI_EVENTO, DADI_EVENTI, CAMPI_PROFILO, GRUPPI_PROFILO, iconaTipo, nomeDado, fmtNum, tipoDaTesto, profiloVuoto, schedaEventoVuota, tabellaVuota, oreQuando, controllaQuando, valoriDado, testoQuando,
   esitoProbabilita, controllaVoci, intervalloVoce, salvaTabella, eliminaTabella, impostaAuto, impostaTerritorio, azzeraUscite, salvaSchedaEvento, eliminaSchedaEvento, segnaEventoGiocato, titoloEvento,
   tabellaDallaGuida, tiraVoce, nomeVoce, tiraEvento, rispondiEvento, eventiInfo, riprendiRiposo, interrompiRiposo, migraEventi,
-  voceZip, leggiDocxXml, leggiEventiDocx, leggiProfilo, testoProfilo, leggiRighePremio, leggiTesoroRiga, leggiEventiJson, esportaEventi, applicaImportazione, FORMATO_EVENTI };
+  tiriNuovi, statoQuando, oreMarciaEventi, voceZip, leggiDocxXml, leggiEventiDocx, leggiProfilo, testoProfilo, leggiRighePremio, leggiTesoroRiga, leggiEventiJson, esportaEventi, applicaImportazione, FORMATO_EVENTI };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

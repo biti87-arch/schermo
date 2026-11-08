@@ -1858,6 +1858,16 @@ XP: 7.200 (6 × 1.200) · 3.600 con tre lupi · +200 se li allontanano col fuoco
   se = M.segnaEventoGiocato(se, sid, true); t('Z8 evento giocato con gli XP nel log', se.eventi.schede[0].stato === 'giocato' && se.log.some(e => /Evento «Il ponte» giocato \(XP 2\.400\)/.test(e.testo)));
   se = M.salvaTabella(se, { nome: 'T', dado: 4, voci: [{ da: 1, a: 4, porta: { tipo: 'evento', id: sid } }] }); se = M.eliminaSchedaEvento(se, sid);
   t('Z8 eliminare la scheda: la voce resta col titolo come testo', se.eventi.tabelle[0].voci[0].porta.tipo === 'testo' && se.eventi.tabelle[0].voci[0].titolo === 'Il ponte');
+  // Z8-25…28: riscontro dei tiri automatici
+  { let z = M.salvaTabella(h0, { nome: 'Vuota', dado: 6, quando: [{ tipo: 'marcia', ogni: 2, unita: 'ore', perc: 0 }, { tipo: 'tempo', ogni: 1, unita: 'giorni', perc: 0 }, { tipo: 'riposo', perc: 0 }], voci: [{ da: 1, a: 6, titolo: 'X' }] });
+    const zid = z.eventi.tabelle.at(-1).id; z = M.impostaAuto(z, zid, true); const z0 = z;
+    t('Z8-26 stato prima della marcia', M.statoQuando(z, z.eventi.tabelle.at(-1), 0) === '0 min su 2 h di marcia di questo blocco · il tiro all\'inizio della prossima marcia' && /^prossimo tiro: /.test(M.statoQuando(z, z.eventi.tabelle.at(-1), 1)) && M.statoQuando(z, z.eventi.tabelle.at(-1), 2) === 'al prossimo riposo', M.statoQuando(z, z.eventi.tabelle.at(-1), 0));
+    z = M.avviaMarcia(z, meteo, rng, { mezzo: 'piedi', terreno: 'pianura', ore: 1 }); const tz = z.eventi.tabelle.at(-1);
+    t('Z8-26 dopo un\'ora di marcia: 1 h su 2, tiro fatto, nessun evento', M.statoQuando(z, tz, 0) === '1 h su 2 h di marcia di questo blocco · tiro fatto: nessun evento', M.statoQuando(z, tz, 0));
+    const nz = M.tiriNuovi(z0, z); t('Z8-25 tiri nuovi senza evento (marcia) e ultimo tiro', nz.length === 1 && nz[0].origine === 'marcia' && !nz[0].esce && tz.ultimo.origine === 'marcia' && /su 0%/.test(tz.ultimo.testo), nz);
+    t('Z8-28 ore di marcia per tabella', JSON.stringify(M.oreMarciaEventi(z)) === JSON.stringify([{ tabella: 'Vuota', acc: 1, N: 2 }]));
+    const zr = M.riposo(z, meteo, rng, null); t('Z8-25 il tiro del riposo senza evento si registra', M.tiriNuovi(z, zr).some(x => x.origine === 'riposo') && !zr.riposo_sospeso);
+    const zt = M.avanza(z0, 25 * M.ROUND_ORA, meteo, rng); t('Z8-25 tiri del Tempo con l\'orologio (2 in 25 ore)', M.tiriNuovi(z0, zt).filter(x => x.origine === 'tempo').length === 2); }
   // 5b: «Ambiente:» dell'Ecologia non chiude lo stat block nell'Incolla incontro
   const li = M.leggiIncontro('Lupi\nLUPO · GS 1 · XP 400\nAnimale Medio | Neutrale\nIniziativa +2\n── ECOLOGIA ──\nAmbiente: pianure\n── TATTICHE ──\nRound 1: morde', () => null);
   t('5b corretto: «Ambiente:» resta nello stat block', !li.incontro.descrizione && li.voci[0].scheda && li.voci[0].scheda.ambiente === 'pianure', li.incontro);
