@@ -46,4 +46,4 @@ Le icone (schermo del GM a tre ante e d20 su fondo marrone brace) si rigenerano 
 - La TV non mostra mai PF, malus, condizioni, tattiche, né i nomi veri delle creature con il nome per i giocatori; le nascoste non compaiono, nemmeno nel loro turno.
 
 ## Decisioni di design
-Vedi `Schermo_app_design_v24.md` (nel repo e nel progetto della Collana).
+Vedi `Schermo_app_design_v25.md` (nel repo e nel progetto della Collana).

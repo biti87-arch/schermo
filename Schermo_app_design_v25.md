@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v24
+# Schermo del Narratore — design dell'app v25
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -48,6 +48,8 @@
 *v23 (08/11/2026): **Build 5a confermata** da Massy (Z6-1…Z6-9, «confermo tutto, comprese le scelte da te fatte»): push su `sviluppo` e `main`, nuova release.*
 
 *v24 (08/11/2026): **Build 5b fatta** (AG3): motore 912 test (22 nuovi), pagina 836 controlli (40 nuovi), artifact versione 19; scelte di applicazione nella sezione Z7, da confermare sulla pagina di prova.*
+
+*v25 (08/11/2026): **Build 5b confermata** da Massy (Z7-1…Z7-10, «confermo tutto anche le scelte da te fatte»): push su `sviluppo` e `main`, release. Prossima: Build 5c (AG4) in una chat nuova.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -95,7 +97,7 @@
 | Passo 13.3 — Incontri: bestiario, campi nuovi, copia e incolla, ordine (AG3) | ✅ 08/11 |
 | Passo 13.4 — Eventi casuali e importazione (AG4) | ✅ 08/11 |
 | Build 5a — PG e bestiario (AG1, AG2) | ✅ confermata l'08/11 (Z6), rilasciata |
-| Build 5b — Incontri (AG3) | 🔶 fatta l'08/11, pagina di prova (artifact v19) da confermare (Z7) |
+| Build 5b — Incontri (AG3) | ✅ confermata l'08/11 (Z7), rilasciata |
 | Build 5c — Eventi casuali e importazione (AG4) | ⬜ |
 
 Una chat per fase. Ogni build finisce con la pagina di prova (artifact) confermata da Massy; le versioni native solo dopo la conferma della Build 4.
@@ -599,7 +601,7 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - Build 3b: chiusa il 02/11 (AC1–AC10, Z3b confermate). Prossima: Build 4 (finestra TV in Electron, icona, primo rilascio).
 - Build 4: chiusa il 02/11 (AD1–AD9, Z4-1…Z4-14); release `v1.0.2` / `win-1.0.2` provate da Massy («va tutto bene»). L'app è completa: nuove richieste in una chat nuova, partendo dal ramo `sviluppo` (commit `0af5b65`, uguale a `main`).
 - Build 4b (AE, AF): confermata il 03/11 (Z5-1…Z5-7, «funziona bene»); rilascio `v1.0.3` / `win-1.0.3`.
-- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a confermata (Z6); 5b e 5c da fare.
+- Build 5 (AG, 08/11): decisioni confermate (passi 1–4); Build 5a confermata (Z6), 5b confermata (Z7); 5c da fare.
 - Repo: il ramo predefinito è ancora `sviluppo`; da impostare a `main` nelle impostazioni del repo (a cura di Massy).
 - Guida del DM, divergenze con il Vol. 3 e refusi (AC1-3, AC1-4, AC7-1): da correggere nella Guida se si aggiorna.
 - Tabelle del Tempo Atmosferico v1.0, effetto «Tormenta»: il testo dice «Fiamme: come con il Vento molto forte», ma vale la tabella delle Fiamme (spegne anche la lanterna impermeabile; Massy, 01/11): da correggere nella prossima versione delle Tabelle.
@@ -1159,7 +1161,7 @@ Prima (E, F6, F7): classe e livello in testo libero, livello numerico per il rip
 - **Motore**: incontri con `descrizione` e `ricompense` (`xp_extra`, `tesoro`, `testo`), migrazione del vecchio `tesoro`; `xpIncontro` con `extra` e `tutto`; `testoIncontro` (Copia come testo), `leggiIncontro` (Incolla: titolo, sezioni, partecipanti «(×N…)», stat block, «Round N:», ricompense, schede trovate o nuove, contenuto diverso); `impostaOrdineIncontri` e `spostaIncontro` (frecce e trascinamento). 912 test (22 nuovi, fra cui un evento dei documenti d'avventura).
 - **Interfaccia**: scelta dei partecipanti dal bestiario, campi nuovi e Ricompense nella finestra dell'incontro, «Copia come testo», «Incolla incontro» con l'anteprima, menu Ordine e «Sposta», «📖 Titolo» nell'avvio e in combattimento, Ricompense nel riepilogo. Pagina 836 controlli (40 nuovi), artifact versione 19.
 
-### Scelte di applicazione (da confermare)
+### Scelte di applicazione (confermate da Massy l'08/11)
 - **Z7-1** Scelta dal bestiario: «+ N» accanto a ogni scheda aggiunge subito con la quantità di solito; l'anteprima ha Quantità e «Aggiungi»; si parte dai PNG della campagna (dai mostri se la campagna non ne ha); in cima i partecipanti aggiunti in questa finestra.
 - **Z7-2** «+ Senza scheda» resta per un partecipante scritto a mano, con il bonus d'iniziativa.
 - **Z7-3** Le schede create con «+ Scheda» o «Incolla» dalla scelta vanno nella raccolta che si sta guardando e nell'incontro.
