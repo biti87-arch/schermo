@@ -107,6 +107,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .descr summary{cursor:pointer;color:var(--arancio);font-weight:600}
 .descr p{margin:4px 0}.descr-estesa{border-top:1px solid var(--riga);margin-top:6px;padding-top:4px;color:var(--tenue)}
 .chip.auto{border-style:dashed;color:var(--tenue)}
+/* AG3: incontri */
+.scelta-best{display:grid;gap:10px}
+@media (min-width:900px){.scelta-best{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}.scelta-best #sb-lista,.scelta-best #sb-vista{max-height:58vh;overflow-y:auto;overscroll-behavior:contain}}
+.scelta-best .pannello{margin:0}
+.voce .sposta{display:flex;flex-direction:column;gap:2px;margin-left:4px}.voce .sposta .btn{padding:0 8px;line-height:1.3}
+li.voce[draggable="true"]{cursor:grab}
+.imp-stato{font-size:.8rem;padding:1px 6px;border-radius:999px;border:1px solid var(--riga)}
+.imp-stato.ok{border-color:var(--verde,#2e7d32)}.imp-stato.nuova{border-color:var(--oro)}.imp-stato.manca{border-color:var(--rosso)}
 
 /* riquadro del PG */
 .pg{background:var(--pannello);border:1px solid var(--riga);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -729,6 +737,8 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   // Build 5a: classi del PG, riserva del Rifiatare per dado, contatori
   x.contatori = x.contatori || [];
   for (const p of x.pg) { sincronizzaClassi(p.scheda); riservaRif(p); p.contatori = p.contatori || []; }
+  // Build 5b: descrizione e ricompense degli incontri, ordine
+  for (const i of x.incontri || []) migraIncontro(i); if (!x.ordine_incontri) x.ordine_incontri = 'manuale';
   for (const p of x.pg) for (const [k, v] of [['cerusico', 0], ['erborista', false], ['erborista_gradi', 0]]) if (p.scheda[k] === undefined) p.scheda[k] = v;
   return x;
 }
@@ -2746,10 +2756,11 @@ function unisciMostri(lista, nuovi, rng, ora, soloMancanti, pref = 'm') {
 }
 
 // ---------- incontri (N)
-function incontroVuoto() { return { id: '', titolo: '', atto: '', capitolo: '', luogo: '', stato: 'da giocare', giocato_R: null, note: '', tesoro: '', partecipanti: [], promemoria: [] }; }
+function incontroVuoto() { return { id: '', titolo: '', atto: '', capitolo: '', luogo: '', stato: 'da giocare', giocato_R: null, descrizione: '', note: '', tesoro: '', ricompense: ricompenseVuote(), partecipanti: [], promemoria: [] }; }
 function salvaIncontro(camp, inc, rng) {
   if (!String(inc.titolo || '').trim()) throw new Error('l\'incontro non ha un titolo');
-  const c = clona(camp), x = { ...incontroVuoto(), ...clona(inc) };
+  const c = clona(camp), x = migraIncontro({ ...incontroVuoto(), ...clona(inc) });
+  x.ricompense = { ...ricompenseVuote(), ...x.ricompense }; controllaRicompense(x.ricompense);
   for (const p of x.partecipanti) { if (!(Number.isInteger(p.n) && p.n >= 1)) throw new Error(`${p.nome || 'partecipante'}: quantità non valida`); if (!String(p.nome || '').trim()) throw new Error('partecipante senza nome'); }
   for (const p of x.promemoria) if (!(Number.isInteger(p.round) && p.round >= 1) || !String(p.testo || '').trim()) throw new Error('promemoria: round o testo non validi');
   x.promemoria.sort((a, b) => a.round - b.round);
@@ -2773,6 +2784,7 @@ function cartelle(camp) {
     k.incontri.push(inc);
   }
   atti.sort((a, b) => ordineNat(a.atto, b.atto)); for (const a of atti) a.capitoli.sort((x, y) => ordineNat(x.capitolo, y.capitolo));
+  if (camp.ordine_incontri === 'alfabetico') for (const a of atti) for (const k of a.capitoli) k.incontri.sort((x, y) => ordineNat(x.titolo, y.titolo)); // AG3-D
   return atti;
 }
 // XP dell'incontro: somma degli XP dei partecipanti (gli alleati non contano)
@@ -2783,7 +2795,8 @@ function xpIncontro(inc, schedaDi) {
     const x = xpDi(s); if (x === null) { righe.push({ nome: p.nome, n: p.n, xp: 0, alleato: !!s.alleato }); continue; }
     tot += x * p.n; righe.push({ nome: p.nome, n: p.n, xp: x * p.n });
   }
-  return { totale: tot, righe, mancanti };
+  const extra = xpExtra(inc);
+  return { totale: tot, righe, mancanti, extra, tutto: tot + extra };
 }
 // partecipante dell'incontro → riga dell'avvio del combattimento
 function nemicoDaPartecipante(p, schedaDi) {
@@ -3906,6 +3919,157 @@ function contaEtichette(lista) {
   return [...o.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'it'));
 }
 
+
+// ================================================================== Build 5b: incontri (sezione AG3 del design doc)
+function ricompenseVuote() { return { xp_extra: [], tesoro: null, testo: '' }; }
+// incontri salvati: il vecchio «tesoro» (testo) passa nelle note del 💰 (AG3-B)
+function migraIncontro(inc) {
+  if (inc.descrizione === undefined) inc.descrizione = '';
+  if (!inc.ricompense) inc.ricompense = ricompenseVuote();
+  if (inc.tesoro) { if (!inc.ricompense.tesoro) inc.ricompense.tesoro = { livello: '', quantita: '', dove: '', note: '' };
+    inc.ricompense.tesoro.note = [inc.ricompense.tesoro.note, inc.tesoro].filter(Boolean).join('\n'); inc.tesoro = ''; }
+  return inc;
+}
+function xpExtra(inc) { return ((inc.ricompense && inc.ricompense.xp_extra) || []).reduce((a, r) => a + (Number.isFinite(+r.xp) ? +r.xp : 0), 0); }
+function controllaRicompense(r) {
+  for (const x of r.xp_extra || []) if (!(Number.isInteger(x.xp) && x.xp >= 0)) throw new Error('ricompense: XP in più non validi');
+}
+// AG3-D: ordine degli incontri (manuale o alfabetico)
+const cartellaDi = i => (i.atto || '') + '\u0001' + (i.capitolo || '');
+function impostaOrdineIncontri(camp, modo) {
+  if (!['manuale', 'alfabetico'].includes(modo)) throw new Error('ordine non valido');
+  const c = clona(camp);
+  if (modo === 'manuale' && c.ordine_incontri === 'alfabetico') { // si parte dall'ordine alfabetico
+    const per = new Map(); for (const i of c.incontri) { const k = cartellaDi(i); if (!per.has(k)) per.set(k, []); per.get(k).push(i); }
+    for (const L of per.values()) L.sort((a, b) => ordineNat(a.titolo, b.titolo));
+    const usati = new Map([...per.keys()].map(k => [k, 0]));
+    c.incontri = c.incontri.map(i => { const k = cartellaDi(i), j = usati.get(k); usati.set(k, j + 1); return per.get(k)[j]; });
+  }
+  c.ordine_incontri = modo; return c;
+}
+// sposta un incontro nella sua cartella: dir = -1 / +1, oppure {prima: id} (trascinamento)
+function spostaIncontro(camp, id, dir) {
+  const c = clona(camp), L = c.incontri, i = L.findIndex(x => x.id === id); if (i < 0) throw new Error('incontro non trovato');
+  if (c.ordine_incontri === 'alfabetico') throw new Error('con l\'ordine alfabetico gli incontri non si spostano a mano');
+  const k = cartellaDi(L[i]);
+  if (typeof dir === 'object' && dir) {
+    if (dir.prima === id) return c;
+    const x = L.splice(i, 1)[0]; let j = dir.prima ? L.findIndex(y => y.id === dir.prima) : -1;
+    if (j < 0 || cartellaDi(L[j]) !== k) { // in fondo alla cartella
+      j = -1; L.forEach((y, n) => { if (cartellaDi(y) === k) j = n; }); L.splice(j + 1, 0, x);
+    } else L.splice(j, 0, x);
+    return c;
+  }
+  let j = i + dir; while (j >= 0 && j < L.length && cartellaDi(L[j]) !== k) j += dir;
+  if (j < 0 || j >= L.length) return c;
+  [L[i], L[j]] = [L[j], L[i]]; return c;
+}
+
+// AG3-C: «Copia come testo» dell'incontro
+function testoTesoro(t) { return t ? [t.livello ? 'Livello di riferimento: ' + t.livello : '', t.quantita ? 'Quantità: ' + t.quantita : '', t.dove ? 'Dove: ' + t.dove : '', t.note ? 'Note: ' + t.note.replace(/\n/g, ' ') : ''].filter(Boolean).join(' · ') : ''; }
+function testoIncontro(inc, schedaDi, opz = {}) {
+  const L = [`INCONTRO — ${inc.titolo}`], dove = [inc.atto ? 'Atto: ' + inc.atto : '', inc.capitolo ? 'Capitolo: ' + inc.capitolo : '', inc.luogo ? 'Luogo: ' + inc.luogo : ''].filter(Boolean);
+  if (dove.length) L.push(dove.join(' · '));
+  if (inc.descrizione) L.push('', '📖 DESCRIZIONE', inc.descrizione);
+  if (inc.note) L.push('', 'NOTE', inc.note);
+  if (inc.partecipanti.length) {
+    L.push('', 'PARTECIPANTI');
+    for (const p of inc.partecipanti) { const s = p.rif ? schedaDi(p.rif) : null;
+      L.push(`- ${p.nome} (×${p.n})` + [s && s.gs !== '' ? `GS ${s.gs}` : '', p.modo === 'singolo' && p.n > 1 ? 'iniziativa per singolo' : '', p.nascosto ? 'nascosto all\'inizio' : '', p.imp ? 'impreparato' : '', p.nomeTv ? 'TV: ' + p.nomeTv : '', p.nota || ''].filter(Boolean).map(x => ' · ' + x).join('')); }
+  }
+  if (inc.promemoria.length) { L.push('', 'PROMEMORIA'); for (const p of inc.promemoria) L.push(`Round ${p.round}: ${p.testo}`); }
+  const r = inc.ricompense || ricompenseVuote(), xp = schedaDi ? xpIncontro(inc, schedaDi).totale : 0;
+  if (xp || r.xp_extra.length || r.tesoro || r.testo) {
+    L.push('', '💰 RICOMPENSE');
+    if (xp || r.xp_extra.length) L.push('XP: ' + [xp ? `${migliaia(xp)} (nemici)` : '', ...r.xp_extra.map(x => `+${migliaia(x.xp)} ${x.motivo || ''}`.trim())].filter(Boolean).join(' · '));
+    if (r.tesoro) L.push('💰 TESORO — da generare · ' + testoTesoro(r.tesoro));
+    if (r.testo) L.push(r.testo);
+  }
+  if (opz.statblock && schedaDi) {
+    const visti = new Set();
+    for (const p of inc.partecipanti) { const s = p.rif ? schedaDi(p.rif) : null; if (!s || visti.has(s.id)) continue; visti.add(s.id); L.push('', testoStatBlock(s, { xp: true })); }
+  }
+  return L.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// AG3-C: «Incolla incontro» — riconosce titolo, sezioni, partecipanti e stat block
+const SEZ_INC = [
+  ['descrizione', /^(?:📖\s*)?(?:DESCRIZIONE|AMBIENTE|TESTO DA LEGGERE)\b(?:\s*[—–:-].*)?$/i],
+  ['note', /^(?:⚠️?\s*)?(?:NOTA PER IL GM|NOTA DEL GM|NOTA GM|NOTE DEL GM|NOTE)\s*:?$/i],
+  ['partecipanti', /^(?:PARTECIPANTI|NEMICI)\s*:?$/i],
+  ['promemoria', /^PROMEMORIA(?: PER ROUND)?\s*:?$/i],
+  ['ricompense', /^(?:💰\s*)?RICOMPENS[EA]\b.*$/i],
+  ['altro', /^(SVOLGIMENTO|SOLUZIONI ALTERNATIVE|RINFORZI|BOSS|FASI|CONDIZIONI DI VITTORIA)\b.*$/i],
+];
+const sezIncDi = r => { for (const [k, re] of SEZ_INC) if (re.test(r)) return k; return null; };
+const RE_PARTE = /^(?:[-•]\s*)?(.+?)\s*\(\s*[x×]\s*(\d+)\s*([^)]*)\)\s*(.*?)\s*:?\s*$/i;
+const normNome = x => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+function leggiIncontro(testo, trova) {
+  const righe = String(testo || '').replace(/\r\n?/g, '\n').replace(/ /g, ' ').split('\n');
+  const inc = { ...incontroVuoto(), descrizione: '', ricompense: ricompenseVuote() }, avvisi = [];
+  // stat block: righe che appartengono ai blocchi
+  const blocchi = leggiStatBlock(testo), inBlocco = new Array(righe.length).fill(false);
+  const inizi = righe.map((r, i) => eTestata(r) ? i : -1).filter(i => i >= 0);
+  inizi.forEach((i, j) => { const fine = j + 1 < inizi.length ? inizi[j + 1] : righe.length;
+    for (let k = i; k < fine; k++) { const t = righe[k].trim(); if (k > i && (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t) || (sezIncDi(t) && !/^NOTE$/i.test(t)) || RE_PARTE.test(t))) break; inBlocco[k] = true; } });
+  let sez = null, titolo = '', altroTit = '';
+  const parti = [], agg = (k, x) => { inc[k] = inc[k] ? inc[k] + '\n' + x : x; };
+  for (let i = 0; i < righe.length; i++) {
+    if (inBlocco[i]) continue;
+    const t = righe[i].trim(); if (!t) continue;
+    if (!titolo) { titolo = t.replace(/^INCONTRO\s*[—–:-]\s*/i, ''); continue; }
+    let m;
+    if ((m = t.match(/^(Atto|Capitolo|Luogo)\s*:/i)) && !sez) { for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Atto|Capitolo|Luogo)\s*:\s*(.*)$/i); if (mm) inc[mm[1].toLowerCase()] = mm[2].trim(); } continue; }
+    const sz = sezIncDi(t);
+    if (sz) { sez = sz; if (sz === 'altro') { altroTit = t.replace(/\s*:$/, ''); agg('note', `**${altroTit}**`); } continue; }
+    if ((m = t.match(/^Round\s+(\d+)\s*[:.—–-]\s*(.+)$/i)) && (sez === 'promemoria' || sez === null)) { inc.promemoria.push({ round: +m[1], testo: m[2].trim() }); continue; }
+    if ((m = t.match(RE_PARTE)) && (sez === 'partecipanti' || sez === null || sez === 'note' || sez === 'altro')) {
+      const extra = [m[3].replace(/^[,;]\s*/, ''), m[4].replace(/^[·:,]\s*/, '')].filter(Boolean).join(' ').trim();
+      parti.push({ nome: m[1].replace(/^[-•]\s*/, '').trim(), n: +m[2], nota: extra, riga: i }); continue; }
+    if (sez === 'partecipanti' && (m = t.match(/^[-•]\s*(.+?)(?:\s*[×x]\s*(\d+))?(?:\s*·\s*(.*))?$/))) { parti.push({ nome: m[1].trim(), n: m[2] ? +m[2] : 1, nota: m[3] || '', riga: i }); continue; }
+    if (sez === 'ricompense') {
+      if (/^💰\s*TESORO/i.test(t)) { const tz = { livello: '', quantita: '', dove: '', note: '' };
+        for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Livello(?: di riferimento)?|Quantità|Dove|Note)\s*:\s*(.*)$/i);
+          if (mm) tz[{ livello: 'livello', 'livello di riferimento': 'livello', 'quantità': 'quantita', dove: 'dove', note: 'note' }[mm[1].toLowerCase()]] = mm[2].trim(); }
+        inc.ricompense.tesoro = tz; continue; }
+      let resto = t;
+      if (/^XP\s*:/i.test(t)) { // le righe «+N motivo» diventano XP in più; il resto resta nel testo
+        const pezzi = t.replace(/^XP\s*:\s*/i, '').split(/\s*·\s*/), tenuti = [];
+        for (const pz of pezzi) { const mm = pz.match(/^\+\s*([\d.]+)\s*(?:XP\s*)?(?:❓\s*)?(.*)$/i);
+          if (mm) inc.ricompense.xp_extra.push({ xp: +mm[1].replace(/\./g, ''), motivo: mm[2].trim() }); else if (!/\(nemici\)\s*$/i.test(pz)) tenuti.push(pz); }
+        resto = tenuti.length ? 'XP: ' + tenuti.join(' · ') : '';
+      }
+      if (resto) inc.ricompense.testo = inc.ricompense.testo ? inc.ricompense.testo + '\n' + resto : resto;
+      continue;
+    }
+    if (sez === 'descrizione') { agg('descrizione', t); continue; }
+    if (sez === 'promemoria') continue;
+    agg('note', t); // note, sezioni senza campo, testo libero
+  }
+  inc.titolo = titolo;
+  for (const bl of blocchi) bl.scheda.descrizione_estesa = ''; // il testo prima del blocco qui è dell'incontro, non della scheda
+  // partecipanti: una riga «Nome (×N):» subito prima di uno stat block prende quel blocco
+  const usati = new Set(), out = [];
+  const bloccoDopo = riga => blocchi.findIndex((b, j) => !usati.has(j) && b.riga - 1 > riga && righe.slice(riga + 1, b.riga - 1).every(r => !r.trim() || TITOLO_DESC.test(r.trim()) || !sezIncDi(r.trim())) && b.riga - 1 - riga <= 3);
+  for (const p of parti) {
+    let j = bloccoDopo(p.riga);
+    if (j < 0) j = blocchi.findIndex((b, k) => !usati.has(k) && normNome(b.scheda.nome) === normNome(p.nome));
+    if (j >= 0) usati.add(j);
+    out.push({ nome: j >= 0 ? blocchi[j].scheda.nome : p.nome, n: p.n, nota: p.nota, blocco: j >= 0 ? blocchi[j] : null });
+  }
+  blocchi.forEach((b, j) => { if (!usati.has(j)) out.push({ nome: b.scheda.nome, n: b.scheda.n_suggerito > 1 ? b.scheda.n_suggerito : 1, nota: '', blocco: b }); });
+  // schede: stesso nome nel bestiario → quella; altrimenti nuova dallo stat block
+  const voci = out.map(p => {
+    const trovata = trova ? trova(p.nome) : null, s = p.blocco ? p.blocco.scheda : null;
+    let stato = trovata ? 'trovata' : s ? 'nuova' : 'manca', diverso = false;
+    if (trovata && s) diverso = testoStatBlock({ ...trovata.scheda, descrizione_estesa: '' }, { xp: true }) !== testoStatBlock({ ...s, descrizione_estesa: '' }, { xp: true });
+    const dest = s && (s.ambiente || s.tipo_scheda === 'mostro_pf1' || /·\s*Mostro\b|—\s*Mostro\b/i.test(righe[p.blocco.riga - 1] || '')) ? 'mostro' : 'png';
+    return { nome: p.nome, n: p.n, nota: p.nota, stato, rif: trovata ? trovata.rif : null, scheda: s, diverso, dest, scelta: diverso ? 'usa' : '' };
+  });
+  if (!inc.titolo) avvisi.push('titolo non trovato');
+  return { incontro: inc, voci, avvisi };
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -3933,7 +4097,8 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG,
   DV_CLASSI, DADI_DV, dvClasse, testoClassi, riserveMax, sincronizzaClassi, riservaRif, testoRiserva, sceltaRifiatare,
   UNITA_CONT, NOMI_UNITA, RICARICHE, salvaContatore, eliminaContatore, cambiaContatore, ricaricaContatore, pausaContatore, descriviTempoCont,
-  TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette };
+  TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette,
+  ricompenseVuote, migraIncontro, xpExtra, impostaOrdineIncontri, spostaIncontro, testoIncontro, testoTesoro, leggiIncontro, normNome };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;
 
@@ -4167,7 +4332,9 @@ function disegnaIniziativa() {
   }).join('');
   const attesa = cb.attesa.map(id => `<div class="fila"><span class="spazio">${esc(M.etichetta(cb.righe[id]))} <span class="tenue piccolo">in attesa</span></span>
       <button class="btn min oro" data-az="entraOra" data-id="${id}">Entra ora</button></div>`).join('');
+  const incCb = cb.incontro && c.incontri.find(x => x.id === cb.incontro);
   return `<div class="col-testa"><h2>Iniziativa</h2><span class="num tenue">Round ${cb.round}</span><span class="spazio"></span>${timer}</div>
+    ${incCb ? `<div class="fila"><button class="btn min oro" data-az="infoIncontro" data-id="${incCb.id}" title="Descrizione, note e ricompense dell'incontro">📖 ${esc(incCb.titolo)}</button></div>` : ''}
     <div class="barra-turno"><span class="tenue piccolo">Tocca a</span><span class="chi">${a ? esc(M.etichetta(a)) : '—'}</span>
       ${a && a.prepara ? `<span class="piccolo">Azione preparata: ${esc(a.prepara.azione)}${a.prepara.innesco ? ' — se ' + esc(a.prepara.innesco) : ''}</span>` : ''}
       ${a ? barraMalus(a) : ''}${a ? barraTattiche(a) : ''}
@@ -4227,7 +4394,7 @@ function disegnaAvvio() {
       <input type="text" class="nome-tv" data-bind="nemici.${i}.nomeTv" value="${esc(x.nomeTv || '')}" placeholder="Nome TV (facoltativo, es. Figura incappucciata)" aria-label="Nome per i giocatori"></div>`).join('');
   const inc = av.incontro && c.incontri.find(x => x.id === av.incontro);
   return `<div class="pannello" id="avvio"><h3>Avvio del combattimento</h3>
-      ${inc ? `<div class="fila"><span class="chip ok">Incontro: ${esc(inc.titolo)}</span>${(av.promemoria || []).length ? `<span class="tenue piccolo">${av.promemoria.length} promemoria per round</span>` : ''}<button class="btn min" data-az="staccaIncontro" title="Avvia senza l'incontro">✕</button></div>` : ''}
+      ${inc ? `<div class="fila"><button class="btn min oro" data-az="infoIncontro" data-id="${inc.id}" title="Descrizione, note e ricompense dell'incontro">📖 ${esc(inc.titolo)}</button>${(av.promemoria || []).length ? `<span class="tenue piccolo">${av.promemoria.length} promemoria per round</span>` : ''}<button class="btn min" data-az="staccaIncontro" title="Avvia senza l'incontro">✕</button></div>` : ''}
       <label class="spunta piccolo"><input type="checkbox" data-az-cambio="usaD20" ${av.usaD20 ? 'checked' : ''}> Inserisco il d20 dei PG (l'app aggiunge il bonus; 20 = 30, 1 = −10)</label>
       ${pg || '<span class="tenue piccolo">Nessun PG nella campagna.</span>'}
       <h3>Nemici</h3><div class="tab-nemici">${nem}</div>
@@ -4534,10 +4701,10 @@ const AZ = {
   },
   fineComb() {
     conferma('Fine del combattimento', 'Chiudere il combattimento? Il riepilogo va nel log; dopo non si può più annullare.', () => {
-      const r = M.fineCombattimento(S.camp, Date.now(), schedaDi); applica(r.camp); S.ui.sel = null; S.ui.fuga = {};
-      const x = r.riepilogo.xp;
+      const idInc = S.camp.combattimento.incontro, r = M.fineCombattimento(S.camp, Date.now(), schedaDi); applica(r.camp); S.ui.sel = null; S.ui.fuga = {};
+      const x = r.riepilogo.xp, incF = idInc && r.camp.incontri.find(y => y.id === idInc);
       apri({ titolo: 'Riepilogo', corpo: `<p>${esc(r.riepilogo.testo)}</p>${r.riepilogo.incontro ? `<p class="piccolo">Incontro «${esc(r.riepilogo.incontro)}» segnato come giocato.</p>` : ''}
-        ${x ? `<p class="piccolo"><b>XP dei nemici sconfitti:</b> <span class="num">${migl(x.sconfitti)}</span> (su ${migl(x.tutti)}) · <b class="num">${migl(x.perPG)}</b> a PG · <span class="num">${migl(x.perPGconAcc)}</span> contando gli accompagnatori</p>` : ''}` });
+        ${x ? `<p class="piccolo"><b>XP dei nemici sconfitti:</b> <span class="num">${migl(x.sconfitti)}</span> (su ${migl(x.tutti)}) · <b class="num">${migl(x.perPG)}</b> a PG · <span class="num">${migl(x.perPGconAcc)}</span> contando gli accompagnatori</p>` : ''}${incF ? htmlRicompense(incF, false) : ''}` });
     }, 'Chiudi il combattimento', 'peric');
   },
 };
@@ -5065,7 +5232,8 @@ const listaDi = f => f === 'mostro' ? Best.mostri : f === 'generico' ? Best.gene
 const soloLettura = f => f === 'png' && !S.camp;
 function aggiornaCondivise(f, lista) { if (f === 'generico') Best.generici = lista; else Best.mostri = lista; salvaBestiario(); disegna(); }
 // salva una scheda nella sua raccolta (e ridisegna)
-function salvaIn(f, s, ora) { if (condivisa(f)) aggiornaCondivise(f, M.salvaScheda(listaDi(f), s, ora)); else applica(M.salvaPNG(S.camp, s, ora)); if (S.schermata === 'campagne') fuoriHome(); }
+function salvaIn(f, s, ora) { const nuova = !listaDi(f).some(y => y.id === s.id); if (nuova && NUOVE_PER) { const fn = NUOVE_PER; setTimeout(() => fn([{ fonte: f, id: s.id }]), 0); }
+  if (condivisa(f)) aggiornaCondivise(f, M.salvaScheda(listaDi(f), s, ora)); else applica(M.salvaPNG(S.camp, s, ora)); if (S.schermata === 'campagne') fuoriHome(); }
 // schede e PG dalla schermata iniziale: la campagna scelta si carica, si salva subito e si richiude
 async function caricaHome(id) { salvaOra(); const c = id ? await Archivio.leggi(id) : null; if (id && !c) throw new Error('Campagna non trovata'); S.camp = c ? M.migra(c) : null; return S.camp; }
 function fuoriHome() { clearTimeout(salvaTimer); salvaTimer = null; const c = S.camp; S.camp = null; S.ui.vista = null; S.ui.scheda = 'viaggio';
@@ -5169,31 +5337,31 @@ function disegnaVista() {
 // ---------- terza colonna: Incontri (N)
 function disegnaIncontri() {
   const c = S.camp, k = M.cartelle(c), inc = S.ui.incontro && c.incontri.find(x => x.id === S.ui.incontro);
-  const riga = i => { const xp = usaXP() ? M.xpIncontro(i, schedaDi).totale : 0;
-    return `<li class="voce${S.ui.incontro === i.id ? ' sel' : ''}"><button class="voce-corpo" data-az="selIncontro" data-id="${i.id}"><span class="voce-nome">${esc(i.titolo)}</span>
+  const manuale = c.ordine_incontri !== 'alfabetico', sposta = manuale && S.ui.spostaInc, trasc = manuale && window.matchMedia('(pointer:fine)').matches;
+  const riga = i => { const xp = usaXP() ? M.xpIncontro(i, schedaDi).tutto : 0;
+    return `<li class="voce${S.ui.incontro === i.id ? ' sel' : ''}"${trasc ? ` draggable="true" data-trasc="${i.id}"` : ''}><button class="voce-corpo" data-az="selIncontro" data-id="${i.id}"><span class="voce-nome">${esc(i.titolo)}</span>
       <span class="tenue piccolo">${esc([i.luogo, i.partecipanti.map(p => `${p.nome}${p.n > 1 ? ' ×' + p.n : ''}`).join(', '), xp ? migl(xp) + ' XP' : ''].filter(Boolean).join(' · '))}</span></button>
-      <span class="chips">${i.stato === 'giocato' ? '<span class="chip ok">giocato</span>' : ''}</span></li>`; };
-  return `<div class="pannello"><div class="fila"><h3>Incontri</h3><span class="tenue piccolo">${c.incontri.length}</span><span class="spazio"></span><button class="btn min prim" data-az="nuovoIncontro">+ Incontro</button></div>
-    ${k.length ? k.map(a => `<details class="cartella" open><summary>${esc(a.atto)}</summary>${a.capitoli.map(cp => `${cp.capitolo ? `<div class="capitolo">${esc(cp.capitolo)}</div>` : ''}<ul class="voci">${cp.incontri.map(riga).join('')}</ul>`).join('')}</details>`).join('')
+      <span class="chips">${i.stato === 'giocato' ? '<span class="chip ok">giocato</span>' : ''}</span>${sposta ? `<span class="sposta"><button class="btn min" data-az="spostaInc" data-id="${i.id}" data-d="-1" aria-label="Su">▲</button><button class="btn min" data-az="spostaInc" data-id="${i.id}" data-d="1" aria-label="Giù">▼</button></span>` : ''}</li>`; };
+  return `<div class="pannello"><div class="fila"><h3>Incontri</h3><span class="tenue piccolo">${c.incontri.length}</span><span class="spazio"></span><button class="btn min oro" data-az="incollaIncontro">Incolla incontro</button><button class="btn min prim" data-az="nuovoIncontro">+ Incontro</button></div>
+    ${c.incontri.length > 1 ? `<div class="fila"><label class="campo" style="width:auto"><span>Ordine</span><select data-az-cambio="ordineInc"><option value="manuale" ${manuale ? 'selected' : ''}>Manuale</option><option value="alfabetico" ${manuale ? '' : 'selected'}>Alfabetico</option></select></label>
+      ${manuale ? `<button class="btn min${sposta ? ' oro' : ''}" data-az="modoSposta">${sposta ? 'Fine spostamento' : 'Sposta'}</button>${trasc ? '<span class="tenue piccolo">sul PC si possono anche trascinare</span>' : ''}` : ''}</div>` : ''}
+    ${k.length ? k.map(a => `<details class="cartella" open><summary>${esc(a.atto)}</summary>${a.capitoli.map(cp => `${cp.capitolo ? `<div class="capitolo">${esc(cp.capitolo)}</div>` : ''}<ul class="voci">${cp.incontri.map(riga).join('')}${trasc ? `<li class="trasc-fine" data-trasc-fine="1" aria-hidden="true"></li>` : ''}</ul>`).join('')}</details>`).join('')
       : '<div class="vuoto">Nessun incontro. Un incontro raccoglie mostri e PNG con le quantità, i promemoria per round e il tesoro; «Avvia» lo porta nell\'iniziativa.</div>'}</div>
     ${inc ? disegnaIncontro(inc) : ''}`;
 }
 function disegnaIncontro(inc) {
-  const c = S.camp, xp = M.xpIncontro(inc, schedaDi);
-  const tesori = inc.partecipanti.map(p => ({ p, s: schedaDi(p.rif) })).filter(x => x.s && x.s.tesoro);
+  const c = S.camp;
   return `<div class="pannello"><div class="fila"><h3>${esc(inc.titolo)}</h3><span class="tenue piccolo">${esc([inc.atto, inc.capitolo, inc.luogo].filter(Boolean).join(' · '))}</span></div>
     ${inc.stato === 'giocato' ? `<span class="chip ok">giocato${inc.giocato_R != null ? ' il ' + esc(M.formatoData(c, inc.giocato_R, false)) : ''}</span>` : ''}
-    ${inc.note ? `<div class="note-inc">${mdLite(inc.note)}</div>` : ''}
+    ${htmlDescrInc(inc)}${inc.note ? `<h4 class="sotto">Note</h4><div class="note-inc">${mdLite(inc.note)}</div>` : ''}
     <h4 class="sotto">Partecipanti</h4><ul class="voci">${inc.partecipanti.map(p => { const s = schedaDi(p.rif);
       return `<li class="voce"><span class="voce-corpo"><span class="voce-nome">${esc(p.nome)}${p.n > 1 ? ' ×' + p.n : ''}</span>
-        <span class="tenue piccolo">${esc([p.modo === 'singolo' && p.n > 1 ? 'iniziativa per singolo' : p.n > 1 ? 'iniziativa per tipo' : '', p.nascosto ? 'nascosto all\'inizio' : '', p.nomeTv ? 'TV: ' + p.nomeTv : '', s ? (s.gs !== '' ? 'GS ' + s.gs : '') : p.rif ? 'scheda non trovata' : 'senza scheda'].filter(Boolean).join(' · '))}</span></span>
+        <span class="tenue piccolo">${esc([p.nota || '', p.modo === 'singolo' && p.n > 1 ? 'iniziativa per singolo' : p.n > 1 ? 'iniziativa per tipo' : '', p.nascosto ? 'nascosto all\'inizio' : '', p.nomeTv ? 'TV: ' + p.nomeTv : '', s ? (s.gs !== '' ? 'GS ' + s.gs : '') : p.rif ? 'scheda non trovata' : 'senza scheda'].filter(Boolean).join(' · '))}</span></span>
         ${s ? `<button class="btn min" data-az="vediScheda" data-rif="${rifStr(p.rif)}">Scheda</button>` : ''}</li>`; }).join('')}</ul>
     ${inc.promemoria.length ? `<h4 class="sotto">Promemoria per round</h4>${inc.promemoria.map(p => `<div class="piccolo"><b class="num">Round ${p.round}</b> ${esc(p.testo)}</div>`).join('')}` : ''}
-    ${inc.tesoro || tesori.length ? `<h4 class="sotto">💰 Tesoro</h4>${inc.tesoro ? mdLite(inc.tesoro) : ''}${tesori.map(x => `<div class="piccolo">${esc(x.p.nome)}: ${esc([x.s.tesoro.livello ? 'livello ' + x.s.tesoro.livello : '', x.s.tesoro.quantita, x.s.tesoro.dove, x.s.tesoro.note].filter(Boolean).join(' · ') || 'da generare')}</div>`).join('')}
-      <p class="tenue piccolo">Il tesoro si genera con l'app dei Tesori.</p>` : ''}
-    ${usaXP() ? `<p class="piccolo"><b>XP dell'incontro:</b> <span class="num">${migl(xp.totale)}</span>${xp.mancanti.length ? ` <span class="tenue">(senza scheda: ${esc(xp.mancanti.join(', '))})</span>` : ''}</p>` : ''}
+    ${htmlRicompense(inc)}
     <div class="fila"><button class="btn prim" data-az="avviaIncontro" data-id="${inc.id}">Avvia</button><button class="btn" data-az="modificaIncontro" data-id="${inc.id}">Modifica</button>
-      <button class="btn" data-az="duplicaIncontro" data-id="${inc.id}">Duplica</button><span class="spazio"></span><button class="btn min peric" data-az="eliminaIncontro" data-id="${inc.id}">Elimina</button></div></div>`;
+      <button class="btn" data-az="duplicaIncontro" data-id="${inc.id}">Duplica</button><button class="btn oro" data-az="copiaIncontro" data-id="${inc.id}">Copia come testo</button><span class="spazio"></span><button class="btn min peric" data-az="eliminaIncontro" data-id="${inc.id}">Elimina</button></div></div>`;
 }
 // ---------- barra del turno: promemoria del round e tattiche della scheda (O2)
 function barraTattiche(a) {
@@ -5370,11 +5538,12 @@ function finestraIncolla(tab) {
     azioni: [{ testo: 'Annulla' }, { testo: 'Leggi', fn: f => { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); return false; } },
       { testo: 'Importa', classe: 'prim', fn: f => {
         if (!st.blocchi.length) { st.blocchi = M.leggiStatBlock(testo(f, 't')); anteprima(f); if (!st.blocchi.length) throw new Error('Nessuno stat block da importare'); return false; }
-        const ora = Date.now(), cond = { mostro: Best.mostri, generico: Best.generici }, conta = {}; let c = S.camp, n = 0, ultimo = null;
+        const ora = Date.now(), cond = { mostro: Best.mostri, generico: Best.generici }, conta = {}, tutte = []; let c = S.camp, n = 0, ultimo = null;
         st.blocchi.forEach((b, i) => { if (!spunta(f, 'k' + i)) return; if (val(f, 'e' + i)) b.scheda.descrizione_estesa = val(f, 'e' + i).value.trim(); const dove = val(f, 'd' + i).value, s = M.nuovaScheda(b.scheda, rng, ora, FONTI[dove].pref);
-          if (condivisa(dove)) cond[dove] = M.salvaScheda(cond[dove], s, ora); else c = M.salvaPNG(c, s, ora); n++; conta[dove] = (conta[dove] || 0) + 1; ultimo = { fonte: dove, id: s.id }; });
+          if (condivisa(dove)) cond[dove] = M.salvaScheda(cond[dove], s, ora); else c = M.salvaPNG(c, s, ora); n++; conta[dove] = (conta[dove] || 0) + 1; ultimo = { fonte: dove, id: s.id }; tutte.push(ultimo); });
         if (!n) throw new Error('Nessuno stat block scelto');
         if (conta.mostro || conta.generico) { Best.mostri = cond.mostro; Best.generici = cond.generico; salvaBestiario(); }
+        if (NUOVE_PER) { const fn = NUOVE_PER, rifs = tutte; if (c) applica(c); else disegna(); avviso(`Importate ${n} schede`); setTimeout(() => fn(rifs), 0); return; }
         S.ui.scheda = 'bestiario'; S.ui.best.fonte = conta.png ? 'png' : conta.generico ? 'generico' : 'mostro'; if (n === 1) { S.ui.vista = { rif: ultimo }; S.ui.scheda = 'vista'; }
         if (c) applica(c); else disegna(); if (S.schermata === 'campagne') fuoriHome(); avviso(`Importate ${n} schede`);
       } }] });
@@ -5386,37 +5555,60 @@ function opzSchede(sel) {
   const g = (et, l, f) => l.length ? `<optgroup label="${et}">${M.cercaSchede(l, {}).map(s => `<option value="${f}:${s.id}" ${sel === f + ':' + s.id ? 'selected' : ''}>${esc(s.nome)}${s.gs !== '' ? ' · GS ' + s.gs : ''}</option>`).join('')}</optgroup>` : '';
   return `<option value="">— senza scheda —</option>${['png', 'generico', 'mostro'].map(k => g(FONTI[k].nome, listaDi(k), k)).join('')}`;
 }
-function finestraIncontro(id, iniziale) {
+function finestraIncontro(id, iniziale, avvisiImp) {
   const c = S.camp, orig = id ? c.incontri.find(x => x.id === id) : null;
-  const W = M.clona(orig || { ...M.incontroVuoto(), ...(iniziale || {}) });
+  const W = M.clona(orig || { ...M.incontroVuoto(), ...(iniziale || {}) }); M.migraIncontro(W);
+  const imp = W.partecipanti.some(p => p._imp);
+  const statoImp = p => { const x = p._imp; if (!x) return '';
+    if (x.stato === 'trovata') return `<div class="fila" style="grid-column:1/-1"><span class="imp-stato ok">✔ trovata nel bestiario</span>${x.diverso ? `<label class="campo" style="width:auto"><span>Contenuto diverso</span><select data-imp="scelta" data-i="${W.partecipanti.indexOf(p)}"><option value="usa" ${x.scelta !== 'copia' ? 'selected' : ''}>usa quella del bestiario</option><option value="copia" ${x.scelta === 'copia' ? 'selected' : ''}>crea copia (importato)</option></select></label>` : ''}</div>`;
+    if (x.stato === 'nuova') return `<div class="fila" style="grid-column:1/-1"><span class="imp-stato nuova">＋ nuova scheda dallo stat block</span><label class="campo" style="width:auto"><span>In</span><select data-imp="dest" data-i="${W.partecipanti.indexOf(p)}">${['png', 'generico', 'mostro'].filter(k => k !== 'png' || S.camp).map(k => `<option value="${k}" ${x.dest === k ? 'selected' : ''}>${FONTI[k].nome}</option>`).join('')}</select></label></div>`;
+    return `<div class="fila" style="grid-column:1/-1"><span class="imp-stato manca">❓ senza stat block: scegli la scheda</span></div>`; };
   const atti = [...new Set(c.incontri.map(i => i.atto).filter(Boolean))], capi = [...new Set(c.incontri.map(i => i.capitolo).filter(Boolean))];
-  const xpTot = () => usaXP() ? `<p class="piccolo"><b>XP dell'incontro:</b> <span class="num">${migl(M.xpIncontro(W, schedaDi).totale)}</span></p>` : '';
+  const xpTot = () => { if (!usaXP()) return ''; const x = M.xpIncontro({ ...W, ricompense: { ...W.ricompense, xp_extra: W.ricompense.xp_extra.map(y => ({ ...y, xp: Number(y.xp) || 0 })) } }, schedaDi);
+    return `<p class="piccolo"><b>XP dell'incontro:</b> <span class="num">${migl(x.totale)}</span> dai nemici${x.extra ? ` + <span class="num">${migl(x.extra)}</span> = <b class="num">${migl(x.tutto)}</b>` : ''}</p>`; };
   const corpo = () => `<div class="griglia">${campoS(W, 'titolo', 'Titolo', 't', { span: 2 })}${campoS(W, 'luogo', 'Luogo')}
       ${campoS(W, 'atto', 'Atto (cartella)', 't', { lista: 'lista-atti', ph: 'es. Atto II' })}${campoS(W, 'capitolo', 'Capitolo', 't', { lista: 'lista-capi', ph: 'es. Cap. 3' })}
       ${campoS(W, 'stato', 'Stato', 'sel', { opz: [['da giocare', 'da giocare'], ['giocato', 'giocato']] })}</div>
       <datalist id="lista-atti">${atti.map(a => `<option value="${esc(a)}">`).join('')}</datalist><datalist id="lista-capi">${capi.map(a => `<option value="${esc(a)}">`).join('')}</datalist>
-    <fieldset><legend>Partecipanti</legend>${W.partecipanti.map((p, i) => `<div class="riga-tab">
-        <label class="campo" style="grid-column:span 2"><span>Scheda</span><select data-inc="rif" data-i="${i}">${opzSchede(rifStr(p.rif))}</select></label>
+    ${avvisiImp && avvisiImp.length ? `<p class="piccolo sv">${esc(avvisiImp.join(' · '))}</p>` : ''}
+    ${campoS(W, 'descrizione', '📖 Descrizione: testo da leggere (**grassetto**, elenchi con «- »)', 'a', { righe: 4 })}
+    <fieldset><legend>Partecipanti</legend>${W.partecipanti.map((p, i) => `<div class="riga-tab">${statoImp(p)}
+        ${p._imp && p._imp.stato === 'nuova' ? `<span style="grid-column:span 2"></span>` : `<label class="campo" style="grid-column:span 2"><span>Scheda</span><select data-inc="rif" data-i="${i}">${opzSchede(rifStr(p.rif))}</select></label>`}
         ${campoS(W, `partecipanti.${i}.nome`, 'Nome')}${campoS(W, `partecipanti.${i}.n`, 'Quantità', 'i')}
-        ${campoS(W, `partecipanti.${i}.modo`, 'Iniziativa', 'sel', { opz: [['tipo', 'per tipo'], ['singolo', 'per singolo']] })}${p.rif ? '' : campoS(W, `partecipanti.${i}.bonus`, 'Bonus iniz.', 'i')}
-        ${campoS(W, `partecipanti.${i}.nomeTv`, 'Nome per i giocatori', 't', { ph: 'es. Figura incappucciata' })}${campoS(W, `partecipanti.${i}.nascosto`, 'nascosto all\'inizio', 'c')}${campoS(W, `partecipanti.${i}.imp`, 'impreparato', 'c')}
-        <button class="btn min" data-ic="togliP" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<button class="btn min" data-ic="aggP">+ Partecipante</button></fieldset>
+        ${campoS(W, `partecipanti.${i}.modo`, 'Iniziativa', 'sel', { opz: [['tipo', 'per tipo'], ['singolo', 'per singolo']] })}${p.rif || (p._imp && p._imp.stato !== 'manca') ? '' : campoS(W, `partecipanti.${i}.bonus`, 'Bonus iniz.', 'i')}
+        ${campoS(W, `partecipanti.${i}.nota`, 'Nota', 't', { ph: 'es. o ×3' })}${campoS(W, `partecipanti.${i}.nomeTv`, 'Nome per i giocatori', 't', { ph: 'es. Figura incappucciata' })}${campoS(W, `partecipanti.${i}.nascosto`, 'nascosto all\'inizio', 'c')}${campoS(W, `partecipanti.${i}.imp`, 'impreparato', 'c')}
+        <button class="btn min" data-ic="togliP" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<div class="fila"><button class="btn min prim" data-ic="sceltaP">+ Partecipante dal bestiario</button><button class="btn min" data-ic="aggP">+ Senza scheda</button></div></fieldset>
     <fieldset><legend>Promemoria per round</legend>${W.promemoria.map((p, i) => `<div class="riga-tab">${campoS(W, `promemoria.${i}.round`, 'Round', 'i')}${campoS(W, `promemoria.${i}.testo`, 'Promemoria', 't', { span: 3, ph: 'es. crolla il ponte' })}
         <button class="btn min" data-ic="togliR" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<button class="btn min" data-ic="aggR">+ Promemoria</button></fieldset>
     ${campoS(W, 'note', 'Note (**grassetto**, elenchi con «- »)', 'a', { righe: 4 })}<div id="inc-anteprima" class="note-inc piccolo">${mdLite(W.note)}</div>
-    ${campoS(W, 'tesoro', 'Tesoro (testo)', 'a', { righe: 2 })}<div id="inc-xp">${xpTot()}</div>`;
+    <fieldset><legend>💰 Ricompense</legend><div id="inc-xp">${xpTot()}</div>
+      ${W.ricompense.xp_extra.map((x, i) => `<div class="riga-tab">${campoS(W, `ricompense.xp_extra.${i}.xp`, 'XP in più', 'i')}${campoS(W, `ricompense.xp_extra.${i}.motivo`, 'Motivo', 't', { span: 3, ph: 'es. via pacifica' })}
+        <button class="btn min" data-ic="togliX" data-i="${i}" aria-label="Togli">✕</button></div>`).join('')}<button class="btn min" data-ic="aggX">+ XP in più</button>
+      <label class="spunta"><input type="checkbox" data-ic-c="tesoro" ${W.ricompense.tesoro ? 'checked' : ''}> 💰 Tesoro da generare</label>
+      ${W.ricompense.tesoro ? `<div class="griglia">${campoS(W, 'ricompense.tesoro.livello', 'Livello di riferimento')}${campoS(W, 'ricompense.tesoro.quantita', 'Quantità')}${campoS(W, 'ricompense.tesoro.dove', 'Dove, chi lo porta', 't', { span: 2 })}${campoS(W, 'ricompense.tesoro.note', 'Note', 'a', { righe: 2 })}</div>` : ''}
+      ${campoS(W, 'ricompense.testo', 'Oggetti di trama 🗝️, informazioni, altre ricompense', 'a', { righe: 3 })}</fieldset>`;
   const azioni = [{ testo: 'Annulla' }, { testo: orig ? 'Salva' : 'Crea', classe: 'prim', fn: () => {
     for (const p of W.partecipanti) { p.n = Number(p.n); if (!p.nome && p.rif) { const s = schedaDi(p.rif); if (s) p.nome = s.nome; } }
-    const c2 = M.salvaIncontro(S.camp, W); const nuovo = orig ? orig.id : c2.incontri[c2.incontri.length - 1].id;
+    for (const x of W.ricompense.xp_extra) x.xp = Number(x.xp);
+    for (const p of W.partecipanti) if (p._imp && p._imp.stato === 'manca' && !p.rif) delete p._imp;
+    let base = S.camp, nuove = 0; if (imp) { const r = creaSchedeImportate(W); base = r.camp; nuove = r.nuove; }
+    const c2 = M.salvaIncontro(base, W); const nuovo = orig ? orig.id : c2.incontri[c2.incontri.length - 1].id;
+    if (nuove) setTimeout(() => avviso(`Create ${nuove} schede nuove nel bestiario`), 1600);
     S.ui.incontro = nuovo; S.ui.scheda = 'incontri'; applica(c2); avviso(orig ? 'Incontro salvato' : 'Incontro creato'); } }];
   if (orig) azioni.unshift({ testo: 'Elimina', classe: 'peric', fn: () => { AZ.eliminaIncontro({ dataset: { id: orig.id } }); } });
-  const el = apri({ titolo: orig ? `Incontro: ${esc(orig.titolo)}` : 'Nuovo incontro', larga: true, corpo: corpo(), azioni });
+  const el = apri({ titolo: orig ? `Incontro: ${esc(orig.titolo)}` : imp ? 'Incontro incollato: controlla e crea' : 'Nuovo incontro', larga: true, corpo: corpo(), azioni });
   const ridisegna = () => { const y = el.querySelector('.corpo').scrollTop; el.querySelector('.corpo').innerHTML = corpo(); el.querySelector('.corpo').scrollTop = y; };
-  el.addEventListener('input', ev => { const x = ev.target; if (x.dataset.k) { setP(W, x.dataset.k, leggiCampo(x)); if (x.dataset.k === 'note') el.querySelector('#inc-anteprima').innerHTML = mdLite(W.note); if (/\.n$/.test(x.dataset.k)) el.querySelector('#inc-xp').innerHTML = xpTot(); } });
-  el.addEventListener('change', ev => { const x = ev.target; if (x.dataset.inc === 'rif') { const p = W.partecipanti[+x.dataset.i], prima = schedaDi(p.rif); p.rif = rifDa(x.value); const s = schedaDi(p.rif);
+  el.addEventListener('input', ev => { const x = ev.target; if (x.dataset.k) { setP(W, x.dataset.k, leggiCampo(x)); if (x.dataset.k === 'note') el.querySelector('#inc-anteprima').innerHTML = mdLite(W.note); if (/\.n$|xp_extra\.\d+\.xp$/.test(x.dataset.k)) el.querySelector('#inc-xp').innerHTML = xpTot(); } });
+  el.addEventListener('change', ev => { const x = ev.target;
+    if (x.dataset.imp) { W.partecipanti[+x.dataset.i]._imp[x.dataset.imp] = x.value; return; }
+    if (x.dataset.icC === 'tesoro') { W.ricompense.tesoro = x.checked ? { livello: '', quantita: '', dove: '', note: '' } : null; ridisegna(); return; }
+    if (x.dataset.inc === 'rif') { if (W.partecipanti[+x.dataset.i]._imp && W.partecipanti[+x.dataset.i]._imp.stato === 'manca') delete W.partecipanti[+x.dataset.i]._imp; const p = W.partecipanti[+x.dataset.i], prima = schedaDi(p.rif); p.rif = rifDa(x.value); const s = schedaDi(p.rif);
       if (s && (!p.nome || (prima && p.nome === prima.nome))) p.nome = s.nome; if (s && p.n === 1 && s.n_suggerito > 1) p.n = s.n_suggerito; ridisegna(); } else if (x.dataset.k) setP(W, x.dataset.k, leggiCampo(x)); });
   el.addEventListener('click', ev => { const b = ev.target.closest('[data-ic]'); if (!b) return; const a = b.dataset.ic;
     if (a === 'aggP') W.partecipanti.push({ rif: null, nome: '', n: 1, modo: 'tipo', nascosto: false, nomeTv: '', imp: false, bonus: 0 });
+    if (a === 'sceltaP') { finestraSceltaBestiario(p => { W.partecipanti.push(p); ridisegna(); }, []); return; }
+    if (a === 'aggX') W.ricompense.xp_extra.push({ xp: 0, motivo: '' });
+    if (a === 'togliX') W.ricompense.xp_extra.splice(+b.dataset.i, 1);
     if (a === 'togliP') W.partecipanti.splice(+b.dataset.i, 1);
     if (a === 'aggR') W.promemoria.push({ round: (W.promemoria.at(-1) || { round: 0 }).round + 1, testo: '' });
     if (a === 'togliR') W.promemoria.splice(+b.dataset.i, 1);
@@ -6546,6 +6738,122 @@ window.addEventListener('resize', () => { if (S.schermata === 'bestiario') altez
 Object.assign(AZ, {
   tornaElenco() { window.scrollTo({ top: SCB.yElenco || 0 }); },
 });
+
+// ================================================================= Build 5b: incontri (sezione AG3)
+// ---------- AG3-B: descrizione e ricompense
+function htmlDescrInc(inc) {
+  if (!inc.descrizione) return '';
+  const aperta = leggiPref('descrIncAperta') !== '0';
+  return `<details class="descr descr-inc"${aperta ? ' open' : ''}><summary>📖 Descrizione</summary><div class="note-inc">${mdLite(inc.descrizione)}</div></details>`;
+}
+document.addEventListener('toggle', ev => { if (ev.target.classList && ev.target.classList.contains('descr-inc')) scriviPref('descrIncAperta', ev.target.open ? '1' : '0'); }, true);
+function htmlRicompense(inc, conXP = true) {
+  const r = inc.ricompense || M.ricompenseVuote(), xp = M.xpIncontro(inc, schedaDi);
+  const tesori = inc.partecipanti.map(p => ({ p, s: schedaDi(p.rif) })).filter(x => x.s && x.s.tesoro);
+  const righe = [];
+  if (usaXP() && conXP) righe.push(`<p class="piccolo"><b>XP:</b> <span class="num">${migl(xp.totale)}</span> dai nemici${r.xp_extra.map(x => ` · <span class="num">+${migl(x.xp)}</span> ${esc(x.motivo || '')}`).join('')}${r.xp_extra.length ? ` = <b class="num">${migl(xp.tutto)}</b>` : ''}${xp.mancanti.length ? ` <span class="tenue">(senza scheda: ${esc(xp.mancanti.join(', '))})</span>` : ''}</p>`);
+  else if (r.xp_extra.length) righe.push(`<p class="piccolo"><b>XP in più:</b> ${r.xp_extra.map(x => `<span class="num">+${migl(x.xp)}</span> ${esc(x.motivo || '')}`).join(' · ')}</p>`);
+  if (r.tesoro) righe.push(`<div class="piccolo">💰 <b>Tesoro</b> — ${esc(M.testoTesoro(r.tesoro) || 'da generare')}</div>`);
+  for (const x of tesori) righe.push(`<div class="piccolo">💰 ${esc(x.p.nome)}: ${esc([x.s.tesoro.livello ? 'livello ' + x.s.tesoro.livello : '', x.s.tesoro.quantita, x.s.tesoro.dove, x.s.tesoro.note].filter(Boolean).join(' · ') || 'da generare')}</div>`);
+  if (r.testo) righe.push(`<div class="note-inc piccolo">${mdLite(r.testo)}</div>`);
+  if (r.tesoro || tesori.length) righe.push('<p class="tenue piccolo">Il tesoro si genera con l\'app dei Tesori.</p>');
+  return righe.length ? `<h4 class="sotto">💰 Ricompense</h4>${righe.join('')}` : '';
+}
+// in combattimento: «📖 Titolo» apre descrizione, note e ricompense dell'incontro
+function finestraInfoIncontro(id) {
+  const inc = S.camp.incontri.find(x => x.id === id); if (!inc) return avviso('Incontro non trovato', true);
+  apri({ titolo: `📖 ${esc(inc.titolo)}`, larga: true, corpo: `${inc.descrizione ? `<h4 class="sotto">📖 Descrizione</h4><div class="note-inc">${mdLite(inc.descrizione)}</div>` : ''}
+      ${inc.note ? `<h4 class="sotto">Note</h4><div class="note-inc">${mdLite(inc.note)}</div>` : ''}${htmlRicompense(inc) || '<p class="tenue">Nessuna ricompensa scritta.</p>'}` });
+}
+// ---------- AG3-A: scelta dei partecipanti dal bestiario
+let NUOVE_PER = null; // il bestiario della scelta riceve le schede create da lì
+function finestraSceltaBestiario(onAggiungi, giaAggiunti) {
+  const F = { fonte: S.camp && S.camp.png.length ? 'png' : (Best.mostri.length ? 'mostro' : 'png'), testo: '', tipo: '', etichetta: '', gs_min: '', gs_max: '', preferiti: false, ordine: S.ui.best.ordine || 'nome' };
+  const aggiunti = [...(giaAggiunti || [])]; let vista = null;
+  const lista = () => { const L = M.cercaSchede(listaDi(F.fonte), F);
+    return L.length ? `<ul class="voci">${L.map(s => { const r = rifStr({ fonte: F.fonte, id: s.id });
+      return `<li class="voce${vista === r ? ' sel' : ''}"><button type="button" class="voce-corpo" data-sb="vedi" data-rif="${r}"><span class="voce-nome">${s.preferito ? '★ ' : ''}${esc(s.nome)}</span>
+        <span class="tenue piccolo">${esc([s.gs !== '' ? 'GS ' + s.gs : '', M.tipoDi(s)].filter(Boolean).join(' · '))}</span></button>
+        <button type="button" class="btn min" data-sb="agg" data-rif="${r}" title="Aggiungi con la quantità scritta sotto">+ ${s.n_suggerito > 1 ? s.n_suggerito : 1}</button></li>`; }).join('')}</ul>` : '<div class="vuoto">Nessuna scheda con questi filtri.</div>'; };
+  const anteprima = () => { const s = vista && schedaDi(rifDa(vista)); if (!s) return '<p class="tenue piccolo">Tocca una scheda per vedere lo stat block.</p>';
+    return `<div class="fila"><b>${esc(s.nome)}</b><span class="spazio"></span><label class="campo" style="width:5.5em"><span>Quantità</span><input type="number" min="1" data-sb-q value="${s.n_suggerito || 1}"></label>
+      <button type="button" class="btn prim" data-sb="aggVista">Aggiungi</button></div>${htmlDescrizione(s)}<div class="sb">${htmlStatBlock(s, { descrizione: false })}</div>`; };
+  const testa = () => aggiunti.length ? `<div class="chips">${aggiunti.map(a => `<span class="chip ok">${esc(a.nome)}${a.n > 1 ? ' ×' + a.n : ''}</span>`).join(' ')}</div>` : '<p class="tenue piccolo">Ancora nessun partecipante aggiunto.</p>';
+  const filtri = () => `<div class="schede" role="tablist">${['png', 'generico', 'mostro'].filter(k => k !== 'png' || S.camp).map(k => `<button type="button" role="tab" class="${F.fonte === k ? 'attiva' : ''}" data-sb="fonte" data-f="${k}">${FONTI[k].nome} (${listaDi(k).length})</button>`).join('')}</div>
+      <div class="griglia"><label class="campo"><span>Cerca per nome</span><input type="text" data-sbf="testo" value="${esc(F.testo)}"></label>${filtriBestiario(F).replace(/data-best=/g, 'data-sbf=')}
+        <label class="campo"><span>GS da</span><input type="text" data-sbf="gs_min" value="${esc(F.gs_min)}"></label><label class="campo"><span>GS a</span><input type="text" data-sbf="gs_max" value="${esc(F.gs_max)}"></label></div>
+      <div class="fila"><label class="spunta"><input type="checkbox" data-sbf="preferiti" ${F.preferiti ? 'checked' : ''}> solo preferiti ★</label><span class="spazio"></span>
+        <button type="button" class="btn min" data-sb="nuova">+ Scheda</button><button type="button" class="btn min oro" data-sb="incolla">Incolla</button></div>`;
+  const corpo = () => `<div id="sb-testa">${testa()}</div><div class="scelta-best"><div class="pannello"><div id="sb-filtri">${filtri()}</div><div id="sb-lista">${lista()}</div></div><div class="pannello" id="sb-vista">${anteprima()}</div></div>`;
+  const el = apri({ titolo: 'Partecipanti dal bestiario', larga: true, corpo: corpo(), azioni: [{ testo: 'Fatto', classe: 'prim' }] });
+  el.classList.add('velo-scelta');
+  const $e = q => el.querySelector(q);
+  const aggiungi = (rif, n) => { const s = schedaDi(rif); if (!s) return; const p = { rif, nome: s.nome, n: n || s.n_suggerito || 1, modo: 'tipo', nascosto: false, nomeTv: '', imp: false };
+    onAggiungi(p); aggiunti.push(p); $e('#sb-testa').innerHTML = testa(); avviso(`Aggiunto: ${s.nome}${p.n > 1 ? ' ×' + p.n : ''}`); };
+  el.addEventListener('input', ev => { const x = ev.target; if (!x.dataset.sbf) return; F[x.dataset.sbf] = x.type === 'checkbox' ? x.checked : x.value; $e('#sb-lista').innerHTML = lista(); });
+  el.addEventListener('click', ev => { const b = ev.target.closest('[data-sb]'); if (!b) return; const a = b.dataset.sb;
+    if (a === 'fonte') { F.fonte = b.dataset.f; F.tipo = ''; F.etichetta = ''; $e('#sb-filtri').innerHTML = filtri(); $e('#sb-lista').innerHTML = lista(); }
+    if (a === 'vedi') { vista = b.dataset.rif; $e('#sb-vista').innerHTML = anteprima(); $e('#sb-lista').innerHTML = lista(); if (window.innerWidth < 900) $e('#sb-vista').scrollIntoView({ block: 'start' }); }
+    if (a === 'agg') aggiungi(rifDa(b.dataset.rif));
+    if (a === 'aggVista') { const n = Number($e('[data-sb-q]').value); if (!Number.isInteger(n) || n < 1) return avviso('Quantità non valida', true); aggiungi(rifDa(vista), n); }
+    if (a === 'nuova' || a === 'incolla') {
+      NUOVE_PER = rifs => { NUOVE_PER = null; for (const r of rifs) aggiungi(r); if (rifs[0]) { F.fonte = rifs[0].fonte; vista = rifStr(rifs[0]); }
+        if (document.body.contains(el)) { $e('#sb-filtri').innerHTML = filtri(); $e('#sb-lista').innerHTML = lista(); $e('#sb-vista').innerHTML = anteprima(); } };
+      if (a === 'nuova') finestraScheda(F.fonte, null); else finestraIncolla(F.fonte);
+    } });
+  return el;
+}
+// ---------- AG3-C: copia e incolla dell'incontro
+function trovaPerNome(nome) {
+  const n = M.normNome(nome); if (!n) return null;
+  for (const f of ['png', 'generico', 'mostro']) { if (f === 'png' && !S.camp) continue; const s = listaDi(f).find(x => M.normNome(x.nome) === n); if (s) return { rif: { fonte: f, id: s.id }, scheda: s }; }
+  return null;
+}
+function finestraIncollaIncontro() {
+  apri({ titolo: 'Incolla incontro', larga: true, corpo: `<p class="piccolo tenue">Il testo di «Copia come testo» di un incontro oppure un incontro o un evento copiato da un documento d'avventura: titolo, 📖 Descrizione, Nota GM, partecipanti («Lupi (×6, o ×3):»), stat block, «Round N:», 💰 Ricompense. Prima di creare puoi controllare e correggere tutto.</p>
+      <textarea name="t" rows="12" placeholder="Incolla qui"></textarea>`,
+    azioni: [{ testo: 'Annulla' }, { testo: 'Leggi', classe: 'prim', fn: f => {
+      const t = val(f, 't').value; if (!t.trim()) throw new Error('Incolla il testo dell\'incontro');
+      const r = M.leggiIncontro(t, trovaPerNome);
+      const iniz = { ...r.incontro, partecipanti: r.voci.map(v => ({ rif: v.stato === 'trovata' ? v.rif : null, nome: v.nome, n: v.n, nota: v.nota, modo: 'tipo', nascosto: false, nomeTv: '', imp: false,
+        _imp: { stato: v.stato, dest: v.dest === 'mostro' ? 'mostro' : (S.camp ? 'png' : 'generico'), scheda: v.scheda, diverso: v.diverso, scelta: v.scelta || '' } })) };
+      finestraIncontro(null, iniz, r.avvisi);
+    } }] });
+}
+// crea le schede nuove dell'incolla e collega i partecipanti (dentro «Crea»)
+function creaSchedeImportate(W) {
+  const ora = Date.now(); let c = S.camp, cond = { mostro: Best.mostri, generico: Best.generici }, nuove = 0;
+  for (const p of W.partecipanti) {
+    const x = p._imp; delete p._imp; if (!x) continue;
+    const crea = x.scheda && (x.stato === 'nuova' || (x.stato === 'trovata' && x.scelta === 'copia'));
+    if (crea) { const dove = x.dest, s = M.nuovaScheda({ ...M.clona(x.scheda), nome: x.stato === 'trovata' ? x.scheda.nome + ' (importato)' : x.scheda.nome }, rng, ora + nuove, FONTI[dove].pref);
+      if (condivisa(dove)) cond[dove] = M.salvaScheda(cond[dove], s, ora); else c = M.salvaPNG(c, s, ora);
+      p.rif = { fonte: dove, id: s.id }; p.nome = s.nome; nuove++; }
+  }
+  if (cond.mostro !== Best.mostri || cond.generico !== Best.generici) { Best.mostri = cond.mostro; Best.generici = cond.generico; salvaBestiario(); }
+  return { camp: c, nuove };
+}
+function copiaIncontro(id) {
+  const inc = S.camp.incontri.find(x => x.id === id);
+  apri({ titolo: `Copia «${esc(inc.titolo)}» come testo`, corpo: '<p class="piccolo">Con gli stat block il testo contiene anche una scheda per ogni partecipante: incollandolo in un\'altra campagna le schede si ricreano.</p>',
+    azioni: [{ testo: 'Annulla' }, { testo: 'Senza stat block', fn: () => finestraEsporta(`${inc.titolo}.txt`, M.testoIncontro(inc, schedaDi), 'text/plain') },
+      { testo: 'Con gli stat block', classe: 'prim', fn: () => finestraEsporta(`${inc.titolo}.txt`, M.testoIncontro(inc, schedaDi, { statblock: true }), 'text/plain') }] });
+}
+Object.assign(AZ, {
+  incollaIncontro() { finestraIncollaIncontro(); },
+  copiaIncontro(el) { copiaIncontro(el.dataset.id); },
+  infoIncontro(el) { finestraInfoIncontro(el.dataset.id); },
+  spostaInc(el) { applica(M.spostaIncontro(S.camp, el.dataset.id, +el.dataset.d)); },
+  modoSposta() { S.ui.spostaInc = !S.ui.spostaInc; disegna(); },
+});
+Object.assign(CAMBI, { ordineInc(el) { if (el.value === 'alfabetico') S.ui.spostaInc = false; applica(M.impostaOrdineIncontri(S.camp, el.value)); } });
+// AG3-D: trascinamento degli incontri sul PC
+let TRASC = null;
+document.addEventListener('dragstart', ev => { const li = ev.target.closest && ev.target.closest('[data-trasc]'); if (!li) return; TRASC = li.dataset.trasc; ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', TRASC); } catch (e) {} });
+document.addEventListener('dragover', ev => { if (TRASC && ev.target.closest && ev.target.closest('[data-trasc],[data-trasc-fine]')) ev.preventDefault(); });
+document.addEventListener('drop', ev => { if (!TRASC) return; const li = ev.target.closest && ev.target.closest('[data-trasc],[data-trasc-fine]'); if (!li) return; ev.preventDefault();
+  const id = TRASC; TRASC = null; try { applica(M.spostaIncontro(S.camp, id, { prima: li.dataset.trasc || null, ...(li.dataset.trascFine ? { prima: null } : {}) })); } catch (e) { avviso(e.message, true); } });
+document.addEventListener('dragend', () => { TRASC = null; });
 
 // ================================================================= avvio
 async function ricaricaElenco() {

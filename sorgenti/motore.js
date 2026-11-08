@@ -441,6 +441,8 @@ function migra(c) { // formato versionato: qui le migrazioni future (schermo-v1 
   // Build 5a: classi del PG, riserva del Rifiatare per dado, contatori
   x.contatori = x.contatori || [];
   for (const p of x.pg) { sincronizzaClassi(p.scheda); riservaRif(p); p.contatori = p.contatori || []; }
+  // Build 5b: descrizione e ricompense degli incontri, ordine
+  for (const i of x.incontri || []) migraIncontro(i); if (!x.ordine_incontri) x.ordine_incontri = 'manuale';
   for (const p of x.pg) for (const [k, v] of [['cerusico', 0], ['erborista', false], ['erborista_gradi', 0]]) if (p.scheda[k] === undefined) p.scheda[k] = v;
   return x;
 }
@@ -2458,10 +2460,11 @@ function unisciMostri(lista, nuovi, rng, ora, soloMancanti, pref = 'm') {
 }
 
 // ---------- incontri (N)
-function incontroVuoto() { return { id: '', titolo: '', atto: '', capitolo: '', luogo: '', stato: 'da giocare', giocato_R: null, note: '', tesoro: '', partecipanti: [], promemoria: [] }; }
+function incontroVuoto() { return { id: '', titolo: '', atto: '', capitolo: '', luogo: '', stato: 'da giocare', giocato_R: null, descrizione: '', note: '', tesoro: '', ricompense: ricompenseVuote(), partecipanti: [], promemoria: [] }; }
 function salvaIncontro(camp, inc, rng) {
   if (!String(inc.titolo || '').trim()) throw new Error('l\'incontro non ha un titolo');
-  const c = clona(camp), x = { ...incontroVuoto(), ...clona(inc) };
+  const c = clona(camp), x = migraIncontro({ ...incontroVuoto(), ...clona(inc) });
+  x.ricompense = { ...ricompenseVuote(), ...x.ricompense }; controllaRicompense(x.ricompense);
   for (const p of x.partecipanti) { if (!(Number.isInteger(p.n) && p.n >= 1)) throw new Error(`${p.nome || 'partecipante'}: quantità non valida`); if (!String(p.nome || '').trim()) throw new Error('partecipante senza nome'); }
   for (const p of x.promemoria) if (!(Number.isInteger(p.round) && p.round >= 1) || !String(p.testo || '').trim()) throw new Error('promemoria: round o testo non validi');
   x.promemoria.sort((a, b) => a.round - b.round);
@@ -2485,6 +2488,7 @@ function cartelle(camp) {
     k.incontri.push(inc);
   }
   atti.sort((a, b) => ordineNat(a.atto, b.atto)); for (const a of atti) a.capitoli.sort((x, y) => ordineNat(x.capitolo, y.capitolo));
+  if (camp.ordine_incontri === 'alfabetico') for (const a of atti) for (const k of a.capitoli) k.incontri.sort((x, y) => ordineNat(x.titolo, y.titolo)); // AG3-D
   return atti;
 }
 // XP dell'incontro: somma degli XP dei partecipanti (gli alleati non contano)
@@ -2495,7 +2499,8 @@ function xpIncontro(inc, schedaDi) {
     const x = xpDi(s); if (x === null) { righe.push({ nome: p.nome, n: p.n, xp: 0, alleato: !!s.alleato }); continue; }
     tot += x * p.n; righe.push({ nome: p.nome, n: p.n, xp: x * p.n });
   }
-  return { totale: tot, righe, mancanti };
+  const extra = xpExtra(inc);
+  return { totale: tot, righe, mancanti, extra, tutto: tot + extra };
 }
 // partecipante dell'incontro → riga dell'avvio del combattimento
 function nemicoDaPartecipante(p, schedaDi) {
@@ -3618,6 +3623,157 @@ function contaEtichette(lista) {
   return [...o.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'it'));
 }
 
+
+// ================================================================== Build 5b: incontri (sezione AG3 del design doc)
+function ricompenseVuote() { return { xp_extra: [], tesoro: null, testo: '' }; }
+// incontri salvati: il vecchio «tesoro» (testo) passa nelle note del 💰 (AG3-B)
+function migraIncontro(inc) {
+  if (inc.descrizione === undefined) inc.descrizione = '';
+  if (!inc.ricompense) inc.ricompense = ricompenseVuote();
+  if (inc.tesoro) { if (!inc.ricompense.tesoro) inc.ricompense.tesoro = { livello: '', quantita: '', dove: '', note: '' };
+    inc.ricompense.tesoro.note = [inc.ricompense.tesoro.note, inc.tesoro].filter(Boolean).join('\n'); inc.tesoro = ''; }
+  return inc;
+}
+function xpExtra(inc) { return ((inc.ricompense && inc.ricompense.xp_extra) || []).reduce((a, r) => a + (Number.isFinite(+r.xp) ? +r.xp : 0), 0); }
+function controllaRicompense(r) {
+  for (const x of r.xp_extra || []) if (!(Number.isInteger(x.xp) && x.xp >= 0)) throw new Error('ricompense: XP in più non validi');
+}
+// AG3-D: ordine degli incontri (manuale o alfabetico)
+const cartellaDi = i => (i.atto || '') + '\u0001' + (i.capitolo || '');
+function impostaOrdineIncontri(camp, modo) {
+  if (!['manuale', 'alfabetico'].includes(modo)) throw new Error('ordine non valido');
+  const c = clona(camp);
+  if (modo === 'manuale' && c.ordine_incontri === 'alfabetico') { // si parte dall'ordine alfabetico
+    const per = new Map(); for (const i of c.incontri) { const k = cartellaDi(i); if (!per.has(k)) per.set(k, []); per.get(k).push(i); }
+    for (const L of per.values()) L.sort((a, b) => ordineNat(a.titolo, b.titolo));
+    const usati = new Map([...per.keys()].map(k => [k, 0]));
+    c.incontri = c.incontri.map(i => { const k = cartellaDi(i), j = usati.get(k); usati.set(k, j + 1); return per.get(k)[j]; });
+  }
+  c.ordine_incontri = modo; return c;
+}
+// sposta un incontro nella sua cartella: dir = -1 / +1, oppure {prima: id} (trascinamento)
+function spostaIncontro(camp, id, dir) {
+  const c = clona(camp), L = c.incontri, i = L.findIndex(x => x.id === id); if (i < 0) throw new Error('incontro non trovato');
+  if (c.ordine_incontri === 'alfabetico') throw new Error('con l\'ordine alfabetico gli incontri non si spostano a mano');
+  const k = cartellaDi(L[i]);
+  if (typeof dir === 'object' && dir) {
+    if (dir.prima === id) return c;
+    const x = L.splice(i, 1)[0]; let j = dir.prima ? L.findIndex(y => y.id === dir.prima) : -1;
+    if (j < 0 || cartellaDi(L[j]) !== k) { // in fondo alla cartella
+      j = -1; L.forEach((y, n) => { if (cartellaDi(y) === k) j = n; }); L.splice(j + 1, 0, x);
+    } else L.splice(j, 0, x);
+    return c;
+  }
+  let j = i + dir; while (j >= 0 && j < L.length && cartellaDi(L[j]) !== k) j += dir;
+  if (j < 0 || j >= L.length) return c;
+  [L[i], L[j]] = [L[j], L[i]]; return c;
+}
+
+// AG3-C: «Copia come testo» dell'incontro
+function testoTesoro(t) { return t ? [t.livello ? 'Livello di riferimento: ' + t.livello : '', t.quantita ? 'Quantità: ' + t.quantita : '', t.dove ? 'Dove: ' + t.dove : '', t.note ? 'Note: ' + t.note.replace(/\n/g, ' ') : ''].filter(Boolean).join(' · ') : ''; }
+function testoIncontro(inc, schedaDi, opz = {}) {
+  const L = [`INCONTRO — ${inc.titolo}`], dove = [inc.atto ? 'Atto: ' + inc.atto : '', inc.capitolo ? 'Capitolo: ' + inc.capitolo : '', inc.luogo ? 'Luogo: ' + inc.luogo : ''].filter(Boolean);
+  if (dove.length) L.push(dove.join(' · '));
+  if (inc.descrizione) L.push('', '📖 DESCRIZIONE', inc.descrizione);
+  if (inc.note) L.push('', 'NOTE', inc.note);
+  if (inc.partecipanti.length) {
+    L.push('', 'PARTECIPANTI');
+    for (const p of inc.partecipanti) { const s = p.rif ? schedaDi(p.rif) : null;
+      L.push(`- ${p.nome} (×${p.n})` + [s && s.gs !== '' ? `GS ${s.gs}` : '', p.modo === 'singolo' && p.n > 1 ? 'iniziativa per singolo' : '', p.nascosto ? 'nascosto all\'inizio' : '', p.imp ? 'impreparato' : '', p.nomeTv ? 'TV: ' + p.nomeTv : '', p.nota || ''].filter(Boolean).map(x => ' · ' + x).join('')); }
+  }
+  if (inc.promemoria.length) { L.push('', 'PROMEMORIA'); for (const p of inc.promemoria) L.push(`Round ${p.round}: ${p.testo}`); }
+  const r = inc.ricompense || ricompenseVuote(), xp = schedaDi ? xpIncontro(inc, schedaDi).totale : 0;
+  if (xp || r.xp_extra.length || r.tesoro || r.testo) {
+    L.push('', '💰 RICOMPENSE');
+    if (xp || r.xp_extra.length) L.push('XP: ' + [xp ? `${migliaia(xp)} (nemici)` : '', ...r.xp_extra.map(x => `+${migliaia(x.xp)} ${x.motivo || ''}`.trim())].filter(Boolean).join(' · '));
+    if (r.tesoro) L.push('💰 TESORO — da generare · ' + testoTesoro(r.tesoro));
+    if (r.testo) L.push(r.testo);
+  }
+  if (opz.statblock && schedaDi) {
+    const visti = new Set();
+    for (const p of inc.partecipanti) { const s = p.rif ? schedaDi(p.rif) : null; if (!s || visti.has(s.id)) continue; visti.add(s.id); L.push('', testoStatBlock(s, { xp: true })); }
+  }
+  return L.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// AG3-C: «Incolla incontro» — riconosce titolo, sezioni, partecipanti e stat block
+const SEZ_INC = [
+  ['descrizione', /^(?:📖\s*)?(?:DESCRIZIONE|AMBIENTE|TESTO DA LEGGERE)\b(?:\s*[—–:-].*)?$/i],
+  ['note', /^(?:⚠️?\s*)?(?:NOTA PER IL GM|NOTA DEL GM|NOTA GM|NOTE DEL GM|NOTE)\s*:?$/i],
+  ['partecipanti', /^(?:PARTECIPANTI|NEMICI)\s*:?$/i],
+  ['promemoria', /^PROMEMORIA(?: PER ROUND)?\s*:?$/i],
+  ['ricompense', /^(?:💰\s*)?RICOMPENS[EA]\b.*$/i],
+  ['altro', /^(SVOLGIMENTO|SOLUZIONI ALTERNATIVE|RINFORZI|BOSS|FASI|CONDIZIONI DI VITTORIA)\b.*$/i],
+];
+const sezIncDi = r => { for (const [k, re] of SEZ_INC) if (re.test(r)) return k; return null; };
+const RE_PARTE = /^(?:[-•]\s*)?(.+?)\s*\(\s*[x×]\s*(\d+)\s*([^)]*)\)\s*(.*?)\s*:?\s*$/i;
+const normNome = x => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+function leggiIncontro(testo, trova) {
+  const righe = String(testo || '').replace(/\r\n?/g, '\n').replace(/ /g, ' ').split('\n');
+  const inc = { ...incontroVuoto(), descrizione: '', ricompense: ricompenseVuote() }, avvisi = [];
+  // stat block: righe che appartengono ai blocchi
+  const blocchi = leggiStatBlock(testo), inBlocco = new Array(righe.length).fill(false);
+  const inizi = righe.map((r, i) => eTestata(r) ? i : -1).filter(i => i >= 0);
+  inizi.forEach((i, j) => { const fine = j + 1 < inizi.length ? inizi[j + 1] : righe.length;
+    for (let k = i; k < fine; k++) { const t = righe[k].trim(); if (k > i && (FINE_BLOCCO.test(t) || TITOLO_DESC.test(t) || (sezIncDi(t) && !/^NOTE$/i.test(t)) || RE_PARTE.test(t))) break; inBlocco[k] = true; } });
+  let sez = null, titolo = '', altroTit = '';
+  const parti = [], agg = (k, x) => { inc[k] = inc[k] ? inc[k] + '\n' + x : x; };
+  for (let i = 0; i < righe.length; i++) {
+    if (inBlocco[i]) continue;
+    const t = righe[i].trim(); if (!t) continue;
+    if (!titolo) { titolo = t.replace(/^INCONTRO\s*[—–:-]\s*/i, ''); continue; }
+    let m;
+    if ((m = t.match(/^(Atto|Capitolo|Luogo)\s*:/i)) && !sez) { for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Atto|Capitolo|Luogo)\s*:\s*(.*)$/i); if (mm) inc[mm[1].toLowerCase()] = mm[2].trim(); } continue; }
+    const sz = sezIncDi(t);
+    if (sz) { sez = sz; if (sz === 'altro') { altroTit = t.replace(/\s*:$/, ''); agg('note', `**${altroTit}**`); } continue; }
+    if ((m = t.match(/^Round\s+(\d+)\s*[:.—–-]\s*(.+)$/i)) && (sez === 'promemoria' || sez === null)) { inc.promemoria.push({ round: +m[1], testo: m[2].trim() }); continue; }
+    if ((m = t.match(RE_PARTE)) && (sez === 'partecipanti' || sez === null || sez === 'note' || sez === 'altro')) {
+      const extra = [m[3].replace(/^[,;]\s*/, ''), m[4].replace(/^[·:,]\s*/, '')].filter(Boolean).join(' ').trim();
+      parti.push({ nome: m[1].replace(/^[-•]\s*/, '').trim(), n: +m[2], nota: extra, riga: i }); continue; }
+    if (sez === 'partecipanti' && (m = t.match(/^[-•]\s*(.+?)(?:\s*[×x]\s*(\d+))?(?:\s*·\s*(.*))?$/))) { parti.push({ nome: m[1].trim(), n: m[2] ? +m[2] : 1, nota: m[3] || '', riga: i }); continue; }
+    if (sez === 'ricompense') {
+      if (/^💰\s*TESORO/i.test(t)) { const tz = { livello: '', quantita: '', dove: '', note: '' };
+        for (const pz of t.split(/\s*·\s*/)) { const mm = pz.match(/^(Livello(?: di riferimento)?|Quantità|Dove|Note)\s*:\s*(.*)$/i);
+          if (mm) tz[{ livello: 'livello', 'livello di riferimento': 'livello', 'quantità': 'quantita', dove: 'dove', note: 'note' }[mm[1].toLowerCase()]] = mm[2].trim(); }
+        inc.ricompense.tesoro = tz; continue; }
+      let resto = t;
+      if (/^XP\s*:/i.test(t)) { // le righe «+N motivo» diventano XP in più; il resto resta nel testo
+        const pezzi = t.replace(/^XP\s*:\s*/i, '').split(/\s*·\s*/), tenuti = [];
+        for (const pz of pezzi) { const mm = pz.match(/^\+\s*([\d.]+)\s*(?:XP\s*)?(?:❓\s*)?(.*)$/i);
+          if (mm) inc.ricompense.xp_extra.push({ xp: +mm[1].replace(/\./g, ''), motivo: mm[2].trim() }); else if (!/\(nemici\)\s*$/i.test(pz)) tenuti.push(pz); }
+        resto = tenuti.length ? 'XP: ' + tenuti.join(' · ') : '';
+      }
+      if (resto) inc.ricompense.testo = inc.ricompense.testo ? inc.ricompense.testo + '\n' + resto : resto;
+      continue;
+    }
+    if (sez === 'descrizione') { agg('descrizione', t); continue; }
+    if (sez === 'promemoria') continue;
+    agg('note', t); // note, sezioni senza campo, testo libero
+  }
+  inc.titolo = titolo;
+  for (const bl of blocchi) bl.scheda.descrizione_estesa = ''; // il testo prima del blocco qui è dell'incontro, non della scheda
+  // partecipanti: una riga «Nome (×N):» subito prima di uno stat block prende quel blocco
+  const usati = new Set(), out = [];
+  const bloccoDopo = riga => blocchi.findIndex((b, j) => !usati.has(j) && b.riga - 1 > riga && righe.slice(riga + 1, b.riga - 1).every(r => !r.trim() || TITOLO_DESC.test(r.trim()) || !sezIncDi(r.trim())) && b.riga - 1 - riga <= 3);
+  for (const p of parti) {
+    let j = bloccoDopo(p.riga);
+    if (j < 0) j = blocchi.findIndex((b, k) => !usati.has(k) && normNome(b.scheda.nome) === normNome(p.nome));
+    if (j >= 0) usati.add(j);
+    out.push({ nome: j >= 0 ? blocchi[j].scheda.nome : p.nome, n: p.n, nota: p.nota, blocco: j >= 0 ? blocchi[j] : null });
+  }
+  blocchi.forEach((b, j) => { if (!usati.has(j)) out.push({ nome: b.scheda.nome, n: b.scheda.n_suggerito > 1 ? b.scheda.n_suggerito : 1, nota: '', blocco: b }); });
+  // schede: stesso nome nel bestiario → quella; altrimenti nuova dallo stat block
+  const voci = out.map(p => {
+    const trovata = trova ? trova(p.nome) : null, s = p.blocco ? p.blocco.scheda : null;
+    let stato = trovata ? 'trovata' : s ? 'nuova' : 'manca', diverso = false;
+    if (trovata && s) diverso = testoStatBlock({ ...trovata.scheda, descrizione_estesa: '' }, { xp: true }) !== testoStatBlock({ ...s, descrizione_estesa: '' }, { xp: true });
+    const dest = s && (s.ambiente || s.tipo_scheda === 'mostro_pf1' || /·\s*Mostro\b|—\s*Mostro\b/i.test(righe[p.blocco.riga - 1] || '')) ? 'mostro' : 'png';
+    return { nome: p.nome, n: p.n, nota: p.nota, stato, rif: trovata ? trovata.rif : null, scheda: s, diverso, dest, scelta: diverso ? 'usa' : '' };
+  });
+  if (!inc.titolo) avvisi.push('titolo non trovato');
+  return { incontro: inc, voci, avvisi };
+}
+
 return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI, clona,
   d, valoreD20, tira, calendarioReale, lunghezzaAnno, controllaCalendario, dataDaGiornoAnno, giornoAnnoDaData, scomponi, tempoAssoluto,
   formatoData, formatoDurata, durataInRound, stagione, esitoMeteo, effettiMeteo, tiraMeteo, impostaMeteo, scegliOpzioneMeteo, cambiaZona,
@@ -3645,6 +3801,7 @@ return { FORMATO, ROUND_MIN, ROUND_ORA, ROUND_GIORNO, SCHEDA_VUOTA, IMPOSTAZIONI
   nomeTvDi, statoTV, cartaMeteoTV, tvVisibile, f10Attivo, esportaBestiario, importaPNG,
   DV_CLASSI, DADI_DV, dvClasse, testoClassi, riserveMax, sincronizzaClassi, riservaRif, testoRiserva, sceltaRifiatare,
   UNITA_CONT, NOMI_UNITA, RICARICHE, salvaContatore, eliminaContatore, cambiaContatore, ricaricaContatore, pausaContatore, descriviTempoCont,
-  TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette };
+  TIPI_MOSTRO, tipoDi, sottotipiDi, luoghiAmbiente, etichetteAuto, tutteEtichette, ordinaSchede, contaTipi, contaEtichette,
+  ricompenseVuote, migraIncontro, xpExtra, impostaOrdineIncontri, spostaIncontro, testoIncontro, testoTesoro, leggiIncontro, normNome };
 })();
 if (typeof module !== 'undefined') module.exports = Motore;

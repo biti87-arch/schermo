@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v23
+# Schermo del Narratore — design dell'app v24
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -46,6 +46,8 @@
 *v22 (08/11/2026): **Build 5a fatta** (AG1, AG2): motore con 890 test (56 nuovi), pagina 796 controlli a 1366 e 390 px (68 nuovi), pagina di prova sullo stesso artifact (versione 18); scelte di applicazione nella sezione Z6, da confermare sulla pagina di prova. Commit locale sul ramo `sviluppo`, niente push.*
 
 *v23 (08/11/2026): **Build 5a confermata** da Massy (Z6-1…Z6-9, «confermo tutto, comprese le scelte da te fatte»): push su `sviluppo` e `main`, nuova release.*
+
+*v24 (08/11/2026): **Build 5b fatta** (AG3): motore 912 test (22 nuovi), pagina 836 controlli (40 nuovi), artifact versione 19; scelte di applicazione nella sezione Z7, da confermare sulla pagina di prova.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -93,7 +95,7 @@
 | Passo 13.3 — Incontri: bestiario, campi nuovi, copia e incolla, ordine (AG3) | ✅ 08/11 |
 | Passo 13.4 — Eventi casuali e importazione (AG4) | ✅ 08/11 |
 | Build 5a — PG e bestiario (AG1, AG2) | ✅ confermata l'08/11 (Z6), rilasciata |
-| Build 5b — Incontri (AG3) | ⬜ |
+| Build 5b — Incontri (AG3) | 🔶 fatta l'08/11, pagina di prova (artifact v19) da confermare (Z7) |
 | Build 5c — Eventi casuali e importazione (AG4) | ⬜ |
 
 Una chat per fase. Ogni build finisce con la pagina di prova (artifact) confermata da Massy; le versioni native solo dopo la conferma della Build 4.
@@ -1150,6 +1152,24 @@ Prima (E, F6, F7): classe e livello in testo libero, livello numerico per il rip
 | Anteprima | tutto ciò che verrà creato, modificabile; niente si salva prima di «Crea tutto» |
 | Reimportazione | tabella con lo stesso nome: «Sostituisci» o «Crea copia» |
 | JSON | formato descritto qui alla Build 5c, usabile dal progetto della campagna; lo stesso per esportare una tabella con i suoi eventi |
+
+## Z7. Build 5b — come è stata applicata (08/11/2026)
+
+### Fatto
+- **Motore**: incontri con `descrizione` e `ricompense` (`xp_extra`, `tesoro`, `testo`), migrazione del vecchio `tesoro`; `xpIncontro` con `extra` e `tutto`; `testoIncontro` (Copia come testo), `leggiIncontro` (Incolla: titolo, sezioni, partecipanti «(×N…)», stat block, «Round N:», ricompense, schede trovate o nuove, contenuto diverso); `impostaOrdineIncontri` e `spostaIncontro` (frecce e trascinamento). 912 test (22 nuovi, fra cui un evento dei documenti d'avventura).
+- **Interfaccia**: scelta dei partecipanti dal bestiario, campi nuovi e Ricompense nella finestra dell'incontro, «Copia come testo», «Incolla incontro» con l'anteprima, menu Ordine e «Sposta», «📖 Titolo» nell'avvio e in combattimento, Ricompense nel riepilogo. Pagina 836 controlli (40 nuovi), artifact versione 19.
+
+### Scelte di applicazione (da confermare)
+- **Z7-1** Scelta dal bestiario: «+ N» accanto a ogni scheda aggiunge subito con la quantità di solito; l'anteprima ha Quantità e «Aggiungi»; si parte dai PNG della campagna (dai mostri se la campagna non ne ha); in cima i partecipanti aggiunti in questa finestra.
+- **Z7-2** «+ Senza scheda» resta per un partecipante scritto a mano, con il bonus d'iniziativa.
+- **Z7-3** Le schede create con «+ Scheda» o «Incolla» dalla scelta vanno nella raccolta che si sta guardando e nell'incontro.
+- **Z7-4** Ogni partecipante ha un campo «Nota» (es. «o ×3»), visibile anche nella scheda dell'incontro.
+- **Z7-5** XP nell'elenco degli incontri = nemici + XP in più; nel riepilogo di fine combattimento, sotto gli XP dei nemici sconfitti, le Ricompense dell'incontro (XP in più, tesoro, testo).
+- **Z7-6** La Descrizione dell'incontro ricorda se è aperta o chiusa, separatamente da quella delle schede.
+- **Z7-7** «Copia come testo» chiede «Senza stat block» o «Con gli stat block».
+- **Z7-8** Incolla: la riga sotto il titolo (tipo, difficoltà, terreno) va nelle Note; da «XP: …» i pezzi «+N motivo» diventano XP in più, gli altri restano nel testo delle Ricompense («(nemici)» si scarta: si ricalcola); le schede nuove non prendono il testo dell'incontro come Descrizione estesa e si creano solo con «Crea».
+- **Z7-9** Ordine: il menu compare da 2 incontri in su; «Sposta» mostra ▲ ▼ e si chiude con «Fine spostamento»; il trascinamento c'è solo col mouse e, lasciando l'incontro in fondo alla cartella, lo mette per ultimo.
+- **Z7-10** Nell'avvio il riquadro «Incontro: …» è diventato il pulsante «📖 Titolo».
 
 ## Z6. Build 5a — come è stata applicata (08/11/2026)
 

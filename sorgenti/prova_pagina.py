@@ -371,7 +371,7 @@ def prova2b(browser, larghezza):
     largo('incontri')
     # --- N2/O: Avvia l'incontro d'esempio, tattiche nella barra del turno, stat block di lato
     pg.locator('[data-az="selIncontro"]', has_text='Agguato sulla strada').click(); pg.click('[data-az="avviaIncontro"]')
-    t(f'{W} N2 avvio dall\'incontro', pg.locator('#avvio .chip', has_text='Agguato sulla strada').count() == 1 and pg.locator('[data-bind="nemici.0.nome"]').input_value() == 'Lupo' and pg.locator('[data-bind="nemici.0.n"]').input_value() == '4')
+    t(f'{W} N2 avvio dall\'incontro', pg.locator('#avvio [data-az="infoIncontro"]', has_text='Agguato sulla strada').count() == 1 and pg.locator('[data-bind="nemici.0.nome"]').input_value() == 'Lupo' and pg.locator('[data-bind="nemici.0.n"]').input_value() == '4')
     for i, v in enumerate(['1', '2', '3']): pg.locator('.pgini input[type="number"]').nth(i).fill(v)
     pg.click('[data-az="avvia"]')
     t(f'{W} N2 righe numerate o raggruppate', pg.locator('.ordine li', has_text='Lupo ×4').count() == 1 and pg.locator('.ordine li', has_text='Bandito').count() == 1, pg.inner_text('.ordine'))
@@ -398,7 +398,7 @@ def prova2b(browser, larghezza):
     # --- J9 e ferita grave di un nemico; XP (N3, J10)
     pg.click('[data-az="impostazioni"]'); fin().locator('[name="pf_nemici"]').check(); fin().locator('[name="xp"]').check(); premi('Salva')
     terza('incontri'); pg.locator('[data-az="selIncontro"]', has_text='Agguato sulla strada').click()
-    t(f'{W} N3 XP dell\'incontro con gli XP accesi', "XP dell'incontro: 2.400" in pg.inner_text('#col-terza'), pg.inner_text('#col-terza')[-300:])
+    t(f'{W} N3 XP dell\'incontro con gli XP accesi', "XP: 2.400 dai nemici" in pg.inner_text('#col-terza'), pg.inner_text('#col-terza')[-300:])
     pg.click('[data-az="avviaIncontro"]')
     for i, v in enumerate(['1', '2', '3']): pg.locator('.pgini input[type="number"]').nth(i).fill(v)
     pg.click('[data-az="avvia"]')
@@ -1238,10 +1238,102 @@ def prova5a(browser, larghezza):
     t(f'{W} nessun errore in console', not errori, errori[:3])
     ctx.close()
 
+EI16 = """EI 16 — Il branco
+⚔ Combattimento · Difficoltà: Facile (GS 9–10) · Terreno: i boschi e il Vuoto
+📖 DESCRIZIONE — Leggi ai giocatori
+Prima arriva l'odore: pelo bagnato e carne vecchia.
+NOTA PER IL GM
+Sei lupi crudeli rabbiosi.
+Lupi crudeli rabbiosi (×6, o ×3):
+LUPO CRUDELE RABBIOSO · GS 4 · XP 1.200 — Lupo crudele (PF1e Bestiario, segnalato)
+Animale Grande | Neutrale
+Iniziativa +4 | Sensi: visione crepuscolare, fiuto | Percezione +12
+── DIFESA ──
+CA 18 (contatto 11, colto alla sprovvista 16) [10 + 2 Des + 7 naturale − 1 taglia]
+PF 47 (5d8+25) — Punti Fatica 23 / Punti Ferita 24
+── TATTICHE ──
+Due per bersaglio.
+💰 RICOMPENSE
+XP: 7.200 (6 × 1.200) · +200 se li allontanano col fuoco"""
+
+def prova5b(browser, larghezza):
+    """Build 5b: incontri (AG3)."""
+    ctx = browser.new_context(viewport={'width': larghezza, 'height': 820 if larghezza > 500 else 780})
+    pg = ctx.new_page(); errori = []
+    pg.on('console', lambda m: m.type == 'error' and errori.append(m.text))
+    pg.on('pageerror', lambda e: errori.append(str(e)))
+    pg.goto(URL); pg.wait_for_selector('text=Crea Schermo campagna')
+    W = f'[{larghezza} 5b]'
+    def fin(): return pg.locator('.velo').last
+    def premi(testo, f=None): (f or fin()).locator('footer button', has_text=re.compile('^' + testo + '$')).click()
+    def largo(nome):
+        sw = pg.evaluate('document.documentElement.scrollWidth'); t(f'{W} niente scorrimento orizzontale: {nome}', sw <= larghezza, sw)
+    pg.click('text=Carica una campagna d\'esempio'); pg.wait_for_timeout(300)
+    pg.locator('.camp', has_text='esempio').locator('[data-az="apri"]').click(); pg.wait_for_selector('.pg')
+    pg.click('#col-terza [data-az="scheda"][data-s="incontri"]')
+    pg.locator('[data-az="selIncontro"]', has_text='Agguato').click()
+    t(f'{W} AG3 vecchio tesoro nelle Ricompense', '💰 Ricompense' in pg.inner_text('#col-terza') and 'La sacca con la refurtiva' in pg.inner_text('#col-terza'))
+    # ---------- nuovo incontro con il bestiario
+    pg.click('[data-az="nuovoIncontro"]'); f = fin()
+    f.locator('[data-k="titolo"]').fill('Il guado'); f.locator('[data-k="descrizione"]').fill('Il fiume è **ingrossato**.')
+    f.locator('[data-ic="sceltaP"]').click(); sc = fin()
+    t(f'{W} AG3 scelta dal bestiario: tre raccolte e filtri', sc.locator('[data-sb="fonte"]').count() == 3 and sc.locator('select[data-sbf="tipo"] option').count() == 14 and sc.locator('select[data-sbf="ordine"]').count() == 1)
+    sc.locator('[data-sb="fonte"][data-f="mostro"]').click()
+    sc.locator('#sb-lista [data-sb="vedi"]').first.click()
+    t(f'{W} AG3 anteprima dello stat block', sc.locator('#sb-vista .sb').count() == 1)
+    sc.locator('[data-sb-q]').fill('3'); sc.locator('[data-sb="aggVista"]').click()
+    t(f'{W} AG3 aggiunto, la finestra resta aperta', sc.locator('#sb-testa .chip').count() == 1 and '×3' in sc.locator('#sb-testa').inner_text() and pg.locator('.velo').count() == 2)
+    sc.locator('[data-sb="nuova"]').click(); sk = fin()
+    sk.locator('[data-k="nome"]').first.fill('Barcaiolo del guado'); premi('Salva', sk); pg.wait_for_timeout(200)
+    t(f'{W} AG3 «+ Scheda» dalla scelta entra nell\'incontro', 'Barcaiolo del guado' in fin().locator('#sb-testa').inner_text(), fin().locator('#sb-testa').inner_text())
+    largo('scelta dal bestiario')
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'5b_scelta_{larghezza}.png'))
+    premi('Fatto'); f = fin()
+    t(f'{W} AG3 due partecipanti nella finestra', f.locator('select[data-inc="rif"]').count() == 2)
+    f.locator('[data-ic="aggX"]').click(); f.locator('[data-k="ricompense.xp_extra.0.xp"]').fill('200'); f.locator('[data-k="ricompense.xp_extra.0.motivo"]').fill('via pacifica')
+    f.locator('[data-ic-c="tesoro"]').check(); f.locator('[data-k="ricompense.tesoro.livello"]').fill('7'); f.locator('[data-k="ricompense.testo"]').fill('Informazione: la barca è a monte.')
+    largo('finestra dell\'incontro'); premi('Crea')
+    v = pg.locator('#col-terza')
+    if SHOT: v.screenshot(path=os.path.join(SHOT, f'5b_incontro_{larghezza}.png'))
+    t(f'{W} AG3 descrizione riducibile', v.locator('details.descr-inc[open]').count() == 1 and 'ingrossato' in v.locator('details.descr-inc').inner_text())
+    t(f'{W} AG3 ricompense', '+200' in v.inner_text() and 'via pacifica' in v.inner_text() and 'Livello di riferimento: 7' in v.inner_text() and 'la barca è a monte' in v.inner_text(), v.inner_text()[-500:])
+    # ---------- copia come testo
+    v.locator('[data-az="copiaIncontro"]').click(); premi('Con gli stat block')
+    testo_inc = fin().locator('textarea[name="t"]').input_value()
+    t(f'{W} AG3 Copia come testo con gli stat block', testo_inc.startswith('INCONTRO — Il guado') and '📖 DESCRIZIONE' in testo_inc and '+200 via pacifica' in testo_inc and 'BARCAIOLO DEL GUADO' in testo_inc.upper(), testo_inc[:300])
+    premi('Chiudi')
+    # ---------- incolla incontro: dal testo copiato (schede trovate) e da un documento (scheda nuova)
+    pg.click('[data-az="incollaIncontro"]'); fin().locator('textarea[name="t"]').fill(testo_inc); premi('Leggi'); f = fin()
+    t(f'{W} AG3 Incolla: schede trovate nel bestiario', f.locator('.imp-stato.ok').count() == 2 and f.locator('[data-k="titolo"]').input_value() == 'Il guado', f.locator('.imp-stato').all_inner_texts())
+    f.locator('[data-k="titolo"]').fill('Il guado (bis)'); premi('Crea')
+    t(f'{W} AG3 incontro dall\'incolla creato', pg.locator('[data-az="selIncontro"]', has_text='Il guado (bis)').count() == 1)
+    nm = pg.evaluate('Best.mostri.length')
+    pg.click('[data-az="incollaIncontro"]'); fin().locator('textarea[name="t"]').fill(EI16); premi('Leggi'); f = fin()
+    if SHOT: pg.screenshot(path=os.path.join(SHOT, f'5b_incolla_{larghezza}.png'))
+    t(f'{W} AG3 documento: scheda nuova da creare', f.locator('.imp-stato.nuova').count() == 1 and f.locator('select[data-imp="dest"]').input_value() == 'mostro' and f.locator('[data-k="partecipanti.0.n"]').input_value() == '6')
+    largo('incontro incollato'); premi('Crea')
+    t(f'{W} AG3 documento: scheda creata nei mostri e incontro', pg.evaluate('Best.mostri.length') == nm + 1 and pg.locator('[data-az="selIncontro"]', has_text='EI 16').count() == 1)
+    # ---------- ordine
+    titoli = lambda: [x.strip() for x in pg.locator('#col-terza .cartella').first.locator('.voce-nome').all_inner_texts()]
+    prima = titoli()
+    pg.locator('select[data-az-cambio="ordineInc"]').select_option('alfabetico')
+    t(f'{W} AG3 ordine alfabetico', titoli() == sorted(prima, key=str.lower), titoli())
+    pg.locator('select[data-az-cambio="ordineInc"]').select_option('manuale'); pg.click('[data-az="modoSposta"]')
+    dopo = titoli(); pg.locator('[data-az="spostaInc"][data-d="1"]').first.click()
+    t(f'{W} AG3 sposta giù', titoli()[0] == dopo[1] and titoli()[1] == dopo[0], titoli())
+    pg.click('[data-az="modoSposta"]')
+    # ---------- avvio dall'incontro con 📖
+    pg.locator('[data-az="selIncontro"]', has_text='Il guado (bis)').click(); pg.click('#col-terza [data-az="avviaIncontro"]')
+    pg.locator('#avvio [data-az="infoIncontro"]').click()
+    t(f'{W} AG3 📖 nell\'avvio: descrizione e ricompense', 'ingrossato' in fin().inner_text() and 'via pacifica' in fin().inner_text())
+    premi('Chiudi')
+    t(f'{W} nessun errore in console', not errori, errori[:3])
+    ctx.close()
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (1366, 390):
-        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4, prova4b, prova5a):
+        for f in (prova, prova2a, prova2b, prova2c, prova3a, prova3b, prova4, prova4b, prova5a, prova5b):
             if os.environ.get('SOLO') and f.__name__ not in os.environ['SOLO'].split(','): continue
             try: f(b, w)
             except Exception as e: ko += 1; print('ERRORE', w, f.__name__, 'interrotta:', ' | '.join(str(e).split('\n')[:3])[:400])

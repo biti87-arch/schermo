@@ -1678,5 +1678,74 @@ Descrizione: lupi grandi come cavalli, con le costole fuori dalla pelle.`;
   t('AG2 filtro Etichetta dal menu (automatica)', M.cercaSchede(lista, { etichetta: 'criptoreo' }).length === 1 && M.cercaSchede(lista, { etichetta: 'Capo' })[0].nome === 'Grok');
   t('AG2 cercaSchede con l\'ordine', M.cercaSchede(lista, { ordine: 'gs_desc' })[0].nome === 'Grok' && M.cercaSchede(lista, { ordine: 'gs_desc' })[1].nome === 'Mangiamarcio');
 }
+
+{ // ================================================================ Build 5b: incontri (AG3)
+  let c = M.clona(c1);
+  const lupo = { ...M.schedaVuota('mostro_pf1'), id: 'm1', nome: 'Lupo crudele deformato', gs: '4', xp: 1200, iniziativa: 4 };
+  const schede = { 'mostro:m1': lupo }, schedaDi = r => r ? schede[r.fonte + ':' + r.id] || null : null;
+  // AG3-B: descrizione, ricompense, migrazione del vecchio tesoro
+  const vecchio = M.clona(c); vecchio.incontri = [{ id: 'i9', titolo: 'Vecchio', atto: '', capitolo: '', luogo: '', stato: 'da giocare', giocato_R: null, note: '', tesoro: 'La sacca con la refurtiva', partecipanti: [], promemoria: [] }]; delete vecchio.ordine_incontri;
+  const mg = M.migra(vecchio);
+  t('AG3 migrazione: tesoro nelle note del 💰', mg.incontri[0].ricompense.tesoro.note === 'La sacca con la refurtiva' && mg.incontri[0].tesoro === '' && mg.incontri[0].descrizione === '' && mg.ordine_incontri === 'manuale');
+  c = M.salvaIncontro(c, { titolo: 'Il branco', atto: 'Atto III', capitolo: 'Eventi', descrizione: 'Prima arriva l\'odore.', note: 'Sei lupi.', partecipanti: [{ rif: { fonte: 'mostro', id: 'm1' }, nome: 'Lupo crudele deformato', n: 6, modo: 'tipo' }],
+    promemoria: [{ round: 2, testo: 'ululato' }], ricompense: { xp_extra: [{ xp: 200, motivo: 'via pacifica' }], tesoro: { livello: '12', quantita: '1 primario', dove: 'fra le radici', note: '' }, testo: 'Informazione: non mangiano da anni.' } });
+  const inc = c.incontri.find(x => x.titolo === 'Il branco');
+  const xp = M.xpIncontro(inc, schedaDi);
+  t('AG3 XP calcolati + XP in più', xp.totale === 7200 && xp.extra === 200 && xp.tutto === 7400, xp);
+  lancia('AG3 XP in più non validi', () => M.salvaIncontro(c, { ...inc, ricompense: { xp_extra: [{ xp: -1, motivo: 'x' }] } }), 'XP in più');
+  // AG3-C copia come testo e incolla
+  const tx = M.testoIncontro(inc, schedaDi, { statblock: true });
+  t('AG3 Copia come testo', /^INCONTRO — Il branco\nAtto: Atto III · Capitolo: Eventi\n\n📖 DESCRIZIONE\nPrima arriva l'odore\.\n\nNOTE\nSei lupi\.\n\nPARTECIPANTI\n- Lupo crudele deformato \(×6\) · GS 4\n\nPROMEMORIA\nRound 2: ululato\n\n💰 RICOMPENSE\nXP: 7\.200 \(nemici\) · \+200 via pacifica\n💰 TESORO — da generare · Livello di riferimento: 12 · Quantità: 1 primario · Dove: fra le radici\nInformazione: non mangiano da anni\.\n\nLUPO CRUDELE DEFORMATO/.test(tx), tx);
+  const trova = nome => M.normNome(nome) === M.normNome(lupo.nome) ? { rif: { fonte: 'mostro', id: 'm1' }, scheda: lupo } : null;
+  const r = M.leggiIncontro(tx, trova), ri = r.incontro;
+  t('AG3 Incolla: andata e ritorno', ri.titolo === 'Il branco' && ri.atto === 'Atto III' && ri.capitolo === 'Eventi' && ri.descrizione === 'Prima arriva l\'odore.' && ri.note === 'Sei lupi.' && ri.promemoria.length === 1 && ri.promemoria[0].round === 2, ri);
+  t('AG3 Incolla: ricompense', ri.ricompense.xp_extra.length === 1 && ri.ricompense.xp_extra[0].xp === 200 && ri.ricompense.xp_extra[0].motivo === 'via pacifica' && ri.ricompense.tesoro.livello === '12' && ri.ricompense.tesoro.dove === 'fra le radici' && ri.ricompense.testo === 'Informazione: non mangiano da anni.', ri.ricompense);
+  t('AG3 Incolla: partecipante trovato nel bestiario', r.voci.length === 1 && r.voci[0].stato === 'trovata' && r.voci[0].n === 6 && r.voci[0].rif.id === 'm1', r.voci);
+  // da un documento d'avventura (Eventi dell'Isola, EI 16)
+  const doc = `EI 16 — Il branco
+⚔ Combattimento · Difficoltà: Facile (GS 9–10) · Terreno: i boschi e il Vuoto
+📖 DESCRIZIONE — Leggi ai giocatori
+Prima arriva l'odore: pelo bagnato e carne vecchia.
+Arrivano da tre lati, senza fretta.
+NOTA PER IL GM
+Sei lupi crudeli deformati (tre, se il branco della tana è già distrutto).
+Lupi crudeli rabbiosi (×6, o ×3):
+LUPO CRUDELE RABBIOSO · GS 4 · XP 1.200 — Lupo crudele (PF1e Bestiario, segnalato), modello avanzato
+Animale Grande | Neutrale
+Iniziativa +4 | Sensi: visione crepuscolare, fiuto | Percezione +12
+── DIFESA ──
+CA 18 (contatto 11, colto alla sprovvista 16) [10 + 2 Des + 7 naturale − 1 taglia]
+PF 47 (5d8+25) — Punti Fatica 23 / Punti Ferita 24
+── TATTICHE ──
+Due per bersaglio. Con metà del branco a terra, i rimasti scappano.
+SVOLGIMENTO
+Round 3: il capobranco ulula.
+💰 RICOMPENSE
+XP: 7.200 (6 × 1.200) · 3.600 con tre lupi · +200 se li allontanano col fuoco
+💰 TESORO — da generare · Livello di riferimento: 12 · Quantità: 1 primario (secondario no) · Dove: fra le radici · Note: niente di delicato`;
+  const d = M.leggiIncontro(doc, () => null), di = d.incontro;
+  t('AG3 documento: titolo e descrizione', di.titolo === 'EI 16 — Il branco' && di.descrizione === 'Prima arriva l\'odore: pelo bagnato e carne vecchia.\nArrivano da tre lati, senza fretta.', di);
+  t('AG3 documento: note con la riga sotto il titolo e le sezioni senza campo', /^⚔ Combattimento · Difficoltà/.test(di.note) && di.note.includes('Sei lupi crudeli deformati') && di.note.includes('**SVOLGIMENTO**') && di.note.includes('Round 3: il capobranco ulula.') && !di.note.includes('CA 18'), di.note);
+  t('AG3 documento: partecipante dal «(×6, o ×3)» e dal blocco', d.voci.length === 1 && d.voci[0].stato === 'nuova' && d.voci[0].n === 6 && d.voci[0].nota === 'o ×3' && d.voci[0].scheda.ca === 18 && d.voci[0].dest === 'mostro', d.voci.map(v => [v.nome, v.n, v.nota, v.stato, v.dest]));
+  t('AG3 documento: ricompense', di.ricompense.xp_extra.length === 1 && di.ricompense.xp_extra[0].xp === 200 && di.ricompense.testo === 'XP: 7.200 (6 × 1.200) · 3.600 con tre lupi' && di.ricompense.tesoro.quantita === '1 primario (secondario no)', di.ricompense);
+  t('AG3 documento: la scheda nuova non prende il testo dell\'incontro', !d.voci[0].scheda.descrizione_estesa);
+  const dv = M.leggiIncontro(doc, nome => M.normNome(nome) === 'lupo crudele rabbioso' ? { rif: { fonte: 'mostro', id: 'm1' }, scheda: lupo } : null);
+  t('AG3 stesso nome, contenuto diverso', dv.voci[0].stato === 'trovata' && dv.voci[0].diverso && dv.voci[0].scelta === 'usa');
+  // AG3-D ordine
+  c = M.salvaIncontro(c, { titolo: 'Zeta', atto: 'Atto III', capitolo: 'Eventi', partecipanti: [], promemoria: [] });
+  c = M.salvaIncontro(c, { titolo: 'Alfa', atto: 'Atto III', capitolo: 'Eventi', partecipanti: [], promemoria: [] });
+  const nomi = cc => M.cartelle(cc).find(a => a.atto === 'Atto III').capitoli[0].incontri.map(i => i.titolo).join('|');
+  t('AG3 manuale: i nuovi in fondo', nomi(c) === 'Il branco|Zeta|Alfa', nomi(c));
+  const idA = c.incontri.find(i => i.titolo === 'Alfa').id, idB = c.incontri.find(i => i.titolo === 'Il branco').id;
+  let c2 = M.spostaIncontro(c, idA, -1); t('AG3 sposta su', nomi(c2) === 'Il branco|Alfa|Zeta', nomi(c2));
+  c2 = M.spostaIncontro(c2, idB, -1); t('AG3 il primo non sale', nomi(c2) === 'Il branco|Alfa|Zeta');
+  c2 = M.spostaIncontro(c2, idB, { prima: null }); t('AG3 trascinato in fondo', nomi(c2) === 'Alfa|Zeta|Il branco', nomi(c2));
+  c2 = M.spostaIncontro(c2, idB, { prima: idA }); t('AG3 trascinato prima di un altro', nomi(c2) === 'Il branco|Alfa|Zeta', nomi(c2));
+  c2 = M.impostaOrdineIncontri(c2, 'alfabetico'); t('AG3 alfabetico', nomi(c2) === 'Alfa|Il branco|Zeta' && c2.ordine_incontri === 'alfabetico');
+  lancia('AG3 con l\'alfabetico non si sposta', () => M.spostaIncontro(c2, idA, 1), 'alfabetico');
+  c2 = M.salvaIncontro(c2, { titolo: 'Beta', atto: 'Atto III', capitolo: 'Eventi', partecipanti: [], promemoria: [] });
+  t('AG3 alfabetico: i nuovi al loro posto', nomi(c2) === 'Alfa|Beta|Il branco|Zeta', nomi(c2));
+  c2 = M.impostaOrdineIncontri(c2, 'manuale'); t('AG3 di nuovo manuale: si parte dall\'alfabetico', nomi(c2) === 'Alfa|Beta|Il branco|Zeta' && c2.ordine_incontri === 'manuale', nomi(c2));
+}
 console.log(`test: ${ok} superati, ${ko} falliti`);
 process.exit(ko ? 1 : 0);
