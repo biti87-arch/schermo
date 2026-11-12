@@ -34,6 +34,17 @@ with sync_playwright() as p:
     tj = json.load(open(os.path.join(CFG, 'Schermo del Narratore', 'tv.json')))
     t('Ripristina: 640 × 360 in alto a destra, sbloccata', tj['bloccata'] is False and tj['bounds']['width'] == 640 and tj['bounds']['height'] == 360 and tj['bounds']['y'] >= 0, tj)
     t('Ripristina: blocco tolto nella TV', 'bloccata' not in (tv.evaluate('document.body.className') or ''))
+    # AD10 Ruota: quarto di giro, lati scambiati, anche con la finestra bloccata; Ripristina torna a 0°
+    leggi = lambda: json.load(open(os.path.join(CFG, 'Schermo del Narratore', 'tv.json')))
+    main.evaluate("window.schermoDesktop.tv.comando('blocca')"); main.wait_for_timeout(300)
+    r = main.evaluate("window.schermoDesktop.tv.comando('ruota')"); main.wait_for_timeout(800); tj = leggi()
+    t('Ruota (anche bloccata): 90°, 360 × 640 nello stesso angolo', r.get('rot') == 90 and tj['rot'] == 90 and tj['bounds']['width'] == 360 and tj['bounds']['height'] == 640 and tj['bloccata'] is True, [r, tj])
+    t('Ruota: la TV gira il contenuto', tv.evaluate("document.getElementById('tv-corpo').dataset.rot") == '90' and info()['rot'] == 90)
+    t('a 90° il contenuto sta tutto nella finestra', tv.evaluate("(() => { const c = document.querySelector('.tv-c'), a = document.querySelector('.tv').getBoundingClientRect(); return c.scrollHeight <= c.clientHeight + 1 && a.right <= innerWidth + 1 && a.bottom <= innerHeight + 1 && a.left >= -1 && a.top >= -1; })()"))
+    main.evaluate("window.schermoDesktop.tv.comando('ruota')"); main.wait_for_timeout(800); tj = leggi()
+    t('Ruota: 180°, di nuovo 640 × 360', tj['rot'] == 180 and tj['bounds']['width'] == 640 and tj['bounds']['height'] == 360, tj)
+    main.evaluate("window.schermoDesktop.tv.comando('ripristina')"); main.wait_for_timeout(800); tj = leggi()
+    t('Ripristina: 0° e 640 × 360', tj['rot'] == 0 and tj['bounds']['width'] == 640 and tv.evaluate("document.getElementById('tv-corpo').dataset.rot") == '0', tj)
     main.click('[data-az="menuTV"]'); f = main.locator('.velo').last
     t('menu TV dell\'app: Sposta grigio con uno schermo, niente «Usa il riquadro»', f.locator('[data-tv="sposta"]').is_disabled() and f.locator('[name="riq"]').count() == 0 and 'Un solo schermo' in f.inner_text())
     f.locator('footer button').last.click()

@@ -1,4 +1,4 @@
-# Schermo del Narratore — design dell'app v27
+# Schermo del Narratore — design dell'app v28
 
 *App per il GM della Collana (GDR basato su Pathfinder 1e, regole della Collana). Repo `biti87-arch/schermo`, pacchetto `it.collana.schermo`, prefisso dei file `Schermo`. Decisioni confermate da Massy in chat il 26/10/2026, passi 1–7.*
 
@@ -54,6 +54,8 @@
 *v26 (08/11/2026): **Build 5c fatta** (AG4): scelte di applicazione confermate in chat in 3 passi (Z8-1…Z8-17, con il formato JSON `schermo-eventi`), motore 970 test (59 nuovi), pagina 909 controlli a 1366 e 390 px, artifact versione 20; altre scelte Z8-18…Z8-24 da confermare sulla pagina di prova; dopo la prima prova di Massy il riscontro dei tiri automatici (Z8-25…Z8-28, confermato). Commit locale sul ramo `sviluppo`, niente push.*
 
 *v27 (08/11/2026): **Build 5c confermata** da Massy (Z8-1…Z8-28, «confermo tutto anche le proposte da Z8-18 a Z8-24»): push su `sviluppo` e `main`, release.*
+
+*v28 (12/11/2026): **rotazione della TV** (AD10, richiesta di Massy, confermata in chat il 12/11): comando «Ruota ↻» nel menu TV, quarto di giro in senso orario, lati scambiati, orientamento in `tv.json`; codice, test e pagina di prova (artifact versione 22) fatti; **confermata da Massy** il 12/11 («perfetto confermo»): push su `sviluppo` e `main`, release.*
 ## STATO LAVORO
 
 | Parte | Stato |
@@ -92,6 +94,7 @@
 | Passo 11.6 — Icona (AD6) | ✅ 02/11 |
 | Passo 11.7 — Numeri di versione del primo rilascio (AD7) | ✅ 02/11 |
 | Passo 11.8 — Aspetto della TV e meteo sulla TV (AD8, AD9; dopo la prima prova) | ✅ 02/11 |
+| Passo 11.9 — Rotazione della TV (AD10) | ✅ 12/11 (decisioni, pagina di prova confermata, push e release) |
 | Passo 12.1 — Colonne che scorrono da sole (AE) | ✅ 03/11 |
 | Passo 12.2 — Bestiario dalla pagina iniziale, esportazione e importazione (AF) | ✅ 03/11 |
 | Build 4b — Colonne e bestiario (AE, AF) | ✅ pagina di prova confermata il 03/11 (artifact v17, Z5-1…Z5-7); rilascio `v1.0.3` / `win-1.0.3` |
@@ -529,7 +532,7 @@ Le impostazioni TV valgono nell'app Windows e nella versione web; nell'app Andro
 - **V2** **Electron**:
   - `desktop/main.js` con la finestra principale e la finestra TV (`tv.html`);
   - `preload.js` con `contextBridge` per salvataggi, finestra TV e tasti globali (`globalShortcut` F9 sempre, F10 solo durante un combattimento con l'impostazione accesa; avviso se un altro programma li tiene);
-  - `screen.getAllDisplays()` per «Sposta sulla TV»; `tv.json` in `userData` con posizione, dimensione, schermo e blocco; schermo assente all'avvio → posizione predefinita sullo schermo principale;
+  - `screen.getAllDisplays()` per «Sposta sulla TV»; `tv.json` in `userData` con posizione, dimensione, schermo, blocco e orientamento (AD10); schermo assente all'avvio → posizione predefinita sullo schermo principale;
   - il contenuto della TV è disegnato dalla stessa funzione in Electron, Picture-in-Picture, finestra del browser e riquadro (AD5); lo stato da mostrare lo calcola il motore (`statoTV`);
   - chiudendo la finestra principale si chiude anche la TV e l'app esce.
 - **V3** **Salvataggi**:
@@ -903,12 +906,13 @@ Una nascosta fuori combattimento resta nascosta; una rivelata compare al suo pos
 | Automatico (AD1) | con «Solo durante…» acceso si apre all'avvio e si chiude alla fine del combattimento; F9 vale fino all'evento automatico successivo |
 | **Sposta sulla TV** | porta la finestra sullo schermo successivo (con due schermi, l'altro), con la stessa dimensione e nello stesso angolo; con un solo schermo è grigio («Un solo schermo collegato») |
 | **Blocca posizione** (casella) | la finestra non si trascina né si ridimensiona finché non la sblocchi |
-| **Ripristina** | dimensione e posizione predefinite (640 × 360 nell'angolo in alto a destra dello schermo attuale) e finestra sbloccata |
+| **Ripristina** | dimensione e posizione predefinite (640 × 360 nell'angolo in alto a destra dello schermo attuale), finestra sbloccata e orientamento 0° (AD10) |
+| **Ruota ↻** | quarto di giro in senso orario (AD10) |
 | Trascinare / ridimensionare | da qualsiasi punto / dai bordi |
 | **F10** (impostazione della campagna, spenta) | = **Avanti**, tiri automatici compresi; attivo solo durante un combattimento con l'impostazione accesa; senza combattimento non fa nulla |
 
 - **Indietro** resta solo nell'app (un tasto globale per annullare si preme troppo facilmente per sbaglio).
-- Posizione, dimensione, schermo e blocco in `tv.json` nei dati dell'app: valgono per il PC, non per la campagna. Se all'avvio quello schermo non c'è (TV spenta), posizione predefinita sullo schermo principale.
+- Posizione, dimensione, schermo, blocco e orientamento (AD10) in `tv.json` nei dati dell'app: valgono per il PC, non per la campagna. Se all'avvio quello schermo non c'è (TV spenta), posizione predefinita sullo schermo principale.
 - Tasto occupato da un altro programma: avviso nell'app («F9 è già usato da un altro programma: usa il pulsante TV»).
 - Chiudendo la finestra principale si chiude anche la TV e l'app esce; la TV non ha una «X» (si nasconde con F9 o dal menu).
 
@@ -969,6 +973,29 @@ Stile delle altre app (simbolo piatto d'ottone #CCA860 su fondo scuro sfumato da
 | Testo lungo | si rimpicciolisce da solo (vedi «Adattamento alla finestra» in AD8) |
 | Piede | col meteo aperto solo data e ora |
 | Più effetti | ognuno con il suo nome in oro; con un solo effetto uguale al tempo il nome non si ripete |
+
+### AD10. Rotazione della TV (richiesta di Massy, confermata il 12/11)
+
+| Punto | Scelta |
+|---|---|
+| Comando | pulsante **Ruota ↻** nel menu TV, accanto a Sposta e Ripristina, con l'orientamento attuale accanto («0°», «90°», «180°», «270°») |
+| Cosa fa | un quarto di giro in senso orario a ogni clic; dopo 270° torna a 0° |
+| Cosa ruota | tutta la TV (cornice, titolo, «Ora agisce», timer, prossimi, meteo): è la stessa funzione di disegno |
+| La finestra | a ogni quarto di giro **larghezza e altezza si scambiano** (640 × 360 → 360 × 640) e la finestra resta nell'angolo dello schermo più vicino; se non ci sta si riduce e resta dentro l'area di lavoro; minimo 240 × 135, girato a 90° e 270° |
+| A 180° | stessa finestra, contenuto capovolto (giocatori dall'altro lato del tavolo) |
+| Con «Blocca posizione» | Ruota funziona lo stesso (come Sposta) e la finestra resta bloccata |
+| Ripristina | torna anche a 0° |
+| Dove si salva | `tv.json` (`rot`), con posizione e blocco: vale per il PC, non per la campagna |
+| Versione web | il riquadro gira e scambia i lati della TV (la barra resta sopra) e resta nel suo angolo; Picture-in-Picture e finestra del browser girano solo il contenuto; orientamento salvato nella pagina con la posizione del riquadro |
+| Android | niente (non c'è la TV) |
+| Tasto | nessuno |
+| Log | niente |
+
+Applicazione (12/11):
+- **AD10-1** Il giro lo fa il CSS della TV (`CSS_TV`): il contenitore ha `data-rot` e `container-type:size`; a 90° e 270° la TV prende larghezza = altezza del contenitore e viceversa e gira con `transform`. Le misure in `cqmin` (AD8) e l'adattamento del testo (`adatta_tv.js`) lavorano sulle misure non girate, quindi restano uguali.
+- **AD10-2** Ruota lascia aperto il menu TV (si gira più volte di seguito); l'orientamento accanto al pulsante si aggiorna.
+- **AD10-3** Electron: `tv_posizione.js` → `ruota` (lati scambiati nello stesso angolo), `rotOk`, `dopo`, `minimo`; `main.js` → comando `ruota`, `tv:rotazione` alla finestra TV, `rot` in `tv.json` e in `tv:info`; con la finestra bloccata si sblocca un istante per cambiare le misure, come Sposta.
+- **AD10-4** Prove: `test_archivio.js` 27 (6 nuovi); pagina 940 controlli a 1366 e 390 px (12 nuovi); prova Electron 27 (5 nuovi: Ruota anche bloccata, 360 × 640, contenuto dentro la finestra, 180°, Ripristina).
 
 ### AD7. Numeri di versione del primo rilascio (passo 7)
 

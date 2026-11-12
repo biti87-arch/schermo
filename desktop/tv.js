@@ -9,4 +9,6 @@ window.schermoTV.suContenuto(x => {
 function adatta() { adattaTV(document.body); }
 window.addEventListener('resize', adatta);
 window.schermoTV.suBlocco(b => document.body.classList.toggle('bloccata', !!b));
+// AD10: orientamento (0, 90, 180, 270); il giro lo fa CSS_TV con [data-rot]
+window.schermoTV.suRotazione(r => { corpo.dataset.rot = String(r || 0); adatta(); });
 if (document.fonts) document.fonts.ready.then(adatta); // i caratteri arrivano dopo il primo disegno

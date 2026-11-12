@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { crea } = require('./archivio');
 const tvPos = require('./tv_posizione');
-let archivio = null, principale = null, tv = null, tvStato = { bounds: null, bloccata: false }, f9ok = true, f10su = false, tvSalvaT = null;
+let archivio = null, principale = null, tv = null, tvStato = { bounds: null, bloccata: false, rot: 0 }, f9ok = true, f10su = false, tvSalvaT = null;
 
 function finestra() {
   principale = new BrowserWindow({
@@ -21,7 +21,7 @@ function finestra() {
 
 // ---------------------------------------------------------------- finestra TV (sezione L e AD3)
 const fileTv = () => path.join(app.getPath('userData'), 'tv.json');
-function leggiTv() { try { const x = JSON.parse(fs.readFileSync(fileTv(), 'utf8')); return { bounds: x.bounds || null, bloccata: !!x.bloccata }; } catch (e) { return { bounds: null, bloccata: false }; } }
+function leggiTv() { try { const x = JSON.parse(fs.readFileSync(fileTv(), 'utf8')); return { bounds: x.bounds || null, bloccata: !!x.bloccata, rot: tvPos.rotOk(x.rot) }; } catch (e) { return { bounds: null, bloccata: false, rot: 0 }; } }
 function scriviTv() {
   clearTimeout(tvSalvaT);
   tvSalvaT = setTimeout(() => { try { const f = fileTv(), tmp = f + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(tvStato, null, 1)); fs.renameSync(tmp, f); } catch (e) { /* facoltativo */ } }, 500);
@@ -29,16 +29,16 @@ function scriviTv() {
 const schermi = () => screen.getAllDisplays().map(d => ({ id: d.id, area: d.workArea }));
 function creaTv() {
   tvStato = leggiTv();
-  const b = tvPos.iniziale(tvStato.bounds, schermi(), screen.getPrimaryDisplay().workArea);
+  const b = tvPos.iniziale(tvStato.bounds, schermi(), screen.getPrimaryDisplay().workArea), [mw, mh] = tvPos.minimo(tvStato.rot);
   tv = new BrowserWindow({
-    ...b, minWidth: 240, minHeight: 135, show: false, frame: false, skipTaskbar: true, alwaysOnTop: true,
+    ...b, minWidth: mw, minHeight: mh, show: false, frame: false, skipTaskbar: true, alwaysOnTop: true,
     resizable: !tvStato.bloccata, movable: !tvStato.bloccata, minimizable: false, maximizable: false, fullscreenable: false,
     title: 'Schermo del Narratore — TV', backgroundColor: '#15120E', icon: path.join(__dirname, 'icon.png'),
     webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, 'preload_tv.js') }
   });
   tv.setAlwaysOnTop(true, 'screen-saver'); // sopra Foundry a schermo intero
   tv.loadFile(path.join(__dirname, 'tv.html'));
-  tv.webContents.on('did-finish-load', () => tv.webContents.send('tv:blocco', tvStato.bloccata));
+  tv.webContents.on('did-finish-load', () => { tv.webContents.send('tv:blocco', tvStato.bloccata); tv.webContents.send('tv:rotazione', tvStato.rot); });
   const ricorda = () => { if (tv && !tv.isDestroyed()) { tvStato.bounds = tv.getBounds(); scriviTv(); } };
   tv.on('moved', ricorda); tv.on('resized', ricorda);
   tv.on('close', e => { if (principale) { e.preventDefault(); tv.hide(); } }); // niente «X»: si nasconde
@@ -46,6 +46,14 @@ function creaTv() {
 function bloccaTv(si) {
   tvStato.bloccata = !!si; scriviTv();
   if (tv) { tv.setMovable(!si); tv.setResizable(!si); tv.webContents.send('tv:blocco', !!si); }
+}
+// AD10: quarto di giro in senso orario; larghezza e altezza si scambiano, la finestra resta nel suo angolo (anche bloccata, come «Sposta»)
+function impostaRot(r, bounds) {
+  tvStato.rot = tvPos.rotOk(r);
+  const [mw, mh] = tvPos.minimo(tvStato.rot); tv.setMinimumSize(mw, mh);
+  if (bounds) { const era = tvStato.bloccata; if (era) { tv.setMovable(true); tv.setResizable(true); } tv.setBounds(bounds); if (era) { tv.setMovable(false); tv.setResizable(false); } }
+  tv.webContents.send('tv:rotazione', tvStato.rot);
+  tvStato.bounds = tv.getBounds(); scriviTv();
 }
 function f10(acceso) {
   if (acceso === f10su) return;
@@ -75,11 +83,12 @@ app.whenReady().then(() => {
     else if (!s.visibile && tv.isVisible()) tv.hide();
     f10(!!s.f10);
   });
-  ipcMain.handle('tv:info', () => ({ schermi: screen.getAllDisplays().length, bloccata: tvStato.bloccata, visibile: !!(tv && tv.isVisible()), f9: f9ok }));
+  ipcMain.handle('tv:info', () => ({ schermi: screen.getAllDisplays().length, bloccata: tvStato.bloccata, visibile: !!(tv && tv.isVisible()), f9: f9ok, rot: tvStato.rot }));
   ipcMain.handle('tv:comando', (e, c) => {
     if (!tv) return { errore: 'finestra TV non disponibile' };
     if (c === 'blocca' || c === 'sblocca') { bloccaTv(c === 'blocca'); return { ok: true }; }
-    if (c === 'ripristina') { const d = screen.getDisplayMatching(tv.getBounds()); tv.setBounds(tvPos.predefinita(d.workArea)); bloccaTv(false); tvStato.bounds = tv.getBounds(); scriviTv(); return { ok: true }; }
+    if (c === 'ripristina') { const d = screen.getDisplayMatching(tv.getBounds()); bloccaTv(false); impostaRot(0, tvPos.predefinita(d.workArea)); return { ok: true }; }
+    if (c === 'ruota') { const d = screen.getDisplayMatching(tv.getBounds()); impostaRot(tvPos.dopo(tvStato.rot), tvPos.ruota(tv.getBounds(), d.workArea)); return { ok: true, rot: tvStato.rot }; }
     if (c === 'sposta') {
       const r = tvPos.sposta(tv.getBounds(), schermi(), screen.getDisplayMatching(tv.getBounds()).id);
       if (!r) return { errore: 'Un solo schermo collegato' };

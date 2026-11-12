@@ -39,4 +39,11 @@ sp = P.sposta(sp.bounds, [PC, TVs], 2); t('TV: e ritorno', sp.indice === 0 && JS
 const piccola = { id: 3, area: { x: -800, y: 0, width: 800, height: 600 } };
 sp = P.sposta({ x: 1920 - 1000 - 20, y: 1040 - 700 - 20, width: 1000, height: 700 }, [PC, piccola], 1);
 t('TV: schermo più piccolo, dimensione ridotta, in basso a destra', sp.bounds.width === 800 && sp.bounds.height === 600 && sp.bounds.x === -800 && sp.bounds.y === 0);
+// AD10: rotazione della finestra TV
+let r1 = P.ruota(d, PC.area); t('TV ruotata: 360 × 640, sempre in alto a destra', r1.width === 360 && r1.height === 640 && r1.x + r1.width === d.x + d.width && r1.y === d.y);
+t('TV ruotata due volte: torna com\'era', JSON.stringify(P.ruota(r1, PC.area)) === JSON.stringify(d));
+r1 = P.ruota({ x: 10, y: 1040 - 360 - 10, width: 640, height: 360 }, PC.area); t('TV ruotata in basso a sinistra: resta in basso a sinistra', r1.x === 10 && r1.y + r1.height === 1040 - 10 && r1.width === 360);
+r1 = P.ruota({ x: 100, y: 100, width: 1600, height: 900 }, PC.area); t('TV ruotata più grande dello schermo: ridotta e dentro', r1.width === 900 && r1.height === 1040 && r1.y === 0 && r1.x >= 0 && r1.x + r1.width <= 1920);
+t('TV: orientamenti 0 → 90 → 180 → 270 → 0', P.dopo(0) === 90 && P.dopo(90) === 180 && P.dopo(180) === 270 && P.dopo(270) === 0 && P.rotOk(45) === 0 && P.rotOk('x') === 0);
+t('TV: minimo 240 × 135, girato a 90° e 270°', P.minimo(0).join() === '240,135' && P.minimo(90).join() === '135,240' && P.minimo(180).join() === '240,135' && P.minimo(270).join() === '135,240');
 console.log(`test archivio: ${ok} superati, ${ko} falliti`); process.exit(ko ? 1 : 0);

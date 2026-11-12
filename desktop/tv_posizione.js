@@ -26,4 +26,15 @@ function sposta(b, schermi, idAttuale) {
   const y = basso ? n.y + n.height - height - Math.min(my, n.height - height) : n.y + Math.min(my, n.height - height);
   return { bounds: { x, y, width, height }, indice: j };
 }
-module.exports = { predefinita, iniziale, sposta, LARGH, ALT };
+// «Ruota» (AD10): a ogni quarto di giro larghezza e altezza si scambiano; la finestra resta nell'angolo dello schermo più vicino e non esce dall'area di lavoro
+function ruota(b, a) {
+  const width = Math.min(b.height, a.width), height = Math.min(b.width, a.height);
+  const destra = (b.x + b.width / 2) > (a.x + a.width / 2), basso = (b.y + b.height / 2) > (a.y + a.height / 2);
+  let x = destra ? b.x + b.width - width : b.x, y = basso ? b.y + b.height - height : b.y;
+  x = Math.min(Math.max(x, a.x), a.x + a.width - width); y = Math.min(Math.max(y, a.y), a.y + a.height - height);
+  return { x, y, width, height };
+}
+const ROT = [0, 90, 180, 270], rotOk = r => ROT.includes(r) ? r : 0, dopo = r => (rotOk(r) + 90) % 360;
+// dimensione minima della finestra: 240 × 135, girata a 90° e 270°
+const minimo = r => rotOk(r) % 180 ? [135, 240] : [240, 135];
+module.exports = { predefinita, iniziale, sposta, ruota, rotOk, dopo, minimo, LARGH, ALT };

@@ -277,6 +277,7 @@ details.cartella>summary{cursor:pointer;font-family:var(--f-titolo);color:var(--
 @media (prefers-reduced-motion:no-preference){.btn,.ordine li{transition:background .15s,border-color .15s}}
 /* Build 4: finestra TV come riquadro nella pagina (versione web) */
 .tv-riq{position:fixed;z-index:40;display:flex;flex-direction:column;background:#15120E;border:1px solid var(--oro-scuro);border-radius:8px;box-shadow:var(--ombra);resize:both;overflow:hidden;min-width:200px;min-height:120px}
+.tv-riq.girata{min-width:120px;min-height:200px}
 .tv-riq[hidden]{display:none}.tv-riq.bloccata{resize:none}
 .tv-riq-barra{display:flex;gap:10px;align-items:center;padding:3px 10px;background:#28211A;cursor:move;user-select:none;touch-action:none;font-size:.8rem;color:var(--oro)}
 .tv-riq.bloccata .tv-riq-barra{cursor:default}.tv-riq-corpo{flex:1;min-height:0}
@@ -2845,7 +2846,11 @@ const CSS_TV = `.tv{container-type:size;--k:1;position:relative;width:100%;heigh
 .tv-cm-tit{font-family:'Spectral SC',Georgia,serif;font-weight:700;font-size:calc(7cqmin * var(--k));color:#F2C766;line-height:1.1}
 .tv-cm-ef{font-size:calc(3.9cqmin * var(--k));line-height:1.35;color:#E3D8C3}.tv-cm-ef b{font-family:'Spectral SC',Georgia,serif;color:#D4A84B;font-weight:700;margin-right:1.4cqmin}
 .tv-cm-mare{font-size:calc(3.9cqmin * var(--k));color:#9CC3D9}
-.tv.in-comb .tv-cm-tit{font-size:calc(5.2cqmin * var(--k))}`;
+.tv.in-comb .tv-cm-tit{font-size:calc(5.2cqmin * var(--k))}
+[data-rot]{container-type:size;position:relative;overflow:hidden}
+[data-rot="90"]>.tv,[data-rot="270"]>.tv{position:absolute;left:50%;top:50%;width:100cqh;height:100cqw;transform:translate(-50%,-50%) rotate(90deg)}
+[data-rot="270"]>.tv{transform:translate(-50%,-50%) rotate(-90deg)}
+[data-rot="180"]>.tv{transform:rotate(180deg)}`;
 function htmlTV(st) {
   const h = s => esc(s), ang = '<i class="tv-ang a1"></i><i class="tv-ang a2"></i><i class="tv-ang a3"></i><i class="tv-ang a4"></i>';
   const cornice = (corpo, cl = '') => `<div class="tv${cl}">${ang}<div class="tv-c">${corpo}</div></div>`;
@@ -2879,8 +2884,8 @@ __ADATTA__
 // stato della TV nella pagina: manuale = F9 o menu, valido fino al prossimo evento automatico (inizio o fine del combattimento, altra campagna)
 const TV = { meteo: false, manuale: null, campId: undefined, comb: null, visibile: false, modo: null, win: null, apertura: null, ultimo: '', ultimoDesk: '', chiudoIo: false };
 const RIQ_DEF = () => window.innerWidth < 600 ? { x: 8, y: window.innerHeight - 228, w: window.innerWidth - 16, h: 220 } : { x: window.innerWidth - 492, y: window.innerHeight - 282, w: 480, h: 270 };
-const Riq = (() => { let p = null; try { p = JSON.parse(leggiPref('tv-riquadro') || 'null'); } catch (e) { p = null; } return { pos: p && p.pos || null, bloccata: !!(p && p.bloccata), usa: leggiPref('tv-usa-riquadro') === '1' }; })();
-function salvaRiq() { scriviPref('tv-riquadro', JSON.stringify({ pos: Riq.pos, bloccata: Riq.bloccata })); }
+const Riq = (() => { let p = null; try { p = JSON.parse(leggiPref('tv-riquadro') || 'null'); } catch (e) { p = null; } return { pos: p && p.pos || null, bloccata: !!(p && p.bloccata), rot: [90, 180, 270].includes(p && p.rot) ? p.rot : 0, usa: leggiPref('tv-usa-riquadro') === '1' }; })();
+function salvaRiq() { scriviPref('tv-riquadro', JSON.stringify({ pos: Riq.pos, bloccata: Riq.bloccata, rot: Riq.rot })); }
 function campTV() { return S.schermata === 'campagne' ? null : S.camp; }
 function aggiornaTV() {
   if (ANDROID) return;
@@ -2901,9 +2906,20 @@ function corpoWeb() {
 }
 function mostraWeb(html) {
   const cor = corpoWeb();
-  if (cor) { if (TV.ultimo !== html) { cor.innerHTML = html; TV.ultimo = html; adattaTV(cor); } return; }
+  if (cor) { if (TV.ultimo !== html) { cor.innerHTML = html; TV.ultimo = html; cor.dataset.rot = String(Riq.rot); adattaTV(cor); } else applicaRotWeb(); return; }
   if (TV.apertura) return;
   TV.apertura = apriWeb().then(() => { TV.apertura = null; TV.ultimo = ''; aggiornaTV(); }, () => { TV.apertura = null; });
+}
+// AD10: orientamento della TV nella versione web (riquadro, Picture-in-Picture, finestra del browser); nell'app Windows lo tiene main.js
+function applicaRotWeb() { const cor = corpoWeb(); if (cor && cor.dataset.rot !== String(Riq.rot)) { cor.dataset.rot = String(Riq.rot); adattaTV(cor); } }
+function ruotaWeb() {
+  Riq.rot = (Riq.rot + 90) % 360;
+  const r = $('#tv-riquadro'), W = window.innerWidth, H = window.innerHeight;
+  // il riquadro gira come la finestra di Windows: la parte della TV scambia larghezza e altezza (la barra resta sopra) e il riquadro resta nel suo angolo
+  const bh = r ? r.querySelector('.tv-riq-barra').offsetHeight : 24, p = r && !r.hidden ? { x: r.offsetLeft, y: r.offsetTop, w: r.offsetWidth, h: r.offsetHeight } : (Riq.pos || RIQ_DEF());
+  const w = Math.min(p.h - bh, W), h = Math.min(p.w + bh, H), destra = p.x + p.w / 2 > W / 2, basso = p.y + p.h / 2 > H / 2;
+  Riq.pos = { x: Math.max(0, destra ? p.x + p.w - w : p.x), y: Math.max(0, basso ? p.y + p.h - h : p.y), w, h };
+  salvaRiq(); if (r) posizionaRiq(r); applicaRotWeb();
 }
 function nascondiWeb() {
   if (TV.modo === 'riquadro') { const r = $('#tv-riquadro'); if (r) r.hidden = true; }
@@ -2914,7 +2930,7 @@ function preparaDocTV(w) {
   const d = w.document; d.title = 'Schermo del Narratore — TV';
   for (const l of document.querySelectorAll('link[rel="stylesheet"]')) d.head.appendChild(l.cloneNode());
   const s = d.createElement('style'); s.textContent = CSS_TV + 'html,body{margin:0;height:100%;background:#15120E}#tv-corpo{height:100%}'; d.head.appendChild(s);
-  d.body.innerHTML = '<div id="tv-corpo"></div>';
+  d.body.innerHTML = '<div id="tv-corpo" data-rot="0"></div>';
   d.addEventListener('keydown', tastoTV);
   w.addEventListener('resize', () => adattaTV(d.getElementById('tv-corpo')));
 }
@@ -2935,17 +2951,17 @@ async function apriWeb() {
 function apriRiquadro() {
   let r = $('#tv-riquadro');
   if (!r) {
-    document.body.insertAdjacentHTML('beforeend', '<div id="tv-riquadro" class="tv-riq" role="region" aria-label="Finestra TV" hidden><div class="tv-riq-barra"><b>TV</b><span class="tenue piccolo">trascina da qui</span></div><div class="tv-riq-corpo"></div></div>');
+    document.body.insertAdjacentHTML('beforeend', '<div id="tv-riquadro" class="tv-riq" role="region" aria-label="Finestra TV" hidden><div class="tv-riq-barra"><b>TV</b><span class="tenue piccolo">trascina da qui</span></div><div class="tv-riq-corpo" data-rot="0"></div></div>');
     r = $('#tv-riquadro'); attivaRiquadro(r);
   }
   posizionaRiq(r); r.hidden = false; TV.modo = 'riquadro'; TV.ultimo = '';
 }
 function posizionaRiq(r) {
   const p = Riq.pos || RIQ_DEF(), W = window.innerWidth, H = window.innerHeight;
-  const w = Math.min(Math.max(200, p.w), W), h = Math.min(Math.max(120, p.h), H);
+  const g = Riq.rot % 180 !== 0, w = Math.min(Math.max(g ? 120 : 200, p.w), W), h = Math.min(Math.max(g ? 200 : 120, p.h), H);
   r.style.width = w + 'px'; r.style.height = h + 'px';
   r.style.left = Math.min(Math.max(0, p.x), W - Math.min(w, W)) + 'px'; r.style.top = Math.min(Math.max(0, p.y), H - 40) + 'px';
-  r.classList.toggle('bloccata', Riq.bloccata);
+  r.classList.toggle('bloccata', Riq.bloccata); r.classList.toggle('girata', g);
 }
 function attivaRiquadro(r) {
   const barra = r.querySelector('.tv-riq-barra'); let tr = null;
@@ -2972,14 +2988,15 @@ setInterval(() => { if (TV.win && TV.win.closed && TV.modo === 'popup') { TV.win
 window.addEventListener('resize', () => { const r = $('#tv-riquadro'); if (r && !r.hidden) posizionaRiq(r); });
 // menu TV della testata (AD3, AD5)
 async function finestraTV() {
-  const info = TVDESK ? await TVDESK.info() : { schermi: 1, bloccata: Riq.bloccata };
+  const info = TVDESK ? await TVDESK.info() : { schermi: 1, bloccata: Riq.bloccata, rot: Riq.rot };
   const dove = TVDESK ? 'finestra sopra gli altri programmi' : TV.modo === 'pip' ? 'Picture-in-Picture' : TV.modo === 'popup' ? 'finestra del browser' : TV.modo === 'riquadro' ? 'riquadro nella pagina' : '';
   const f10 = S.camp && S.camp.impostazioni.f10;
   apri({ titolo: 'Finestra TV', corpo: `<p>${TV.visibile ? '<span class="chip ok">TV visibile</span>' : '<span class="chip">TV nascosta</span>'}${TV.visibile && dove ? ` <span class="tenue piccolo">${dove}</span>` : ''}</p>
       <p class="tenue piccolo">F9 mostra o nasconde la TV ${TVDESK ? 'da qualsiasi programma, Foundry compreso' : 'con il fuoco sulla pagina (i tasti globali ci sono solo nell\'app Windows)'}.${f10 ? ` F10: turno successivo durante il combattimento.` : ''}${S.camp && S.camp.impostazioni.tv_solo_combattimento ? ' La TV si apre da sola all\'avvio del combattimento e si chiude alla fine.' : ''}</p>
       <div class="fila"><button class="btn prim" type="button" data-tv="mostra">${TV.visibile ? 'Nascondi' : 'Mostra'} (F9)</button>
         <button class="btn" type="button" data-tv="sposta" ${TVDESK && info.schermi > 1 ? '' : 'disabled'}>Sposta sulla TV</button>
-        <button class="btn" type="button" data-tv="ripristina">Ripristina</button></div>
+        <button class="btn" type="button" data-tv="ripristina">Ripristina</button>
+        <button class="btn" type="button" data-tv="ruota" title="Gira la TV di 90° in senso orario">Ruota ↻</button> <span class="chip" data-tv-rot>${info.rot || 0}°</span></div>
       ${!TVDESK ? '<p class="tenue piccolo">«Sposta sulla TV» c\'è solo nell\'app Windows.</p>' : info.schermi < 2 ? '<p class="tenue piccolo">Un solo schermo collegato.</p>' : ''}
       <label class="spunta"><input type="checkbox" name="blocca" ${info.bloccata ? 'checked' : ''}> Blocca posizione</label>
       <label class="spunta"><input type="checkbox" name="meteo" ${TV.meteo ? 'checked' : ''}> Meteo sulla TV <span class="tenue piccolo">(tempo di adesso e i suoi effetti; anche dal pannello Meteo)</span></label>
@@ -2988,9 +3005,10 @@ async function finestraTV() {
       el.addEventListener('click', async ev => { const b = ev.target.closest('[data-tv]'); if (!b) return;
         const k = b.dataset.tv, id = el.dataset.fin;
         try {
+          if (k === 'ruota') { let g; if (TVDESK) { const r = await TVDESK.comando('ruota'); if (r && r.errore) throw new Error(r.errore); g = r.rot; } else { ruotaWeb(); g = Riq.rot; } el.querySelector('[data-tv-rot]').textContent = g + '°'; return; } // il menu resta aperto: si gira più volte di seguito
           if (k === 'mostra') mostraNascondiTV();
           else if (k === 'sposta') { const r = await TVDESK.comando('sposta'); if (r && r.errore) throw new Error(r.errore); avviso('TV spostata sullo schermo ' + r.schermo); }
-          else if (k === 'ripristina') { if (TVDESK) await TVDESK.comando('ripristina'); else { Riq.pos = null; Riq.bloccata = false; salvaRiq(); const r = $('#tv-riquadro'); if (r) posizionaRiq(r); } avviso('Posizione e dimensione predefinite'); }
+          else if (k === 'ripristina') { if (TVDESK) await TVDESK.comando('ripristina'); else { Riq.pos = null; Riq.bloccata = false; Riq.rot = 0; salvaRiq(); const r = $('#tv-riquadro'); if (r) posizionaRiq(r); applicaRotWeb(); } avviso('Posizione, dimensione e orientamento predefiniti'); }
           chiudi(id);
         } catch (e) { avviso(e.message, true); } });
       el.addEventListener('change', async ev => {
